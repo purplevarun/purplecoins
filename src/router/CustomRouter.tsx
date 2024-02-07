@@ -1,6 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Home from "../screen/Home.tsx";
-import Username from "../auth/Username.tsx";
+import Login from "../login/Login.tsx";
 import { useState } from "react";
 import Context from "../context/Context.ts";
 
@@ -17,7 +17,7 @@ const CustomRouter = () => {
 						{isLoggedIn ? (
 							<Routes>
 								<Route path={"/"} element={<Home />} />
-								<Route path={"/login"} element={<Username />} />
+								<Route path={"/login"} element={<Login />} />
 								<Route
 									path={"*"}
 									element={<Navigate to={"/login"} replace />}
@@ -25,7 +25,7 @@ const CustomRouter = () => {
 							</Routes>
 						) : (
 							<Routes>
-								<Route path={"/login"} element={<Username />} />
+								<Route path={"/login"} element={<Login />} />
 								<Route
 									path={"*"}
 									element={<Navigate to={"/login"} replace />}
