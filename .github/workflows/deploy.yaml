@@ -4,6 +4,9 @@ on:
         branches: [main]
 jobs:
     build:
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
         name: Build Project
         runs-on: ubuntu-latest
         steps:
@@ -18,7 +21,7 @@ jobs:
             - name: build project
               run: npm run build
               env:
-                VITE_API_URL: ${{ secrets.VITE_API_URL }}
+                  VITE_API_URL: ${{ secrets.VITE_API_URL }}
             - name: upload artifacts
               uses: actions/upload-artifact@v3
               with:
