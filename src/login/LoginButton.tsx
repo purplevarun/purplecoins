@@ -8,8 +8,10 @@ const LoginButton = () => {
 	const { usernameValue, setFetchUserApiCalled } = useContext(LoginContext);
 	const navigate = useNavigate();
 	const handleClick = async () => {
+		const fetchUserUrl = `${API_URL}/user?userName=${usernameValue}`;
+		console.log("fetchUserUrl - ", fetchUserUrl);
 		axios
-			.get(`${API_URL}/user?userName=${usernameValue}`)
+			.get(fetchUserUrl)
 			.then((response) => {
 				if (
 					response.status === 200 &&
