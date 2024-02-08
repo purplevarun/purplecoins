@@ -1,3 +1,6 @@
+.gauge
+logs
+reports
 node_modules
 dist
 .idea
