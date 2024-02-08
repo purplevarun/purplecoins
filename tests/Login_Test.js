@@ -13,17 +13,21 @@ const assert = require("assert");
 const dotenv = require("dotenv");
 dotenv.config();
 const websiteUrl = process.env.WEBSITE_URL;
-step("Open the browser", async () => {
+step("open browser", async () => {
 	await openBrowser({ headless: false });
 	await goto(websiteUrl);
 });
 
-step("Enter text in the text box", async () => {
+step("close browser", async () => {
+	await closeBrowser();
+});
+
+step("enter wrong username", async () => {
 	await focus(textBox({ type: "text" }));
 	await write("abcd");
 });
 
-step("Proceed to submit", async () => {
+step("click submit btn", async () => {
 	await button("proceed").exists();
 	await click(button("proceed"), {
 		navigationTimeout: 60000,
@@ -31,10 +35,7 @@ step("Proceed to submit", async () => {
 	});
 });
 
-step("Verify user does not exist", async () => {
+step("verify user does not exist", async () => {
 	assert.ok(text("user does not exist").exists());
-});
-
-step("Close the browser", async () => {
-	await closeBrowser();
+	assert.ok(button("try again").exists());
 });
