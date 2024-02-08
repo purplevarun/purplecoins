@@ -8,7 +8,7 @@ const Layout = ({
 	extraStyles?: CSSProperties;
 }) => {
 	return (
-		<div id="layout" style={extraStyles}>
+		<div id="layout" style={{ ...extraStyles }}>
 			{children}
 		</div>
 	);
