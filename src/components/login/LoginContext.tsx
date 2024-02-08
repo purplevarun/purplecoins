@@ -1,17 +1,6 @@
-import { createContext, Dispatch, SetStateAction } from "react";
+import { createContext } from "react";
+import LoginData from "./LoginData.tsx";
 
-interface LoginContextProps {
-	usernameValue: string;
-	setUsernameValue: Dispatch<SetStateAction<string>>;
-	fetchUserApiCalled: boolean;
-	setFetchUserApiCalled: Dispatch<SetStateAction<boolean>>;
-}
-
-const loginContext = createContext<LoginContextProps>({
-	usernameValue: "",
-	setUsernameValue: () => {},
-	fetchUserApiCalled: false,
-	setFetchUserApiCalled: () => {},
-});
+const loginContext = createContext({} as ReturnType<typeof LoginData>);
 
 export default loginContext;

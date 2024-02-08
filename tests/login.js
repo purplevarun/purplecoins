@@ -7,13 +7,15 @@ const {
 	button,
 	click,
 	text,
-	closeBrowser,
+	closeBrowser
 } = require("taiko");
 const assert = require("assert");
-
+const dotenv = require("dotenv");
+dotenv.config();
+const websiteUrl = process.env.WEBSITE_URL;
 step("Open the browser", async () => {
-	await openBrowser({ headless: true });
-	await goto("https://purplevarun.github.io/purplecoins");
+	await openBrowser({ headless: false });
+	await goto(websiteUrl);
 });
 
 step("Enter text in the text box", async () => {
@@ -23,7 +25,10 @@ step("Enter text in the text box", async () => {
 
 step("Proceed to submit", async () => {
 	await button("proceed").exists();
-	await click(button("proceed"), { navigationTimeout: 60000, force: true });
+	await click(button("proceed"), {
+		navigationTimeout: 60000,
+		force: true
+	});
 });
 
 step("Verify user does not exist", async () => {

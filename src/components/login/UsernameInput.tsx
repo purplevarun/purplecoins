@@ -1,23 +1,19 @@
 import {
 	USERNAME_MAX_LENGTH,
 	USERNAME_MIN_LENGTH,
-} from "../../constants/Constants.ts";
+} from "../../data/Constants.ts";
 import { useContext } from "react";
 import LoginContext from "./LoginContext.tsx";
 
-type EventType = { target: { value: string } };
 const UsernameInput = () => {
 	const { usernameValue, setUsernameValue } = useContext(LoginContext);
 	const width = usernameValue.length >= 10 ? "300px" : "250px";
-	const handleChange = (event: EventType) =>
-		setUsernameValue(event.target.value);
-
 	return (
 		<input
 			type="text"
 			placeholder="username"
 			value={usernameValue}
-			onChange={handleChange}
+			onChange={(event) => setUsernameValue(event.target.value)}
 			minLength={USERNAME_MIN_LENGTH}
 			maxLength={USERNAME_MAX_LENGTH}
 			style={{

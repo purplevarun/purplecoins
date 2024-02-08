@@ -1,39 +1,52 @@
-import { API_URL, USERNAME_MIN_LENGTH } from "../../constants/Constants.ts";
+import { API_URL, USERNAME_MIN_LENGTH } from "../../data/Constants.ts";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import LoginContext from "./LoginContext.tsx";
+import UserLoginState from "../../data/UserLoginState.ts";
 
 const LoginButton = () => {
-	const { usernameValue, setFetchUserApiCalled } = useContext(LoginContext);
 	const navigate = useNavigate();
+	const {
+		//
+		usernameValue,
+		setUserLoginState,
+		btnText,
+		setBtnText,
+	} = useContext(LoginContext);
 	const handleClick = async () => {
-		const fetchUserUrl = `${API_URL}/user?userName=${usernameValue}`;
-		console.log("fetchUserUrl - ", fetchUserUrl);
 		axios
-			.get(fetchUserUrl)
+			.get(`${API_URL}/user?userName=${usernameValue}`)
 			.then((response) => {
 				if (
 					response.status === 200 &&
 					response.data.message === "User exists"
 				) {
-					setFetchUserApiCalled(false);
-					navigate("/");
+					setUserLoginState(UserLoginState.EXISTING_USER);
+					navigate("/"); //todo: fix this
 				}
 			})
 			.catch(() => {
-				setFetchUserApiCalled(true);
+				setUserLoginState(UserLoginState.NEW_USER);
+				setBtnText("try again");
 			});
 	};
-	return (
-		<>
-			{usernameValue.length >= USERNAME_MIN_LENGTH && (
-				<button style={{ fontSize: "30px" }} onClick={handleClick}>
-					proceed
-				</button>
-			)}
-		</>
-	);
+	if (usernameValue.length >= USERNAME_MIN_LENGTH) {
+		return (
+			<button
+				style={{
+					fontSize: "30px",
+					border: "none",
+					outline: "none",
+					borderRadius: "10px",
+					padding: "5px 20px",
+				}}
+				onClick={handleClick}
+			>
+				{btnText}
+			</button>
+		);
+	}
 };
 
 export default LoginButton;
