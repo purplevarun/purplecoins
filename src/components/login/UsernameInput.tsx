@@ -1,9 +1,9 @@
 import {
 	USERNAME_MAX_LENGTH,
 	USERNAME_MIN_LENGTH,
-} from "../constants/Constants.ts";
+} from "../../constants/Constants.ts";
 import { useContext } from "react";
-import LoginContext from "./LoginContext.ts";
+import LoginContext from "./LoginContext.tsx";
 
 type EventType = { target: { value: string } };
 const UsernameInput = () => {

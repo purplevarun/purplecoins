@@ -2,7 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Home from "../screen/Home.tsx";
 import Login from "../login/Login.tsx";
 import { useState } from "react";
-import Context from "../context/Context.ts";
+import Context from "../../context/Context.ts";
 
 const CustomRouter = () => {
 	const [isLoggedIn, setIsLoggedIn] = useState(false);

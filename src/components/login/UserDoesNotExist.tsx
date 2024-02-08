@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import LoginContext from "./LoginContext.ts";
+import LoginContext from "./LoginContext.tsx";
 
 const UserDoesNotExist = () => {
 	const { fetchUserApiCalled } = useContext(LoginContext);

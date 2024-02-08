@@ -4,7 +4,7 @@ import Vertical from "../helper/Vertical.tsx";
 import UserDoesNotExist from "./UserDoesNotExist.tsx";
 import UsernameInput from "./UsernameInput.tsx";
 import LoginButton from "./LoginButton.tsx";
-import LoginContext from "./LoginContext.ts";
+import LoginContext from "./LoginContext.tsx";
 
 const Login = () => {
 	const [usernameValue, setUsernameValue] = useState("");
