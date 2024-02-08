@@ -7,20 +7,20 @@ import LoginContext from "./LoginContext.tsx";
 
 const UsernameInput = () => {
 	const { usernameValue, setUsernameValue } = useContext(LoginContext);
+	const isUsernameLong = usernameValue.length >= USERNAME_MAX_LENGTH / 2;
+	const width = isUsernameLong ? "300px" : "250px";
 	return (
 		<input
 			type="text"
 			placeholder="username"
+			id="username_input"
 			value={usernameValue}
 			onChange={(event) => setUsernameValue(event.target.value)}
 			minLength={USERNAME_MIN_LENGTH}
 			maxLength={USERNAME_MAX_LENGTH}
 			style={{
 				display: "flex",
-				width:
-					usernameValue.length >= USERNAME_MAX_LENGTH / 2
-						? "300px"
-						: "250px",
+				width,
 			}}
 		/>
 	);

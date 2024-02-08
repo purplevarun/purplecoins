@@ -5,6 +5,7 @@ import { useContext } from "react";
 import LoginContext from "./LoginContext.tsx";
 import UserLoginState from "../../data/UserLoginState.ts";
 import ButtonText from "../../data/ButtonText.ts";
+import Vertical from "../helper/Vertical.tsx";
 
 const LoginButton = () => {
 	const navigate = useNavigate();
@@ -14,6 +15,7 @@ const LoginButton = () => {
 		setUserLoginState,
 		loginButtonText,
 		setLoginButtonText,
+		userLoginState,
 	} = useContext(LoginContext);
 	const handleClick = async () => {
 		axios
@@ -32,8 +34,15 @@ const LoginButton = () => {
 				setLoginButtonText(ButtonText.TRY_AGAIN);
 			});
 	};
-	if (usernameValue.length >= USERNAME_MIN_LENGTH) {
-		return <button onClick={handleClick}>{loginButtonText}</button>;
+	if (userLoginState === UserLoginState.REGISTER_USER) {
+		return null;
+	} else if (usernameValue.length >= USERNAME_MIN_LENGTH) {
+		return (
+			<div>
+				<Vertical h={2} />
+				<button onClick={handleClick}>{loginButtonText}</button>
+			</div>
+		);
 	}
 };
 

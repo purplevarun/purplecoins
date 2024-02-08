@@ -14,9 +14,7 @@ const Login = () => {
 				<Vertical h={28} />
 				<UserDoesNotExist />
 				<UsernameInput />
-				<Vertical h={2} />
 				<LoginButton />
-				<Vertical h={2} />
 				<RegisterButton />
 			</Layout>
 		</LoginContext.Provider>
