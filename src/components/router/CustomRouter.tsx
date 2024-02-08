@@ -3,6 +3,7 @@ import Home from "../screen/Home.tsx";
 import Login from "../login/Login.tsx";
 import { useState } from "react";
 import Context from "../../context/Context.ts";
+import { FaUser, FaUserSlash } from "react-icons/fa6";
 
 const CustomRouter = () => {
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -11,7 +12,18 @@ const CustomRouter = () => {
 			<BrowserRouter basename={"/purplecoins"}>
 				<div>
 					<div id="header">
-						<h1>purplecoins</h1>
+						<h1 style={{ paddingLeft: "20px" }}>purplecoins</h1>
+						{isLoggedIn ? (
+							<FaUser
+								style={{ paddingRight: "20px" }}
+								size={40}
+							/>
+						) : (
+							<FaUserSlash
+								style={{ paddingRight: "20px" }}
+								size={40}
+							/>
+						)}
 					</div>
 					<div>
 						{isLoggedIn ? (

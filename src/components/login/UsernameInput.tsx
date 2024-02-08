@@ -21,7 +21,6 @@ const UsernameInput = () => {
 					usernameValue.length >= USERNAME_MAX_LENGTH / 2
 						? "300px"
 						: "250px",
-				fontSize: "30px",
 			}}
 		/>
 	);

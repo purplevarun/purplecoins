@@ -16,6 +16,7 @@ const websiteUrl = process.env.WEBSITE_URL;
 step("open browser", async () => {
 	await openBrowser({ headless: false });
 	await goto(websiteUrl);
+	assert.ok(text("purplecoins").exists());
 });
 
 step("close browser", async () => {
@@ -38,4 +39,5 @@ step("click login btn", async () => {
 step("verify user does not exist", async () => {
 	assert.ok(text("user does not exist").exists());
 	assert.ok(button("try again").exists());
+	assert.ok(button("register").exists());
 });

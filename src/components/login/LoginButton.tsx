@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import LoginContext from "./LoginContext.tsx";
 import UserLoginState from "../../data/UserLoginState.ts";
-import LoginButtonText from "../../data/LoginButtonText.ts";
+import ButtonText from "../../data/ButtonText.ts";
 
 const LoginButton = () => {
 	const navigate = useNavigate();
@@ -29,20 +29,11 @@ const LoginButton = () => {
 			})
 			.catch(() => {
 				setUserLoginState(UserLoginState.NEW_USER);
-				setLoginButtonText(LoginButtonText.TRY_AGAIN);
+				setLoginButtonText(ButtonText.TRY_AGAIN);
 			});
 	};
 	if (usernameValue.length >= USERNAME_MIN_LENGTH) {
-		return (
-			<button
-				style={{
-					fontSize: "30px",
-				}}
-				onClick={handleClick}
-			>
-				{loginButtonText}
-			</button>
-		);
+		return <button onClick={handleClick}>{loginButtonText}</button>;
 	}
 };
 

@@ -4,6 +4,7 @@ import UserDoesNotExist from "./UserDoesNotExist.tsx";
 import UsernameInput from "./UsernameInput.tsx";
 import LoginButton from "./LoginButton.tsx";
 import LoginData from "./LoginData.tsx";
+import RegisterButton from "./RegisterButton.tsx";
 import LoginContext from "./LoginContext.tsx";
 
 const Login = () => {
@@ -15,6 +16,8 @@ const Login = () => {
 				<UsernameInput />
 				<Vertical h={2} />
 				<LoginButton />
+				<Vertical h={2} />
+				<RegisterButton />
 			</Layout>
 		</LoginContext.Provider>
 	);
