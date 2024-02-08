@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import LoginContext from "./LoginContext.tsx";
 import UserLoginState from "../../data/UserLoginState.ts";
+import LoginButtonText from "../../data/LoginButtonText.ts";
 
 const LoginButton = () => {
 	const navigate = useNavigate();
@@ -11,8 +12,8 @@ const LoginButton = () => {
 		//
 		usernameValue,
 		setUserLoginState,
-		btnText,
-		setBtnText,
+		loginButtonText,
+		setLoginButtonText,
 	} = useContext(LoginContext);
 	const handleClick = async () => {
 		axios
@@ -28,7 +29,7 @@ const LoginButton = () => {
 			})
 			.catch(() => {
 				setUserLoginState(UserLoginState.NEW_USER);
-				setBtnText("try again");
+				setLoginButtonText(LoginButtonText.TRY_AGAIN);
 			});
 	};
 	if (usernameValue.length >= USERNAME_MIN_LENGTH) {
@@ -36,14 +37,10 @@ const LoginButton = () => {
 			<button
 				style={{
 					fontSize: "30px",
-					border: "none",
-					outline: "none",
-					borderRadius: "10px",
-					padding: "5px 20px",
 				}}
 				onClick={handleClick}
 			>
-				{btnText}
+				{loginButtonText}
 			</button>
 		);
 	}

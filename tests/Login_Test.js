@@ -7,7 +7,7 @@ const {
 	button,
 	click,
 	text,
-	closeBrowser
+	closeBrowser,
 } = require("taiko");
 const assert = require("assert");
 const dotenv = require("dotenv");
@@ -27,11 +27,11 @@ step("enter wrong username", async () => {
 	await write("abcd");
 });
 
-step("click submit btn", async () => {
-	await button("proceed").exists();
-	await click(button("proceed"), {
+step("click login btn", async () => {
+	await button("login").exists();
+	await click(button("login"), {
 		navigationTimeout: 60000,
-		force: true
+		force: true,
 	});
 });
 

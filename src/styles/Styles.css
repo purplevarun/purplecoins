@@ -5,6 +5,15 @@
 	margin: 0;
 	user-select: none;
 	font-family: "JetBrains Mono", monospace;
+	border: none;
+	outline: none;
+}
+
+input,
+button {
+	border-radius: 10px;
+	transition: 1s;
+	padding: 5px 20px;
 }
 
 #header {

@@ -18,8 +18,8 @@ jobs:
                   node-version: 18
             - name: install npm packages
               run: npm install
-#            - name: test project
-#              run: npm run test
+            #            - name: test project
+            #              run: npm run test
             - name: build project
               run: npm run build
               env:

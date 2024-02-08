@@ -4,6 +4,6 @@
 
 * open browser
 * enter wrong username
-* click submit btn
+* click login btn
 * verify user does not exist
 * close browser
