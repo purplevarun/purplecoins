@@ -4,6 +4,7 @@ import ButtonText from "../../data/ButtonText.ts";
 
 const LoginData = () => {
 	const [usernameValue, setUsernameValue] = useState("");
+	const [passwordValue, setPasswordValue] = useState("");
 	const [userLoginState, setUserLoginState] = useState(
 		UserLoginState.API_NOT_CALLED,
 	);
@@ -11,6 +12,8 @@ const LoginData = () => {
 	return {
 		usernameValue,
 		setUsernameValue,
+		passwordValue,
+		setPasswordValue,
 		userLoginState,
 		setUserLoginState,
 		loginButtonText,

@@ -12,7 +12,9 @@ const CustomRouter = () => {
 			<BrowserRouter basename={"/purplecoins"}>
 				<div>
 					<div id="header">
-						<h1 style={{ paddingLeft: "20px" }}>purplecoins</h1>
+						<h1 style={{ paddingLeft: "20px", color: "purple" }}>
+							purplecoins
+						</h1>
 						{isLoggedIn ? (
 							<FaUser
 								style={{ paddingRight: "20px" }}

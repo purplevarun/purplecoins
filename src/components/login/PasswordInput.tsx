@@ -1,0 +1,31 @@
+import { DEFAULT_INPUT_WIDTH, PASSWORD_LENGTH } from "../../data/Constants.ts";
+import { useContext } from "react";
+import LoginContext from "./LoginContext.tsx";
+import UserLoginState from "../../data/UserLoginState.ts";
+import Vertical from "../helper/Vertical.tsx";
+
+const PasswordInput = () => {
+	const { userLoginState, setPasswordValue, passwordValue } =
+		useContext(LoginContext);
+	if (userLoginState === UserLoginState.REGISTER_USER) {
+		return (
+			<div>
+				<Vertical h={2} />
+				<input
+					type="text"
+					placeholder="password"
+					id="password_input"
+					value={passwordValue}
+					onChange={(event) => setPasswordValue(event.target.value)}
+					minLength={PASSWORD_LENGTH}
+					maxLength={PASSWORD_LENGTH}
+					style={{
+						display: "flex",
+						width: DEFAULT_INPUT_WIDTH,
+					}}
+				/>
+			</div>
+		);
+	}
+};
+export default PasswordInput;
