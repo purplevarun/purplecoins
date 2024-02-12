@@ -20,7 +20,7 @@ const LoginButton = () => {
 		if (userLoginState === UserLoginState.NONE) {
 			// check if user exists
 			axios
-				.get(`${API_URL}/user?userName=${usernameValue}`)
+				.get(`${API_URL}/user/fetch?userName=${usernameValue}`)
 				.then((response) => {
 					if (
 						response.status === 200 &&
@@ -59,7 +59,7 @@ const LoginButton = () => {
 		} else if (userLoginState === UserLoginState.REGISTER) {
 			// save user
 			axios
-				.post(`${API_URL}/user`, {
+				.post(`${API_URL}/user/save`, {
 					userName: usernameValue,
 					password: passwordValue,
 				})
