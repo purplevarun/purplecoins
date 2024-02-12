@@ -23,6 +23,7 @@ const PasswordInput = () => {
 					placeholder="password"
 					id="password_input"
 					value={passwordValue}
+					autoFocus
 					onChange={(event) => setPasswordValue(event.target.value)}
 					minLength={PASSWORD_LENGTH}
 					maxLength={PASSWORD_LENGTH}

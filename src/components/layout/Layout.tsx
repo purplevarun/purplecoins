@@ -8,9 +8,14 @@ const Layout = ({
 	extraStyles?: CSSProperties;
 }) => {
 	return (
-		<div id="layout" style={{ ...extraStyles }}>
+		<form
+			autoComplete="off"
+			id="layout"
+			style={{ ...extraStyles }}
+			onSubmit={(event) => event.preventDefault()}
+		>
 			{children}
-		</div>
+		</form>
 	);
 };
 export default Layout;

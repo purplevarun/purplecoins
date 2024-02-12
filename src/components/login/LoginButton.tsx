@@ -9,11 +9,13 @@ import Vertical from "../helper/Vertical.tsx";
 import UserLoginState from "../../data/UserLoginState.ts";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import AuthContext from "../main/AuthContext.tsx";
 
 const LoginButton = () => {
-	const navigate = useNavigate();
 	const { usernameValue, setUserLoginState, userLoginState, passwordValue } =
 		useContext(LoginContext);
+	const { setLoggedInUserName } = useContext(AuthContext);
+	const navigateFunction = useNavigate();
 	const handleClick = async () => {
 		if (userLoginState === UserLoginState.NONE) {
 			// check if user exists
@@ -37,14 +39,20 @@ const LoginButton = () => {
 					userName: usernameValue,
 					password: passwordValue,
 				})
-				.then((response) => {
-					if (
-						response.status === 200 &&
-						response.data.isPasswordCorrect
-					) {
-						setUserLoginState(UserLoginState.LOGGED_IN);
-					}
-				})
+				.then(
+					(response: {
+						status: number;
+						data: { isPasswordCorrect: boolean };
+					}) => {
+						if (
+							response.status === 200 &&
+							response.data.isPasswordCorrect
+						) {
+							setLoggedInUserName(usernameValue);
+							navigateFunction("/");
+						}
+					},
+				)
 				.catch(() => {
 					setUserLoginState(UserLoginState.LOGIN);
 				});
@@ -60,7 +68,7 @@ const LoginButton = () => {
 						response.status === 200 &&
 						response.data.message === "User Added Successfully"
 					) {
-						setUserLoginState(UserLoginState.LOGGED_IN);
+						setLoggedInUserName(usernameValue);
 					}
 				})
 				.catch(() => {

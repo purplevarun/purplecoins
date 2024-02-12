@@ -22,6 +22,7 @@ const UsernameInput = () => {
 			placeholder="username"
 			id="username_input"
 			value={usernameValue}
+			autoFocus
 			disabled={hasEnteredCorrectUsername}
 			onChange={(event) => setUsernameValue(event.target.value)}
 			minLength={USERNAME_MIN_LENGTH}

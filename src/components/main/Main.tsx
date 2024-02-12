@@ -1,5 +1,5 @@
 import ReactDOM from "react-dom/client";
-import CustomRouter from "../router/CustomRouter.tsx";
+import Application from "./Application.tsx";
 import "../../styles/Styles.scss";
 
-ReactDOM.createRoot(document.getElementById("root")!).render(<CustomRouter />);
+ReactDOM.createRoot(document.getElementById("root")!).render(<Application />);
