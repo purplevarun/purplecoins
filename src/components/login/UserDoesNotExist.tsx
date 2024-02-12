@@ -7,7 +7,7 @@ const UserDoesNotExist = () => {
 	const { userLoginState, usernameValue } = useContext(LoginContext);
 	if (
 		usernameValue.length >= USERNAME_MIN_LENGTH &&
-		userLoginState === UserLoginState.NEW_USER
+		userLoginState === UserLoginState.REGISTER
 	) {
 		return (
 			<h3 style={{ position: "absolute", top: "34vh" }}>

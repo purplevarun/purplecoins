@@ -4,10 +4,8 @@ import UserDoesNotExist from "./UserDoesNotExist.tsx";
 import UsernameInput from "./UsernameInput.tsx";
 import LoginButton from "./LoginButton.tsx";
 import LoginData from "./LoginData.tsx";
-import RegisterButton from "./RegisterButton.tsx";
 import LoginContext from "./LoginContext.tsx";
 import PasswordInput from "./PasswordInput.tsx";
-import AddNewUserButton from "./AddNewUserButton.tsx";
 
 const Login = () => {
 	return (
@@ -18,8 +16,6 @@ const Login = () => {
 				<UsernameInput />
 				<PasswordInput />
 				<LoginButton />
-				<RegisterButton />
-				<AddNewUserButton />
 			</Layout>
 		</LoginContext.Provider>
 	);

@@ -1,8 +1,7 @@
 enum UserLoginState {
-	EXISTING_USER,
-	NEW_USER,
-	REGISTER_USER,
-	API_NOT_CALLED,
+	NONE,
+	REGISTER,
+	LOGIN,
 	LOGGED_IN,
 }
 

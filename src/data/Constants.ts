@@ -3,6 +3,7 @@ const USERNAME_MAX_LENGTH = 15;
 const PASSWORD_LENGTH = 4;
 const DEFAULT_INPUT_WIDTH = "250px";
 const EXPANDED_INPUT_WIDTH = "300px";
+const DISPLAY_FLEX = "flex";
 const API_URL = import.meta.env.VITE_API_URL;
 
 export {
@@ -12,4 +13,5 @@ export {
 	API_URL,
 	DEFAULT_INPUT_WIDTH,
 	EXPANDED_INPUT_WIDTH,
+	DISPLAY_FLEX,
 };
