@@ -11,7 +11,7 @@ const {
 	button,
 	click,
 	text,
-	closeBrowser
+	closeBrowser,
 } = require("taiko");
 const assert = require("assert");
 const { post } = require("axios");
@@ -30,15 +30,14 @@ step("enter username abcd", async () => {
 step("delete user abcd", async () => {
 	await post(`${apiUrl}/user/delete`, {
 		userName: "abcd",
-		password: "1234"
-	}).catch(() => {
-	});
+		password: "1234",
+	}).catch(() => {});
 });
 step("click proceed btn", async () => {
 	await button("proceed").isVisible();
 	await click(button("proceed"), {
 		navigationTimeout: 60000,
-		force: true
+		force: true,
 	});
 });
 step("verify user does not exist", async () => {
