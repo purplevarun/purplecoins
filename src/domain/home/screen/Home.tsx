@@ -1,4 +1,4 @@
-import Layout from "../layout/Layout.tsx";
+import Layout from "../../../common_components/Layout.tsx";
 
 const Home = () => {
 	return (

@@ -1,6 +1,6 @@
 import { FaUser, FaUserSlash } from "react-icons/fa6";
 import { useContext } from "react";
-import AuthContext from "../../context/auth/AuthContext.tsx";
+import AuthContext from "../domain/main/context/AuthContext.tsx";
 
 const Header = () => {
 	const { loggedInUserName } = useContext(AuthContext);

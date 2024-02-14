@@ -1,15 +1,15 @@
 import { useContext } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
-import Home from "../screen/Home.tsx";
-import Login from "../login/Login.tsx";
-import AuthContext from "../../context/auth/AuthContext.tsx";
+import Home from "../home/screen/Home.tsx";
+import LoginScreen from "../login/screen/LoginScreen.tsx";
+import AuthContext from "../main/context/AuthContext.tsx";
 
 const RouteManager = () => {
 	const { loggedInUserName } = useContext(AuthContext);
 	if (loggedInUserName === null) {
 		return (
 			<Routes>
-				<Route path={"/login"} element={<Login />} />
+				<Route path={"/login"} element={<LoginScreen />} />
 				<Route
 					path={"*"}
 					element={<Navigate to={"/login"} replace />}

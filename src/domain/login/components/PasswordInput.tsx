@@ -2,11 +2,11 @@ import {
 	DEFAULT_INPUT_WIDTH,
 	DISPLAY_FLEX,
 	PASSWORD_LENGTH,
-} from "../../data/Constants.ts";
+} from "../../../data/Constants.ts";
 import { useContext } from "react";
-import LoginContext from "../../context/login/LoginContext.tsx";
-import UserLoginState from "../../data/UserLoginState.ts";
-import Vertical from "../helper/Vertical.tsx";
+import LoginContext from "../context/LoginContext.tsx";
+import UserLoginState from "../../../data/UserLoginState.ts";
+import Vertical from "../../../common_components/Vertical.tsx";
 
 const PasswordInput = () => {
 	const { userLoginState, setPasswordValue, passwordValue } =

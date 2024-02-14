@@ -2,14 +2,14 @@ import {
 	API_URL,
 	PASSWORD_LENGTH,
 	USERNAME_MIN_LENGTH,
-} from "../../data/Constants.ts";
+} from "../../../data/Constants.ts";
 import { useContext } from "react";
-import LoginContext from "../../context/login/LoginContext.tsx";
-import Vertical from "../helper/Vertical.tsx";
-import UserLoginState from "../../data/UserLoginState.ts";
+import LoginContext from "../context/LoginContext.tsx";
+import Vertical from "../../../common_components/Vertical.tsx";
+import UserLoginState from "../../../data/UserLoginState.ts";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import AuthContext from "../../context/auth/AuthContext.tsx";
+import AuthContext from "../../main/context/AuthContext.tsx";
 
 const LoginButton = () => {
 	const { usernameValue, setUserLoginState, userLoginState, passwordValue } =

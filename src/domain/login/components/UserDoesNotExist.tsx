@@ -1,7 +1,7 @@
 import { useContext } from "react";
-import LoginContext from "../../context/login/LoginContext.tsx";
-import UserLoginState from "../../data/UserLoginState.ts";
-import { USERNAME_MIN_LENGTH } from "../../data/Constants.ts";
+import LoginContext from "../context/LoginContext.tsx";
+import UserLoginState from "../../../data/UserLoginState.ts";
+import { USERNAME_MIN_LENGTH } from "../../../data/Constants.ts";
 
 const UserDoesNotExist = () => {
 	const { userLoginState, usernameValue } = useContext(LoginContext);
