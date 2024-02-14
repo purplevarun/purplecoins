@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import Home from "../screen/Home.tsx";
 import Login from "../login/Login.tsx";
-import AuthContext from "../main/AuthContext.tsx";
+import AuthContext from "../../context/auth/AuthContext.tsx";
 
 const RouteManager = () => {
 	const { loggedInUserName } = useContext(AuthContext);

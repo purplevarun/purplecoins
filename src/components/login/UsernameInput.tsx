@@ -6,7 +6,7 @@ import {
 	USERNAME_MIN_LENGTH,
 } from "../../data/Constants.ts";
 import { useContext } from "react";
-import LoginContext from "./LoginContext.tsx";
+import LoginContext from "../../context/login/LoginContext.tsx";
 import UserLoginState from "../../data/UserLoginState.ts";
 import { LIGHT_GREY_COLOR, WHITE_COLOR } from "../../data/Colors.ts";
 

@@ -1,6 +1,6 @@
 import { BrowserRouter } from "react-router-dom";
 import CustomRouter from "../router/CustomRouter.tsx";
-import AuthContextProvider from "./AuthContextProvider.tsx";
+import AuthContextProvider from "../../context/auth/AuthContextProvider.tsx";
 
 const Application = () => {
 	return (

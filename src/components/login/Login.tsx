@@ -4,7 +4,7 @@ import UserDoesNotExist from "./UserDoesNotExist.tsx";
 import UsernameInput from "./UsernameInput.tsx";
 import LoginButton from "./LoginButton.tsx";
 import PasswordInput from "./PasswordInput.tsx";
-import LoginContextProvider from "./LoginContextProvider.tsx";
+import LoginContextProvider from "../../context/login/LoginContextProvider.tsx";
 
 const Login = () => {
 	return (
