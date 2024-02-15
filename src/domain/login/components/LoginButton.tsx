@@ -1,80 +1,37 @@
+import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import LoginContext from "../context/LoginContext.tsx";
+import AuthContext from "../../main/context/AuthContext.tsx";
 import {
-	API_URL,
 	PASSWORD_LENGTH,
 	USERNAME_MIN_LENGTH,
 } from "../../../data/Constants.ts";
-import { useContext } from "react";
-import LoginContext from "../context/LoginContext.tsx";
-import Vertical from "../../../common_components/Vertical.tsx";
 import UserLoginState from "../../../data/UserLoginState.ts";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import AuthContext from "../../main/context/AuthContext.tsx";
+import Vertical from "../../../common_components/Vertical.tsx";
+import handleFetchUser from "../business/HandleFetchUser.ts";
+import handleValidateUser from "../business/HandleValidateUser.ts";
+import HandleRegisterUser from "../business/HandleRegisterUser.ts";
 
 const LoginButton = () => {
+	const navigate = useNavigate();
 	const { usernameValue, setUserLoginState, userLoginState, passwordValue } =
 		useContext(LoginContext);
 	const { setLoggedInUserName } = useContext(AuthContext);
-	const navigateFunction = useNavigate();
 	const handleClick = async () => {
-		if (userLoginState === UserLoginState.NONE) {
-			// check if user exists
-			axios
-				.get(`${API_URL}/user/fetch?userName=${usernameValue}`)
-				.then((response) => {
-					if (
-						response.status === 200 &&
-						response.data.message === "User exists"
-					) {
-						setUserLoginState(UserLoginState.LOGIN);
-					}
-				})
-				.catch(() => {
-					setUserLoginState(UserLoginState.REGISTER);
-				});
-		} else if (userLoginState === UserLoginState.LOGIN) {
-			// check if password is correct
-			axios
-				.post(`${API_URL}/user/validate`, {
-					userName: usernameValue,
-					password: passwordValue,
-				})
-				.then(
-					(response: {
-						status: number;
-						data: { isPasswordCorrect: boolean };
-					}) => {
-						if (
-							response.status === 200 &&
-							response.data.isPasswordCorrect
-						) {
-							setLoggedInUserName(usernameValue);
-							navigateFunction("/");
-						}
-					},
-				)
-				.catch(() => {
-					setUserLoginState(UserLoginState.LOGIN);
-				});
-		} else if (userLoginState === UserLoginState.REGISTER) {
-			// save user
-			axios
-				.post(`${API_URL}/user/save`, {
-					userName: usernameValue,
-					password: passwordValue,
-				})
-				.then((response) => {
-					if (
-						response.status === 200 &&
-						response.data.message === "User Added Successfully"
-					) {
-						setLoggedInUserName(usernameValue);
-					}
-				})
-				.catch(() => {
-					setUserLoginState(UserLoginState.REGISTER);
-				});
-		}
+		const loginButtonProps = {
+			usernameValue,
+			userLoginState,
+			setUserLoginState,
+			setLoggedInUserName,
+			navigate,
+			userRequestBody: {
+				userName: usernameValue,
+				password: passwordValue,
+			},
+		};
+		await handleFetchUser(loginButtonProps);
+		await handleValidateUser(loginButtonProps);
+		await HandleRegisterUser(loginButtonProps);
 	};
 	const Component = (
 		<div>
@@ -102,5 +59,4 @@ const LoginButton = () => {
 		return Component;
 	}
 };
-
 export default LoginButton;
