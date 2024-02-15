@@ -1,7 +1,8 @@
 import { API_URL } from "../../../data/Constants.ts";
-import UserLoginState from "../../../data/UserLoginState.ts";
+import UserLoginState from "./UserLoginState.ts";
 import axios from "axios";
 import LoginButtonHandlerProps from "./LoginButtonHandlerProps.ts";
+import LoginMessage from "./LoginMessage.ts";
 
 const HandleRegisterUser = async ({
 	usernameValue,
@@ -9,6 +10,7 @@ const HandleRegisterUser = async ({
 	setUserLoginState,
 	setLoggedInUserName,
 	userRequestBody,
+	setLoginScreenText,
 }: LoginButtonHandlerProps) => {
 	const saveUserUrl = `${API_URL}/user/save`;
 	if (userLoginState === UserLoginState.REGISTER) {
@@ -19,13 +21,17 @@ const HandleRegisterUser = async ({
 					response.status === 200 &&
 					response.data.message === "User Added Successfully"
 				) {
+					// happy-flow register-success
+					setLoginScreenText(LoginMessage.NO_MESSAGE);
 					setLoggedInUserName(usernameValue);
 				}
 			})
 			.catch(() => {
-				// unable to add new user
+				setLoginScreenText(LoginMessage.UNKNOWN_ERROR);
 				setUserLoginState(UserLoginState.REGISTER);
 			});
+		return false;
 	}
+	return true;
 };
 export default HandleRegisterUser;

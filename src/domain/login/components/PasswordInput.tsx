@@ -5,7 +5,7 @@ import {
 } from "../../../data/Constants.ts";
 import { useContext } from "react";
 import LoginContext from "../context/LoginContext.tsx";
-import UserLoginState from "../../../data/UserLoginState.ts";
+import UserLoginState from "../business/UserLoginState.ts";
 import Vertical from "../../../common_components/Vertical.tsx";
 
 const PasswordInput = () => {

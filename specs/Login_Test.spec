@@ -1,4 +1,4 @@
-# login.spec
+# Login_Tests.spec
 
 ## New User Scenario
 
@@ -7,7 +7,7 @@
 * enter username abcd
 * click proceed btn
 * verify user does not exist
-* show password input box
+* correct password check
 * click proceed btn
 * close browser
 
@@ -16,7 +16,8 @@
 * open browser
 * enter username abcd
 * click proceed btn
-* show password input box
+* incorrect password check
+* correct password check
 * click proceed btn
 * close browser
 * delete user abcd

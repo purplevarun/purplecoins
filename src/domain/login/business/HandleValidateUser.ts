@@ -1,7 +1,8 @@
 import { API_URL } from "../../../data/Constants.ts";
-import UserLoginState from "../../../data/UserLoginState.ts";
+import UserLoginState from "./UserLoginState.ts";
 import axios from "axios";
 import LoginButtonHandlerProps from "./LoginButtonHandlerProps.ts";
+import LoginMessage from "./LoginMessage.ts";
 
 const HandleValidateUser = async ({
 	usernameValue,
@@ -10,6 +11,7 @@ const HandleValidateUser = async ({
 	userRequestBody,
 	navigate,
 	setLoggedInUserName,
+	setLoginScreenText,
 }: LoginButtonHandlerProps) => {
 	const validateUserUrl = `${API_URL}/user/validate`;
 	if (userLoginState === UserLoginState.LOGIN) {
@@ -20,19 +22,24 @@ const HandleValidateUser = async ({
 					status: number;
 					data: { isPasswordCorrect: boolean };
 				}) => {
-					if (
-						response.status === 200 &&
-						response.data.isPasswordCorrect
-					) {
-						setLoggedInUserName(usernameValue);
-						navigate("/");
+					if (response.status === 200) {
+						if (response.data.isPasswordCorrect) {
+							// happy-flow login-success
+							setLoginScreenText(LoginMessage.NO_MESSAGE);
+							setLoggedInUserName(usernameValue);
+							navigate("/");
+						} else {
+							setLoginScreenText(LoginMessage.INCORRECT_PASSWORD);
+						}
 					}
 				},
 			)
 			.catch(() => {
-				// password entered was incorrect
+				setLoginScreenText(LoginMessage.UNKNOWN_ERROR);
 				setUserLoginState(UserLoginState.LOGIN);
 			});
+		return false;
 	}
+	return true;
 };
 export default HandleValidateUser;

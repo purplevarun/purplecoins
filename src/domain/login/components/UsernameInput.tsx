@@ -7,7 +7,7 @@ import {
 } from "../../../data/Constants.ts";
 import { useContext } from "react";
 import LoginContext from "../context/LoginContext.tsx";
-import UserLoginState from "../../../data/UserLoginState.ts";
+import UserLoginState from "../business/UserLoginState.ts";
 import { LIGHT_GREY_COLOR, WHITE_COLOR } from "../../../data/Colors.ts";
 
 const UsernameInput = () => {

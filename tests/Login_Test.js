@@ -12,6 +12,9 @@ const {
 	click,
 	text,
 	closeBrowser,
+	focus,
+	waitFor,
+	clear,
 } = require("taiko");
 const assert = require("assert");
 const { post } = require("axios");
@@ -33,17 +36,30 @@ step("delete user abcd", async () => {
 		password: "1234",
 	}).catch(() => {});
 });
-step("click proceed btn", async () => {
+const clickProceedBtn = async () => {
 	await button("proceed").isVisible();
 	await click(button("proceed"), {
 		navigationTimeout: 60000,
 		force: true,
 	});
+};
+step("click proceed btn", async () => {
+	await clickProceedBtn();
 });
 step("verify user does not exist", async () => {
 	assert.ok(text("user does not exist").isVisible());
+	assert.ok(text("creating new user").isVisible());
 });
-step("show password input box", async () => {
+step("incorrect password check", async () => {
+	await textBox({ id: "password_input" }).isVisible();
+	await write("1111");
+	await clickProceedBtn();
+	assert.ok(text("incorrect password").isVisible());
+	await textBox({ id: "password_input" }).isVisible();
+	await focus(textBox({ id: "password_input" }));
+	await clear(textBox({ id: "password_input" }));
+});
+step("correct password check", async () => {
 	await textBox({ id: "password_input" }).isVisible();
 	await write("1234");
 });

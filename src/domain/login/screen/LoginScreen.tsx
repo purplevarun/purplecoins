@@ -1,21 +1,21 @@
-import Layout from "../../../common_components/Layout.tsx";
 import Vertical from "../../../common_components/Vertical.tsx";
-import UserDoesNotExist from "../components/UserDoesNotExist.tsx";
+import LoginScreenMessage from "../components/LoginScreenMessage.tsx";
 import UsernameInput from "../components/UsernameInput.tsx";
 import PasswordInput from "../components/PasswordInput.tsx";
 import LoginContextProvider from "../context/LoginContextProvider.tsx";
 import LoginButton from "../components/LoginButton.tsx";
+import LoginScreenLayout from "./LoginScreenLayout.tsx";
 
 const LoginScreen = () => {
 	return (
 		<LoginContextProvider>
-			<Layout extraStyles={{ alignItems: "center" }}>
-				<Vertical h={28} />
-				<UserDoesNotExist />
+			<LoginScreenLayout>
+				<Vertical h={25} />
+				<LoginScreenMessage />
 				<UsernameInput />
 				<PasswordInput />
 				<LoginButton />
-			</Layout>
+			</LoginScreenLayout>
 		</LoginContextProvider>
 	);
 };

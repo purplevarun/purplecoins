@@ -6,7 +6,7 @@ import {
 	PASSWORD_LENGTH,
 	USERNAME_MIN_LENGTH,
 } from "../../../data/Constants.ts";
-import UserLoginState from "../../../data/UserLoginState.ts";
+import UserLoginState from "../business/UserLoginState.ts";
 import Vertical from "../../../common_components/Vertical.tsx";
 import handleFetchUser from "../business/HandleFetchUser.ts";
 import handleValidateUser from "../business/HandleValidateUser.ts";
@@ -14,8 +14,13 @@ import HandleRegisterUser from "../business/HandleRegisterUser.ts";
 
 const LoginButton = () => {
 	const navigate = useNavigate();
-	const { usernameValue, setUserLoginState, userLoginState, passwordValue } =
-		useContext(LoginContext);
+	const {
+		usernameValue,
+		setUserLoginState,
+		userLoginState,
+		passwordValue,
+		setLoginScreenText,
+	} = useContext(LoginContext);
 	const { setLoggedInUserName } = useContext(AuthContext);
 	const handleClick = async () => {
 		const loginButtonProps = {
@@ -28,10 +33,13 @@ const LoginButton = () => {
 				userName: usernameValue,
 				password: passwordValue,
 			},
+			setLoginScreenText,
 		};
-		await handleFetchUser(loginButtonProps);
-		await handleValidateUser(loginButtonProps);
-		await HandleRegisterUser(loginButtonProps);
+		if (await handleFetchUser(loginButtonProps)) {
+			if (await handleValidateUser(loginButtonProps)) {
+				await HandleRegisterUser(loginButtonProps);
+			}
+		}
 	};
 
 	const isNoneState = userLoginState === UserLoginState.NONE;

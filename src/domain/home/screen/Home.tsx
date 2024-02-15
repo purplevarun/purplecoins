@@ -1,12 +1,10 @@
-import Layout from "../../../common_components/Layout.tsx";
-
 const Home = () => {
 	return (
-		<Layout>
+		<div id="layout">
 			<button>Transactions</button>
 			<button>Investments</button>
 			<button>Trips</button>
-		</Layout>
+		</div>
 	);
 };
 export default Home;

@@ -1,5 +1,6 @@
-import UserLoginState from "../../../data/UserLoginState.ts";
+import UserLoginState from "./UserLoginState.ts";
 import { NavigateFunction } from "react-router-dom";
+import LoginMessage from "./LoginMessage.ts";
 
 type LoginButtonHandlerProps = {
 	usernameValue: string;
@@ -8,5 +9,6 @@ type LoginButtonHandlerProps = {
 	userRequestBody: { userName: string; password: string };
 	navigate: NavigateFunction;
 	setLoggedInUserName: (value: string) => void;
+	setLoginScreenText: (value: LoginMessage) => void;
 };
 export default LoginButtonHandlerProps;
