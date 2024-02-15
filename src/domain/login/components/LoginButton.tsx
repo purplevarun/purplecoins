@@ -33,30 +33,24 @@ const LoginButton = () => {
 		await handleValidateUser(loginButtonProps);
 		await HandleRegisterUser(loginButtonProps);
 	};
-	const Component = (
-		<div>
-			<Vertical h={2} />
-			<button onClick={handleClick}>proceed</button>
-		</div>
-	);
 
+	const isNoneState = userLoginState === UserLoginState.NONE;
+	const isLoginState = userLoginState === UserLoginState.LOGIN;
+	const isRegisterState = userLoginState === UserLoginState.REGISTER;
+	const isUsernameValid = usernameValue.length >= USERNAME_MIN_LENGTH;
+	const isPasswordValid = passwordValue.length === PASSWORD_LENGTH;
 	if (
-		userLoginState === UserLoginState.NONE &&
-		usernameValue.length >= USERNAME_MIN_LENGTH
+		(isNoneState && isUsernameValid) ||
+		((isLoginState || isRegisterState) &&
+			isPasswordValid &&
+			isPasswordValid)
 	) {
-		return Component;
-	} else if (
-		userLoginState === UserLoginState.LOGIN &&
-		usernameValue.length >= USERNAME_MIN_LENGTH &&
-		passwordValue.length === PASSWORD_LENGTH
-	) {
-		return Component;
-	} else if (
-		userLoginState === UserLoginState.REGISTER &&
-		usernameValue.length >= USERNAME_MIN_LENGTH &&
-		passwordValue.length === PASSWORD_LENGTH
-	) {
-		return Component;
+		return (
+			<div>
+				<Vertical h={2} />
+				<button onClick={handleClick}>proceed</button>
+			</div>
+		);
 	}
 };
 export default LoginButton;
