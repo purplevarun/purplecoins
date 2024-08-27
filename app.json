@@ -2,27 +2,17 @@
 	"expo": {
 		"name": "tudu",
 		"slug": "tudu",
-		"version": "1.0.0",
+		"version": "1.0.1",
 		"orientation": "portrait",
-		"icon": "./assets/icon.png",
-		"userInterfaceStyle": "light",
+		"icon": "./assets/tudu_icon.png",
+		"userInterfaceStyle": "dark",
 		"splash": {
-			"image": "./assets/splash.png",
 			"resizeMode": "contain",
-			"backgroundColor": "#ffffff"
-		},
-		"ios": {
-			"supportsTablet": true
+			"backgroundColor": "#15151c"
 		},
 		"android": {
-			"adaptiveIcon": {
-				"foregroundImage": "./assets/adaptive-icon.png",
-				"backgroundColor": "#ffffff"
-			},
-			"package": "com.keyshoe.tudu"
-		},
-		"web": {
-			"favicon": "./assets/favicon.png"
+			"package": "com.keyshoe.tudu",
+			"versionCode": 2
 		},
 		"extra": {
 			"eas": {
