@@ -18,6 +18,17 @@
 			"eas": {
 				"projectId": "1ed717c8-4c99-4c4b-ad02-10e942286dda"
 			}
-		}
+		},
+		"plugins": [
+			[
+				"expo-font",
+				{
+					"fonts": [
+						"./assets/fonts/fredoka.ttf",
+						"./assets/fonts/fredoka_one.ttf.ttf"
+					]
+				}
+			]
+		]
 	}
 }

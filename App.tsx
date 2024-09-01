@@ -1,25 +1,25 @@
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { secondaryColor } from "./config/Colors";
+import Configuration from "./config/Configuration";
+import Router from "./router/Router";
+import Header from "./components/Header";
 
 const App = () => {
 	return (
-		<View style={styles.container}>
-			<StatusBar style="light" />
-			<Text style={styles.text}>Hello World</Text>
-		</View>
+		<SafeAreaView style={styles.container}>
+			<Configuration>
+				<Header />
+				<Router />
+			</Configuration>
+		</SafeAreaView>
 	);
 };
 
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: "#15151c",
-		alignItems: "center",
-		justifyContent: "center",
-	},
-	text: {
-		fontSize: 40,
-		color: "#9899a7",
+		backgroundColor: secondaryColor,
 	},
 });
 
