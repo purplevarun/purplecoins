@@ -1,6 +1,6 @@
 import { useFonts } from "expo-font";
 import { StatusBar } from "react-native";
-import { secondaryColor } from "./Colors";
+import { backgroundColor, secondaryColor } from "./Colors";
 import { NavigationContainer } from "@react-navigation/native";
 import { PaperProvider } from "react-native-paper";
 import * as NavigationBar from "expo-navigation-bar";
@@ -19,7 +19,7 @@ const Configuration = ({ children }: ILayout) => {
 	return (
 		<NavigationContainer>
 			<PaperProvider>
-				<StatusBar backgroundColor={secondaryColor} />
+				<StatusBar backgroundColor={backgroundColor} />
 				{children}
 			</PaperProvider>
 		</NavigationContainer>
