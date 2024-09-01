@@ -1,6 +1,6 @@
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { MaterialTopTabBarProps } from "@react-navigation/material-top-tabs";
-import { secondaryColor } from "../config/Colors";
+import { primaryColor, secondaryColor } from "../config/Colors";
 import MyText from "./MyText";
 
 const MyTabBar = ({ state, navigation }: MaterialTopTabBarProps) => {
@@ -14,8 +14,9 @@ const MyTabBar = ({ state, navigation }: MaterialTopTabBarProps) => {
 						onPress={() => navigation.navigate(route.name)}
 					>
 						<MyText
+							header
 							text={route.name}
-							color={isFocused ? "white" : "grey"}
+							color={isFocused ? primaryColor : "#2A3342"}
 						/>
 					</TouchableOpacity>
 				);
@@ -26,10 +27,11 @@ const MyTabBar = ({ state, navigation }: MaterialTopTabBarProps) => {
 const styles = StyleSheet.create({
 	container: {
 		flexDirection: "row",
-		justifyContent: "space-evenly",
+		justifyContent: "space-between",
 		backgroundColor: secondaryColor,
 		height: 40,
 		alignItems: "center",
+		paddingHorizontal: 20,
 	},
 });
 export default MyTabBar;

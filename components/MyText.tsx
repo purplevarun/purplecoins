@@ -17,13 +17,12 @@ const MyText = ({
 	color = primaryColor,
 }: IMyText) => {
 	const fontFamily = header ? "Fredoka_One" : useFont ? "Fredoka" : "Roboto";
-	const fontSize = header ? 40 : size;
 	return (
 		<Text
 			style={{
 				color,
 				fontFamily,
-				fontSize,
+				fontSize: size,
 			}}
 		>
 			{text}

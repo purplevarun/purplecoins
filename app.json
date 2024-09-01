@@ -2,7 +2,7 @@
 	"expo": {
 		"name": "supercoins",
 		"slug": "supercoins",
-		"version": "1.0.3",
+		"version": "1.0.1",
 		"orientation": "portrait",
 		"icon": "./assets/icon.png",
 		"userInterfaceStyle": "dark",
@@ -12,12 +12,7 @@
 		},
 		"android": {
 			"package": "com.keyshoe.supercoins",
-			"versionCode": 3
-		},
-		"extra": {
-			"eas": {
-				"projectId": "1ed717c8-4c99-4c4b-ad02-10e942286dda"
-			}
+			"versionCode": 1
 		},
 		"plugins": [
 			[
@@ -25,10 +20,15 @@
 				{
 					"fonts": [
 						"./assets/fonts/fredoka.ttf",
-						"./assets/fonts/fredoka_one.ttf.ttf"
+						"./assets/fonts/fredoka_one.ttf"
 					]
 				}
 			]
-		]
+		],
+		"extra": {
+			"eas": {
+				"projectId": "6af7224f-5148-446b-91f0-8747a3b0cfbd"
+			}
+		}
 	}
 }

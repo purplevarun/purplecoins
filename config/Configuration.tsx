@@ -1,11 +1,10 @@
 import { useFonts } from "expo-font";
 import { StatusBar } from "react-native";
-import { backgroundColor, secondaryColor } from "./Colors";
+import { headerColor, secondaryColor } from "./Colors";
 import { NavigationContainer } from "@react-navigation/native";
-import { PaperProvider } from "react-native-paper";
 import * as NavigationBar from "expo-navigation-bar";
-import FontNotLoadedScreen from "../router/screens/FontNotLoadedScreen";
-import LoadingScreen from "../router/screens/LoadingScreen";
+import FontNotLoadedScreen from "../router/screens/other/FontNotLoadedScreen";
+import LoadingScreen from "../router/screens/other/LoadingScreen";
 import ILayout from "../types/ILayout";
 
 const Configuration = ({ children }: ILayout) => {
@@ -18,10 +17,8 @@ const Configuration = ({ children }: ILayout) => {
 	if (!loaded) return <LoadingScreen />;
 	return (
 		<NavigationContainer>
-			<PaperProvider>
-				<StatusBar backgroundColor={backgroundColor} />
-				{children}
-			</PaperProvider>
+			<StatusBar backgroundColor={headerColor} />
+			{children}
 		</NavigationContainer>
 	);
 };

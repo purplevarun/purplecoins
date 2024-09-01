@@ -1,5 +1,5 @@
 import { ActivityIndicator, StatusBar, View } from "react-native";
-import { primaryColor, secondaryColor } from "../../config/Colors";
+import { primaryColor, secondaryColor } from "../../../config/Colors";
 
 const LoadingScreen = () => {
 	return (

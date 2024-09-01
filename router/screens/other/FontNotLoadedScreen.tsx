@@ -1,6 +1,6 @@
 import { StatusBar, View } from "react-native";
-import { backgroundColor, secondaryColor } from "../../config/Colors";
-import MyText from "../../components/MyText";
+import { backgroundColor, secondaryColor } from "../../../config/Colors";
+import MyText from "../../../components/MyText";
 const FontNotLoadedScreen = () => {
 	return (
 		<View
