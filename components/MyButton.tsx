@@ -1,6 +1,7 @@
 import { TouchableOpacity } from "react-native";
+import { backgroundColor } from "../config/Colors";
+import { padding } from "../config/Constants";
 import MyText from "./MyText";
-import { backgroundColor, secondaryColor } from "../config/Colors";
 
 const MyButton = ({
 	text,
@@ -15,9 +16,9 @@ const MyButton = ({
 		<TouchableOpacity
 			style={{
 				backgroundColor: backgroundColor,
-				padding: 10,
+				padding,
 				width,
-				borderRadius: 10,
+				borderRadius: padding,
 				alignItems: "center",
 				justifyContent: "center",
 			}}

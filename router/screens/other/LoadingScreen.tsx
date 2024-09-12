@@ -1,18 +1,19 @@
 import { ActivityIndicator, StatusBar, View } from "react-native";
 import { primaryColor, secondaryColor } from "../../../config/Colors";
+import { flex, LOADER_SIZE } from "../../../config/Constants";
 
 const LoadingScreen = () => {
 	return (
 		<View
 			style={{
-				flex: 1,
+				flex,
 				justifyContent: "center",
 				alignItems: "center",
 				backgroundColor: secondaryColor,
 			}}
 		>
 			<StatusBar backgroundColor={secondaryColor} />
-			<ActivityIndicator color={primaryColor} size={200} />
+			<ActivityIndicator color={primaryColor} size={LOADER_SIZE} />
 		</View>
 	);
 };

@@ -1,5 +1,6 @@
 import { StyleSheet, View } from "react-native";
 import { backgroundColor } from "../config/Colors";
+import { flex, FONT_SIZE, padding } from "../config/Constants";
 import ILayout from "../types/ILayout";
 
 const Layout = ({ children }: ILayout) => {
@@ -7,8 +8,9 @@ const Layout = ({ children }: ILayout) => {
 };
 const styles = StyleSheet.create({
 	container: {
-		flex: 1,
+		flex,
 		backgroundColor: backgroundColor,
+		paddingHorizontal: padding,
 	},
 });
 export default Layout;

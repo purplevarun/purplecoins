@@ -1,19 +1,26 @@
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { headerColor, primaryColor } from "../config/Colors";
-import { DrawerActions, useNavigation } from "@react-navigation/native";
+import {
+	FONT_SIZE,
+	HEADER_HEIGHT,
+	HEADER_ICON_SIZE,
+	padding,
+	SCREEN_HEIGHT,
+} from "../config/Constants";
 import MyText from "./MyText";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import app from "./../app.json";
 
 const Header = () => {
-	const { dispatch } = useNavigation();
 	return (
 		<View style={styles.container}>
-			<MyText text={app.expo.name} size={30} header />
-			<TouchableOpacity
-				onPress={() => dispatch(DrawerActions.toggleDrawer())}
-			>
-				<FontAwesome5 name="bars" size={40} color={primaryColor} />
+			<MyText text={app.expo.name} header />
+			<TouchableOpacity>
+				<FontAwesome5
+					name="user-alt"
+					size={HEADER_ICON_SIZE}
+					color={primaryColor}
+				/>
 			</TouchableOpacity>
 		</View>
 	);
@@ -21,12 +28,11 @@ const Header = () => {
 const styles = StyleSheet.create({
 	container: {
 		backgroundColor: headerColor,
-		height: 60,
+		height: HEADER_HEIGHT,
 		flexDirection: "row",
 		justifyContent: "space-between",
 		alignItems: "center",
-		paddingLeft: 10,
-		paddingRight: 15,
+		paddingHorizontal: padding,
 	},
 });
 export default Header;

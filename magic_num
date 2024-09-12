@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Directory to search (current directory by default)
+SEARCH_DIR="${1:-.}"
+
+# Find all js, jsx, ts, tsx files, excluding node_modules directory, and search for magic numbers
+find "$SEARCH_DIR" -type f \( -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" \) ! -path "*/node_modules/*" | while read -r file; do
+    echo "Checking $file"
+    
+    # Grep pattern to find numbers not attached to variables, constants, or assignment
+    grep -En "\b\d+(\.\d+)?\b" "$file" | grep -Ev "(const|let|var|=\s*\d+)"
+done

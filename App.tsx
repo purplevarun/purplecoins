@@ -5,6 +5,7 @@ import { secondaryColor } from "./config/Colors";
 import Configuration from "./config/Configuration";
 import AppRouter from "./router/Router";
 import Header from "./components/Header";
+import { flex } from "./config/Constants";
 
 const App = () => {
 	return (
@@ -19,7 +20,7 @@ const App = () => {
 
 const styles = StyleSheet.create({
 	container: {
-		flex: 1,
+		flex,
 		backgroundColor: secondaryColor,
 	},
 });

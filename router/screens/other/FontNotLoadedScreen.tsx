@@ -1,11 +1,12 @@
 import { StatusBar, View } from "react-native";
 import { backgroundColor, secondaryColor } from "../../../config/Colors";
 import MyText from "../../../components/MyText";
+import { flex } from "../../../config/Constants";
 const FontNotLoadedScreen = () => {
 	return (
 		<View
 			style={{
-				flex: 1,
+				flex,
 				backgroundColor: backgroundColor,
 				justifyContent: "center",
 				alignItems: "center",
