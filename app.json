@@ -29,6 +29,9 @@
 			"eas": {
 				"projectId": "6af7224f-5148-446b-91f0-8747a3b0cfbd"
 			}
+		},
+		"ios": {
+			"bundleIdentifier": "com.keyshoe.supercoins"
 		}
 	}
 }

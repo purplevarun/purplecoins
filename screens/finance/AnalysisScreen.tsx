@@ -1,5 +1,5 @@
-import MyText from "../../../components/MyText";
-import Layout from "../../../components/Layout";
+import MyText from "./../../components/MyText";
+import Layout from "./../../components/Layout";
 
 const AnalysisScreen = () => {
 	return (

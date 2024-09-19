@@ -1,7 +1,6 @@
-import { StatusBar, View } from "react-native";
-import { backgroundColor, secondaryColor } from "../../../config/Colors";
-import MyText from "../../../components/MyText";
-import { flex } from "../../../config/Constants";
+import { StatusBar, View, Text } from "react-native";
+import { backgroundColor, secondaryColor } from "../../config/Colors";
+import { flex } from "../../config/Constants";
 const FontNotLoadedScreen = () => {
 	return (
 		<View
@@ -13,7 +12,7 @@ const FontNotLoadedScreen = () => {
 			}}
 		>
 			<StatusBar backgroundColor={secondaryColor} />
-			<MyText text={"Font not loaded"} useFont={false} />
+			<Text>Font not loaded</Text>
 		</View>
 	);
 };

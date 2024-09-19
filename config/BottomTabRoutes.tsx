@@ -1,7 +1,7 @@
-import FinanceScreen from "../router/screens/main/FinanceScreen";
-import TodoScreen from "../router/screens/main/NoteScreen";
-import PasswordScreen from "../router/screens/main/PasswordScreen";
-import SettingScreen from "../router/screens/main/SettingScreen";
+import FinanceScreen from "../screens/main/FinanceScreen";
+import TodoScreen from "../screens/main/NoteScreen";
+import PasswordScreen from "../screens/main/PasswordScreen";
+import SettingScreen from "../screens/main/SettingScreen";
 
 const BottomTabRoutes = {
 	Finance: { page: FinanceScreen, icon: "indian-rupee-sign" },

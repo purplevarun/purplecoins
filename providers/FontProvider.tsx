@@ -1,17 +1,16 @@
 import { useFonts } from "expo-font";
 import { StatusBar } from "react-native";
-import { headerColor, secondaryColor } from "./Colors";
+import { headerColor, secondaryColor } from "../config/Colors";
 import { NavigationContainer } from "@react-navigation/native";
 import * as NavigationBar from "expo-navigation-bar";
-import FontNotLoadedScreen from "../router/screens/other/FontNotLoadedScreen";
-import LoadingScreen from "../router/screens/other/LoadingScreen";
-import ILayout from "../types/ILayout";
+import FontNotLoadedScreen from "../screens/other/FontNotLoadedScreen";
+import LoadingScreen from "../screens/other/LoadingScreen";
+import Provider from "../types/Provider";
 
-const Configuration = ({ children }: ILayout) => {
+const FontProvider: Provider = ({ children }) => {
 	NavigationBar.setBackgroundColorAsync(secondaryColor);
 	const [loaded, error] = useFonts({
-		Fredoka: require("./../assets/fonts/fredoka.ttf"),
-		Fredoka_One: require("./../assets/fonts/fredoka_one.ttf"),
+		Ubuntu: require("./../assets/fonts/Ubuntu-Regular.ttf"),
 	});
 	if (error) return <FontNotLoadedScreen />;
 	if (!loaded) return <LoadingScreen />;
@@ -22,4 +21,4 @@ const Configuration = ({ children }: ILayout) => {
 		</NavigationContainer>
 	);
 };
-export default Configuration;
+export default FontProvider;

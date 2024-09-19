@@ -1,9 +1,9 @@
 import { StyleSheet, View } from "react-native";
 import { backgroundColor } from "../config/Colors";
-import { flex, FONT_SIZE, padding } from "../config/Constants";
-import ILayout from "../types/ILayout";
+import { flex, padding } from "../config/Constants";
+import Provider from "../types/Provider";
 
-const Layout = ({ children }: ILayout) => {
+const Layout: Provider = ({ children }) => {
 	return <View style={styles.container}>{children}</View>;
 };
 const styles = StyleSheet.create({
