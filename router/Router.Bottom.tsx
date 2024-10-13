@@ -1,24 +1,33 @@
+/*
+	This component creates the Bottom Tab Router
+	It contains - Finance, Passwords, TodoScreen and Settings
+	This file also contains BottomTabBar component
+*/
+
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
-import { disabledColor, primaryColor, secondaryColor } from "../config/Colors";
+import {
+	disabledColor,
+	primaryColor,
+	secondaryColor,
+} from "../config/colors.config";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
-import { BOTTOM_TAB_HEIGHT, FONT_SIZE } from "./../config/Constants";
-import MyText from "../components/MyText";
+import { BOTTOM_TAB_HEIGHT, FONT_SIZE } from "../config/dimensions.config";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
-import FinanceScreen from "../screens/main/FinanceScreen";
-import TodoScreen from "../screens/main/NoteScreen";
-import PasswordScreen from "../screens/main/PasswordScreen";
-import SettingScreen from "../screens/main/SettingScreen";
-import "../config/Constants";
+import ComponentText from "../components/Component.Text";
+import ScreenFinance from "../screens/main/Screen.Finance";
+import TodoScreen from "../screens/main/Screen.Todo";
+import ScreenPassword from "../screens/main/Screen.Password";
+import ScreenSettings from "../screens/main/Screen.Settings";
 
 const Routes = {
-	Finance: { page: FinanceScreen, icon: "indian-rupee-sign" },
-	Passwords: { page: PasswordScreen, icon: "lock" },
+	Finance: { page: ScreenFinance, icon: "indian-rupee-sign" },
+	Passwords: { page: ScreenPassword, icon: "lock" },
 	Todo: { page: TodoScreen, icon: "list-check" },
-	Settings: { page: SettingScreen, icon: "gear" },
+	Settings: { page: ScreenSettings, icon: "gear" },
 };
 
-const BottomTabRouter = () => {
+const RouterBottom = () => {
 	const Tab = createBottomTabNavigator();
 	return (
 		<Tab.Navigator
@@ -52,7 +61,7 @@ const BottomTabBar = ({ state, navigation }: BottomTabBarProps) => {
 							size={FONT_SIZE}
 							color={color}
 						/>
-						<MyText text={route.name} color={color} />
+						<ComponentText text={route.name} color={color} />
 					</TouchableOpacity>
 				);
 			})}
@@ -62,13 +71,13 @@ const BottomTabBar = ({ state, navigation }: BottomTabBarProps) => {
 
 const styles = StyleSheet.create({
 	view: {
-		flexDirection: "row",
-		justifyContent: "space-evenly",
 		backgroundColor: secondaryColor,
 		height: BOTTOM_TAB_HEIGHT,
+		flexDirection: "row",
+		justifyContent: "space-evenly",
 		alignItems: "center",
 	},
 	btn: { alignItems: "center" },
 });
 
-export default BottomTabRouter;
+export default RouterBottom;

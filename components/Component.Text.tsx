@@ -1,6 +1,6 @@
 import { ColorValue, FlexAlignType, Text } from "react-native";
-import { primaryColor } from "../config/Colors";
-import { FONT_SIZE } from "../config/Constants";
+import { primaryColor } from "../config/colors.config";
+import { FONT_SIZE } from "../config/dimensions.config";
 
 interface IMyText {
 	text: string;
@@ -9,7 +9,7 @@ interface IMyText {
 	alignSelf?: FlexAlignType;
 }
 
-const MyText = ({
+const ComponentText = ({
 	text,
 	fontSize = FONT_SIZE,
 	color = primaryColor,
@@ -29,4 +29,4 @@ const MyText = ({
 		</Text>
 	);
 };
-export default MyText;
+export default ComponentText;

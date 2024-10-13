@@ -1,16 +1,16 @@
 import { StyleSheet, View } from "react-native";
-import { backgroundColor } from "../config/Colors";
-import { flex, padding } from "../config/Constants";
+import { backgroundColor } from "../config/colors.config";
+import { flex, padding } from "../config/style.config";
 import Provider from "../types/Provider";
 
-const Layout: Provider = ({ children }) => {
+const ComponentLayout: Provider = ({ children }) => {
 	return <View style={styles.container}>{children}</View>;
 };
 const styles = StyleSheet.create({
 	container: {
 		flex,
-		backgroundColor: backgroundColor,
+		backgroundColor,
 		paddingHorizontal: padding,
 	},
 });
-export default Layout;
+export default ComponentLayout;

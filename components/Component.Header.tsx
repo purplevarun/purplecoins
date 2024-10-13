@@ -1,28 +1,32 @@
+/*
+	This is the ComponentHeader component
+	It is a standalone component
+	It does not handle any routing
+*/
+
 import { StyleSheet, TouchableOpacity, View } from "react-native";
-import { headerColor, primaryColor } from "../config/Colors";
-import {
-	HEADER_HEIGHT,
-	HEADER_ICON_SIZE as HEADER_FONT_SIZE,
-	padding,
-} from "../config/Constants";
-import MyText from "./MyText";
+import { headerColor, primaryColor } from "../config/colors.config";
+import { HEADER_HEIGHT, HEADER_ICON_SIZE } from "../config/dimensions.config";
+import { padding } from "../config/style.config";
+import ComponentText from "./Component.Text";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import app from "./../app.json";
 
-const Header = () => {
+const ComponentHeader = () => {
 	return (
 		<View style={styles.container}>
-			<MyText text={app.expo.name} fontSize={HEADER_FONT_SIZE} />
+			<ComponentText text={app.expo.name} fontSize={HEADER_ICON_SIZE} />
 			<TouchableOpacity>
 				<FontAwesome5
 					name="user-alt"
-					size={HEADER_FONT_SIZE}
+					size={HEADER_ICON_SIZE}
 					color={primaryColor}
 				/>
 			</TouchableOpacity>
 		</View>
 	);
 };
+
 const styles = StyleSheet.create({
 	container: {
 		backgroundColor: headerColor,
@@ -33,4 +37,5 @@ const styles = StyleSheet.create({
 		paddingHorizontal: padding,
 	},
 });
-export default Header;
+
+export default ComponentHeader;

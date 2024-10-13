@@ -3,22 +3,27 @@ import {
 	MaterialTopTabBarProps,
 } from "@react-navigation/material-top-tabs";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
-import { secondaryColor, primaryColor, disabledColor } from "../config/Colors";
-import { flex, TOP_TAB_HEIGHT } from "../config/Constants";
-import AnalysisScreen from "../screens/finance/AnalysisScreen";
-import CategoryScreen from "../screens/finance/CategoryScreen";
-import TransactionScreen from "../screens/finance/RecordScreen";
-import TripScreen from "../screens/finance/TripScreen";
-import MyText from "../components/MyText";
+import {
+	secondaryColor,
+	primaryColor,
+	disabledColor,
+} from "../config/colors.config";
+import { SMALL_FONT_SIZE, TOP_TAB_HEIGHT } from "../config/dimensions.config";
+import { flex } from "../config/style.config";
+import ScreenFinanceAnalysisMain from "../screens/finance/analysis/Screen.Finance.Analysis.Main";
+import ScreenFinanceCategoryMain from "../screens/finance/category/Screen.Finance.Category.Main";
+import ScreenFinanceTripMain from "../screens/finance/trip/Screen.Finance.Trip.Main";
+import ComponentText from "../components/Component.Text";
+import ScreenFinanceTransactionRouter from "../screens/finance/transaction/Screen.Finance.Transaction.Router";
 
 const Routes = {
-	Records: { page: TransactionScreen },
-	Analysis: { page: AnalysisScreen },
-	Categories: { page: CategoryScreen },
-	Trips: { page: TripScreen },
+	Transactions: { page: ScreenFinanceTransactionRouter },
+	Analysis: { page: ScreenFinanceAnalysisMain },
+	Categories: { page: ScreenFinanceCategoryMain },
+	Trips: { page: ScreenFinanceTripMain },
 };
 
-const TopTabRouter = () => {
+const RouterTop = () => {
 	const Tab = createMaterialTopTabNavigator();
 	return (
 		<View style={{ flex, backgroundColor: secondaryColor }}>
@@ -43,7 +48,11 @@ const TopTabBar = ({ state, navigation }: MaterialTopTabBarProps) => {
 				const color = isFocused ? primaryColor : disabledColor;
 				return (
 					<TouchableOpacity key={route.name} onPress={onPress}>
-						<MyText text={route.name} color={color} />
+						<ComponentText
+							text={route.name}
+							color={color}
+							fontSize={SMALL_FONT_SIZE}
+						/>
 					</TouchableOpacity>
 				);
 			})}
@@ -61,4 +70,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default TopTabRouter;
+export default RouterTop;

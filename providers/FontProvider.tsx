@@ -1,19 +1,23 @@
 import { useFonts } from "expo-font";
 import { StatusBar } from "react-native";
-import { headerColor, secondaryColor } from "../config/Colors";
+import { headerColor, secondaryColor } from "../config/colors.config";
 import { NavigationContainer } from "@react-navigation/native";
 import * as NavigationBar from "expo-navigation-bar";
-import FontNotLoadedScreen from "../screens/other/FontNotLoadedScreen";
-import LoadingScreen from "../screens/other/LoadingScreen";
+import ScreenErrorFontsNotLoaded from "../screens/other/error/Screen.Error.FontsNotLoaded";
+import ScreenLoading from "../screens/other/Screen.Loading";
 import Provider from "../types/Provider";
 
 const FontProvider: Provider = ({ children }) => {
-	NavigationBar.setBackgroundColorAsync(secondaryColor);
+	NavigationBar.setBackgroundColorAsync(secondaryColor).catch((ex) =>
+		console.error(ex),
+	);
+	const fontSource = "./../assets/fonts/Ubuntu-Regular.ttf";
 	const [loaded, error] = useFonts({
-		Ubuntu: require("./../assets/fonts/Ubuntu-Regular.ttf"),
+		Ubuntu: require(fontSource),
 	});
-	if (error) return <FontNotLoadedScreen />;
-	if (!loaded) return <LoadingScreen />;
+
+	if (error) return <ScreenErrorFontsNotLoaded />;
+	if (!loaded) return <ScreenLoading />;
 	return (
 		<NavigationContainer>
 			<StatusBar backgroundColor={headerColor} />
@@ -21,4 +25,5 @@ const FontProvider: Provider = ({ children }) => {
 		</NavigationContainer>
 	);
 };
+
 export default FontProvider;

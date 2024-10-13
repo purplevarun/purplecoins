@@ -1,11 +1,11 @@
 import { create } from "zustand";
 
-interface TransactionStore {
+interface StoreTransaction {
 	showAddTransactionModal: boolean;
 	toggleAddTransactionModal: () => void;
 }
 
-const useTransaction = create<TransactionStore>((set) => ({
+const useTransaction = create<StoreTransaction>((set) => ({
 	showAddTransactionModal: false,
 	toggleAddTransactionModal: () =>
 		set((state) => ({

@@ -1,20 +1,18 @@
 import {
 	Animated,
 	Easing,
-	KeyboardType,
 	KeyboardTypeOptions,
 	TextInput,
 	View,
 } from "react-native";
-import {
-	borderRadius,
-	FONT_SIZE,
-	padding,
-	SCREEN_WIDTH,
-} from "../config/Constants";
+import { FONT_SIZE } from "../config/dimensions.config";
 import { FC, useEffect, useRef, useState } from "react";
-import { disabledColor, primaryColor, secondaryColor } from "../config/Colors";
-import MyText from "./MyText";
+import {
+	backgroundColor,
+	disabledColor,
+	primaryColor,
+} from "../config/colors.config";
+import { borderRadius, padding } from "../config/style.config";
 
 interface Input {
 	value: string;
@@ -23,7 +21,12 @@ interface Input {
 	type?: KeyboardTypeOptions;
 }
 
-const MyInput: FC<Input> = ({ value, setValue, name, type = "default" }) => {
+const ComponentInput: FC<Input> = ({
+	value,
+	setValue,
+	name,
+	type = "default",
+}) => {
 	const [isFocused, setIsFocused] = useState(false);
 	const animatedValue = useRef(new Animated.Value(value ? 1 : 0)).current;
 
@@ -37,6 +40,7 @@ const MyInput: FC<Input> = ({ value, setValue, name, type = "default" }) => {
 	}, [isFocused, value]);
 
 	const inputRef = useRef<TextInput>(null);
+
 	return (
 		<View
 			style={{
@@ -58,7 +62,7 @@ const MyInput: FC<Input> = ({ value, setValue, name, type = "default" }) => {
 						outputRange: [FONT_SIZE, FONT_SIZE / 1.5],
 					}),
 					color: disabledColor,
-					backgroundColor: secondaryColor,
+					backgroundColor: backgroundColor,
 					zIndex: 1,
 					fontFamily: "Ubuntu",
 				}}
@@ -83,6 +87,7 @@ const MyInput: FC<Input> = ({ value, setValue, name, type = "default" }) => {
 					borderColor: primaryColor,
 					color: primaryColor,
 					fontFamily: "Ubuntu",
+					fontSize: FONT_SIZE,
 				}}
 				keyboardType={type}
 			/>
@@ -90,25 +95,4 @@ const MyInput: FC<Input> = ({ value, setValue, name, type = "default" }) => {
 	);
 };
 
-const MyInput2: FC<Input> = ({ value, setValue, name }) => {
-	return (
-		<View>
-			<MyText text={name} />
-			<TextInput
-				value={value}
-				onChangeText={setValue}
-				autoComplete="off"
-				autoCorrect={false}
-				style={{
-					width: SCREEN_WIDTH * 0.8,
-					height: FONT_SIZE * 2.5,
-					borderWidth: 2,
-					alignSelf: "center",
-					borderRadius,
-					padding,
-				}}
-			/>
-		</View>
-	);
-};
-export default MyInput;
+export default ComponentInput;
