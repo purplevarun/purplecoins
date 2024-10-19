@@ -1,8 +1,8 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import ScreenFinanceTransactionAdd from "./Screen.Finance.Transaction.Add";
-import ScreenFinanceTransactionMain from "./Screen.Finance.Transaction.Main";
+import TransactionAdd from "./TransactionAdd";
+import TransactionMain from "./TransactionMain";
 
-const ScreenFinanceTransactionRouter = () => {
+const TransactionRouter = () => {
 	const Stack = createNativeStackNavigator();
 	return (
 		<Stack.Navigator
@@ -13,13 +13,14 @@ const ScreenFinanceTransactionRouter = () => {
 		>
 			<Stack.Screen
 				name={"Transaction.Main"}
-				component={ScreenFinanceTransactionMain}
+				component={TransactionMain}
 			/>
 			<Stack.Screen
 				name={"Transaction.Add"}
-				component={ScreenFinanceTransactionAdd}
+				component={TransactionAdd}
 			/>
 		</Stack.Navigator>
 	);
 };
-export default ScreenFinanceTransactionRouter;
+
+export default TransactionRouter;

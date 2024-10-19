@@ -1,33 +1,27 @@
-/*
-	This component creates the Bottom Tab Router
-	It contains - Finance, Passwords, TodoScreen and Settings
-	This file also contains BottomTabBar component
-*/
-
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
 import {
-	disabledColor,
-	primaryColor,
-	secondaryColor,
+	DISABLED_COLOR,
+	PRIMARY_COLOR,
+	SECONDARY_COLOR,
 } from "../config/colors.config";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { BOTTOM_TAB_HEIGHT, FONT_SIZE } from "../config/dimensions.config";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
-import ComponentText from "../components/Component.Text";
-import ScreenFinance from "../screens/main/Screen.Finance";
-import TodoScreen from "../screens/main/Screen.Todo";
-import ScreenPassword from "../screens/main/Screen.Password";
-import ScreenSettings from "../screens/main/Screen.Settings";
+import CustomText from "../components/CustomText";
+import TodoScreen from "./main/TodoScreen";
+import PasswordScreen from "./main/PasswordScreen";
+import SettingsScreen from "./main/SettingsScreen";
+import FinanceRouter from "./finance/FinanceRouter";
 
 const Routes = {
-	Finance: { page: ScreenFinance, icon: "indian-rupee-sign" },
-	Passwords: { page: ScreenPassword, icon: "lock" },
+	Finance: { page: FinanceRouter, icon: "indian-rupee-sign" },
+	Passwords: { page: PasswordScreen, icon: "lock" },
 	Todo: { page: TodoScreen, icon: "list-check" },
-	Settings: { page: ScreenSettings, icon: "gear" },
+	Settings: { page: SettingsScreen, icon: "gear" },
 };
 
-const RouterBottom = () => {
+const Router = () => {
 	const Tab = createBottomTabNavigator();
 	return (
 		<Tab.Navigator
@@ -46,7 +40,7 @@ const BottomTabBar = ({ state, navigation }: BottomTabBarProps) => {
 		<View style={styles.view}>
 			{state.routes.map((route, index) => {
 				const isFocused = state.index === index;
-				const color = isFocused ? primaryColor : disabledColor;
+				const color = isFocused ? PRIMARY_COLOR : DISABLED_COLOR;
 				const routeName = route.name as keyof typeof Routes;
 				const iconName = Routes[routeName].icon;
 				const onPress = () => navigation.navigate(route.name);
@@ -61,7 +55,7 @@ const BottomTabBar = ({ state, navigation }: BottomTabBarProps) => {
 							size={FONT_SIZE}
 							color={color}
 						/>
-						<ComponentText text={route.name} color={color} />
+						<CustomText text={route.name} color={color} />
 					</TouchableOpacity>
 				);
 			})}
@@ -71,7 +65,7 @@ const BottomTabBar = ({ state, navigation }: BottomTabBarProps) => {
 
 const styles = StyleSheet.create({
 	view: {
-		backgroundColor: secondaryColor,
+		backgroundColor: SECONDARY_COLOR,
 		height: BOTTOM_TAB_HEIGHT,
 		flexDirection: "row",
 		justifyContent: "space-evenly",
@@ -80,4 +74,4 @@ const styles = StyleSheet.create({
 	btn: { alignItems: "center" },
 });
 
-export default RouterBottom;
+export default Router;

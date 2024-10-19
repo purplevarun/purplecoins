@@ -1,26 +1,20 @@
-/*
-	This is the ComponentHeader component
-	It is a standalone component
-	It does not handle any routing
-*/
-
 import { StyleSheet, TouchableOpacity, View } from "react-native";
-import { headerColor, primaryColor } from "../config/colors.config";
+import { PRIMARY_COLOR, SECONDARY_COLOR } from "../config/colors.config";
 import { HEADER_HEIGHT, HEADER_ICON_SIZE } from "../config/dimensions.config";
-import { padding } from "../config/style.config";
-import ComponentText from "./Component.Text";
+import { PADDING } from "../config/dimensions.config";
+import CustomText from "./CustomText";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import app from "./../app.json";
 
-const ComponentHeader = () => {
+const Header = () => {
 	return (
 		<View style={styles.container}>
-			<ComponentText text={app.expo.name} fontSize={HEADER_ICON_SIZE} />
+			<CustomText text={app.expo.name} fontSize={HEADER_ICON_SIZE} />
 			<TouchableOpacity>
 				<FontAwesome5
 					name="user-alt"
 					size={HEADER_ICON_SIZE}
-					color={primaryColor}
+					color={PRIMARY_COLOR}
 				/>
 			</TouchableOpacity>
 		</View>
@@ -29,13 +23,13 @@ const ComponentHeader = () => {
 
 const styles = StyleSheet.create({
 	container: {
-		backgroundColor: headerColor,
+		backgroundColor: SECONDARY_COLOR,
 		height: HEADER_HEIGHT,
 		flexDirection: "row",
 		justifyContent: "space-between",
 		alignItems: "center",
-		paddingHorizontal: padding,
+		paddingHorizontal: PADDING,
 	},
 });
 
-export default ComponentHeader;
+export default Header;

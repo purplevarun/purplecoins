@@ -8,11 +8,11 @@ import {
 import { FONT_SIZE } from "../config/dimensions.config";
 import { FC, useEffect, useRef, useState } from "react";
 import {
-	backgroundColor,
-	disabledColor,
-	primaryColor,
+	BACKGROUND_COLOR,
+	DISABLED_COLOR,
+	PRIMARY_COLOR,
 } from "../config/colors.config";
-import { borderRadius, padding } from "../config/style.config";
+import { BORDER_RADIUS, PADDING } from "../config/dimensions.config";
 
 interface Input {
 	value: string;
@@ -21,7 +21,7 @@ interface Input {
 	type?: KeyboardTypeOptions;
 }
 
-const ComponentInput: FC<Input> = ({
+const CustomInput: FC<Input> = ({
 	value,
 	setValue,
 	name,
@@ -52,7 +52,7 @@ const ComponentInput: FC<Input> = ({
 			<Animated.Text
 				style={{
 					position: "absolute",
-					left: padding,
+					left: PADDING,
 					top: animatedValue.interpolate({
 						inputRange: [0, 1],
 						outputRange: [FONT_SIZE * 1.4, FONT_SIZE / 3],
@@ -61,14 +61,14 @@ const ComponentInput: FC<Input> = ({
 						inputRange: [0, 1],
 						outputRange: [FONT_SIZE, FONT_SIZE / 1.5],
 					}),
-					color: disabledColor,
-					backgroundColor: backgroundColor,
+					color: DISABLED_COLOR,
+					backgroundColor: BACKGROUND_COLOR,
 					zIndex: 1,
 					fontFamily: "Ubuntu",
 				}}
 				onPress={() => inputRef.current?.focus()}
 			>
-				{name}
+				{" " + name + " "}
 			</Animated.Text>
 			<TextInput
 				ref={inputRef}
@@ -82,10 +82,10 @@ const ComponentInput: FC<Input> = ({
 					width: "100%",
 					height: FONT_SIZE * 2.5,
 					borderWidth: 2,
-					borderRadius,
-					padding,
-					borderColor: primaryColor,
-					color: primaryColor,
+					borderRadius: BORDER_RADIUS,
+					padding: PADDING,
+					borderColor: PRIMARY_COLOR,
+					color: PRIMARY_COLOR,
 					fontFamily: "Ubuntu",
 					fontSize: FONT_SIZE,
 				}}
@@ -95,4 +95,4 @@ const ComponentInput: FC<Input> = ({
 	);
 };
 
-export default ComponentInput;
+export default CustomInput;

@@ -1,10 +1,10 @@
-import ComponentLayout from "../../../components/Component.Layout";
-import ComponentText from "../../../components/Component.Text";
+import ScreenLayout from "../../../components/ScreenLayout";
+import CustomText from "../../../components/CustomText";
 const ScreenFinanceTripMain = () => {
 	return (
-		<ComponentLayout>
-			<ComponentText text="Trips" />
-		</ComponentLayout>
+		<ScreenLayout>
+			<CustomText text="Trips" />
+		</ScreenLayout>
 	);
 };
 export default ScreenFinanceTripMain;

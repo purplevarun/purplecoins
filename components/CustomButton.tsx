@@ -4,9 +4,10 @@ import {
 	StyleSheet,
 	TouchableOpacity,
 } from "react-native";
-import { borderRadius, padding } from "../config/style.config";
-import ComponentText from "./Component.Text";
+import { BORDER_RADIUS, PADDING } from "../config/dimensions.config";
+import CustomText from "./CustomText";
 import { FC, useRef } from "react";
+import { GREEN_COLOR } from "../config/colors.config";
 
 type Button = {
 	text: string;
@@ -15,7 +16,7 @@ type Button = {
 	disabled?: boolean;
 };
 
-const ComponentButton: FC<Button> = ({
+const CustomButton: FC<Button> = ({
 	text,
 	onPress,
 	width = "90%",
@@ -38,7 +39,13 @@ const ComponentButton: FC<Button> = ({
 	};
 
 	return (
-		<Animated.View style={{ transform: [{ scale: scaleValue }] }}>
+		<Animated.View
+			style={{
+				transform: [{ scale: scaleValue }],
+				alignItems: "center",
+				paddingTop: PADDING * 2,
+			}}
+		>
 			<TouchableOpacity
 				style={[
 					styles.button,
@@ -48,7 +55,7 @@ const ComponentButton: FC<Button> = ({
 				onPress={handlePress}
 				disabled={disabled}
 			>
-				<ComponentText text={text} alignSelf={"center"} />
+				<CustomText text={text} alignSelf={"center"} />
 			</TouchableOpacity>
 		</Animated.View>
 	);
@@ -56,9 +63,9 @@ const ComponentButton: FC<Button> = ({
 
 const styles = StyleSheet.create({
 	button: {
-		backgroundColor: "#006769",
-		padding,
-		borderRadius,
+		backgroundColor: GREEN_COLOR,
+		padding: PADDING,
+		borderRadius: BORDER_RADIUS,
 		alignItems: "center",
 		justifyContent: "center",
 	},
@@ -67,4 +74,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default ComponentButton;
+export default CustomButton;

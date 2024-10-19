@@ -4,29 +4,32 @@ import {
 } from "@react-navigation/material-top-tabs";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
 import {
-	secondaryColor,
-	primaryColor,
-	disabledColor,
-} from "../config/colors.config";
-import { SMALL_FONT_SIZE, TOP_TAB_HEIGHT } from "../config/dimensions.config";
-import { flex } from "../config/style.config";
-import ScreenFinanceAnalysisMain from "../screens/finance/analysis/Screen.Finance.Analysis.Main";
-import ScreenFinanceCategoryMain from "../screens/finance/category/Screen.Finance.Category.Main";
-import ScreenFinanceTripMain from "../screens/finance/trip/Screen.Finance.Trip.Main";
-import ComponentText from "../components/Component.Text";
-import ScreenFinanceTransactionRouter from "../screens/finance/transaction/Screen.Finance.Transaction.Router";
+	SECONDARY_COLOR,
+	PRIMARY_COLOR,
+	DISABLED_COLOR,
+} from "../../config/colors.config";
+import {
+	SMALL_FONT_SIZE,
+	TOP_TAB_HEIGHT,
+} from "../../config/dimensions.config";
+import { FLEX } from "../../config/dimensions.config";
+import AnalysisScreen from "./analysis/AnalysisScreen";
+import ScreenFinanceTripMain from "./trip/Screen.Finance.Trip.Main";
+import CustomText from "../../components/CustomText";
+import TransactionRouter from "./transaction/TransactionRouter";
+import CategoryRouter from "./category/CategoryRouter";
 
 const Routes = {
-	Transactions: { page: ScreenFinanceTransactionRouter },
-	Analysis: { page: ScreenFinanceAnalysisMain },
-	Categories: { page: ScreenFinanceCategoryMain },
+	Transactions: { page: TransactionRouter },
+	Analysis: { page: AnalysisScreen },
+	Categories: { page: CategoryRouter },
 	Trips: { page: ScreenFinanceTripMain },
 };
 
-const RouterTop = () => {
+const FinanceRouter = () => {
 	const Tab = createMaterialTopTabNavigator();
 	return (
-		<View style={{ flex, backgroundColor: secondaryColor }}>
+		<View style={{ flex: FLEX, backgroundColor: SECONDARY_COLOR }}>
 			<Tab.Navigator
 				tabBarPosition="top"
 				tabBar={(props) => <TopTabBar {...props} />}
@@ -45,10 +48,10 @@ const TopTabBar = ({ state, navigation }: MaterialTopTabBarProps) => {
 			{state.routes.map((route, index) => {
 				const isFocused = state.index === index;
 				const onPress = () => navigation.navigate(route.name);
-				const color = isFocused ? primaryColor : disabledColor;
+				const color = isFocused ? PRIMARY_COLOR : DISABLED_COLOR;
 				return (
 					<TouchableOpacity key={route.name} onPress={onPress}>
-						<ComponentText
+						<CustomText
 							text={route.name}
 							color={color}
 							fontSize={SMALL_FONT_SIZE}
@@ -64,10 +67,10 @@ const styles = StyleSheet.create({
 	container: {
 		flexDirection: "row",
 		justifyContent: "space-evenly",
-		backgroundColor: secondaryColor,
+		backgroundColor: SECONDARY_COLOR,
 		height: TOP_TAB_HEIGHT,
 		alignItems: "center",
 	},
 });
 
-export default RouterTop;
+export default FinanceRouter;

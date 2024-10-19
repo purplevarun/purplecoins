@@ -14,3 +14,7 @@ export const USABLE_SCREEN_HEIGHT =
 export const HEADER_ICON_SIZE = FONT_SIZE * 1.5;
 export const LOADER_SIZE = SCREEN_WIDTH / 2;
 export const SMALL_FONT_SIZE = FONT_SIZE * 0.85;
+
+export const FLEX = 1;
+export const PADDING = FONT_SIZE / 2;
+export const BORDER_RADIUS = FONT_SIZE / 2;

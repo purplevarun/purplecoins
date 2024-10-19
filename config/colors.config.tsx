@@ -1,5 +1,6 @@
-export const backgroundColor = "#0c1117";
-export const primaryColor = "#cad1d6";
-export const secondaryColor = "#161b23";
-export const headerColor = secondaryColor;
-export const disabledColor = "#2A3342";
+export const BACKGROUND_COLOR = "#0c1117";
+export const PRIMARY_COLOR = "#cad1d6";
+export const SECONDARY_COLOR = "#161b23";
+export const DISABLED_COLOR = "#2A3342";
+export const RED_COLOR = "#c1121f";
+export const GREEN_COLOR = "#006769";

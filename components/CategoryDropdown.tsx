@@ -1,16 +1,18 @@
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import {
-	backgroundColor,
-	disabledColor,
-	primaryColor,
+	BACKGROUND_COLOR,
+	DISABLED_COLOR,
+	PRIMARY_COLOR,
 } from "../config/colors.config";
 import { FONT_SIZE } from "../config/dimensions.config";
 import { Dropdown } from "react-native-element-dropdown";
-import { borderRadius, padding } from "../config/style.config";
-import ComponentText from "./Component.Text";
+import { BORDER_RADIUS, PADDING } from "../config/dimensions.config";
+import CustomText from "./CustomText";
+import { useQuery } from "@realm/react";
+import CategoryModel from "../models/CategoryModel";
 
-const ComponentDropdown = () => {
+const CategoryDropdown = ({ type }: { type: "EXPENSE" | "INCOME" }) => {
 	const [selectedValue, setSelectedValue] = useState("");
 
 	const renderItem = (item: { value: string; label: string }) => (
@@ -20,9 +22,16 @@ const ComponentDropdown = () => {
 				selectedValue === item.value && styles.selectedItemContainer,
 			]}
 		>
-			<ComponentText text={item.label} color={primaryColor} />
+			<CustomText text={item.label} color={PRIMARY_COLOR} />
 		</View>
 	);
+
+	const categoryList = useQuery(CategoryModel)
+		.filter((x) => x.type === type)
+		.map((x) => ({
+			label: x.name,
+			value: x.name,
+		}));
 
 	return (
 		<View
@@ -34,41 +43,39 @@ const ComponentDropdown = () => {
 				placeholder="Select Category"
 				placeholderStyle={{
 					fontSize: FONT_SIZE,
-					color: disabledColor,
+					color: DISABLED_COLOR,
 				}}
 				selectedTextStyle={{
 					fontSize: FONT_SIZE,
-					color: primaryColor,
-					backgroundColor: backgroundColor,
+					color: PRIMARY_COLOR,
+					backgroundColor: BACKGROUND_COLOR,
 				}}
-				data={[
-					{ label: "Java", value: "Java" },
-					{ label: "C++", value: ".NET" },
-				]}
+				data={categoryList}
 				itemContainerStyle={{
-					backgroundColor: backgroundColor,
+					backgroundColor: BACKGROUND_COLOR,
 				}}
 				containerStyle={{
-					backgroundColor: backgroundColor,
+					backgroundColor: BACKGROUND_COLOR,
+					borderWidth: 1,
+					borderTopRightRadius: 3,
+					borderTopLeftRadius: 3,
 				}}
 				itemTextStyle={{
-					color: primaryColor,
+					color: PRIMARY_COLOR,
 				}}
 				labelField={"label"}
 				valueField={"value"}
 				value={selectedValue}
-				onChange={(item) => {
-					setSelectedValue(item.value);
-				}}
+				onChange={(item) => setSelectedValue(item.value)}
 				style={{
 					alignSelf: "center",
 					width: "90%",
 					height: FONT_SIZE * 2.5,
 					borderWidth: 2,
-					borderRadius,
-					padding,
-					borderColor: primaryColor,
-					backgroundColor: backgroundColor,
+					borderRadius: BORDER_RADIUS,
+					padding: PADDING,
+					borderColor: PRIMARY_COLOR,
+					backgroundColor: BACKGROUND_COLOR,
 				}}
 				renderItem={renderItem}
 			/>
@@ -78,11 +85,11 @@ const ComponentDropdown = () => {
 
 const styles = StyleSheet.create({
 	itemContainer: {
-		padding,
+		padding: PADDING,
 	},
 	selectedItemContainer: {
-		backgroundColor: disabledColor,
+		backgroundColor: DISABLED_COLOR,
 	},
 });
 
-export default ComponentDropdown;
+export default CategoryDropdown;
