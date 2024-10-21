@@ -1,7 +1,7 @@
 import { ActivityIndicator, StatusBar, StyleSheet, View } from "react-native";
 import { PRIMARY_COLOR, SECONDARY_COLOR } from "../../config/colors.config";
-import { LOADER_SIZE } from "../../config/dimensions.config";
-import { FLEX } from "../../config/dimensions.config";
+import { CENTER, LOADER_SIZE } from "../../config/constants.config";
+import { FLEX_ONE } from "../../config/constants.config";
 
 const LoadingScreen = () => {
 	return (
@@ -14,10 +14,10 @@ const LoadingScreen = () => {
 
 const styles = StyleSheet.create({
 	view: {
-		flex: FLEX,
+		flex: FLEX_ONE,
 		backgroundColor: SECONDARY_COLOR,
-		justifyContent: "center",
-		alignItems: "center",
+		justifyContent: CENTER,
+		alignItems: CENTER,
 	},
 });
 

@@ -2,16 +2,16 @@ import "react-native-gesture-handler";
 import { SECONDARY_COLOR } from "../config/colors.config";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StyleSheet } from "react-native";
-import { FLEX } from "../config/dimensions.config";
-import Provider from "../types/Provider";
+import { FLEX_ONE } from "../config/constants.config";
+import ProviderType from "../types/ProviderType";
 
-const LayoutProvider: Provider = ({ children }) => {
+const LayoutProvider: ProviderType = ({ children }) => {
 	return <SafeAreaView style={styles.container}>{children}</SafeAreaView>;
 };
 
 const styles = StyleSheet.create({
 	container: {
-		flex: FLEX,
+		flex: FLEX_ONE,
 		backgroundColor: SECONDARY_COLOR,
 	},
 });

@@ -5,28 +5,23 @@ import {
 	TextInput,
 	View,
 } from "react-native";
-import { FONT_SIZE } from "../config/dimensions.config";
+import { CENTER, FONT_SIZE } from "../config/constants.config";
 import { FC, useEffect, useRef, useState } from "react";
 import {
 	BACKGROUND_COLOR,
 	DISABLED_COLOR,
 	PRIMARY_COLOR,
 } from "../config/colors.config";
-import { BORDER_RADIUS, PADDING } from "../config/dimensions.config";
+import { BORDER_RADIUS, PADDING } from "../config/constants.config";
 
 interface Input {
 	value: string;
 	setValue: (_: string) => void;
 	name: string;
-	type?: KeyboardTypeOptions;
+	numeric?: boolean;
 }
 
-const CustomInput: FC<Input> = ({
-	value,
-	setValue,
-	name,
-	type = "default",
-}) => {
+const CustomInput: FC<Input> = ({ value, setValue, name, numeric = false }) => {
 	const [isFocused, setIsFocused] = useState(false);
 	const animatedValue = useRef(new Animated.Value(value ? 1 : 0)).current;
 
@@ -46,7 +41,7 @@ const CustomInput: FC<Input> = ({
 			style={{
 				paddingTop: FONT_SIZE * 0.8,
 				width: "90%",
-				alignSelf: "center",
+				alignSelf: CENTER,
 			}}
 		>
 			<Animated.Text
@@ -89,7 +84,7 @@ const CustomInput: FC<Input> = ({
 					fontFamily: "Ubuntu",
 					fontSize: FONT_SIZE,
 				}}
-				keyboardType={type}
+				keyboardType={numeric ? "number-pad" : "default"}
 			/>
 		</View>
 	);

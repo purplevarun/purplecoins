@@ -1,5 +1,5 @@
 import { Switch, View } from "react-native";
-import { PADDING } from "../config/dimensions.config";
+import { PADDING } from "../config/constants.config";
 import { GREEN_COLOR, PRIMARY_COLOR, RED_COLOR } from "../config/colors.config";
 import CustomText from "./CustomText";
 

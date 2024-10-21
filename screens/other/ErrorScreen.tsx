@@ -1,6 +1,6 @@
 import { StatusBar, View, Text, StyleSheet } from "react-native";
 import { SECONDARY_COLOR } from "../../config/colors.config";
-import { FLEX } from "../../config/dimensions.config";
+import { CENTER, FLEX_ONE } from "../../config/constants.config";
 
 const ErrorScreen = ({ message }: { message: string }) => {
 	return (
@@ -13,10 +13,10 @@ const ErrorScreen = ({ message }: { message: string }) => {
 
 const styles = StyleSheet.create({
 	view: {
-		flex: FLEX,
+		flex: FLEX_ONE,
 		backgroundColor: SECONDARY_COLOR,
-		justifyContent: "center",
-		alignItems: "center",
+		justifyContent: CENTER,
+		alignItems: CENTER,
 	},
 });
 

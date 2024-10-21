@@ -1,7 +1,7 @@
 import { FC, ReactNode } from "react";
 
-type Provider = FC<{
+type ProviderType = FC<{
 	children: ReactNode;
 }>;
 
-export default Provider;
+export default ProviderType;

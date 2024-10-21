@@ -1,9 +1,10 @@
 import { Realm } from "@realm/react";
+import ExpenseType from "../types/ExpenseType";
 
 class CategoryModel extends Realm.Object<CategoryModel> {
 	id!: string;
 	name!: string;
-	type!: "INCOME" | "EXPENSE";
+	type!: ExpenseType;
 
 	static schema = {
 		name: "Category",

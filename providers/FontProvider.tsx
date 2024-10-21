@@ -5,9 +5,9 @@ import { NavigationContainer } from "@react-navigation/native";
 import * as NavigationBar from "expo-navigation-bar";
 import ErrorScreen from "../screens/other/ErrorScreen";
 import LoadingScreen from "../screens/other/LoadingScreen";
-import Provider from "../types/Provider";
+import ProviderType from "../types/ProviderType";
 
-const FontProvider: Provider = ({ children }) => {
+const FontProvider: ProviderType = ({ children }) => {
 	NavigationBar.setBackgroundColorAsync(SECONDARY_COLOR).catch((ex) =>
 		console.error(ex),
 	);

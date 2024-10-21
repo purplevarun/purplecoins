@@ -1,9 +1,9 @@
 import { RealmProvider } from "@realm/react";
-import Provider from "../types/Provider";
+import ProviderType from "../types/ProviderType";
 import TransactionModel from "../models/TransactionModel";
 import CategoryModel from "../models/CategoryModel";
 
-const DatabaseProvider: Provider = ({ children }) => {
+const DatabaseProvider: ProviderType = ({ children }) => {
 	return (
 		<RealmProvider schema={[TransactionModel, CategoryModel]}>
 			{children}

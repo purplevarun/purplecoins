@@ -1,10 +1,11 @@
 import ScreenLayout from "../../../components/ScreenLayout";
 import CustomText from "../../../components/CustomText";
-const ScreenFinanceTripMain = () => {
+
+const TripMain = () => {
 	return (
 		<ScreenLayout>
 			<CustomText text="Trips" />
 		</ScreenLayout>
 	);
 };
-export default ScreenFinanceTripMain;
+export default TripMain;

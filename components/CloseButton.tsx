@@ -1,4 +1,4 @@
-import { FONT_SIZE, HEADER_ICON_SIZE } from "../config/dimensions.config";
+import { FONT_SIZE, LARGE_FONT_SIZE } from "../config/constants.config";
 import { RED_COLOR } from "../config/colors.config";
 import { TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
@@ -16,7 +16,7 @@ const CloseButton = ({ path }: { path: string }) => {
 		>
 			<FontAwesome
 				name="window-close"
-				size={HEADER_ICON_SIZE * 1.2}
+				size={LARGE_FONT_SIZE * 1.2}
 				color={RED_COLOR}
 			/>
 		</TouchableOpacity>

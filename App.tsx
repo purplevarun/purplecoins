@@ -1,7 +1,7 @@
 import FontProvider from "./providers/FontProvider";
 import LayoutProvider from "./providers/LayoutProvider";
 import DatabaseProvider from "./providers/DatabaseProvider";
-import Router from "./screens/Router";
+import BottomRouter from "./bottom_router/BottomRouter";
 import Header from "./components/Header";
 
 const App = () => {
@@ -10,7 +10,7 @@ const App = () => {
 			<FontProvider>
 				<DatabaseProvider>
 					<Header />
-					<Router />
+					<BottomRouter />
 				</DatabaseProvider>
 			</FontProvider>
 		</LayoutProvider>

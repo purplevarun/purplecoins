@@ -1,7 +1,7 @@
 import { useNavigation } from "@react-navigation/native";
 import { useRealm } from "@realm/react";
 import { useState } from "react";
-import { FONT_SIZE } from "../../../config/dimensions.config";
+import { LARGE_FONT_SIZE } from "../../../config/constants.config";
 import uuid from "react-native-uuid";
 import ScreenLayout from "../../../components/ScreenLayout";
 import CustomText from "../../../components/CustomText";
@@ -10,6 +10,8 @@ import CustomButton from "../../../components/CustomButton";
 import CloseButton from "../../../components/CloseButton";
 import TypeSwitch from "../../../components/TypeSwitch";
 import CategoryModel from "../../../models/CategoryModel";
+import ExpenseType from "../../../types/ExpenseType";
+import CategoryRoutes from "./CategoryRoutes";
 
 const CategoryAdd = () => {
 	const realm = useRealm();
@@ -18,11 +20,11 @@ const CategoryAdd = () => {
 	const [switchValue, setSwitchValue] = useState(false);
 	return (
 		<ScreenLayout>
-			<CloseButton path={"Category.Main"} />
+			<CloseButton path={CategoryRoutes.Main} />
 			<CustomText
 				text="Add Category"
 				alignSelf="center"
-				fontSize={FONT_SIZE * 1.5}
+				fontSize={LARGE_FONT_SIZE}
 			/>
 			<TypeSwitch value={switchValue} setValue={setSwitchValue} />
 			<CustomInput
@@ -38,10 +40,12 @@ const CategoryAdd = () => {
 						realm.create(CategoryModel, {
 							id: uuid.v4().toString(),
 							name: categoryName,
-							type: switchValue ? "INCOME" : "EXPENSE",
+							type: switchValue
+								? ExpenseType.INCOME
+								: ExpenseType.EXPENSE,
 						});
 					});
-					navigate("Category.Main");
+					navigate(CategoryRoutes.Main);
 				}}
 			/>
 		</ScreenLayout>

@@ -1,5 +1,5 @@
 import { TouchableOpacity, Image, StyleSheet } from "react-native";
-import { FONT_SIZE } from "../config/dimensions.config";
+import { FONT_SIZE } from "../config/constants.config";
 import { useNavigation } from "@react-navigation/native";
 import { BACKGROUND_COLOR } from "../config/colors.config";
 

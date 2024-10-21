@@ -4,7 +4,7 @@ import {
 	StyleSheet,
 	TouchableOpacity,
 } from "react-native";
-import { BORDER_RADIUS, PADDING } from "../config/dimensions.config";
+import { BORDER_RADIUS, PADDING } from "../config/constants.config";
 import CustomText from "./CustomText";
 import { FC, useRef } from "react";
 import { GREEN_COLOR } from "../config/colors.config";
