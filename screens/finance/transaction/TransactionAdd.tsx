@@ -1,8 +1,4 @@
-import {
-	CENTER,
-	FONT_SIZE,
-	LARGE_FONT_SIZE,
-} from "../../../config/constants.config";
+import { CENTER, LARGE_FONT_SIZE } from "../../../config/constants.config";
 import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { useRealm } from "@realm/react";
@@ -13,19 +9,18 @@ import ScreenLayout from "../../../components/ScreenLayout";
 import CustomButton from "../../../components/CustomButton";
 import CategoryDropdown from "../../../components/CategoryDropdown";
 import CloseButton from "../../../components/CloseButton";
-import TypeSwitch from "../../../components/TypeSwitch";
+import TypeSelector from "../../../components/TypeSelector";
 import TransactionRoutes from "./TransactionRoutes";
 import TransactionModel from "../../../models/TransactionModel";
 import ExpenseType from "../../../types/ExpenseType";
 
 const TransactionAdd = () => {
-	const [type, setType] = useState(false);
+	const [type, setType] = useState<ExpenseType>(ExpenseType.EXPENSE);
 	const [amount, setAmount] = useState("");
 	const [reason, setReason] = useState("");
 	const [category, setCategory] = useState("");
 	const { navigate } = useNavigation<any>();
 	const realm = useRealm();
-	const expenseType = type ? ExpenseType.INCOME : ExpenseType.EXPENSE;
 
 	const isDisabled = () => {
 		try {
@@ -41,8 +36,8 @@ const TransactionAdd = () => {
 			realm.create(TransactionModel, {
 				id: uuid.v4().toString(),
 				amount: parseInt(amount),
-				reason: reason,
-				type: expenseType,
+				reason,
+				type,
 				date: new Date(),
 				userId: uuid.v4().toString(),
 				categoryId: category,
@@ -59,7 +54,7 @@ const TransactionAdd = () => {
 				alignSelf={CENTER}
 				fontSize={LARGE_FONT_SIZE}
 			/>
-			<TypeSwitch value={type} setValue={setType} />
+			<TypeSelector value={type} setValue={setType} enableTransfer />
 			<CustomInput
 				value={amount}
 				setValue={setAmount}
@@ -67,11 +62,13 @@ const TransactionAdd = () => {
 				numeric
 			/>
 			<CustomInput value={reason} setValue={setReason} name={"Reason"} />
-			<CategoryDropdown
-				type={expenseType}
-				value={category}
-				setValue={setCategory}
-			/>
+			{type !== ExpenseType.TRANSFER && (
+				<CategoryDropdown
+					type={type}
+					value={category}
+					setValue={setCategory}
+				/>
+			)}
 			<CustomButton
 				text={"Submit"}
 				disabled={!isDisabled()}

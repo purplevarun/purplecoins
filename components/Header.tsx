@@ -1,5 +1,10 @@
 import { StyleSheet, TouchableOpacity, View } from "react-native";
-import { PRIMARY_COLOR, SECONDARY_COLOR } from "../config/colors.config";
+import {
+	BACKGROUND_COLOR,
+	DISABLED_COLOR,
+	PRIMARY_COLOR,
+	SECONDARY_COLOR,
+} from "../config/colors.config";
 import {
 	CENTER,
 	FLEX_ROW,
@@ -11,14 +16,21 @@ import { PADDING } from "../config/constants.config";
 import CustomText from "./CustomText";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import app from "./../app.json";
+import { USER_ICON } from "../config/icons.config";
 
 const Header = () => {
 	return (
 		<View style={styles.container}>
-			<CustomText text={app.expo.name} fontSize={LARGE_FONT_SIZE} />
+			<TouchableOpacity style={{ paddingLeft: PADDING / 2 }}>
+				<CustomText
+					text={app.expo.name}
+					fontSize={LARGE_FONT_SIZE}
+					alignSelf={CENTER}
+				/>
+			</TouchableOpacity>
 			<TouchableOpacity>
 				<FontAwesome5
-					name="user-alt"
+					name={USER_ICON}
 					size={LARGE_FONT_SIZE}
 					color={PRIMARY_COLOR}
 				/>

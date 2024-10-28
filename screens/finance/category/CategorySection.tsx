@@ -2,7 +2,6 @@ import { FC } from "react";
 import { Results } from "realm";
 import { FlatList, View } from "react-native";
 import { CENTER, PADDING } from "../../../config/constants.config";
-import { DISABLED_COLOR } from "../../../config/colors.config";
 import CustomText from "../../../components/CustomText";
 import CategoryRenderItem from "./CategoryRenderItem";
 import CategoryModel from "../../../models/CategoryModel";
@@ -25,12 +24,7 @@ const CategorySection: Props = ({ categoryList, type }) => {
 				<CustomText text={text} alignSelf={CENTER} />
 			</View>
 			<View style={{ height: PADDING }} />
-			{filteredList.length === 0 ? (
-				<CustomText
-					text={`Click on the Plus Button to add a new ${type} category`}
-					color={DISABLED_COLOR}
-				/>
-			) : (
+			{filteredList.length > 0 && (
 				<FlatList data={filteredList} renderItem={CategoryRenderItem} />
 			)}
 		</View>

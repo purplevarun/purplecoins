@@ -8,7 +8,7 @@ import CustomText from "../../../components/CustomText";
 import CustomInput from "../../../components/CustomInput";
 import CustomButton from "../../../components/CustomButton";
 import CloseButton from "../../../components/CloseButton";
-import TypeSwitch from "../../../components/TypeSwitch";
+import TypeSelector from "../../../components/TypeSelector";
 import CategoryModel from "../../../models/CategoryModel";
 import ExpenseType from "../../../types/ExpenseType";
 import CategoryRoutes from "./CategoryRoutes";
@@ -16,8 +16,8 @@ import CategoryRoutes from "./CategoryRoutes";
 const CategoryAdd = () => {
 	const realm = useRealm();
 	const { navigate } = useNavigation<any>();
-	const [categoryName, setCategoryName] = useState("");
-	const [switchValue, setSwitchValue] = useState(false);
+	const [name, setName] = useState("");
+	const [type, setType] = useState<ExpenseType>(ExpenseType.EXPENSE);
 	return (
 		<ScreenLayout>
 			<CloseButton path={CategoryRoutes.Main} />
@@ -26,23 +26,17 @@ const CategoryAdd = () => {
 				alignSelf="center"
 				fontSize={LARGE_FONT_SIZE}
 			/>
-			<TypeSwitch value={switchValue} setValue={setSwitchValue} />
-			<CustomInput
-				value={categoryName}
-				setValue={setCategoryName}
-				name="Category Name"
-			/>
+			<TypeSelector value={type} setValue={setType} />
+			<CustomInput value={name} setValue={setName} name="Category Name" />
 			<CustomButton
 				text={"Submit"}
-				disabled={categoryName.length == 0}
+				disabled={name.length == 0}
 				onPress={() => {
 					realm.write(() => {
 						realm.create(CategoryModel, {
 							id: uuid.v4().toString(),
-							name: categoryName,
-							type: switchValue
-								? ExpenseType.INCOME
-								: ExpenseType.EXPENSE,
+							name,
+							type,
 						});
 					});
 					navigate(CategoryRoutes.Main);

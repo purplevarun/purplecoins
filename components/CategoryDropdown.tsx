@@ -5,7 +5,11 @@ import {
 	DISABLED_COLOR,
 	PRIMARY_COLOR,
 } from "../config/colors.config";
-import { CENTER, FONT_SIZE } from "../config/constants.config";
+import {
+	CENTER,
+	FONT_SIZE,
+	PADDING_TOP_ADD_SCREEN,
+} from "../config/constants.config";
 import { Dropdown } from "react-native-element-dropdown";
 import { BORDER_RADIUS, PADDING } from "../config/constants.config";
 import CustomText from "./CustomText";
@@ -61,7 +65,7 @@ const CategoryDropdown: Props = ({ type, value, setValue }) => {
 
 const styles = StyleSheet.create({
 	wrapper: {
-		paddingTop: FONT_SIZE * 0.8,
+		paddingTop: PADDING_TOP_ADD_SCREEN,
 	},
 	renderItem: {
 		padding: PADDING,

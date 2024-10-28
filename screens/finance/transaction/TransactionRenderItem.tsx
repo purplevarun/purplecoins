@@ -1,11 +1,15 @@
 import {
+	BLUE_COLOR,
 	GREEN_COLOR,
+	PRIMARY_COLOR,
 	RED_COLOR,
 	SECONDARY_COLOR,
 } from "../../../config/colors.config";
-import { Animated, StyleSheet, TouchableOpacity } from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import {
 	BORDER_RADIUS,
+	CENTER,
+	FLEX_ONE,
 	FLEX_ROW,
 	MARGIN,
 	PADDING,
@@ -16,27 +20,46 @@ import TransactionModel from "../../../models/TransactionModel";
 import ExpenseType from "../../../types/ExpenseType";
 
 const TransactionRenderItem = ({ item }: { item: TransactionModel }) => {
-	const color = item.type === ExpenseType.EXPENSE ? RED_COLOR : GREEN_COLOR;
+	const color =
+		item.type === ExpenseType.EXPENSE
+			? RED_COLOR
+			: item.type === ExpenseType.INCOME
+				? GREEN_COLOR
+				: BLUE_COLOR;
 	return (
-		<TouchableOpacity style={styles.button}>
-			<Animated.View style={styles.view}>
+		<TouchableOpacity style={styles.outer}>
+			<View style={styles.reason}>
 				<CustomText text={item.reason} />
-				<CustomText text={item.amount} color={color} />
-			</Animated.View>
+			</View>
+			<View style={[styles.amount, { backgroundColor: color }]}>
+				<CustomText
+					text={item.amount}
+					color={PRIMARY_COLOR}
+					alignSelf={CENTER}
+				/>
+			</View>
 		</TouchableOpacity>
 	);
 };
 
 const styles = StyleSheet.create({
-	button: {
+	outer: {
 		backgroundColor: SECONDARY_COLOR,
 		borderRadius: BORDER_RADIUS,
 		padding: PADDING,
 		margin: MARGIN,
-	},
-	view: {
 		flexDirection: FLEX_ROW,
 		justifyContent: SPACE_BETWEEN,
+	},
+	reason: { width: "70%" },
+	amount: {
+		flex: FLEX_ONE,
+		justifyContent: CENTER,
+		alignItems: CENTER,
+		alignContent: CENTER,
+		alignSelf: CENTER,
+		padding: PADDING / 2,
+		borderRadius: BORDER_RADIUS,
 	},
 });
 

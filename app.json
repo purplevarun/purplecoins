@@ -2,7 +2,7 @@
 	"expo": {
 		"name": "supercoins",
 		"slug": "supercoins",
-		"version": "1.0.3",
+		"version": "1.0.4",
 		"orientation": "portrait",
 		"icon": "./assets/icon.png",
 		"userInterfaceStyle": "dark",
@@ -12,10 +12,14 @@
 		},
 		"android": {
 			"package": "com.keyshoe.supercoins",
-			"versionCode": 3,
+			"versionCode": 4,
 			"softwareKeyboardLayoutMode": "pan"
 		},
-		"plugins": [["expo-font"]],
+		"plugins": [
+			[
+				"expo-font"
+			]
+		],
 		"extra": {
 			"eas": {
 				"projectId": "6af7224f-5148-446b-91f0-8747a3b0cfbd"

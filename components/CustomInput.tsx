@@ -5,7 +5,14 @@ import {
 	TextInput,
 	View,
 } from "react-native";
-import { CENTER, FONT_SIZE } from "../config/constants.config";
+import {
+	ABSOLUTE,
+	CENTER,
+	FONT_SIZE,
+	PADDING_TOP_ADD_SCREEN,
+	UBUNTU_FONT,
+	WIDTH_90,
+} from "../config/constants.config";
 import { FC, useEffect, useRef, useState } from "react";
 import {
 	BACKGROUND_COLOR,
@@ -39,18 +46,18 @@ const CustomInput: FC<Input> = ({ value, setValue, name, numeric = false }) => {
 	return (
 		<View
 			style={{
-				paddingTop: FONT_SIZE * 0.8,
-				width: "90%",
+				paddingTop: PADDING_TOP_ADD_SCREEN,
+				width: WIDTH_90,
 				alignSelf: CENTER,
 			}}
 		>
 			<Animated.Text
 				style={{
-					position: "absolute",
+					position: ABSOLUTE,
 					left: PADDING,
 					top: animatedValue.interpolate({
 						inputRange: [0, 1],
-						outputRange: [FONT_SIZE * 1.4, FONT_SIZE / 3],
+						outputRange: [FONT_SIZE, 0],
 					}),
 					fontSize: animatedValue.interpolate({
 						inputRange: [0, 1],
@@ -59,11 +66,11 @@ const CustomInput: FC<Input> = ({ value, setValue, name, numeric = false }) => {
 					color: DISABLED_COLOR,
 					backgroundColor: BACKGROUND_COLOR,
 					zIndex: 1,
-					fontFamily: "Ubuntu",
+					fontFamily: UBUNTU_FONT,
 				}}
 				onPress={() => inputRef.current?.focus()}
 			>
-				{" " + name + " "}
+				{name}
 			</Animated.Text>
 			<TextInput
 				ref={inputRef}
@@ -74,14 +81,13 @@ const CustomInput: FC<Input> = ({ value, setValue, name, numeric = false }) => {
 				autoComplete="off"
 				autoCorrect={false}
 				style={{
-					width: "100%",
 					height: FONT_SIZE * 2.5,
 					borderWidth: 2,
 					borderRadius: BORDER_RADIUS,
 					padding: PADDING,
 					borderColor: PRIMARY_COLOR,
 					color: PRIMARY_COLOR,
-					fontFamily: "Ubuntu",
+					fontFamily: UBUNTU_FONT,
 					fontSize: FONT_SIZE,
 				}}
 				keyboardType={numeric ? "number-pad" : "default"}
