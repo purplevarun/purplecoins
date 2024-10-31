@@ -1,4 +1,8 @@
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import {
+	BottomTabNavigationOptions,
+	createBottomTabNavigator,
+} from "@react-navigation/bottom-tabs";
+import { SCREEN_OPTIONS } from "../config/constants.config";
 import BottomTabBar from "./BottomTabBar";
 import BottomRoutes from "./BottomRoutes";
 
@@ -6,7 +10,7 @@ const BottomRouter = () => {
 	const Tab = createBottomTabNavigator();
 	return (
 		<Tab.Navigator
-			screenOptions={{ headerShown: false }}
+			screenOptions={SCREEN_OPTIONS as BottomTabNavigationOptions}
 			tabBar={BottomTabBar}
 		>
 			{Object.entries(BottomRoutes).map(([name, { page }]) => (

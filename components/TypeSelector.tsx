@@ -1,13 +1,14 @@
 import { CENTER, PADDING } from "../config/constants.config";
 import {
 	BLUE_COLOR,
-	DISABLED_COLOR,
 	GREEN_COLOR,
 	PRIMARY_COLOR,
 	RED_COLOR,
 } from "../config/colors.config";
 import RadioGroup from "react-native-radio-buttons-group";
 import ExpenseType from "../types/ExpenseType";
+
+const Ids = { One: "1", Two: "2", Three: "3" };
 
 const TypeSelector = ({
 	value,
@@ -20,13 +21,13 @@ const TypeSelector = ({
 }) => {
 	const radioButtons = [
 		{
-			id: "1",
+			id: Ids.One,
 			label: "Expense",
 			value: ExpenseType.EXPENSE,
 			color: RED_COLOR,
 		},
 		{
-			id: "2",
+			id: Ids.Two,
 			label: "Income",
 			value: ExpenseType.INCOME,
 			color: GREEN_COLOR,
@@ -34,7 +35,7 @@ const TypeSelector = ({
 		...(enableTransfer
 			? [
 					{
-						id: "3",
+						id: Ids.Three,
 						label: "Transfer",
 						value: ExpenseType.TRANSFER,
 						color: BLUE_COLOR,

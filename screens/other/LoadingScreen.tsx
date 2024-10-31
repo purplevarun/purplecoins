@@ -1,12 +1,12 @@
 import { ActivityIndicator, StatusBar, StyleSheet, View } from "react-native";
-import { PRIMARY_COLOR, SECONDARY_COLOR } from "../../config/colors.config";
+import { BACKGROUND_COLOR, PRIMARY_COLOR } from "../../config/colors.config";
 import { CENTER, LOADER_SIZE } from "../../config/constants.config";
 import { FLEX_ONE } from "../../config/constants.config";
 
 const LoadingScreen = () => {
 	return (
 		<View style={styles.view}>
-			<StatusBar backgroundColor={SECONDARY_COLOR} />
+			<StatusBar backgroundColor={BACKGROUND_COLOR} />
 			<ActivityIndicator color={PRIMARY_COLOR} size={LOADER_SIZE} />
 		</View>
 	);
@@ -15,7 +15,7 @@ const LoadingScreen = () => {
 const styles = StyleSheet.create({
 	view: {
 		flex: FLEX_ONE,
-		backgroundColor: SECONDARY_COLOR,
+		backgroundColor: BACKGROUND_COLOR,
 		justifyContent: CENTER,
 		alignItems: CENTER,
 	},

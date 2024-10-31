@@ -14,6 +14,7 @@ import {
 	MARGIN,
 	PADDING,
 	SPACE_BETWEEN,
+	WIDTH_70,
 } from "../../../config/constants.config";
 import CustomText from "../../../components/CustomText";
 import TransactionModel from "../../../models/TransactionModel";
@@ -51,7 +52,7 @@ const styles = StyleSheet.create({
 		flexDirection: FLEX_ROW,
 		justifyContent: SPACE_BETWEEN,
 	},
-	reason: { width: "70%" },
+	reason: { width: WIDTH_70 },
 	amount: {
 		flex: FLEX_ONE,
 		justifyContent: CENTER,

@@ -13,6 +13,7 @@ type Props = FC<{
 	fontSize?: number;
 	color?: ColorValue;
 	alignSelf?: FlexAlignType;
+	paddingTop?: number;
 }>;
 
 const CustomText: Props = ({
@@ -20,6 +21,7 @@ const CustomText: Props = ({
 	fontSize = FONT_SIZE,
 	color = PRIMARY_COLOR,
 	alignSelf = FLEX_START,
+	paddingTop = 0,
 }) => {
 	const fontFamily = UBUNTU_FONT;
 	return (
@@ -29,6 +31,7 @@ const CustomText: Props = ({
 				fontFamily,
 				fontSize,
 				alignSelf,
+				paddingTop,
 			}}
 		>
 			{text}

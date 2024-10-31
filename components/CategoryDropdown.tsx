@@ -1,4 +1,3 @@
-import { useQuery } from "@realm/react";
 import { StyleSheet, View } from "react-native";
 import {
 	BACKGROUND_COLOR,
@@ -6,76 +5,103 @@ import {
 	PRIMARY_COLOR,
 } from "../config/colors.config";
 import {
+	BORDER_RADIUS,
 	CENTER,
 	FONT_SIZE,
+	PADDING,
 	PADDING_TOP_ADD_SCREEN,
+	WIDTH_90,
 } from "../config/constants.config";
-import { Dropdown } from "react-native-element-dropdown";
-import { BORDER_RADIUS, PADDING } from "../config/constants.config";
+import { FC } from "react";
+import { useQuery } from "@realm/react";
+import { MultiSelect } from "react-native-element-dropdown";
 import CustomText from "./CustomText";
 import CategoryModel from "../models/CategoryModel";
 import ExpenseType from "../types/ExpenseType";
-import { FC } from "react";
 
-type Props = FC<{
+interface CategoryDropdownProps {
 	type: ExpenseType;
-	value: string;
-	setValue: (value: string) => void;
-}>;
+	value: string[];
+	setValue: (value: string[]) => void;
+}
 
-const CategoryDropdown: Props = ({ type, value, setValue }) => {
-	const renderItem = (item: { value: string; label: string }) => (
+interface RenderItemProps {
+	value: string;
+	label: string;
+}
+
+interface SelectedItemProps {
+	label: string;
+}
+
+const CategoryDropdown: FC<CategoryDropdownProps> = ({
+	type,
+	value,
+	setValue,
+}) => {
+	if (type === ExpenseType.TRANSFER) return null;
+
+	const categoryList = useQuery(CategoryModel)
+		.filter((category) => category.type === type)
+		.map((category) => ({
+			label: category.name,
+			value: category.id,
+		}));
+
+	const renderItem = (item: RenderItemProps) => (
 		<View
 			style={[
 				styles.renderItem,
-				value === item.value && styles.selectedItemContainer,
+				value.includes(item.value) && styles.renderItemSelected,
 			]}
 		>
 			<CustomText text={item.label} color={PRIMARY_COLOR} />
 		</View>
 	);
 
-	const categoryList = useQuery(CategoryModel)
-		.filter((x) => x.type === type)
-		.map((x) => ({
-			label: x.name,
-			value: x.id,
-		}));
+	const renderSelectedItem = (item: SelectedItemProps) => (
+		<View style={styles.renderSelected}>
+			<CustomText text={item.label} fontSize={FONT_SIZE / 2} />
+		</View>
+	);
 
 	return (
 		<View style={styles.wrapper}>
-			<Dropdown
-				placeholder="Select Category"
-				labelField={"label"}
-				valueField={"value"}
+			<MultiSelect
+				placeholder="Select Categories"
+				labelField="label"
+				valueField="value"
 				data={categoryList}
 				value={value}
-				onChange={(item) => setValue(item.value)}
+				onChange={setValue}
 				renderItem={renderItem}
-				style={styles.dropdown}
+				renderSelectedItem={renderSelectedItem}
+				style={styles.multiselect}
 				placeholderStyle={styles.placeholder}
 				selectedTextStyle={styles.selectedText}
 				itemContainerStyle={styles.itemContainer}
 				containerStyle={styles.container}
 				itemTextStyle={styles.itemText}
+				selectedStyle={styles.selected}
 			/>
 		</View>
 	);
 };
 
 const styles = StyleSheet.create({
+	selected: { alignSelf: CENTER },
 	wrapper: {
 		paddingTop: PADDING_TOP_ADD_SCREEN,
 	},
 	renderItem: {
 		padding: PADDING,
 	},
-	selectedItemContainer: {
+	renderItemSelected: {
 		backgroundColor: DISABLED_COLOR,
 	},
-	dropdown: {
+	multiselect: {
 		alignSelf: CENTER,
-		width: "90%",
+		width: WIDTH_90,
 		height: FONT_SIZE * 2.5,
 		borderWidth: 2,
 		borderRadius: BORDER_RADIUS,
@@ -98,11 +124,19 @@ const styles = StyleSheet.create({
 	selectedText: {
 		fontSize: FONT_SIZE,
 		color: PRIMARY_COLOR,
-		backgroundColor: BACKGROUND_COLOR,
 	},
 	placeholder: {
 		fontSize: FONT_SIZE,
 		color: DISABLED_COLOR,
+	},
+	renderSelected: {
+		borderWidth: 2,
+		borderColor: DISABLED_COLOR,
+		padding: PADDING / 2,
+		marginHorizontal: PADDING / 3,
+		marginTop: PADDING / 2,
+		left: FONT_SIZE / 1.4,
+		borderRadius: BORDER_RADIUS / 1.5,
 	},
 });
 

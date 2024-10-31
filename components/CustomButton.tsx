@@ -4,7 +4,7 @@ import {
 	StyleSheet,
 	TouchableOpacity,
 } from "react-native";
-import { BORDER_RADIUS, PADDING } from "../config/constants.config";
+import { BORDER_RADIUS, PADDING, WIDTH_90 } from "../config/constants.config";
 import CustomText from "./CustomText";
 import { FC, useRef } from "react";
 import { GREEN_COLOR } from "../config/colors.config";
@@ -19,7 +19,7 @@ type Button = {
 const CustomButton: FC<Button> = ({
 	text,
 	onPress,
-	width = "90%",
+	width = WIDTH_90,
 	disabled = false,
 }) => {
 	const scaleValue = useRef(new Animated.Value(1)).current;

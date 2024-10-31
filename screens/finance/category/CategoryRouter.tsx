@@ -1,5 +1,5 @@
-import { SCREEN_OPTIONS } from "../../../config/constants.config";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { SCREEN_OPTIONS } from "../../../config/constants.config";
 import CategoryMain from "./CategoryMain";
 import CategoryAdd from "./CategoryAdd";
 import CategoryRoutes from "./CategoryRoutes";

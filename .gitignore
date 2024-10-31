@@ -19,3 +19,5 @@ yarn-error.*
 *.pem
 .env*.local
 *.tsbuildinfo
+.env
+__pycache__

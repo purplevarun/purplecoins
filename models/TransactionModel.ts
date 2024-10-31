@@ -7,7 +7,7 @@ class TransactionModel extends Realm.Object<TransactionModel> {
 	type!: string;
 	date!: Date;
 	userId!: string;
-	categoryId?: string;
+	categories?: string[];
 	tripId?: string;
 	labelId?: string;
 
@@ -21,7 +21,7 @@ class TransactionModel extends Realm.Object<TransactionModel> {
 			type: "string",
 			date: "date",
 			userId: "string",
-			categoryId: "string",
+			categories: "string[]",
 			tripId: "string?",
 			labelId: "string?",
 		},

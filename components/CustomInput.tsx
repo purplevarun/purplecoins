@@ -1,10 +1,4 @@
-import {
-	Animated,
-	Easing,
-	KeyboardTypeOptions,
-	TextInput,
-	View,
-} from "react-native";
+import { Animated, Easing, TextInput, View } from "react-native";
 import {
 	ABSOLUTE,
 	CENTER,
@@ -23,12 +17,21 @@ import { BORDER_RADIUS, PADDING } from "../config/constants.config";
 
 interface Input {
 	value: string;
-	setValue: (_: string) => void;
+	setValue?: (_: string) => void;
 	name: string;
 	numeric?: boolean;
+	password?: boolean;
+	disabled?: boolean;
 }
 
-const CustomInput: FC<Input> = ({ value, setValue, name, numeric = false }) => {
+const CustomInput: FC<Input> = ({
+	value,
+	setValue,
+	name,
+	numeric = false,
+	password = false,
+	disabled = false,
+}) => {
 	const [isFocused, setIsFocused] = useState(false);
 	const animatedValue = useRef(new Animated.Value(value ? 1 : 0)).current;
 
@@ -70,7 +73,7 @@ const CustomInput: FC<Input> = ({ value, setValue, name, numeric = false }) => {
 				}}
 				onPress={() => inputRef.current?.focus()}
 			>
-				{name}
+				{` ${name} `}
 			</Animated.Text>
 			<TextInput
 				ref={inputRef}
@@ -78,7 +81,7 @@ const CustomInput: FC<Input> = ({ value, setValue, name, numeric = false }) => {
 				onChangeText={setValue}
 				onFocus={() => setIsFocused(true)}
 				onBlur={() => setIsFocused(false)}
-				autoComplete="off"
+				autoComplete={"off"}
 				autoCorrect={false}
 				style={{
 					height: FONT_SIZE * 2.5,
@@ -86,11 +89,13 @@ const CustomInput: FC<Input> = ({ value, setValue, name, numeric = false }) => {
 					borderRadius: BORDER_RADIUS,
 					padding: PADDING,
 					borderColor: PRIMARY_COLOR,
-					color: PRIMARY_COLOR,
+					color: disabled ? DISABLED_COLOR : PRIMARY_COLOR,
 					fontFamily: UBUNTU_FONT,
 					fontSize: FONT_SIZE,
 				}}
 				keyboardType={numeric ? "number-pad" : "default"}
+				secureTextEntry={password}
+				readOnly={disabled}
 			/>
 		</View>
 	);

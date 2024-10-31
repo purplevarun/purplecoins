@@ -26,12 +26,16 @@ export const SPACE_EVENLY = "space-evenly";
 export const SPACE_BETWEEN = "space-between";
 export const PADDING_TOP_ADD_SCREEN = FONT_SIZE * 0.35;
 export const WIDTH_90 = "90%";
-export const WIDTH_50 = "50%";
+export const HEIGHT_50 = "50%";
+export const WIDTH_70 = "70%";
 export const UBUNTU_FONT = "Ubuntu";
 export const FLEX_START = "flex-start";
 export const ABSOLUTE = "absolute";
+export const API_URL = process.env.EXPO_PUBLIC_API_KEY;
 
 export const SCREEN_OPTIONS: NativeStackNavigationOptions = {
 	headerShown: false,
 	animation: "ios",
 };
+
+export const MINIMUM_LENGTH = 4;

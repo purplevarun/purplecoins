@@ -1,16 +1,14 @@
 import FontProvider from "./providers/FontProvider";
 import LayoutProvider from "./providers/LayoutProvider";
 import DatabaseProvider from "./providers/DatabaseProvider";
-import BottomRouter from "./bottom_router/BottomRouter";
-import Header from "./components/Header";
+import AuthRouter from "./screens/auth/AuthRouter";
 
 const App = () => {
 	return (
 		<LayoutProvider>
 			<FontProvider>
 				<DatabaseProvider>
-					<Header />
-					<BottomRouter />
+					<AuthRouter />
 				</DatabaseProvider>
 			</FontProvider>
 		</LayoutProvider>

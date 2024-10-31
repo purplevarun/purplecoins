@@ -8,7 +8,7 @@ import TransactionRenderItem from "./TransactionRenderItem";
 
 const TransactionMain = () => {
 	const transactions = useQuery(TransactionModel);
-	console.log(transactions);
+	console.log(JSON.stringify(transactions, null, 2));
 	return (
 		<ScreenLayout>
 			<FlatList data={transactions} renderItem={TransactionRenderItem} />

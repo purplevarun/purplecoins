@@ -1,8 +1,8 @@
 import { useNavigation } from "@react-navigation/native";
-import { useRealm } from "@realm/react";
+import { useQuery, useRealm } from "@realm/react";
 import { useState } from "react";
-import { LARGE_FONT_SIZE } from "../../../config/constants.config";
-import uuid from "react-native-uuid";
+import { generateUUID } from "../../../util/HelperFunctions";
+import { CENTER, LARGE_FONT_SIZE } from "../../../config/constants.config";
 import ScreenLayout from "../../../components/ScreenLayout";
 import CustomText from "../../../components/CustomText";
 import CustomInput from "../../../components/CustomInput";
@@ -12,18 +12,33 @@ import TypeSelector from "../../../components/TypeSelector";
 import CategoryModel from "../../../models/CategoryModel";
 import ExpenseType from "../../../types/ExpenseType";
 import CategoryRoutes from "./CategoryRoutes";
+import UserModel from "../../../models/UserModel";
 
 const CategoryAdd = () => {
 	const realm = useRealm();
 	const { navigate } = useNavigation<any>();
 	const [name, setName] = useState("");
 	const [type, setType] = useState<ExpenseType>(ExpenseType.EXPENSE);
+	const userModels = useQuery(UserModel);
+
+	const handlePress = () => {
+		realm.write(() => {
+			realm.create(CategoryModel, {
+				id: generateUUID(),
+				name,
+				type,
+				userId: userModels[0].id,
+			});
+		});
+		navigate(CategoryRoutes.Main);
+	};
+
 	return (
 		<ScreenLayout>
 			<CloseButton path={CategoryRoutes.Main} />
 			<CustomText
 				text="Add Category"
-				alignSelf="center"
+				alignSelf={CENTER}
 				fontSize={LARGE_FONT_SIZE}
 			/>
 			<TypeSelector value={type} setValue={setType} />
@@ -31,16 +46,7 @@ const CategoryAdd = () => {
 			<CustomButton
 				text={"Submit"}
 				disabled={name.length == 0}
-				onPress={() => {
-					realm.write(() => {
-						realm.create(CategoryModel, {
-							id: uuid.v4().toString(),
-							name,
-							type,
-						});
-					});
-					navigate(CategoryRoutes.Main);
-				}}
+				onPress={handlePress}
 			/>
 		</ScreenLayout>
 	);

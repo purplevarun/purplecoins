@@ -1,8 +1,8 @@
 import { CENTER, LARGE_FONT_SIZE } from "../../../config/constants.config";
 import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { useRealm } from "@realm/react";
-import uuid from "react-native-uuid";
+import { generateUUID } from "../../../util/HelperFunctions";
+import { useQuery, useRealm } from "@realm/react";
 import CustomText from "../../../components/CustomText";
 import CustomInput from "../../../components/CustomInput";
 import ScreenLayout from "../../../components/ScreenLayout";
@@ -13,34 +13,37 @@ import TypeSelector from "../../../components/TypeSelector";
 import TransactionRoutes from "./TransactionRoutes";
 import TransactionModel from "../../../models/TransactionModel";
 import ExpenseType from "../../../types/ExpenseType";
+import UserModel from "../../../models/UserModel";
 
 const TransactionAdd = () => {
 	const [type, setType] = useState<ExpenseType>(ExpenseType.EXPENSE);
 	const [amount, setAmount] = useState("");
 	const [reason, setReason] = useState("");
-	const [category, setCategory] = useState("");
+	const [categories, setCategories] = useState<string[]>([]);
 	const { navigate } = useNavigation<any>();
 	const realm = useRealm();
+	const userModels = useQuery(UserModel);
 
 	const isDisabled = () => {
 		try {
-			const amountInt = parseInt(amount);
+			const amountInt = new Function(`return ${amount}`)();
+			if (isNaN(amountInt)) return true;
 			return amountInt > 0 && reason.length > 0;
 		} catch {
 			return true;
 		}
 	};
 
-	const onPress = () => {
+	const handlePress = () => {
 		realm.write(() => {
 			realm.create(TransactionModel, {
-				id: uuid.v4().toString(),
-				amount: parseInt(amount),
+				id: generateUUID(),
+				amount: new Function(`return ${amount}`)(),
 				reason,
 				type,
 				date: new Date(),
-				userId: uuid.v4().toString(),
-				categoryId: category,
+				userId: userModels[0]?.id,
+				categories: categories,
 			});
 		});
 		navigate(TransactionRoutes.Main);
@@ -62,17 +65,15 @@ const TransactionAdd = () => {
 				numeric
 			/>
 			<CustomInput value={reason} setValue={setReason} name={"Reason"} />
-			{type !== ExpenseType.TRANSFER && (
-				<CategoryDropdown
-					type={type}
-					value={category}
-					setValue={setCategory}
-				/>
-			)}
+			<CategoryDropdown
+				type={type}
+				value={categories}
+				setValue={setCategories}
+			/>
 			<CustomButton
 				text={"Submit"}
 				disabled={!isDisabled()}
-				onPress={onPress}
+				onPress={handlePress}
 			/>
 		</ScreenLayout>
 	);

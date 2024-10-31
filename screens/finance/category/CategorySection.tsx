@@ -1,7 +1,7 @@
 import { FC } from "react";
 import { Results } from "realm";
 import { FlatList, View } from "react-native";
-import { CENTER, PADDING } from "../../../config/constants.config";
+import { CENTER, PADDING, HEIGHT_50 } from "../../../config/constants.config";
 import CustomText from "../../../components/CustomText";
 import CategoryRenderItem from "./CategoryRenderItem";
 import CategoryModel from "../../../models/CategoryModel";
@@ -19,7 +19,7 @@ const CategorySection: Props = ({ categoryList, type }) => {
 			? "Expense Categories"
 			: "Income Categories";
 	return (
-		<View style={{ height: "50%" }}>
+		<View style={{ height: HEIGHT_50 }}>
 			<View style={{ marginVertical: PADDING }}>
 				<CustomText text={text} alignSelf={CENTER} />
 			</View>

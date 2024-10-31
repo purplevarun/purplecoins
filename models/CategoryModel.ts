@@ -5,6 +5,7 @@ class CategoryModel extends Realm.Object<CategoryModel> {
 	id!: string;
 	name!: string;
 	type!: ExpenseType;
+	userId!: string;
 
 	static schema = {
 		name: "Category",
@@ -13,6 +14,7 @@ class CategoryModel extends Realm.Object<CategoryModel> {
 			id: "string",
 			name: "string",
 			type: "string",
+			userId: "string",
 		},
 	};
 }
