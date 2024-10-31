@@ -12,7 +12,11 @@ const FontProvider: ProviderType = ({ children }) => {
 
 	if (error) return <ErrorScreen message={"Font not loaded"} />;
 	if (!loaded) return <LoadingScreen />;
-	return <NavigationContainer>{children}</NavigationContainer>;
+	return (
+		<NavigationContainer fallback={<LoadingScreen />}>
+			{children}
+		</NavigationContainer>
+	);
 };
 
 export default FontProvider;
