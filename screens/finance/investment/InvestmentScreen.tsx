@@ -1,11 +1,11 @@
 import CustomText from "../../../components/CustomText";
 import ScreenLayout from "../../../components/ScreenLayout";
 
-const AnalysisScreen = () => {
+const InvestmentScreen = () => {
 	return (
 		<ScreenLayout>
-			<CustomText text="Analysis" />
+			<CustomText text="Investment" />
 		</ScreenLayout>
 	);
 };
-export default AnalysisScreen;
+export default InvestmentScreen;

@@ -1,51 +1,82 @@
 import { CENTER, LARGE_FONT_SIZE } from "../../../config/constants.config";
-import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { generateUUID } from "../../../util/HelperFunctions";
 import { useQuery, useRealm } from "@realm/react";
+import TransactionRoutes from "./TransactionRoutes";
+import useTransactionStore from "./TransactionStore";
+import UserModel from "../../../models/UserModel";
+import TransactionModel from "../../../models/TransactionModel";
 import CustomText from "../../../components/CustomText";
 import CustomInput from "../../../components/CustomInput";
 import ScreenLayout from "../../../components/ScreenLayout";
-import CustomButton from "../../../components/CustomButton";
-import CategoryDropdown from "../../../components/CategoryDropdown";
 import CloseButton from "../../../components/CloseButton";
 import TypeSelector from "../../../components/TypeSelector";
-import TransactionRoutes from "./TransactionRoutes";
-import TransactionModel from "../../../models/TransactionModel";
+import CustomButton from "../../../components/CustomButton";
+import CategorySelector from "../../../components/CategorySelector";
+import SourceModel from "../../../models/SourceModel";
+import SourceSelector from "../../../components/SourceSelector";
 import ExpenseType from "../../../types/ExpenseType";
-import UserModel from "../../../models/UserModel";
+import DestinationSelector from "../../../components/DestinationSelector";
 
 const TransactionAdd = () => {
-	const [type, setType] = useState<ExpenseType>(ExpenseType.EXPENSE);
-	const [amount, setAmount] = useState("");
-	const [reason, setReason] = useState("");
-	const [categories, setCategories] = useState<string[]>([]);
-	const { navigate } = useNavigation<any>();
 	const realm = useRealm();
-	const userModels = useQuery(UserModel);
+	const userId = useQuery(UserModel)[0]?.id;
+	const { navigate } = useNavigation<any>();
+	const {
+		amount,
+		reason,
+		setReason,
+		setCategories,
+		categories,
+		type,
+		setAmount,
+		source,
+		destination,
+	} = useTransactionStore();
 
-	const isDisabled = () => {
+	const sourceModel = useQuery(SourceModel).filter(
+		(sourceModel) => sourceModel.id === source,
+	)[0];
+	const destinationModel = useQuery(SourceModel).filter(
+		(sourceModel) => sourceModel.id === destination,
+	)[0];
+
+	const validAmountReason = () => {
 		try {
 			const amountInt = new Function(`return ${amount}`)();
-			if (isNaN(amountInt)) return true;
+			if (isNaN(amountInt)) return false;
 			return amountInt > 0 && reason.length > 0;
 		} catch {
-			return true;
+			return false;
 		}
 	};
 
 	const handlePress = () => {
 		realm.write(() => {
+			const calculatedAmount = new Function(`return ${amount}`)();
 			realm.create(TransactionModel, {
 				id: generateUUID(),
-				amount: new Function(`return ${amount}`)(),
+				amount: calculatedAmount,
 				reason,
 				type,
 				date: new Date(),
-				userId: userModels[0]?.id,
-				categories: categories,
+				userId,
+				categories,
+				sourceId: source,
+				destinationId: destination,
 			});
+			if (type === ExpenseType.EXPENSE || type === ExpenseType.INVESTMENT)
+				sourceModel.amount -= calculatedAmount;
+			if (type === ExpenseType.INCOME)
+				sourceModel.amount += calculatedAmount;
+			if (type === ExpenseType.TRANSFER) {
+				sourceModel.amount -= calculatedAmount;
+				destinationModel.amount += calculatedAmount;
+			}
 		});
+		setAmount("");
+		setReason("");
+		setCategories([]);
 		navigate(TransactionRoutes.Main);
 	};
 
@@ -53,26 +84,23 @@ const TransactionAdd = () => {
 		<ScreenLayout>
 			<CloseButton path={TransactionRoutes.Main} />
 			<CustomText
-				text="Add Transaction"
+				text={"Add Transaction"}
 				alignSelf={CENTER}
 				fontSize={LARGE_FONT_SIZE}
 			/>
-			<TypeSelector value={type} setValue={setType} enableTransfer />
+			<TypeSelector transaction />
 			<CustomInput
+				name={"Amount"}
 				value={amount}
 				setValue={setAmount}
-				name={"Amount"}
 				numeric
 			/>
-			<CustomInput value={reason} setValue={setReason} name={"Reason"} />
-			<CategoryDropdown
-				type={type}
-				value={categories}
-				setValue={setCategories}
-			/>
+			<CustomInput name={"Reason"} value={reason} setValue={setReason} />
+			<SourceSelector />
+			<DestinationSelector />
+			<CategorySelector />
 			<CustomButton
-				text={"Submit"}
-				disabled={!isDisabled()}
+				disabled={!validAmountReason()}
 				onPress={handlePress}
 			/>
 		</ScreenLayout>

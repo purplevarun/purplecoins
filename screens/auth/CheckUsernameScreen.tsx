@@ -55,7 +55,6 @@ const CheckUsernameScreen = () => {
 				setValue={setUsername}
 			/>
 			<CustomButton
-				text={"Submit"}
 				onPress={handlePress}
 				disabled={username.length < MINIMUM_LENGTH}
 			/>

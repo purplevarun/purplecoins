@@ -5,7 +5,7 @@ import { StyleSheet } from "react-native";
 import { FLEX_ONE } from "../config/constants.config";
 import ProviderType from "../types/ProviderType";
 
-const LayoutProvider: ProviderType = ({ children }) => {
+const LayoutProvider = ({ children }: ProviderType) => {
 	return <SafeAreaView style={styles.container}>{children}</SafeAreaView>;
 };
 

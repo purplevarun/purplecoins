@@ -5,11 +5,12 @@ class TransactionModel extends Realm.Object<TransactionModel> {
 	amount!: number;
 	reason!: string;
 	type!: string;
-	date!: Date;
 	userId!: string;
+	sourceId!: string;
+	date!: Date;
+	destinationId?: string;
 	categories?: string[];
 	tripId?: string;
-	labelId?: string;
 
 	static schema = {
 		name: "Transaction",
@@ -21,9 +22,10 @@ class TransactionModel extends Realm.Object<TransactionModel> {
 			type: "string",
 			date: "date",
 			userId: "string",
-			categories: "string[]",
+			sourceId: "string",
+			destinationId: "string?",
+			categories: "string?[]",
 			tripId: "string?",
-			labelId: "string?",
 		},
 	};
 }

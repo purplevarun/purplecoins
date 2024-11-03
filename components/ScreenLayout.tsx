@@ -3,7 +3,7 @@ import { BACKGROUND_COLOR } from "../config/colors.config";
 import { FLEX_ONE, PADDING } from "../config/constants.config";
 import ProviderType from "../types/ProviderType";
 
-const ScreenLayout: ProviderType = ({ children }) => {
+const ScreenLayout = ({ children }: ProviderType) => {
 	return <View style={styles.container}>{children}</View>;
 };
 const styles = StyleSheet.create({

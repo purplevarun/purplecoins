@@ -3,12 +3,13 @@ import ProviderType from "../types/ProviderType";
 import TransactionModel from "../models/TransactionModel";
 import CategoryModel from "../models/CategoryModel";
 import UserModel from "../models/UserModel";
+import SourceModel from "../models/SourceModel";
 import LoadingScreen from "../screens/other/LoadingScreen";
 
-const DatabaseProvider: ProviderType = ({ children }) => {
+const DatabaseProvider = ({ children }: ProviderType) => {
 	return (
 		<RealmProvider
-			schema={[UserModel, TransactionModel, CategoryModel]}
+			schema={[UserModel, TransactionModel, CategoryModel, SourceModel]}
 			deleteRealmIfMigrationNeeded
 			fallback={<LoadingScreen />}
 		>

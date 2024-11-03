@@ -5,7 +5,7 @@ import {
 	FONT_SIZE,
 	PADDING_TOP_ADD_SCREEN,
 	UBUNTU_FONT,
-	WIDTH_90,
+	NINETY_P,
 } from "../config/constants.config";
 import { FC, useEffect, useRef, useState } from "react";
 import {
@@ -50,7 +50,7 @@ const CustomInput: FC<Input> = ({
 		<View
 			style={{
 				paddingTop: PADDING_TOP_ADD_SCREEN,
-				width: WIDTH_90,
+				width: NINETY_P,
 				alignSelf: CENTER,
 			}}
 		>

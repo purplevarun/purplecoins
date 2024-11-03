@@ -70,7 +70,6 @@ const SignUpScreen = ({ route }: { route: any }) => {
 			<CustomButton
 				onPress={handlePress}
 				disabled={password.length < MINIMUM_LENGTH}
-				text={"Submit"}
 			/>
 		</AuthScreenLayout>
 	);

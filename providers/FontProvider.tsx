@@ -4,7 +4,7 @@ import ErrorScreen from "../screens/other/ErrorScreen";
 import LoadingScreen from "../screens/other/LoadingScreen";
 import ProviderType from "../types/ProviderType";
 
-const FontProvider: ProviderType = ({ children }) => {
+const FontProvider = ({ children }: ProviderType) => {
 	const fontSource = "./../assets/fonts/Ubuntu-Regular.ttf";
 	const [loaded, error] = useFonts({
 		Ubuntu: require(fontSource),

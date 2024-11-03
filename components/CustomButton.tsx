@@ -4,22 +4,22 @@ import {
 	StyleSheet,
 	TouchableOpacity,
 } from "react-native";
-import { BORDER_RADIUS, PADDING, WIDTH_90 } from "../config/constants.config";
+import { BORDER_RADIUS, PADDING, NINETY_P } from "../config/constants.config";
 import CustomText from "./CustomText";
 import { FC, useRef } from "react";
 import { GREEN_COLOR } from "../config/colors.config";
 
-type Button = {
-	text: string;
-	onPress: VoidFunction;
+interface Button {
+	text?: string;
+	onPress?: VoidFunction;
 	width?: DimensionValue;
 	disabled?: boolean;
-};
+}
 
 const CustomButton: FC<Button> = ({
-	text,
-	onPress,
-	width = WIDTH_90,
+	text = "Submit",
+	onPress = () => {},
+	width = NINETY_P,
 	disabled = false,
 }) => {
 	const scaleValue = useRef(new Animated.Value(1)).current;

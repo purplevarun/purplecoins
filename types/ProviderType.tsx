@@ -1,7 +1,7 @@
-import { FC, ReactNode } from "react";
+import { ReactNode } from "react";
 
-type ProviderType = FC<{
+interface ProviderType {
 	children: ReactNode;
-}>;
+}
 
 export default ProviderType;

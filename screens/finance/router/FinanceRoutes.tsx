@@ -1,14 +1,14 @@
 import TransactionRouter from "../transaction/TransactionRouter";
-import AnalysisScreen from "../analysis/AnalysisScreen";
 import CategoryRouter from "../category/CategoryRouter";
 import TripMain from "../trip/TripMain";
-import SourceScreen from "../source/SourceScreen";
+import SourceRouter from "../source/SourceRouter";
+import InvestmentScreen from "../investment/InvestmentScreen";
 
 const FinanceRoutes = {
 	Transactions: { page: TransactionRouter },
-	Analysis: { page: AnalysisScreen },
 	Categories: { page: CategoryRouter },
-	Sources: { page: SourceScreen },
+	Investments: { page: InvestmentScreen },
+	Sources: { page: SourceRouter },
 	Trips: { page: TripMain },
 };
 

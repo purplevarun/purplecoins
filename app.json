@@ -6,10 +6,11 @@
 		"orientation": "portrait",
 		"icon": "./assets/icon.png",
 		"userInterfaceStyle": "dark",
+		"backgroundColor": "#0C1117",
 		"splash": {
+			"image": "./assets/splash.png",
 			"resizeMode": "contain",
-			"backgroundColor": "#15151c",
-			"image": "./assets/icon.png"
+			"backgroundColor": "#0C1117"
 		},
 		"android": {
 			"package": "com.keyshoe.supercoins",

@@ -22,14 +22,14 @@ const CategoryAdd = () => {
 	const userModels = useQuery(UserModel);
 
 	const handlePress = () => {
-		realm.write(() => {
+		realm.write(() =>
 			realm.create(CategoryModel, {
 				id: generateUUID(),
 				name,
 				type,
 				userId: userModels[0].id,
-			});
-		});
+			}),
+		);
 		navigate(CategoryRoutes.Main);
 	};
 
@@ -41,13 +41,9 @@ const CategoryAdd = () => {
 				alignSelf={CENTER}
 				fontSize={LARGE_FONT_SIZE}
 			/>
-			<TypeSelector value={type} setValue={setType} />
+			<TypeSelector type={type} setType={setType} />
 			<CustomInput value={name} setValue={setName} name="Category Name" />
-			<CustomButton
-				text={"Submit"}
-				disabled={name.length == 0}
-				onPress={handlePress}
-			/>
+			<CustomButton disabled={name.length == 0} onPress={handlePress} />
 		</ScreenLayout>
 	);
 };

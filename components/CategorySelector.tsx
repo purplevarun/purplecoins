@@ -8,38 +8,20 @@ import {
 	BORDER_RADIUS,
 	CENTER,
 	FONT_SIZE,
+	NINETY_P,
 	PADDING,
 	PADDING_TOP_ADD_SCREEN,
-	WIDTH_90,
 } from "../config/constants.config";
-import { FC } from "react";
 import { useQuery } from "@realm/react";
 import { MultiSelect } from "react-native-element-dropdown";
 import CustomText from "./CustomText";
 import CategoryModel from "../models/CategoryModel";
 import ExpenseType from "../types/ExpenseType";
+import useTransactionStore from "../screens/finance/transaction/TransactionStore";
+import RenderItemType from "../types/RenderItemType";
 
-interface CategoryDropdownProps {
-	type: ExpenseType;
-	value: string[];
-	setValue: (value: string[]) => void;
-}
-
-interface RenderItemProps {
-	value: string;
-	label: string;
-}
-
-interface SelectedItemProps {
-	label: string;
-}
-
-const CategoryDropdown: FC<CategoryDropdownProps> = ({
-	type,
-	value,
-	setValue,
-}) => {
-	if (type === ExpenseType.TRANSFER) return null;
+const CategorySelector = () => {
+	const { type, categories, setCategories } = useTransactionStore();
 
 	const categoryList = useQuery(CategoryModel)
 		.filter((category) => category.type === type)
@@ -48,20 +30,23 @@ const CategoryDropdown: FC<CategoryDropdownProps> = ({
 			value: category.id,
 		}));
 
-	const renderItem = (item: RenderItemProps) => (
-		<View
-			style={[
-				styles.renderItem,
-				value.includes(item.value) && styles.renderItemSelected,
-			]}
-		>
-			<CustomText text={item.label} color={PRIMARY_COLOR} />
+	if (type === ExpenseType.TRANSFER || type === ExpenseType.INVESTMENT)
+		return null;
+
+	const selectedItem = (item: RenderItemType) => (
+		<View style={styles.renderSelected}>
+			<CustomText text={item.label} fontSize={FONT_SIZE / 2} />
 		</View>
 	);
 
-	const renderSelectedItem = (item: SelectedItemProps) => (
-		<View style={styles.renderSelected}>
-			<CustomText text={item.label} fontSize={FONT_SIZE / 2} />
+	const item = (item: RenderItemType) => (
+		<View
+			style={[
+				styles.renderItem,
+				categories.includes(item.value) && styles.renderItemSelected,
+			]}
+		>
+			<CustomText text={item.label} color={PRIMARY_COLOR} />
 		</View>
 	);
 
@@ -72,10 +57,10 @@ const CategoryDropdown: FC<CategoryDropdownProps> = ({
 				labelField="label"
 				valueField="value"
 				data={categoryList}
-				value={value}
-				onChange={setValue}
-				renderItem={renderItem}
-				renderSelectedItem={renderSelectedItem}
+				value={categories}
+				onChange={setCategories}
+				renderItem={item}
+				renderSelectedItem={selectedItem}
 				style={styles.multiselect}
 				placeholderStyle={styles.placeholder}
 				selectedTextStyle={styles.selectedText}
@@ -101,7 +86,7 @@ const styles = StyleSheet.create({
 	},
 	multiselect: {
 		alignSelf: CENTER,
-		width: WIDTH_90,
+		width: NINETY_P,
 		height: FONT_SIZE * 2.5,
 		borderWidth: 2,
 		borderRadius: BORDER_RADIUS,
@@ -140,4 +125,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default CategoryDropdown;
+export default CategorySelector;
