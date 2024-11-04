@@ -5,13 +5,30 @@ import PlusButton from "../../../components/PlusButton";
 import TransactionModel from "../../../models/TransactionModel";
 import TransactionRoutes from "./TransactionRoutes";
 import TransactionRenderItem from "./TransactionRenderItem";
+import SourceModel from "../../../models/SourceModel";
+import CategoryModel from "../../../models/CategoryModel";
+import InvestmentModel from "../../../models/InvestmentModel";
 
 const TransactionMain = () => {
-	const transactions = useQuery(TransactionModel);
-	console.log(JSON.stringify(transactions, null, 2));
+	const transactionModels = useQuery(TransactionModel);
+	const sourceModels = useQuery(SourceModel);
+	const categoryModels = useQuery(CategoryModel);
+	const investmentModels = useQuery(InvestmentModel);
+	console.log(JSON.stringify(transactionModels, null, 2));
+
 	return (
 		<ScreenLayout>
-			<FlatList data={transactions} renderItem={TransactionRenderItem} />
+			<FlatList
+				data={transactionModels}
+				renderItem={({ item }) => (
+					<TransactionRenderItem
+						item={item}
+						sourceModels={sourceModels}
+						categoryModels={categoryModels}
+						investmentModels={investmentModels}
+					/>
+				)}
+			/>
 			<PlusButton to={TransactionRoutes.Add} />
 		</ScreenLayout>
 	);

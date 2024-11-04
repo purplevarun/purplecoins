@@ -11,6 +11,7 @@ class TransactionModel extends Realm.Object<TransactionModel> {
 	destinationId?: string;
 	categories?: string[];
 	tripId?: string;
+	investmentId?: string;
 
 	static schema = {
 		name: "Transaction",
@@ -26,6 +27,7 @@ class TransactionModel extends Realm.Object<TransactionModel> {
 			destinationId: "string?",
 			categories: "string?[]",
 			tripId: "string?",
+			investmentId: "string?",
 		},
 	};
 }

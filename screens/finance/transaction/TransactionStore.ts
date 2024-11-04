@@ -7,6 +7,7 @@ interface TransactionState {
 	reason: string;
 	source: string;
 	destination: string;
+	investment: string;
 	categories: string[];
 
 	setType: (type: ExpenseType) => void;
@@ -14,6 +15,7 @@ interface TransactionState {
 	setReason: (reason: string) => void;
 	setSource: (source: string) => void;
 	setDestination: (destination: string) => void;
+	setInvestment: (investment: string) => void;
 	setCategories: (categories: string[]) => void;
 }
 
@@ -23,6 +25,7 @@ const useTransactionStore = create<TransactionState>((set) => ({
 	reason: "",
 	source: "",
 	destination: "",
+	investment: "",
 	categories: [],
 
 	setType: (type) => set({ type }),
@@ -30,6 +33,7 @@ const useTransactionStore = create<TransactionState>((set) => ({
 	setReason: (reason) => set({ reason }),
 	setSource: (source) => set({ source }),
 	setDestination: (destination) => set({ destination }),
+	setInvestment: (investment) => set({ investment }),
 	setCategories: (categories) => set({ categories }),
 }));
 

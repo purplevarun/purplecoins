@@ -1,44 +1,97 @@
-import {
-	BLUE_COLOR,
-	GREEN_COLOR,
-	PRIMARY_COLOR,
-	RED_COLOR,
-	SECONDARY_COLOR,
-} from "../../../config/colors.config";
+import { SECONDARY_COLOR } from "../../../config/colors.config";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import {
 	BORDER_RADIUS,
-	CENTER,
-	FLEX_ONE,
 	FLEX_ROW,
 	MARGIN,
 	PADDING,
 	SPACE_BETWEEN,
 	SEVENTY_P,
+	CENTER,
 } from "../../../config/constants.config";
 import CustomText from "../../../components/CustomText";
 import TransactionModel from "../../../models/TransactionModel";
-import ExpenseType from "../../../types/ExpenseType";
+import SourceModel from "../../../models/SourceModel";
+import { Results } from "realm";
+import CategoryModel from "../../../models/CategoryModel";
+import InvestmentModel from "../../../models/InvestmentModel";
 
-const TransactionRenderItem = ({ item }: { item: TransactionModel }) => {
-	const color =
-		item.type === ExpenseType.EXPENSE
-			? RED_COLOR
-			: item.type === ExpenseType.INCOME
-				? GREEN_COLOR
-				: BLUE_COLOR;
+const TransactionRenderItem = ({
+	item,
+	sourceModels,
+	categoryModels,
+	investmentModels,
+}: {
+	item: TransactionModel;
+	sourceModels: Results<SourceModel>;
+	categoryModels: Results<CategoryModel>;
+	investmentModels: Results<InvestmentModel>;
+}) => {
+	const sourceName = sourceModels.filter((s) => s.id === item.sourceId)[0]
+		.name;
 	return (
 		<TouchableOpacity style={styles.outer}>
-			<View style={styles.reason}>
+			<View
+				style={{
+					flexDirection: FLEX_ROW,
+					justifyContent: SPACE_BETWEEN,
+				}}
+			>
+				<CustomText text={"Amount"} />
+				<CustomText text={item.amount} />
+			</View>
+			<View
+				style={{
+					flexDirection: FLEX_ROW,
+					justifyContent: SPACE_BETWEEN,
+				}}
+			>
+				<CustomText text={"Reason"} />
 				<CustomText text={item.reason} />
 			</View>
-			<View style={[styles.amount, { backgroundColor: color }]}>
-				<CustomText
-					text={item.amount}
-					color={PRIMARY_COLOR}
-					alignSelf={CENTER}
-				/>
+			<View
+				style={{
+					flexDirection: FLEX_ROW,
+					justifyContent: SPACE_BETWEEN,
+				}}
+			>
+				<CustomText text={"Source"} />
+				<CustomText text={sourceName} />
 			</View>
+			{item.categories && item.categories.length > 0 && (
+				<View
+					style={{
+						flexDirection: FLEX_ROW,
+						justifyContent: SPACE_BETWEEN,
+					}}
+				>
+					<CustomText text={"Categories"} alignSelf={CENTER} />
+					<View>
+						{categoryModels
+							.filter((c) => item.categories?.includes(c.id))
+							.map((c) => (
+								<CustomText text={c.name} key={c.id} />
+							))}
+					</View>
+				</View>
+			)}
+			{item.investmentId && item.investmentId.length > 0 && (
+				<View
+					style={{
+						flexDirection: FLEX_ROW,
+						justifyContent: SPACE_BETWEEN,
+					}}
+				>
+					<CustomText text={"Investment"} />
+					<CustomText
+						text={
+							investmentModels.filter(
+								(i) => i.id === item.investmentId,
+							)[0].name
+						}
+					/>
+				</View>
+			)}
 		</TouchableOpacity>
 	);
 };
@@ -49,19 +102,9 @@ const styles = StyleSheet.create({
 		borderRadius: BORDER_RADIUS,
 		padding: PADDING,
 		margin: MARGIN,
-		flexDirection: FLEX_ROW,
 		justifyContent: SPACE_BETWEEN,
 	},
 	reason: { width: SEVENTY_P },
-	amount: {
-		flex: FLEX_ONE,
-		justifyContent: CENTER,
-		alignItems: CENTER,
-		alignContent: CENTER,
-		alignSelf: CENTER,
-		padding: PADDING / 2,
-		borderRadius: BORDER_RADIUS,
-	},
 });
 
 export default TransactionRenderItem;

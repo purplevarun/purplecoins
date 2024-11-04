@@ -17,6 +17,8 @@ import SourceModel from "../../../models/SourceModel";
 import SourceSelector from "../../../components/SourceSelector";
 import ExpenseType from "../../../types/ExpenseType";
 import DestinationSelector from "../../../components/DestinationSelector";
+import InvestmentSelector from "../../../components/InvestmentSelector";
+import InvestmentModel from "../../../models/InvestmentModel";
 
 const TransactionAdd = () => {
 	const realm = useRealm();
@@ -32,6 +34,7 @@ const TransactionAdd = () => {
 		setAmount,
 		source,
 		destination,
+		investment,
 	} = useTransactionStore();
 
 	const sourceModel = useQuery(SourceModel).filter(
@@ -39,6 +42,9 @@ const TransactionAdd = () => {
 	)[0];
 	const destinationModel = useQuery(SourceModel).filter(
 		(sourceModel) => sourceModel.id === destination,
+	)[0];
+	const investmentModel = useQuery(InvestmentModel).filter(
+		(investmentModel) => investmentModel.id === investment,
 	)[0];
 
 	const validAmountReason = () => {
@@ -64,12 +70,16 @@ const TransactionAdd = () => {
 				categories,
 				sourceId: source,
 				destinationId: destination,
+				investmentId: investment,
 			});
-			if (type === ExpenseType.EXPENSE || type === ExpenseType.INVESTMENT)
+			if (type === ExpenseType.EXPENSE) {
 				sourceModel.amount -= calculatedAmount;
-			if (type === ExpenseType.INCOME)
+			} else if (type === ExpenseType.INCOME) {
 				sourceModel.amount += calculatedAmount;
-			if (type === ExpenseType.TRANSFER) {
+			} else if (type === ExpenseType.INVESTMENT) {
+				sourceModel.amount -= calculatedAmount;
+				investmentModel.investedAmount += calculatedAmount;
+			} else if (type === ExpenseType.TRANSFER) {
 				sourceModel.amount -= calculatedAmount;
 				destinationModel.amount += calculatedAmount;
 			}
@@ -99,6 +109,7 @@ const TransactionAdd = () => {
 			<SourceSelector />
 			<DestinationSelector />
 			<CategorySelector />
+			<InvestmentSelector />
 			<CustomButton
 				disabled={!validAmountReason()}
 				onPress={handlePress}

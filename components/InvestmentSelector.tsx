@@ -1,10 +1,13 @@
+import useTransactionStore from "../screens/finance/transaction/TransactionStore";
 import { useQuery } from "@realm/react";
+import SourceModel from "../models/SourceModel";
+import ExpenseType from "../types/ExpenseType";
+import RenderItemType from "../types/RenderItemType";
 import {
 	BACKGROUND_COLOR,
 	DISABLED_COLOR,
 	PRIMARY_COLOR,
 } from "../config/colors.config";
-import { Dropdown } from "react-native-element-dropdown";
 import { StyleSheet, View } from "react-native";
 import {
 	BORDER_RADIUS,
@@ -14,23 +17,23 @@ import {
 	PADDING,
 	PADDING_TOP_ADD_SCREEN,
 } from "../config/constants.config";
-import useTransactionStore from "../screens/finance/transaction/TransactionStore";
-import RenderItemType from "../types/RenderItemType";
-import SourceModel from "../models/SourceModel";
 import CustomText from "./CustomText";
-import ExpenseType from "../types/ExpenseType";
+import { Dropdown } from "react-native-element-dropdown";
+import InvestmentModel from "../models/InvestmentModel";
 
 const SourceSelector = () => {
-	const { source, setSource, type } = useTransactionStore();
+	const { investment, setInvestment, type } = useTransactionStore();
 
-	const sourceModels = useQuery(SourceModel).map((source) => ({
-		label: source.name,
-		value: source.id,
+	const investmentModels = useQuery(InvestmentModel).map((investment) => ({
+		label: investment.name,
+		value: investment.id,
 	}));
+
+	if (type !== ExpenseType.INVESTMENT) return null;
 
 	const item = (item: RenderItemType) => {
 		const backgroundColor =
-			source === item.value ? DISABLED_COLOR : BACKGROUND_COLOR;
+			investment === item.value ? DISABLED_COLOR : BACKGROUND_COLOR;
 		return (
 			<View
 				style={{
@@ -46,12 +49,12 @@ const SourceSelector = () => {
 	return (
 		<View style={styles.wrapper}>
 			<Dropdown
-				placeholder={`Select ${type === ExpenseType.INCOME ? "Destination" : "Source"}`}
+				placeholder="Select Investment"
 				labelField={"label"}
 				valueField={"value"}
-				data={sourceModels}
-				value={source}
-				onChange={(item) => setSource(item.value)}
+				data={investmentModels}
+				value={investment}
+				onChange={(item) => setInvestment(item.value)}
 				renderItem={item}
 				style={styles.dropdown}
 				placeholderStyle={styles.placeholder}
