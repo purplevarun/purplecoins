@@ -13,12 +13,13 @@ import CategoryModel from "../../../models/CategoryModel";
 import ExpenseType from "../../../types/ExpenseType";
 import CategoryRoutes from "./CategoryRoutes";
 import UserModel from "../../../models/UserModel";
+import useTransactionStore from "../transaction/TransactionStore";
 
 const CategoryAdd = () => {
 	const realm = useRealm();
 	const { navigate } = useNavigation<any>();
 	const [name, setName] = useState("");
-	const [type, setType] = useState<ExpenseType>(ExpenseType.EXPENSE);
+	const { type } = useTransactionStore();
 	const userModels = useQuery(UserModel);
 
 	const handlePress = () => {
@@ -41,7 +42,7 @@ const CategoryAdd = () => {
 				alignSelf={CENTER}
 				fontSize={LARGE_FONT_SIZE}
 			/>
-			<TypeSelector type={type} setType={setType} />
+			<TypeSelector />
 			<CustomInput value={name} setValue={setName} name="Category Name" />
 			<CustomButton disabled={name.length == 0} onPress={handlePress} />
 		</ScreenLayout>

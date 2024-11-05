@@ -6,6 +6,7 @@ import UserModel from "../models/UserModel";
 import SourceModel from "../models/SourceModel";
 import LoadingScreen from "../screens/other/LoadingScreen";
 import InvestmentModel from "../models/InvestmentModel";
+import TripModel from "../models/TripModel";
 
 const DatabaseProvider = ({ children }: ProviderType) => {
 	return (
@@ -16,6 +17,7 @@ const DatabaseProvider = ({ children }: ProviderType) => {
 				CategoryModel,
 				SourceModel,
 				InvestmentModel,
+				TripModel,
 			]}
 			deleteRealmIfMigrationNeeded
 			fallback={<LoadingScreen />}

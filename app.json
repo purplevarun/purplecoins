@@ -2,19 +2,18 @@
 	"expo": {
 		"name": "Supercoins",
 		"slug": "supercoins",
-		"version": "1.0.7",
+		"version": "1.0.8",
 		"orientation": "portrait",
 		"icon": "./assets/icon.png",
 		"userInterfaceStyle": "dark",
 		"backgroundColor": "#0C1117",
 		"splash": {
-			"image": "./assets/splash.png",
 			"resizeMode": "contain",
 			"backgroundColor": "#0C1117"
 		},
 		"android": {
 			"package": "com.keyshoe.supercoins",
-			"versionCode": 7,
+			"versionCode": 8,
 			"softwareKeyboardLayoutMode": "pan"
 		},
 		"plugins": [
