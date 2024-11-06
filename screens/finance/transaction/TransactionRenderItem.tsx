@@ -2,12 +2,12 @@ import { SECONDARY_COLOR } from "../../../config/colors.config";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import {
 	BORDER_RADIUS,
+	CENTER,
 	FLEX_ROW,
 	MARGIN,
 	PADDING,
-	SPACE_BETWEEN,
 	SEVENTY_P,
-	CENTER,
+	SPACE_BETWEEN,
 } from "../../../config/constants.config";
 import CustomText from "../../../components/CustomText";
 import TransactionModel from "../../../models/TransactionModel";
@@ -15,22 +15,32 @@ import SourceModel from "../../../models/SourceModel";
 import { Results } from "realm";
 import CategoryModel from "../../../models/CategoryModel";
 import InvestmentModel from "../../../models/InvestmentModel";
+import TripModel from "../../../models/TripModel";
 
 const TransactionRenderItem = ({
 	item,
 	sourceModels,
 	categoryModels,
 	investmentModels,
+	tripModels,
 }: {
 	item: TransactionModel;
 	sourceModels: Results<SourceModel>;
 	categoryModels: Results<CategoryModel>;
 	investmentModels: Results<InvestmentModel>;
+	tripModels: Results<TripModel>;
 }) => {
-	const sourceName = sourceModels.filter((s) => s.id === item.sourceId)[0]
-		.name;
 	return (
 		<TouchableOpacity style={styles.outer}>
+			<View
+				style={{
+					flexDirection: FLEX_ROW,
+					width: "100%",
+					justifyContent: CENTER,
+				}}
+			>
+				<CustomText text={item.type} alignSelf={CENTER} />
+			</View>
 			<View
 				style={{
 					flexDirection: FLEX_ROW,
@@ -56,8 +66,30 @@ const TransactionRenderItem = ({
 				}}
 			>
 				<CustomText text={"Source"} />
-				<CustomText text={sourceName} />
+				<CustomText
+					text={
+						sourceModels.filter((s) => s.id === item.sourceId)[0]
+							.name
+					}
+				/>
 			</View>
+			{item.destinationId && (
+				<View
+					style={{
+						flexDirection: FLEX_ROW,
+						justifyContent: SPACE_BETWEEN,
+					}}
+				>
+					<CustomText text={"Destination"} />
+					<CustomText
+						text={
+							sourceModels.filter(
+								(s) => s.id === item.destinationId,
+							)[0].name
+						}
+					/>
+				</View>
+			)}
 			{item.categories && item.categories.length > 0 && (
 				<View
 					style={{
@@ -90,6 +122,23 @@ const TransactionRenderItem = ({
 							)[0].name
 						}
 					/>
+				</View>
+			)}
+			{item.trips && item.trips.length > 0 && (
+				<View
+					style={{
+						flexDirection: FLEX_ROW,
+						justifyContent: SPACE_BETWEEN,
+					}}
+				>
+					<CustomText text={"Trips"} alignSelf={CENTER} />
+					<View>
+						{tripModels
+							.filter((t) => item.trips?.includes(t.id))
+							.map((t) => (
+								<CustomText text={t.name} key={t.id} />
+							))}
+					</View>
 				</View>
 			)}
 		</TouchableOpacity>

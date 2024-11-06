@@ -19,6 +19,7 @@ import ExpenseType from "../../../types/ExpenseType";
 import DestinationSelector from "../../../components/DestinationSelector";
 import InvestmentSelector from "../../../components/InvestmentSelector";
 import InvestmentModel from "../../../models/InvestmentModel";
+import TripSelector from "../../../components/TripSelector";
 
 const TransactionAdd = () => {
 	const realm = useRealm();
@@ -35,6 +36,11 @@ const TransactionAdd = () => {
 		source,
 		destination,
 		investment,
+		trips,
+		setTrips,
+		setSource,
+		setDestination,
+		setInvestment,
 	} = useTransactionStore();
 
 	const sourceModel = useQuery(SourceModel).filter(
@@ -47,13 +53,37 @@ const TransactionAdd = () => {
 		(investmentModel) => investmentModel.id === investment,
 	)[0];
 
-	const validAmountReason = () => {
-		try {
-			const amountInt = new Function(`return ${amount}`)();
-			if (isNaN(amountInt)) return false;
-			return amountInt > 0 && reason.length > 0;
-		} catch {
-			return false;
+	const isEnabled = () => {
+		if (type === ExpenseType.EXPENSE || type === ExpenseType.INCOME) {
+			try {
+				const amountInt = new Function(`return ${amount}`)();
+				if (isNaN(amountInt)) return false;
+				return amountInt > 0 && reason.length > 0 && source.length > 0;
+			} catch {
+				return false;
+			}
+		}
+		if (type === ExpenseType.TRANSFER) {
+			try {
+				const amountInt = new Function(`return ${amount}`)();
+				if (isNaN(amountInt)) return false;
+				return (
+					amountInt > 0 && source.length > 0 && destination.length > 0
+				);
+			} catch {
+				return false;
+			}
+		}
+		if (type === ExpenseType.INVESTMENT) {
+			try {
+				const amountInt = new Function(`return ${amount}`)();
+				if (isNaN(amountInt)) return false;
+				return (
+					amountInt > 0 && source.length > 0 && investment.length > 0
+				);
+			} catch {
+				return false;
+			}
 		}
 	};
 
@@ -68,6 +98,7 @@ const TransactionAdd = () => {
 				date: new Date(),
 				userId,
 				categories,
+				trips,
 				sourceId: source,
 				destinationId: destination,
 				investmentId: investment,
@@ -86,7 +117,11 @@ const TransactionAdd = () => {
 		});
 		setAmount("");
 		setReason("");
+		setSource("");
+		setDestination("");
+		setInvestment("");
 		setCategories([]);
+		setTrips([]);
 		navigate(TransactionRoutes.Main);
 	};
 
@@ -110,10 +145,8 @@ const TransactionAdd = () => {
 			<DestinationSelector />
 			<CategorySelector />
 			<InvestmentSelector />
-			<CustomButton
-				disabled={!validAmountReason()}
-				onPress={handlePress}
-			/>
+			<TripSelector />
+			<CustomButton disabled={!isEnabled()} onPress={handlePress} />
 		</ScreenLayout>
 	);
 };

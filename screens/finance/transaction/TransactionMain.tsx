@@ -8,12 +8,15 @@ import TransactionRenderItem from "./TransactionRenderItem";
 import SourceModel from "../../../models/SourceModel";
 import CategoryModel from "../../../models/CategoryModel";
 import InvestmentModel from "../../../models/InvestmentModel";
+import TripModel from "../../../models/TripModel";
+import tripModel from "../../../models/TripModel";
 
 const TransactionMain = () => {
 	const transactionModels = useQuery(TransactionModel);
 	const sourceModels = useQuery(SourceModel);
 	const categoryModels = useQuery(CategoryModel);
 	const investmentModels = useQuery(InvestmentModel);
+	const tripModels = useQuery(TripModel);
 	console.log(JSON.stringify(transactionModels, null, 2));
 
 	return (
@@ -26,6 +29,7 @@ const TransactionMain = () => {
 						sourceModels={sourceModels}
 						categoryModels={categoryModels}
 						investmentModels={investmentModels}
+						tripModels={tripModels}
 					/>
 				)}
 			/>

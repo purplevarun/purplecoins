@@ -22,7 +22,14 @@ const TripAdd = () => {
 	const [name, setName] = useState("");
 	const { navigate } = useNavigation<any>();
 	const realm = useRealm();
-	const { startDate, endDate, startDateSet, endDateSet } = useTripStore();
+	const {
+		startDate,
+		endDate,
+		startDateSet,
+		endDateSet,
+		setStartDateSet,
+		setEndDateSet,
+	} = useTripStore();
 
 	const handlePress = () => {
 		realm.write(() =>
@@ -33,6 +40,9 @@ const TripAdd = () => {
 				endDate: endDateSet ? endDate : null,
 			}),
 		);
+		setName("");
+		setStartDateSet(false);
+		setEndDateSet(false);
 		navigate(TripRoutes.Main);
 	};
 

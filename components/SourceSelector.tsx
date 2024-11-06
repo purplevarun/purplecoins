@@ -18,10 +18,9 @@ import useTransactionStore from "../screens/finance/transaction/TransactionStore
 import RenderItemType from "../types/RenderItemType";
 import SourceModel from "../models/SourceModel";
 import CustomText from "./CustomText";
-import ExpenseType from "../types/ExpenseType";
 
 const SourceSelector = () => {
-	const { source, setSource, type } = useTransactionStore();
+	const { source, setSource } = useTransactionStore();
 
 	const sourceModels = useQuery(SourceModel).map((source) => ({
 		label: source.name,
@@ -46,7 +45,7 @@ const SourceSelector = () => {
 	return (
 		<View style={styles.wrapper}>
 			<Dropdown
-				placeholder={`Select ${type === ExpenseType.INCOME ? "Destination" : "Source"}`}
+				placeholder={"Select Source"}
 				labelField={"label"}
 				valueField={"value"}
 				data={sourceModels}
