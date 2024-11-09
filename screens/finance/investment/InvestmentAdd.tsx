@@ -27,6 +27,8 @@ const InvestmentAdd = () => {
 			realm.create(InvestmentModel, {
 				id: generateUUID(),
 				name,
+				investedAmount: 0,
+				currentAmount: 0,
 			});
 		});
 		navigate(InvestmentRoutes.Main);

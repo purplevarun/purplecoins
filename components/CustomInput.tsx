@@ -73,7 +73,7 @@ const CustomInput: FC<Input> = ({
 				}}
 				onPress={() => inputRef.current?.focus()}
 			>
-				{` ${name} `}
+				{` ${name} * `}
 			</Animated.Text>
 			<TextInput
 				ref={inputRef}
@@ -93,7 +93,7 @@ const CustomInput: FC<Input> = ({
 					fontFamily: UBUNTU_FONT,
 					fontSize: FONT_SIZE,
 				}}
-				keyboardType={numeric ? "number-pad" : "default"}
+				keyboardType={numeric ? "decimal-pad" : "default"}
 				secureTextEntry={password}
 				readOnly={disabled}
 			/>

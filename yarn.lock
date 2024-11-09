@@ -3,9 +3,9 @@
 
 
 "@0no-co/graphql.web@^1.0.5":
-  version "1.0.10"
-  resolved "https://registry.yarnpkg.com/@0no-co/graphql.web/-/graphql.web-1.0.10.tgz#1c124ec279b502510f8868f8c030c070353abda6"
-  integrity sha512-Nu/d8aLvBEGOEH/739AmEKr9Dwl6lIMTfYUwyLjtv1JK/9MdAXrrIKz50IVOcjF9TM7OBxR1uFvZ27CePk9UyQ==
+  version "1.0.11"
+  resolved "https://registry.yarnpkg.com/@0no-co/graphql.web/-/graphql.web-1.0.11.tgz#035cbc6523af43358b81993f10b13e8d7a79c816"
+  integrity sha512-xuSJ9WXwTmtngWkbdEoopMo6F8NLtjy84UNAMsAr5C3/2SgAL/dEU10TMqTIsipqPQ8HA/7WzeqQ9DEQxSvPPA==
 
 "@ampproject/remapping@^2.2.0":
   version "2.3.0"
@@ -2137,16 +2137,16 @@
     "@types/node" "*"
 
 "@types/node@*":
-  version "22.8.6"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.8.6.tgz#e8a0c0871623283d8b3ef7d7b9b1bfdfd3028e22"
-  integrity sha512-tosuJYKrIqjQIlVCM4PEGxOmyg3FCPa/fViuJChnGeEIhjA46oy8FMVoF9su1/v8PNs2a8Q0iFNyOx0uOF91nw==
+  version "22.9.0"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.9.0.tgz#b7f16e5c3384788542c72dc3d561a7ceae2c0365"
+  integrity sha512-vuyHg81vvWA1Z1ELfvLko2c8f34gyA0zaic0+Rllc5lbCnbSyuvb2Oxpm6TAUAC/2xZN3QGqxBNggD1nNR2AfQ==
   dependencies:
     undici-types "~6.19.8"
 
 "@types/node@^18.0.0":
-  version "18.19.63"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.19.63.tgz#2b2cdb8b3bd2b739ae38c5676cd012c80568022f"
-  integrity sha512-hcUB7THvrGmaEcPcvUZCZtQ2Z3C+UR/aOcraBLCvTsFMh916Gc1kCCYcfcMuB76HM2pSerxl1PoP3KnmHzd9Lw==
+  version "18.19.64"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.19.64.tgz#122897fb79f2a9ec9c979bded01c11461b2b1478"
+  integrity sha512-955mDqvO2vFf/oL7V3WiUtiz+BugyX8uVbaT2H8oj3+8dRyH2FLiNdowe7eNqRM7IOIZvzDH76EoAT+gwm6aIQ==
   dependencies:
     undici-types "~5.26.4"
 
@@ -2783,9 +2783,9 @@ camelcase@^6.2.0:
   integrity sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA==
 
 caniuse-lite@^1.0.30001669:
-  version "1.0.30001676"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001676.tgz#fe133d41fe74af8f7cc93b8a714c3e86a86e6f04"
-  integrity sha512-Qz6zwGCiPghQXGJvgQAem79esjitvJ+CxSbSQkW9H/UX5hg8XM88d4lp2W+MEQ81j+Hip58Il+jGVdazk1z9cw==
+  version "1.0.30001678"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001678.tgz#b930b04cd0b295136405634aa32ad540d7eeb71e"
+  integrity sha512-RR+4U/05gNtps58PEBDZcPWTgEO2MBeoPZ96aQcjmfkBWRIDfN451fW2qyDA9/+HohLLIL5GqiMwA+IB1pWarw==
 
 chalk@4, chalk@^4.0.0, chalk@^4.1.0, chalk@^4.1.2:
   version "4.1.2"
@@ -3094,9 +3094,9 @@ cross-spawn@^6.0.0:
     which "^1.2.9"
 
 cross-spawn@^7.0.0, cross-spawn@^7.0.3:
-  version "7.0.3"
-  resolved "https://registry.yarnpkg.com/cross-spawn/-/cross-spawn-7.0.3.tgz#f73a85b9d5d41d045551c177e2882d4ac85728a6"
-  integrity sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==
+  version "7.0.5"
+  resolved "https://registry.yarnpkg.com/cross-spawn/-/cross-spawn-7.0.5.tgz#910aac880ff5243da96b728bc6521a5f6c2f2f82"
+  integrity sha512-ZVJrKKYunU38/76t0RMOulHOnUcbU9GbpWKAOZ0mhjr7CX6FVrH+4FrAapSOekrgFQ3f/8gwMEuIft0aKq6Hug==
   dependencies:
     path-key "^3.1.0"
     shebang-command "^2.0.0"
@@ -3319,9 +3319,9 @@ ee-first@1.1.1:
   integrity sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==
 
 electron-to-chromium@^1.5.41:
-  version "1.5.50"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.5.50.tgz#d9ba818da7b2b5ef1f3dd32bce7046feb7e93234"
-  integrity sha512-eMVObiUQ2LdgeO1F/ySTXsvqvxb6ZH2zPGaMYsWzRDdOddUa77tdmI0ltg+L16UpbWdhPmuF3wIQYyQq65WfZw==
+  version "1.5.55"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.5.55.tgz#73684752aa2e1aa49cafb355a41386c6637e76a9"
+  integrity sha512-6maZ2ASDOTBtjt9FhqYPRnbvKU5tjG0IN9SztUOWYw2AzNDNpKJYLJmlK0/En4Hs/aiWnB+JZ+gW19PIGszgKg==
 
 emoji-regex@^8.0.0:
   version "8.0.0"
@@ -3797,9 +3797,9 @@ flow-enums-runtime@^0.0.6:
   integrity sha512-3PYnM29RFXwvAN6Pc/scUfkI7RwhQ/xqyLUyPNlXUp9S40zI8nup9tUSrTLSVnWGBN38FNiGWbwZOB6uR4OGdw==
 
 flow-parser@0.*:
-  version "0.251.1"
-  resolved "https://registry.yarnpkg.com/flow-parser/-/flow-parser-0.251.1.tgz#b561c765baff1a93d85c510360d2d9c78f81ed86"
-  integrity sha512-8ZuLqJPlL/T9K3zFdr1m88Lx8JOoJluTTdyvN4uH5NT9zoIIFqbCDoXVhkHh022k2lhuAyFF27cu0BYKh5SmDA==
+  version "0.252.0"
+  resolved "https://registry.yarnpkg.com/flow-parser/-/flow-parser-0.252.0.tgz#8f9795cbd1b5108f1aec2602f951dcb97ffbd247"
+  integrity sha512-z8hKPUjZ33VLn4HVntifqmEhmolUMopysnMNzazoDqo1GLUkBsreLNsxETlKJMPotUWStQnen6SGvUNe1j4Hlg==
 
 follow-redirects@^1.15.6:
   version "1.15.9"
@@ -6157,11 +6157,6 @@ react-native-pager-view@6.3.0:
   version "6.3.0"
   resolved "https://registry.yarnpkg.com/react-native-pager-view/-/react-native-pager-view-6.3.0.tgz#7e734e84b1692f877591335373f6fd92f0d67aa6"
   integrity sha512-ufJOoVa9pFL1J/yb4hpsCqp8n1qTlcF5VvwqvCacHX//D7hSeRscsiIXg1u1pXNWwllvACb+mqxec/3Uj2mxrA==
-
-react-native-radio-buttons-group@^3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/react-native-radio-buttons-group/-/react-native-radio-buttons-group-3.1.0.tgz#b19d383fc2dece17eba1ce37b9f357c47431aded"
-  integrity sha512-DiNM1yI6WfRygUZ+Z/bsjggyLypXsxRNXPNYpPHXSEVbRD6uF5Aei+HMIwyeRbfMKPtHwLq7cGsmUDV01i+rOQ==
 
 react-native-reanimated@~3.10.1:
   version "3.10.1"

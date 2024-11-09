@@ -1,3 +1,4 @@
+import { useQuery } from "@realm/react";
 import { SECONDARY_COLOR } from "../../../config/colors.config";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import {
@@ -12,30 +13,20 @@ import {
 import CustomText from "../../../components/CustomText";
 import TransactionModel from "../../../models/TransactionModel";
 import SourceModel from "../../../models/SourceModel";
-import { Results } from "realm";
 import CategoryModel from "../../../models/CategoryModel";
 import InvestmentModel from "../../../models/InvestmentModel";
 import TripModel from "../../../models/TripModel";
 
-const TransactionRenderItem = ({
-	item,
-	sourceModels,
-	categoryModels,
-	investmentModels,
-	tripModels,
-}: {
-	item: TransactionModel;
-	sourceModels: Results<SourceModel>;
-	categoryModels: Results<CategoryModel>;
-	investmentModels: Results<InvestmentModel>;
-	tripModels: Results<TripModel>;
-}) => {
+const TransactionRenderItem = ({ item }: { item: TransactionModel }) => {
+	const sourceModels = useQuery(SourceModel);
+	const categoryModels = useQuery(CategoryModel);
+	const investmentModels = useQuery(InvestmentModel);
+	const tripModels = useQuery(TripModel);
 	return (
 		<TouchableOpacity style={styles.outer}>
 			<View
 				style={{
 					flexDirection: FLEX_ROW,
-					width: "100%",
 					justifyContent: CENTER,
 				}}
 			>

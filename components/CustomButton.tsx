@@ -1,77 +1,46 @@
+import { DimensionValue, TouchableOpacity } from "react-native";
 import {
-	Animated,
-	DimensionValue,
-	StyleSheet,
-	TouchableOpacity,
-} from "react-native";
-import { BORDER_RADIUS, PADDING, NINETY_P } from "../config/constants.config";
-import CustomText from "./CustomText";
-import { FC, useRef } from "react";
+	BORDER_RADIUS,
+	PADDING,
+	NINETY_P,
+	CENTER,
+	FONT_SIZE,
+} from "../config/constants.config";
 import { GREEN_COLOR } from "../config/colors.config";
+import CustomText from "./CustomText";
 
-interface Button {
+interface ICustomButton {
 	text?: string;
 	onPress?: VoidFunction;
 	width?: DimensionValue;
 	disabled?: boolean;
 }
 
-const CustomButton: FC<Button> = ({
+const CustomButton = ({
 	text = "Submit",
 	onPress = () => {},
 	width = NINETY_P,
 	disabled = false,
-}) => {
-	const scaleValue = useRef(new Animated.Value(1)).current;
-
-	const handlePress = () => {
-		Animated.spring(scaleValue, {
-			toValue: 0.00001,
-			useNativeDriver: true,
-		}).start();
-		setTimeout(() => {
-			Animated.spring(scaleValue, {
-				toValue: 1,
-				useNativeDriver: true,
-			}).start();
-			onPress();
-		}, 100);
-	};
-
+}: ICustomButton) => {
 	return (
-		<Animated.View
+		<TouchableOpacity
 			style={{
-				transform: [{ scale: scaleValue }],
-				alignItems: "center",
-				paddingTop: PADDING * 2,
+				backgroundColor: GREEN_COLOR,
+				padding: PADDING,
+				borderRadius: BORDER_RADIUS,
+				alignItems: CENTER,
+				justifyContent: CENTER,
+				opacity: disabled ? 0.5 : 1,
+				width,
+				marginVertical: FONT_SIZE,
+				alignSelf: CENTER,
 			}}
+			onPress={onPress}
+			disabled={disabled}
 		>
-			<TouchableOpacity
-				style={[
-					styles.button,
-					disabled && styles.disabled_button,
-					{ width },
-				]}
-				onPress={handlePress}
-				disabled={disabled}
-			>
-				<CustomText text={text} alignSelf={"center"} />
-			</TouchableOpacity>
-		</Animated.View>
+			<CustomText text={text} alignSelf={CENTER} />
+		</TouchableOpacity>
 	);
 };
-
-const styles = StyleSheet.create({
-	button: {
-		backgroundColor: GREEN_COLOR,
-		padding: PADDING,
-		borderRadius: BORDER_RADIUS,
-		alignItems: "center",
-		justifyContent: "center",
-	},
-	disabled_button: {
-		opacity: 0.5,
-	},
-});
 
 export default CustomButton;

@@ -1,10 +1,5 @@
 import { StyleSheet, TouchableOpacity, View } from "react-native";
-import {
-	BACKGROUND_COLOR,
-	DISABLED_COLOR,
-	PRIMARY_COLOR,
-	SECONDARY_COLOR,
-} from "../config/colors.config";
+import { PRIMARY_COLOR, SECONDARY_COLOR } from "../config/colors.config";
 import {
 	CENTER,
 	FLEX_ROW,
@@ -17,8 +12,11 @@ import CustomText from "./CustomText";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import app from "./../app.json";
 import { USER_ICON } from "../config/icons.config";
+import { useNavigation } from "@react-navigation/native";
+import LoggedInRoutes from "../screens/auth/LoggedInRoutes";
 
 const Header = () => {
+	const { navigate } = useNavigation<any>();
 	return (
 		<View style={styles.container}>
 			<TouchableOpacity style={{ paddingLeft: PADDING / 2 }}>
@@ -28,7 +26,7 @@ const Header = () => {
 					alignSelf={CENTER}
 				/>
 			</TouchableOpacity>
-			<TouchableOpacity>
+			<TouchableOpacity onPress={() => navigate(LoggedInRoutes.User)}>
 				<FontAwesome5
 					name={USER_ICON}
 					size={LARGE_FONT_SIZE}

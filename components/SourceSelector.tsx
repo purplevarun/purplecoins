@@ -45,7 +45,7 @@ const SourceSelector = () => {
 	return (
 		<View style={styles.wrapper}>
 			<Dropdown
-				placeholder={"Select Source"}
+				placeholder={"Select Source *"}
 				labelField={"label"}
 				valueField={"value"}
 				data={sourceModels}

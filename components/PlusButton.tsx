@@ -1,5 +1,5 @@
 import { TouchableOpacity, Image, StyleSheet } from "react-native";
-import { FONT_SIZE } from "../config/constants.config";
+import { ABSOLUTE, FONT_SIZE } from "../config/constants.config";
 import { useNavigation } from "@react-navigation/native";
 import { BACKGROUND_COLOR } from "../config/colors.config";
 
@@ -10,9 +10,7 @@ const PlusButton = ({ to }: { to: string }) => {
 	return (
 		<TouchableOpacity
 			style={styles.button}
-			onPress={() => {
-				navigation.navigate(to);
-			}}
+			onPress={() => navigation.navigate(to)}
 		>
 			<Image source={source} style={styles.image} />
 		</TouchableOpacity>
@@ -21,13 +19,13 @@ const PlusButton = ({ to }: { to: string }) => {
 
 const styles = StyleSheet.create({
 	image: {
-		width: FONT_SIZE * 2.5,
-		height: FONT_SIZE * 2.5,
-		borderRadius: (FONT_SIZE * 2) / 2,
+		width: FONT_SIZE * 3,
+		height: FONT_SIZE * 3,
+		borderRadius: FONT_SIZE,
 		backgroundColor: BACKGROUND_COLOR,
 	},
 	button: {
-		position: "absolute",
+		position: ABSOLUTE,
 		right: FONT_SIZE / 2,
 		bottom: FONT_SIZE / 2,
 		zIndex: 1,

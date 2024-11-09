@@ -15,4 +15,5 @@ const App = () => {
 	);
 };
 
+// noinspection JSUnusedGlobalSymbols
 export default App;

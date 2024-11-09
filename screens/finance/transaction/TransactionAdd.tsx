@@ -54,9 +54,9 @@ const TransactionAdd = () => {
 	)[0];
 
 	const isEnabled = () => {
+		const amountInt = parseInt(amount);
 		if (type === ExpenseType.EXPENSE || type === ExpenseType.INCOME) {
 			try {
-				const amountInt = new Function(`return ${amount}`)();
 				if (isNaN(amountInt)) return false;
 				return amountInt > 0 && reason.length > 0 && source.length > 0;
 			} catch {
@@ -65,7 +65,6 @@ const TransactionAdd = () => {
 		}
 		if (type === ExpenseType.TRANSFER) {
 			try {
-				const amountInt = new Function(`return ${amount}`)();
 				if (isNaN(amountInt)) return false;
 				return (
 					amountInt > 0 && source.length > 0 && destination.length > 0
@@ -76,7 +75,6 @@ const TransactionAdd = () => {
 		}
 		if (type === ExpenseType.INVESTMENT) {
 			try {
-				const amountInt = new Function(`return ${amount}`)();
 				if (isNaN(amountInt)) return false;
 				return (
 					amountInt > 0 && source.length > 0 && investment.length > 0
@@ -89,7 +87,7 @@ const TransactionAdd = () => {
 
 	const handlePress = () => {
 		realm.write(() => {
-			const calculatedAmount = new Function(`return ${amount}`)();
+			const calculatedAmount = parseInt(amount);
 			realm.create(TransactionModel, {
 				id: generateUUID(),
 				amount: calculatedAmount,

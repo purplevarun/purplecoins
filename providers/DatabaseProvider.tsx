@@ -19,7 +19,6 @@ const DatabaseProvider = ({ children }: ProviderType) => {
 				InvestmentModel,
 				TripModel,
 			]}
-			deleteRealmIfMigrationNeeded
 			fallback={<LoadingScreen />}
 		>
 			{children}
