@@ -20,7 +20,6 @@
 		"@react-navigation/native": "^6.1.18",
 		"@react-navigation/native-stack": "^6.11.0",
 		"@realm/react": "^0.10.1",
-		"@shopify/flash-list": "1.6.4",
 		"axios": "^1.7.7",
 		"expo": "~51.0.39",
 		"expo-font": "~12.0.10",
