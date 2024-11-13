@@ -8,7 +8,7 @@ import CategoryModel from "../../../models/CategoryModel";
 import ExpenseType from "../../../types/ExpenseType";
 
 type Props = FC<{
-	categoryList: Results<CategoryModel>;
+	categoryList: CategoryModel[];
 	type: ExpenseType;
 }>;
 

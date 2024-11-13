@@ -1,5 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
-import { useQuery, useRealm } from "@realm/react";
+import { useRealm } from "@realm/react";
 import { useState } from "react";
 import { generateUUID } from "../../../util/HelperFunctions";
 import { CENTER, LARGE_FONT_SIZE } from "../../../config/constants.config";
@@ -10,17 +10,16 @@ import CustomButton from "../../../components/CustomButton";
 import CloseButton from "../../../components/CloseButton";
 import TypeSelector from "../../../components/TypeSelector";
 import CategoryModel from "../../../models/CategoryModel";
-import ExpenseType from "../../../types/ExpenseType";
 import CategoryRoutes from "./CategoryRoutes";
-import UserModel from "../../../models/UserModel";
 import useTransactionStore from "../transaction/TransactionStore";
+import useDatabase from "../../../util/DatabaseFunctions";
 
 const CategoryAdd = () => {
 	const realm = useRealm();
-	const { navigate } = useNavigation<any>();
 	const [name, setName] = useState("");
+	const { navigate } = useNavigation<any>();
 	const { type } = useTransactionStore();
-	const userModels = useQuery(UserModel);
+	const { user } = useDatabase();
 
 	const handlePress = () => {
 		realm.write(() =>
@@ -28,7 +27,7 @@ const CategoryAdd = () => {
 				id: generateUUID(),
 				name,
 				type,
-				userId: userModels[0].id,
+				userId: user.id,
 			}),
 		);
 		navigate(CategoryRoutes.Main);
@@ -43,7 +42,12 @@ const CategoryAdd = () => {
 				fontSize={LARGE_FONT_SIZE}
 			/>
 			<TypeSelector />
-			<CustomInput value={name} setValue={setName} name="Category Name" />
+			<CustomInput
+				value={name}
+				setValue={setName}
+				name="Category Name"
+				required
+			/>
 			<CustomButton disabled={name.length == 0} onPress={handlePress} />
 		</ScreenLayout>
 	);

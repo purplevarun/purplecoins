@@ -18,17 +18,21 @@ import InvestmentRoutes from "./InvestmentRoutes";
 import InvestmentModel from "../../../models/InvestmentModel";
 
 const InvestmentAdd = () => {
-	const [name, setName] = useState("");
 	const realm = useRealm();
+	const [name, setName] = useState("");
+	const [investedAmount, setInvestedAmount] = useState("");
+	const [currentAmount, setCurrentAmount] = useState("");
 	const { navigate } = useNavigation<any>();
 
 	const handlePress = () => {
 		realm.write(() => {
+			const iInvAmt = parseInt(investedAmount);
+			const iCurrAmt = parseInt(currentAmount);
 			realm.create(InvestmentModel, {
 				id: generateUUID(),
 				name,
-				investedAmount: 0,
-				currentAmount: 0,
+				investedAmount: isNaN(iInvAmt) ? 0 : iInvAmt,
+				currentAmount: isNaN(iCurrAmt) ? 0 : iCurrAmt,
 			});
 		});
 		navigate(InvestmentRoutes.Main);
@@ -43,7 +47,22 @@ const InvestmentAdd = () => {
 				fontSize={LARGE_FONT_SIZE}
 			/>
 			<Vertical size={PADDING / 2} />
-			<CustomInput name={"Name"} value={name} setValue={setName} />
+			<CustomInput
+				name={"Name"}
+				value={name}
+				setValue={setName}
+				required
+			/>
+			<CustomInput
+				name={"Invested Amount"}
+				value={investedAmount}
+				setValue={setInvestedAmount}
+			/>
+			<CustomInput
+				name={"Current Amount"}
+				value={currentAmount}
+				setValue={setCurrentAmount}
+			/>
 			<CustomButton
 				disabled={name.length < MINIMUM_LENGTH}
 				onPress={handlePress}

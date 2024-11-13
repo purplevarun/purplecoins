@@ -14,6 +14,7 @@ interface ICustomButton {
 	onPress?: VoidFunction;
 	width?: DimensionValue;
 	disabled?: boolean;
+	color?: string;
 }
 
 const CustomButton = ({
@@ -21,11 +22,12 @@ const CustomButton = ({
 	onPress = () => {},
 	width = NINETY_P,
 	disabled = false,
+	color = GREEN_COLOR,
 }: ICustomButton) => {
 	return (
 		<TouchableOpacity
 			style={{
-				backgroundColor: GREEN_COLOR,
+				backgroundColor: color,
 				padding: PADDING,
 				borderRadius: BORDER_RADIUS,
 				alignItems: CENTER,

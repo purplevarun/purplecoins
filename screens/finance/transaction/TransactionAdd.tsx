@@ -1,10 +1,20 @@
-import { CENTER, LARGE_FONT_SIZE } from "../../../config/constants.config";
+import { useState } from "react";
+import { TouchableOpacity } from "react-native";
+import { PRIMARY_COLOR } from "../../../config/colors.config";
+import {
+	BORDER_RADIUS,
+	BORDER_WIDTH,
+	CENTER,
+	LARGE_FONT_SIZE,
+	MARGIN,
+	NINETY_P,
+	PADDING,
+} from "../../../config/constants.config";
 import { useNavigation } from "@react-navigation/native";
-import { generateUUID } from "../../../util/HelperFunctions";
-import { useQuery, useRealm } from "@realm/react";
+import { formatDate, generateUUID } from "../../../util/HelperFunctions";
+import { useRealm } from "@realm/react";
 import TransactionRoutes from "./TransactionRoutes";
 import useTransactionStore from "./TransactionStore";
-import UserModel from "../../../models/UserModel";
 import TransactionModel from "../../../models/TransactionModel";
 import CustomText from "../../../components/CustomText";
 import CustomInput from "../../../components/CustomInput";
@@ -13,17 +23,16 @@ import CloseButton from "../../../components/CloseButton";
 import TypeSelector from "../../../components/TypeSelector";
 import CustomButton from "../../../components/CustomButton";
 import CategorySelector from "../../../components/CategorySelector";
-import SourceModel from "../../../models/SourceModel";
 import SourceSelector from "../../../components/SourceSelector";
-import ExpenseType from "../../../types/ExpenseType";
 import DestinationSelector from "../../../components/DestinationSelector";
 import InvestmentSelector from "../../../components/InvestmentSelector";
-import InvestmentModel from "../../../models/InvestmentModel";
 import TripSelector from "../../../components/TripSelector";
+import useDatabase from "../../../util/DatabaseFunctions";
+import ExpenseType from "../../../types/ExpenseType";
+import RNDateTimePicker from "@react-native-community/datetimepicker";
 
 const TransactionAdd = () => {
 	const realm = useRealm();
-	const userId = useQuery(UserModel)[0]?.id;
 	const { navigate } = useNavigation<any>();
 	const {
 		amount,
@@ -41,17 +50,11 @@ const TransactionAdd = () => {
 		setSource,
 		setDestination,
 		setInvestment,
+		setDate,
+		date,
 	} = useTransactionStore();
 
-	const sourceModel = useQuery(SourceModel).filter(
-		(sourceModel) => sourceModel.id === source,
-	)[0];
-	const destinationModel = useQuery(SourceModel).filter(
-		(sourceModel) => sourceModel.id === destination,
-	)[0];
-	const investmentModel = useQuery(InvestmentModel).filter(
-		(investmentModel) => investmentModel.id === investment,
-	)[0];
+	const { user, sources, investments } = useDatabase();
 
 	const isEnabled = () => {
 		const amountInt = parseInt(amount);
@@ -93,22 +96,35 @@ const TransactionAdd = () => {
 				amount: calculatedAmount,
 				reason,
 				type,
-				date: new Date(),
-				userId,
+				date,
+				userId: user.id,
 				categories,
 				trips,
 				sourceId: source,
 				destinationId: destination,
 				investmentId: investment,
 			});
-			if (type === ExpenseType.EXPENSE) {
+			const sourceModel = sources.find((s) => s.id === source);
+			const destinationModel = sources.find((d) => d.id === destination);
+			const investmentModel = investments.find(
+				(i) => i.id === investment,
+			);
+			if (type === ExpenseType.EXPENSE && sourceModel) {
 				sourceModel.amount -= calculatedAmount;
-			} else if (type === ExpenseType.INCOME) {
+			} else if (type === ExpenseType.INCOME && sourceModel) {
 				sourceModel.amount += calculatedAmount;
-			} else if (type === ExpenseType.INVESTMENT) {
+			} else if (
+				type === ExpenseType.INVESTMENT &&
+				sourceModel &&
+				investmentModel
+			) {
 				sourceModel.amount -= calculatedAmount;
 				investmentModel.investedAmount += calculatedAmount;
-			} else if (type === ExpenseType.TRANSFER) {
+			} else if (
+				type === ExpenseType.TRANSFER &&
+				sourceModel &&
+				destinationModel
+			) {
 				sourceModel.amount -= calculatedAmount;
 				destinationModel.amount += calculatedAmount;
 			}
@@ -120,9 +136,9 @@ const TransactionAdd = () => {
 		setInvestment("");
 		setCategories([]);
 		setTrips([]);
+		setDate(new Date());
 		navigate(TransactionRoutes.Main);
 	};
-
 	return (
 		<ScreenLayout>
 			<CloseButton path={TransactionRoutes.Main} />
@@ -137,15 +153,55 @@ const TransactionAdd = () => {
 				value={amount}
 				setValue={setAmount}
 				numeric
+				required
 			/>
-			<CustomInput name={"Reason"} value={reason} setValue={setReason} />
+			<CustomInput
+				name={"Reason"}
+				value={reason}
+				setValue={setReason}
+				required
+			/>
 			<SourceSelector />
+			<TransactionDatePicker />
 			<DestinationSelector />
 			<CategorySelector />
 			<InvestmentSelector />
 			<TripSelector />
 			<CustomButton disabled={!isEnabled()} onPress={handlePress} />
 		</ScreenLayout>
+	);
+};
+
+const TransactionDatePicker = () => {
+	const { date, setDate } = useTransactionStore();
+	const [showPicker, setShowPicker] = useState(false);
+	if (showPicker)
+		return (
+			<RNDateTimePicker
+				value={date}
+				onChange={(_, newDate) => {
+					setShowPicker(false);
+					setDate(newDate ?? new Date());
+				}}
+			/>
+		);
+	return (
+		<TouchableOpacity
+			style={{
+				borderWidth: BORDER_WIDTH,
+				borderColor: PRIMARY_COLOR,
+				borderRadius: BORDER_RADIUS,
+				width: NINETY_P,
+				alignSelf: CENTER,
+				padding: PADDING,
+				marginTop: MARGIN * 2,
+			}}
+			onPress={() => {
+				setShowPicker(true);
+			}}
+		>
+			<CustomText text={formatDate(date)} />
+		</TouchableOpacity>
 	);
 };
 

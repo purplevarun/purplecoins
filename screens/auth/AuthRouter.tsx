@@ -1,14 +1,15 @@
-import { useQuery } from "@realm/react";
+import useDatabase from "../../util/DatabaseFunctions";
 import LoggedOutRouter from "./LoggedOutRouter";
-import UserModel from "../../models/UserModel";
-import ErrorScreen from "../other/ErrorScreen";
 import LoggedInRouter from "./LoggedInRouter";
+import useLogger from "../../util/Logger";
 
 const AuthRouter = () => {
-	const userModels = useQuery(UserModel);
-	if (userModels === null) return <ErrorScreen message={"No User found"} />;
-	if (userModels.isEmpty()) return <LoggedOutRouter />;
-	else return <LoggedInRouter />;
+	const { user } = useDatabase();
+	const { logAll } = useLogger();
+	logAll();
+	
+	if (user.exists) return <LoggedInRouter />;
+	else return <LoggedOutRouter />;
 };
 
 export default AuthRouter;

@@ -2,22 +2,20 @@ import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { expo } from "../../app.json";
 import {
-	API_URL,
 	CENTER,
 	LARGE_FONT_SIZE,
 	MINIMUM_LENGTH,
 } from "../../config/constants.config";
-import axios from "axios";
+import { SERVER_ERROR } from "../../config/error.config";
+import { checkUser } from "../../util/ApiFunctions";
 import CustomText from "../../components/CustomText";
 import CustomInput from "../../components/CustomInput";
 import CustomButton from "../../components/CustomButton";
 import LoadingScreen from "../other/LoadingScreen";
-import LoggedOutRoutes from "./LoggedOutRoutes";
 import AuthScreenLayout from "./AuthScreenLayout";
 import ErrorMessage from "./ErrorMessage";
+import LoggedOutRoutes from "./LoggedOutRoutes";
 import HTTP from "../../config/http_codes.config";
-import { objectify } from "../../util/HelperFunctions";
-import { SERVER_ERROR } from "../../config/error.config";
 
 const CheckUsernameScreen = () => {
 	const [username, setUsername] = useState("");
@@ -27,16 +25,11 @@ const CheckUsernameScreen = () => {
 
 	const handlePress = async () => {
 		setLoading(true);
-		const url = `${API_URL}/check-user?name=${username}`;
-		const { data } = await axios.get(url);
-		console.log(url, objectify(data));
-		if (data.status === HTTP.SERVER_ERROR) {
-			setError(SERVER_ERROR);
-		} else if (data.status === HTTP.NOT_FOUND) {
-			navigate(LoggedOutRoutes.SignUpScreen, { username });
-		} else {
-			navigate(LoggedOutRoutes.SignInScreen, { username });
-		}
+		const { status } = await checkUser(username);
+		if (status === HTTP.SERVER_ERROR) setError(SERVER_ERROR);
+		else if (status === HTTP.NOT_FOUND)
+			navigate(LoggedOutRoutes.SignUp, { username });
+		else navigate(LoggedOutRoutes.SignIn, { username });
 		setLoading(false);
 	};
 

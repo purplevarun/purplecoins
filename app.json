@@ -1,8 +1,8 @@
 {
 	"expo": {
-		"name": "Supercoins",
-		"slug": "supercoins",
-		"version": "1.0.9",
+		"name": "Purplecoins",
+		"slug": "purplecoins",
+		"version": "1.0.0",
 		"orientation": "portrait",
 		"icon": "./assets/icon.png",
 		"userInterfaceStyle": "dark",
@@ -12,8 +12,7 @@
 			"backgroundColor": "#0C1117"
 		},
 		"android": {
-			"package": "com.keyshoe.supercoins",
-			"versionCode": 9,
+			"package": "com.keyshoe.purplecoins",
 			"softwareKeyboardLayoutMode": "pan"
 		},
 		"plugins": [
@@ -21,13 +20,8 @@
 				"expo-font"
 			]
 		],
-		"extra": {
-			"eas": {
-				"projectId": "6af7224f-5148-446b-91f0-8747a3b0cfbd"
-			}
-		},
 		"ios": {
-			"bundleIdentifier": "com.keyshoe.supercoins"
+			"bundleIdentifier": "com.keyshoe.purplecoins"
 		}
 	}
 }

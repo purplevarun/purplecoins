@@ -1,4 +1,3 @@
-import { useQuery } from "@realm/react";
 import { SECONDARY_COLOR } from "../../../config/colors.config";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import {
@@ -12,16 +11,11 @@ import {
 } from "../../../config/constants.config";
 import CustomText from "../../../components/CustomText";
 import TransactionModel from "../../../models/TransactionModel";
-import SourceModel from "../../../models/SourceModel";
-import CategoryModel from "../../../models/CategoryModel";
-import InvestmentModel from "../../../models/InvestmentModel";
-import TripModel from "../../../models/TripModel";
+import useDatabase from "../../../util/DatabaseFunctions";
+import { formatMoney } from "../../../util/HelperFunctions";
 
 const TransactionRenderItem = ({ item }: { item: TransactionModel }) => {
-	const sourceModels = useQuery(SourceModel);
-	const categoryModels = useQuery(CategoryModel);
-	const investmentModels = useQuery(InvestmentModel);
-	const tripModels = useQuery(TripModel);
+	const { sources, investments, trips, categories } = useDatabase();
 	return (
 		<TouchableOpacity style={styles.outer}>
 			<View
@@ -39,7 +33,7 @@ const TransactionRenderItem = ({ item }: { item: TransactionModel }) => {
 				}}
 			>
 				<CustomText text={"Amount"} />
-				<CustomText text={item.amount} />
+				<CustomText text={formatMoney(item.amount)} />
 			</View>
 			<View
 				style={{
@@ -58,10 +52,7 @@ const TransactionRenderItem = ({ item }: { item: TransactionModel }) => {
 			>
 				<CustomText text={"Source"} />
 				<CustomText
-					text={
-						sourceModels.filter((s) => s.id === item.sourceId)[0]
-							.name
-					}
+					text={sources.filter((s) => s.id === item.sourceId)[0].name}
 				/>
 			</View>
 			{item.destinationId && (
@@ -74,7 +65,7 @@ const TransactionRenderItem = ({ item }: { item: TransactionModel }) => {
 					<CustomText text={"Destination"} />
 					<CustomText
 						text={
-							sourceModels.filter(
+							sources.filter(
 								(s) => s.id === item.destinationId,
 							)[0].name
 						}
@@ -90,7 +81,7 @@ const TransactionRenderItem = ({ item }: { item: TransactionModel }) => {
 				>
 					<CustomText text={"Categories"} alignSelf={CENTER} />
 					<View>
-						{categoryModels
+						{categories
 							.filter((c) => item.categories?.includes(c.id))
 							.map((c) => (
 								<CustomText text={c.name} key={c.id} />
@@ -108,7 +99,7 @@ const TransactionRenderItem = ({ item }: { item: TransactionModel }) => {
 					<CustomText text={"Investment"} />
 					<CustomText
 						text={
-							investmentModels.filter(
+							investments.filter(
 								(i) => i.id === item.investmentId,
 							)[0].name
 						}
@@ -124,7 +115,7 @@ const TransactionRenderItem = ({ item }: { item: TransactionModel }) => {
 				>
 					<CustomText text={"Trips"} alignSelf={CENTER} />
 					<View>
-						{tripModels
+						{trips
 							.filter((t) => item.trips?.includes(t.id))
 							.map((t) => (
 								<CustomText text={t.name} key={t.id} />

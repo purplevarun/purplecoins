@@ -1,8 +1,3 @@
-import useTransactionStore from "../screens/finance/transaction/TransactionStore";
-import { useQuery } from "@realm/react";
-import SourceModel from "../models/SourceModel";
-import ExpenseType from "../types/ExpenseType";
-import RenderItemType from "../types/RenderItemType";
 import {
 	BACKGROUND_COLOR,
 	DISABLED_COLOR,
@@ -17,14 +12,17 @@ import {
 	PADDING,
 	PADDING_TOP_ADD_SCREEN,
 } from "../config/constants.config";
-import CustomText from "./CustomText";
 import { Dropdown } from "react-native-element-dropdown";
-import InvestmentModel from "../models/InvestmentModel";
+import useTransactionStore from "../screens/finance/transaction/TransactionStore";
+import ExpenseType from "../types/ExpenseType";
+import RenderItemType from "../types/RenderItemType";
+import CustomText from "./CustomText";
+import useDatabase from "../util/DatabaseFunctions";
 
 const SourceSelector = () => {
 	const { investment, setInvestment, type } = useTransactionStore();
-
-	const investmentModels = useQuery(InvestmentModel).map((investment) => ({
+	const { investments } = useDatabase();
+	const investmentModels = investments.map((investment) => ({
 		label: investment.name,
 		value: investment.id,
 	}));
@@ -49,7 +47,7 @@ const SourceSelector = () => {
 	return (
 		<View style={styles.wrapper}>
 			<Dropdown
-				placeholder="Select Investment"
+				placeholder="Select Investment *"
 				labelField={"label"}
 				valueField={"value"}
 				data={investmentModels}

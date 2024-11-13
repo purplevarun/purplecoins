@@ -1,8 +1,4 @@
-import useTransactionStore from "../screens/finance/transaction/TransactionStore";
-import { useQuery } from "@realm/react";
-import SourceModel from "../models/SourceModel";
-import ExpenseType from "../types/ExpenseType";
-import RenderItemType from "../types/RenderItemType";
+import { Dropdown } from "react-native-element-dropdown";
 import {
 	BACKGROUND_COLOR,
 	DISABLED_COLOR,
@@ -17,20 +13,24 @@ import {
 	PADDING,
 	PADDING_TOP_ADD_SCREEN,
 } from "../config/constants.config";
+import useTransactionStore from "../screens/finance/transaction/TransactionStore";
+import ExpenseType from "../types/ExpenseType";
+import RenderItemType from "../types/RenderItemType";
 import CustomText from "./CustomText";
-import { Dropdown } from "react-native-element-dropdown";
+import useDatabase from "../util/DatabaseFunctions";
 
 const SourceSelector = () => {
 	const { source, destination, setDestination, type } = useTransactionStore();
+	const { sources } = useDatabase();
 
-	const sourceModels = useQuery(SourceModel)
+	if (type !== ExpenseType.TRANSFER) return null;
+
+	const destinationDropdownData = sources
 		.filter((destination) => destination.id !== source)
 		.map((source) => ({
 			label: source.name,
 			value: source.id,
 		}));
-
-	if (type !== ExpenseType.TRANSFER) return null;
 
 	const item = (item: RenderItemType) => {
 		const backgroundColor =
@@ -50,10 +50,10 @@ const SourceSelector = () => {
 	return (
 		<View style={styles.wrapper}>
 			<Dropdown
-				placeholder="Select Destination"
+				placeholder="Select Destination *"
 				labelField={"label"}
 				valueField={"value"}
-				data={sourceModels}
+				data={destinationDropdownData}
 				value={destination}
 				onChange={(item) => setDestination(item.value)}
 				renderItem={item}

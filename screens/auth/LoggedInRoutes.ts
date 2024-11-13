@@ -1,5 +1,5 @@
 const LoggedInRoutes = {
-	Dashboard: "LoggedIn.Dashboard",
+	Main: "LoggedIn.Main",
 	User: "LoggedIn.UserManagement",
 };
 

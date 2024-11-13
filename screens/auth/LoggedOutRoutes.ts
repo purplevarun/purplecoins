@@ -1,7 +1,7 @@
 const LoggedOutRoutes = {
-	CheckUsername: "CheckUsernameScreen",
-	SignInScreen: "SignInScreen",
-	SignUpScreen: "SignUpScreen",
+	CheckUser: "LoggedOut.CheckUsernameScreen",
+	SignIn: "LoggedOut.SignInScreen",
+	SignUp: "LoggedOut.SignUpScreen",
 };
 
 export default LoggedOutRoutes;

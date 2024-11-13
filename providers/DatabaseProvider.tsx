@@ -9,18 +9,16 @@ import InvestmentModel from "../models/InvestmentModel";
 import TripModel from "../models/TripModel";
 
 const DatabaseProvider = ({ children }: ProviderType) => {
+	const schema = [
+		UserModel,
+		TransactionModel,
+		CategoryModel,
+		SourceModel,
+		InvestmentModel,
+		TripModel,
+	];
 	return (
-		<RealmProvider
-			schema={[
-				UserModel,
-				TransactionModel,
-				CategoryModel,
-				SourceModel,
-				InvestmentModel,
-				TripModel,
-			]}
-			fallback={<LoadingScreen />}
-		>
+		<RealmProvider schema={schema} fallback={<LoadingScreen />}>
 			{children}
 		</RealmProvider>
 	);

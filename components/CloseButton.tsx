@@ -1,4 +1,4 @@
-import { LARGE_FONT_SIZE, PADDING } from "../config/constants.config";
+import { ABSOLUTE, FONT_SIZE, PADDING } from "../config/constants.config";
 import { RED_COLOR } from "../config/colors.config";
 import { CLOSE_ICON } from "../config/icons.config";
 import { TouchableOpacity, View, StyleSheet } from "react-native";
@@ -15,7 +15,7 @@ const CloseButton = ({ path }: { path: string }) => {
 			>
 				<FontAwesome
 					name={CLOSE_ICON}
-					size={LARGE_FONT_SIZE}
+					size={FONT_SIZE * 2}
 					color={RED_COLOR}
 				/>
 			</TouchableOpacity>
@@ -26,7 +26,7 @@ const CloseButton = ({ path }: { path: string }) => {
 
 const styles = StyleSheet.create({
 	button: {
-		position: "absolute",
+		position: ABSOLUTE,
 		top: PADDING * 1.2,
 	},
 	buffer: {

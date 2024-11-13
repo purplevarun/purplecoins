@@ -1,10 +1,5 @@
-import { useQuery } from "@realm/react";
+import { formatMoney } from "../../../util/HelperFunctions";
 import { FlatList, TouchableOpacity, View } from "react-native";
-import ScreenLayout from "../../../components/ScreenLayout";
-import PlusButton from "../../../components/PlusButton";
-import SourceRoutes from "./SourceRoutes";
-import SourceModel from "../../../models/SourceModel";
-import CustomText from "../../../components/CustomText";
 import { SECONDARY_COLOR } from "../../../config/colors.config";
 import {
 	BORDER_RADIUS,
@@ -14,28 +9,30 @@ import {
 	PADDING,
 	SPACE_BETWEEN,
 } from "../../../config/constants.config";
+import ScreenLayout from "../../../components/ScreenLayout";
+import PlusButton from "../../../components/PlusButton";
+import SourceRoutes from "./SourceRoutes";
+import CustomText from "../../../components/CustomText";
 import NoContent from "../../other/NoContent";
+import useDatabase from "../../../util/DatabaseFunctions";
 
 const SourceMain = () => {
-	const sourceModels = [...useQuery(SourceModel)].sort(
-		(a, b) => b.amount - a.amount,
-	);
-	console.log(JSON.stringify(sourceModels, null, 2));
-	const total = sourceModels.reduce((sum, model) => sum + model.amount, 0);
+	const { sources } = useDatabase();
+	const total = sources.reduce((sum, model) => sum + model.amount, 0);
 	return (
 		<ScreenLayout>
-			{sourceModels.length === 0 ? (
+			{sources.length === 0 ? (
 				<NoContent sources />
 			) : (
 				<View>
 					<View style={{ paddingVertical: PADDING }}>
 						<CustomText
-							text={`Total Net Worth = ${total}`}
+							text={`Total Net Worth = ${formatMoney(total)}`}
 							alignSelf={CENTER}
 						/>
 					</View>
 					<FlatList
-						data={sourceModels}
+						data={sources}
 						renderItem={({ item }) => {
 							return (
 								<TouchableOpacity
@@ -49,7 +46,9 @@ const SourceMain = () => {
 									}}
 								>
 									<CustomText text={item.name} />
-									<CustomText text={item.amount} />
+									<CustomText
+										text={formatMoney(item.amount)}
+									/>
 								</TouchableOpacity>
 							);
 						}}

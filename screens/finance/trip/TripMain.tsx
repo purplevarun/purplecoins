@@ -1,5 +1,4 @@
-import { useQuery } from "@realm/react";
-import { formatDate, objectify } from "../../../util/HelperFunctions";
+import { formatDate } from "../../../util/HelperFunctions";
 import { FlatList, TouchableOpacity, View } from "react-native";
 import {
 	BORDER_RADIUS,
@@ -13,19 +12,18 @@ import ScreenLayout from "../../../components/ScreenLayout";
 import CustomText from "../../../components/CustomText";
 import PlusButton from "../../../components/PlusButton";
 import TripRoutes from "./TripRoutes";
-import TripModel from "../../../models/TripModel";
 import NoContent from "../../other/NoContent";
+import useDatabase from "../../../util/DatabaseFunctions";
 
 const TripMain = () => {
-	const tripModels = useQuery(TripModel);
-	console.log(objectify(tripModels));
+	const { trips } = useDatabase();
 	return (
 		<ScreenLayout>
-			{tripModels.length === 0 ? (
+			{trips.length === 0 ? (
 				<NoContent trips />
 			) : (
 				<FlatList
-					data={tripModels}
+					data={trips}
 					renderItem={({ item }) => (
 						<TouchableOpacity
 							style={{

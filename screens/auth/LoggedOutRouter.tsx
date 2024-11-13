@@ -21,15 +21,15 @@ const LoggedOutRouter = () => {
 			<StatusBar backgroundColor={BACKGROUND_COLOR} />
 			<Stack.Navigator screenOptions={SCREEN_OPTIONS}>
 				<Stack.Screen
-					name={LoggedOutRoutes.CheckUsername}
+					name={LoggedOutRoutes.CheckUser}
 					component={CheckUsernameScreen}
 				/>
 				<Stack.Screen
-					name={LoggedOutRoutes.SignUpScreen}
+					name={LoggedOutRoutes.SignUp}
 					component={SignUpScreen}
 				/>
 				<Stack.Screen
-					name={LoggedOutRoutes.SignInScreen}
+					name={LoggedOutRoutes.SignIn}
 					component={SignInScreen}
 				/>
 			</Stack.Navigator>

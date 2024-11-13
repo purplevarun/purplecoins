@@ -1,15 +1,12 @@
 import { expo } from "./../../app.json";
 import { useState } from "react";
+import { createNewUser } from "../../util/ApiFunctions";
 import {
-	API_URL,
 	CENTER,
 	LARGE_FONT_SIZE,
 	MINIMUM_LENGTH,
 } from "../../config/constants.config";
 import { SERVER_ERROR, USER_EXISTS } from "../../config/error.config";
-import { useRealm } from "@realm/react";
-import { objectify } from "../../util/HelperFunctions";
-import axios from "axios";
 import HTTP from "../../config/http_codes.config";
 import CustomInput from "../../components/CustomInput";
 import CustomText from "../../components/CustomText";
@@ -18,37 +15,25 @@ import Vertical from "../../components/Vertical";
 import LoadingScreen from "../other/LoadingScreen";
 import CustomButton from "../../components/CustomButton";
 import ErrorMessage from "./ErrorMessage";
-import UserModel from "../../models/UserModel";
+import useDatabase from "../../util/DatabaseFunctions";
 
-const SignUpScreen = ({ route }: { route: any }) => {
+const SignUpScreen = ({ route }: any) => {
 	const { username } = route.params;
-	const [password, setPassword] = useState("");
+	const { createUser } = useDatabase();
+	const [password1, setPassword1] = useState("");
+	const [password2, setPassword2] = useState("");
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState("");
-	const realm = useRealm();
 
 	const handlePress = async () => {
 		try {
 			setLoading(true);
-			const url = `${API_URL}/create-user?name=${username}&password=${password}`;
-			const { data } = await axios.post(url);
-			console.log(url, objectify(data));
-			if (data.status === HTTP.SERVER_ERROR) {
-				setError(SERVER_ERROR);
-			} else if (data.status === HTTP.INVALID_REQUEST) {
-				setError(USER_EXISTS);
-			} else {
-				realm.write(() => {
-					realm.create(UserModel, {
-						id: data.user_id,
-						name: data.user_name,
-					});
-				});
-			}
+			const { status, userId } = await createNewUser(username, password1);
+			if (status === HTTP.SERVER_ERROR) setError(SERVER_ERROR);
+			else if (status === HTTP.INVALID_REQUEST) setError(USER_EXISTS);
+			else createUser(userId, username);
 			setLoading(false);
-		} catch (error) {
-			console.log(error);
-		}
+		} catch (error) {}
 	};
 
 	if (loading) return <LoadingScreen />;
@@ -64,12 +49,24 @@ const SignUpScreen = ({ route }: { route: any }) => {
 			<Vertical />
 			<CustomInput
 				name={"Password"}
-				value={password}
-				setValue={setPassword}
+				value={password1}
+				setValue={setPassword1}
+				password
+				numeric
+			/>
+			<Vertical />
+			<CustomInput
+				name={"Confirm Password"}
+				value={password2}
+				setValue={setPassword2}
+				password
+				numeric
 			/>
 			<CustomButton
 				onPress={handlePress}
-				disabled={password.length < MINIMUM_LENGTH}
+				disabled={
+					password1 !== password2 || password1.length < MINIMUM_LENGTH
+				}
 			/>
 		</AuthScreenLayout>
 	);

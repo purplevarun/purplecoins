@@ -1,29 +1,27 @@
 import { View } from "react-native";
-import { useQuery } from "@realm/react";
 import CategoryRoutes from "./CategoryRoutes";
 import ScreenLayout from "../../../components/ScreenLayout";
 import PlusButton from "../../../components/PlusButton";
 import CategorySection from "./CategorySection";
-import ExpenseType from "../../../types/ExpenseType";
-import CategoryModel from "../../../models/CategoryModel";
 import NoContent from "../../other/NoContent";
+import useDatabase from "../../../util/DatabaseFunctions";
+import ExpenseType from "../../../types/ExpenseType";
 
 const CategoryMain = () => {
-	const categoryList = useQuery(CategoryModel);
-	console.log(categoryList);
+	const { categories } = useDatabase();
 	return (
 		<ScreenLayout>
 			<PlusButton to={CategoryRoutes.Add} />
-			{categoryList.length === 0 ? (
+			{categories.length === 0 ? (
 				<NoContent categories />
 			) : (
 				<View>
 					<CategorySection
-						categoryList={categoryList}
+						categoryList={categories}
 						type={ExpenseType.EXPENSE}
 					/>
 					<CategorySection
-						categoryList={categoryList}
+						categoryList={categories}
 						type={ExpenseType.INCOME}
 					/>
 				</View>

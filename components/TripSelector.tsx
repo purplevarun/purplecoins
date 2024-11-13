@@ -1,30 +1,33 @@
 import { View } from "react-native";
 import { DISABLED_COLOR, PRIMARY_COLOR } from "../config/colors.config";
-import { CENTER, FONT_SIZE } from "../config/constants.config";
-import { useQuery } from "@realm/react";
+import { FONT_SIZE, PADDING } from "../config/constants.config";
 import { MultiSelect } from "react-native-element-dropdown";
+import useDatabase from "../util/DatabaseFunctions";
 import CustomText from "./CustomText";
-import ExpenseType from "../types/ExpenseType";
 import useTransactionStore from "../screens/finance/transaction/TransactionStore";
-import RenderItemType from "../types/RenderItemType";
-import TripModel from "../models/TripModel";
 import dropdownStyle from "../styles/dropdown.style";
+import ExpenseType from "../types/ExpenseType";
+import RenderItemType from "../types/RenderItemType";
 
 const TripSelector = () => {
 	const { type, trips, setTrips } = useTransactionStore();
-
-	const tripList = useQuery(TripModel).map(({ id, name }) => ({
+	const { trips: tripModels } = useDatabase();
+	const tripList = tripModels.map(({ id, name }) => ({
 		label: name,
 		value: id,
 	}));
 
 	if (tripList.length === 0)
 		return (
-			<View style={dropdownStyle.wrapper}>
+			<View
+				style={{
+					paddingLeft: PADDING * 2,
+					paddingVertical: PADDING,
+				}}
+			>
 				<CustomText
 					text={"No trips available"}
 					color={DISABLED_COLOR}
-					alignSelf={CENTER}
 				/>
 			</View>
 		);

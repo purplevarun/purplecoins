@@ -22,6 +22,7 @@ interface Input {
 	numeric?: boolean;
 	password?: boolean;
 	disabled?: boolean;
+	required?: boolean;
 }
 
 const CustomInput: FC<Input> = ({
@@ -31,6 +32,7 @@ const CustomInput: FC<Input> = ({
 	numeric = false,
 	password = false,
 	disabled = false,
+	required = false,
 }) => {
 	const [isFocused, setIsFocused] = useState(false);
 	const animatedValue = useRef(new Animated.Value(value ? 1 : 0)).current;
@@ -73,7 +75,7 @@ const CustomInput: FC<Input> = ({
 				}}
 				onPress={() => inputRef.current?.focus()}
 			>
-				{` ${name} * `}
+				{` ${name} ${required ? "* " : ""}`}
 			</Animated.Text>
 			<TextInput
 				ref={inputRef}

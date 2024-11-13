@@ -1,4 +1,3 @@
-import { useQuery } from "@realm/react";
 import {
 	BACKGROUND_COLOR,
 	DISABLED_COLOR,
@@ -16,15 +15,16 @@ import {
 } from "../config/constants.config";
 import useTransactionStore from "../screens/finance/transaction/TransactionStore";
 import RenderItemType from "../types/RenderItemType";
-import SourceModel from "../models/SourceModel";
 import CustomText from "./CustomText";
+import useDatabase from "../util/DatabaseFunctions";
 
 const SourceSelector = () => {
 	const { source, setSource } = useTransactionStore();
+	const { sources } = useDatabase();
 
-	const sourceModels = useQuery(SourceModel).map((source) => ({
-		label: source.name,
-		value: source.id,
+	const sourceModels = sources.map((s) => ({
+		label: s.name,
+		value: s.id,
 	}));
 
 	const item = (item: RenderItemType) => {
