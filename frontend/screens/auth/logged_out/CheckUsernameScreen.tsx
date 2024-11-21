@@ -1,21 +1,21 @@
 import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { expo } from "../../app.json";
+import { expo } from "../../../app.json";
 import {
 	CENTER,
 	LARGE_FONT_SIZE,
 	MINIMUM_LENGTH,
-} from "../../config/constants.config";
-import { SERVER_ERROR } from "../../config/error.config";
-import { checkUser } from "../../util/ApiFunctions";
-import CustomText from "../../components/CustomText";
-import CustomInput from "../../components/CustomInput";
-import CustomButton from "../../components/CustomButton";
-import LoadingScreen from "../other/LoadingScreen";
-import AuthScreenLayout from "./AuthScreenLayout";
+} from "../../../config/constants.config";
+import { SERVER_ERROR } from "../../../config/error.config";
+import { checkUser } from "../../../config/api.config";
+import CustomText from "../../../components/CustomText";
+import CustomInput from "../../../components/CustomInput";
+import CustomButton from "../../../components/CustomButton";
+import LoadingScreen from "../../other/LoadingScreen";
+import LoggedOutScreenLayout from "./LoggedOutScreenLayout";
 import ErrorMessage from "./ErrorMessage";
 import LoggedOutRoutes from "./LoggedOutRoutes";
-import HTTP from "../../config/http_codes.config";
+import HTTP from "../../../config/http_codes.config";
 
 const CheckUsernameScreen = () => {
 	const [username, setUsername] = useState("");
@@ -35,7 +35,7 @@ const CheckUsernameScreen = () => {
 
 	if (loading) return <LoadingScreen />;
 	return (
-		<AuthScreenLayout>
+		<LoggedOutScreenLayout>
 			<CustomText
 				text={`Welcome to ${expo.name}`}
 				alignSelf={CENTER}
@@ -51,7 +51,7 @@ const CheckUsernameScreen = () => {
 				onPress={handlePress}
 				disabled={username.length < MINIMUM_LENGTH}
 			/>
-		</AuthScreenLayout>
+		</LoggedOutScreenLayout>
 	);
 };
 

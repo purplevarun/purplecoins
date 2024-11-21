@@ -3,7 +3,7 @@ import { StyleSheet, TouchableOpacity, View } from "react-native";
 import {
 	DISABLED_COLOR,
 	PRIMARY_COLOR,
-	SECONDARY_COLOR,
+	SECONDARY_COLOR
 } from "../../../config/colors.config";
 import CustomText from "../../../components/CustomText";
 import {
@@ -11,7 +11,7 @@ import {
 	FLEX_ROW,
 	SMALL_FONT_SIZE,
 	SPACE_EVENLY,
-	TOP_TAB_HEIGHT,
+	TOP_TAB_HEIGHT
 } from "../../../config/constants.config";
 
 const FinanceTabBar = ({ state, navigation }: MaterialTopTabBarProps) => {
@@ -41,8 +41,8 @@ const styles = StyleSheet.create({
 		justifyContent: SPACE_EVENLY,
 		backgroundColor: SECONDARY_COLOR,
 		height: TOP_TAB_HEIGHT,
-		alignItems: CENTER,
-	},
+		alignItems: CENTER
+	}
 });
 
 export default FinanceTabBar;

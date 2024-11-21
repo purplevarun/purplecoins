@@ -1,24 +1,26 @@
-import { verifyUser } from "../../util/ApiFunctions";
-import { expo } from "./../../app.json";
+import { verifyUser } from "../../../config/api.config";
+import { expo } from "../../../app.json";
 import { useState } from "react";
-import { INCORRECT_PASSWORD, SERVER_ERROR } from "../../config/error.config";
+import { INCORRECT_PASSWORD, SERVER_ERROR } from "../../../config/error.config";
 import {
 	CENTER,
 	LARGE_FONT_SIZE,
-	MINIMUM_LENGTH,
-} from "../../config/constants.config";
-import HTTP from "../../config/http_codes.config";
-import CustomInput from "../../components/CustomInput";
-import CustomText from "../../components/CustomText";
-import AuthScreenLayout from "./AuthScreenLayout";
-import Vertical from "../../components/Vertical";
-import CustomButton from "../../components/CustomButton";
-import LoadingScreen from "../other/LoadingScreen";
+	MINIMUM_LENGTH
+} from "../../../config/constants.config";
+import HTTP from "../../../config/http_codes.config";
+import CustomInput from "../../../components/CustomInput";
+import CustomText from "../../../components/CustomText";
+import LoggedOutScreenLayout from "./LoggedOutScreenLayout";
+import Vertical from "../../../components/Vertical";
+import CustomButton from "../../../components/CustomButton";
+import LoadingScreen from "../../other/LoadingScreen";
 import ErrorMessage from "./ErrorMessage";
-import useDatabase from "../../util/DatabaseFunctions";
+import useDatabase from "../../../util/database/DatabaseFunctions";
+import useStore from "../../../util/Zustand";
 
 const SignInScreen = ({ route }: any) => {
 	const { createUser } = useDatabase();
+	const { refresh } = useStore();
 	const { username } = route.params;
 	const [password, setPassword] = useState("");
 	const [loading, setLoading] = useState(false);
@@ -29,13 +31,16 @@ const SignInScreen = ({ route }: any) => {
 		const { status, userId } = await verifyUser(username, password);
 		if (status === HTTP.SERVER_ERROR) setError(SERVER_ERROR);
 		else if (status === HTTP.INVALID_REQUEST) setError(INCORRECT_PASSWORD);
-		else createUser(userId, username);
+		else {
+			createUser(userId, username);
+			refresh();
+		}
 		setLoading(false);
 	};
 
 	if (loading) return <LoadingScreen />;
 	return (
-		<AuthScreenLayout>
+		<LoggedOutScreenLayout>
 			<CustomText
 				text={`SignIn to ${expo.name}`}
 				alignSelf={CENTER}
@@ -56,7 +61,7 @@ const SignInScreen = ({ route }: any) => {
 				disabled={password.length < MINIMUM_LENGTH}
 				onPress={handlePress}
 			/>
-		</AuthScreenLayout>
+		</LoggedOutScreenLayout>
 	);
 };
 

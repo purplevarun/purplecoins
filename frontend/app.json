@@ -2,15 +2,12 @@
 	"expo": {
 		"name": "Purplecoins",
 		"slug": "purplecoins",
+		"owner": "purplevarun",
 		"version": "1.0.0",
 		"orientation": "portrait",
-		"icon": "./assets/icon.png",
+		"icon": "./assets/images/icon.png",
 		"userInterfaceStyle": "dark",
 		"backgroundColor": "#0C1117",
-		"splash": {
-			"resizeMode": "contain",
-			"backgroundColor": "#0C1117"
-		},
 		"android": {
 			"package": "com.keyshoe.purplecoins",
 			"softwareKeyboardLayoutMode": "pan"
@@ -19,9 +16,6 @@
 			[
 				"expo-font"
 			]
-		],
-		"ios": {
-			"bundleIdentifier": "com.keyshoe.purplecoins"
-		}
+		]
 	}
 }

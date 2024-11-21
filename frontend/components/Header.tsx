@@ -13,7 +13,7 @@ import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import app from "./../app.json";
 import { USER_ICON } from "../config/icons.config";
 import { useNavigation } from "@react-navigation/native";
-import LoggedInRoutes from "../screens/auth/LoggedInRoutes";
+import LoggedInRoutes from "../screens/auth/logged_in/LoggedInRoutes";
 
 const Header = () => {
 	const { navigate } = useNavigation<any>();

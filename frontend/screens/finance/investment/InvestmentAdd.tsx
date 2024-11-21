@@ -1,48 +1,37 @@
 import { useState } from "react";
-import { generateUUID } from "../../../util/HelperFunctions";
-import { useRealm } from "@realm/react";
 import { useNavigation } from "@react-navigation/native";
 import {
 	CENTER,
 	LARGE_FONT_SIZE,
 	MINIMUM_LENGTH,
-	PADDING,
+	PADDING
 } from "../../../config/constants.config";
+import InvestmentRoutes from "./InvestmentRoutes";
 import ScreenLayout from "../../../components/ScreenLayout";
 import CustomText from "../../../components/CustomText";
 import CloseButton from "../../../components/CloseButton";
 import Vertical from "../../../components/Vertical";
 import CustomInput from "../../../components/CustomInput";
 import CustomButton from "../../../components/CustomButton";
-import InvestmentRoutes from "./InvestmentRoutes";
-import InvestmentModel from "../../../models/InvestmentModel";
+import useDatabase from "../../../util/database/DatabaseFunctions";
 
 const InvestmentAdd = () => {
-	const realm = useRealm();
 	const [name, setName] = useState("");
 	const [investedAmount, setInvestedAmount] = useState("");
 	const [currentAmount, setCurrentAmount] = useState("");
 	const { navigate } = useNavigation<any>();
-
+	const { createInvestment } = useDatabase();
 	const handlePress = () => {
-		realm.write(() => {
-			const iInvAmt = parseInt(investedAmount);
-			const iCurrAmt = parseInt(currentAmount);
-			realm.create(InvestmentModel, {
-				id: generateUUID(),
-				name,
-				investedAmount: isNaN(iInvAmt) ? 0 : iInvAmt,
-				currentAmount: isNaN(iCurrAmt) ? 0 : iCurrAmt,
-			});
-		});
+		createInvestment(name, investedAmount, currentAmount);
 		navigate(InvestmentRoutes.Main);
 	};
 
 	return (
 		<ScreenLayout>
 			<CloseButton path={InvestmentRoutes.Main} />
+			<Vertical />
 			<CustomText
-				text="Add Investment"
+				text={"Add Investment"}
 				alignSelf={CENTER}
 				fontSize={LARGE_FONT_SIZE}
 			/>
@@ -57,11 +46,13 @@ const InvestmentAdd = () => {
 				name={"Invested Amount"}
 				value={investedAmount}
 				setValue={setInvestedAmount}
+				numeric
 			/>
 			<CustomInput
 				name={"Current Amount"}
 				value={currentAmount}
 				setValue={setCurrentAmount}
+				numeric
 			/>
 			<CustomButton
 				disabled={name.length < MINIMUM_LENGTH}

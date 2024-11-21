@@ -7,9 +7,9 @@ export const SCREEN_WIDTH = Dimensions.get("window").width;
 export const SCREEN_HEIGHT = Dimensions.get("window").height;
 export const BOTTOM_TAB_HEIGHT = SCREEN_HEIGHT * 0.08;
 export const TOP_TAB_HEIGHT = SCREEN_HEIGHT * 0.05;
-export const HEADER_HEIGHT = SCREEN_HEIGHT * 0.05;
+export const HEADER_HEIGHT = SCREEN_HEIGHT * 0.06;
 export const FONT_SIZE = PixelRatio.roundToNearestPixel(
-	(SCREEN_WIDTH * 0.05) / FONT_SCALE,
+	(SCREEN_WIDTH * 0.05) / FONT_SCALE
 );
 export const LARGE_FONT_SIZE = PixelRatio.roundToNearestPixel(FONT_SIZE * 1.4);
 export const LOADER_SIZE = SCREEN_WIDTH * 0.5;
@@ -35,7 +35,7 @@ export const ABSOLUTE = "absolute";
 export const API_URL = process.env.EXPO_PUBLIC_API_KEY;
 export const SCREEN_OPTIONS: NativeStackNavigationOptions = {
 	headerShown: false,
-	animation: "ios",
+	animation: "ios"
 };
 
 export const MINIMUM_LENGTH = 4;

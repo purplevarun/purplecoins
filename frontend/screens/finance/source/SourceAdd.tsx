@@ -13,7 +13,7 @@ import CustomText from "../../../components/CustomText";
 import CustomInput from "../../../components/CustomInput";
 import Vertical from "../../../components/Vertical";
 import CustomButton from "../../../components/CustomButton";
-import useDatabase from "../../../util/DatabaseFunctions";
+import useDatabase from "../../../util/database/DatabaseFunctions";
 
 const SourceAdd = () => {
 	const { createSource } = useDatabase();
@@ -29,8 +29,9 @@ const SourceAdd = () => {
 	return (
 		<ScreenLayout>
 			<CloseButton path={SourceRoutes.Main} />
+			<Vertical />
 			<CustomText
-				text="Add Source"
+				text={"Add Source"}
 				alignSelf={CENTER}
 				fontSize={LARGE_FONT_SIZE}
 			/>
@@ -46,6 +47,7 @@ const SourceAdd = () => {
 				value={initialAmount}
 				setValue={setInitialAmount}
 				numeric
+				required
 			/>
 			<CustomButton
 				disabled={name.length < MINIMUM_LENGTH}

@@ -1,6 +1,6 @@
-import { API_URL } from "../config/constants.config";
+import { API_URL } from "./constants.config";
 import axios from "axios";
-import { objectify } from "./HelperFunctions";
+import { objectify } from "../util/HelperFunctions";
 
 export const verifyUser = async (username: string, password: string) => {
 	const url = `${API_URL}/verify-user?name=${username}&password=${password}`;
@@ -8,7 +8,7 @@ export const verifyUser = async (username: string, password: string) => {
 	console.log(url, objectify(data));
 	return {
 		status: data.status,
-		userId: data.user_id,
+		userId: data.user_id
 	};
 };
 
@@ -18,7 +18,7 @@ export const createNewUser = async (username: string, password: string) => {
 	console.log(url, objectify(data));
 	return {
 		status: data.status,
-		userId: data.user_id,
+		userId: data.user_id
 	};
 };
 

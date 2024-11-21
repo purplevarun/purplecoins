@@ -2,7 +2,7 @@ import {
 	BottomTabNavigationOptions,
 	createBottomTabNavigator,
 } from "@react-navigation/bottom-tabs";
-import { SCREEN_OPTIONS } from "../config/constants.config";
+import { SCREEN_OPTIONS } from "../../../../config/constants.config";
 import BottomTabBar from "./BottomTabBar";
 import BottomRoutes from "./BottomRoutes";
 

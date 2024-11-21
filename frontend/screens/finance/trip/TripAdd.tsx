@@ -1,11 +1,9 @@
-import { generateUUID } from "../../../util/HelperFunctions";
 import { useNavigation } from "@react-navigation/native";
-import { useRealm } from "@realm/react";
 import { useState } from "react";
 import {
 	CENTER,
 	LARGE_FONT_SIZE,
-	PADDING,
+	PADDING
 } from "../../../config/constants.config";
 import TripRoutes from "./TripRoutes";
 import ScreenLayout from "../../../components/ScreenLayout";
@@ -15,47 +13,45 @@ import CustomInput from "../../../components/CustomInput";
 import CustomButton from "../../../components/CustomButton";
 import Vertical from "../../../components/Vertical";
 import TripDatePicker from "./TripDatePicker";
-import useTripStore from "./TripStore";
-import TripModel from "../../../models/TripModel";
+import useDatabase from "../../../util/database/DatabaseFunctions";
+import useStore from "../../../util/Zustand";
 
 const TripAdd = () => {
 	const [name, setName] = useState("");
 	const { navigate } = useNavigation<any>();
-	const realm = useRealm();
+	const { createTrip } = useDatabase();
 	const {
-		startDate,
-		endDate,
-		startDateSet,
-		endDateSet,
-		setStartDateSet,
-		setEndDateSet,
-	} = useTripStore();
+		tripStartDate,
+		tripEndDate,
+		tripStartDateSet,
+		tripEndDateSet,
+		setTripStartDateSet,
+		setTripEndDateSet
+	} = useStore();
 
 	const handlePress = () => {
-		realm.write(() =>
-			realm.create(TripModel, {
-				id: generateUUID(),
-				name,
-				startDate: startDateSet ? startDate : null,
-				endDate: endDateSet ? endDate : null,
-			}),
-		);
+		createTrip(name, tripStartDateSet ? tripStartDate : null, tripEndDateSet ? tripEndDate : null);
 		setName("");
-		setStartDateSet(false);
-		setEndDateSet(false);
+		setTripStartDateSet(false);
+		setTripEndDateSet(false);
 		navigate(TripRoutes.Main);
 	};
 
 	return (
 		<ScreenLayout>
 			<CloseButton path={TripRoutes.Main} />
+			<Vertical />
 			<CustomText
 				text={"Add Trip"}
 				alignSelf={CENTER}
 				fontSize={LARGE_FONT_SIZE}
 			/>
 			<Vertical size={PADDING / 2} />
-			<CustomInput value={name} setValue={setName} name={"Trip Name"} />
+			<CustomInput
+				name={"Trip Name"}
+				value={name}
+				setValue={setName}
+				required />
 			<TripDatePicker />
 			<CustomButton disabled={name.length == 0} onPress={handlePress} />
 		</ScreenLayout>

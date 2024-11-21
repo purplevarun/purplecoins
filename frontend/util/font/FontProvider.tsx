@@ -1,13 +1,13 @@
 import { useFonts } from "expo-font";
 import { NavigationContainer } from "@react-navigation/native";
-import ErrorScreen from "../screens/other/ErrorScreen";
-import LoadingScreen from "../screens/other/LoadingScreen";
-import ProviderType from "../types/ProviderType";
+import ErrorScreen from "../../screens/other/ErrorScreen";
+import LoadingScreen from "../../screens/other/LoadingScreen";
+import ProviderType from "../../types/ProviderType";
 
 const FontProvider = ({ children }: ProviderType) => {
-	const fontSource = "./../assets/fonts/Ubuntu-Regular.ttf";
+	const fontSource = "./../../assets/fonts/Ubuntu-Regular.ttf";
 	const [loaded, error] = useFonts({
-		Ubuntu: require(fontSource),
+		Ubuntu: require(fontSource)
 	});
 
 	if (error) return <ErrorScreen message={"Font not loaded"} />;

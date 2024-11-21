@@ -2,13 +2,13 @@ import * as NavigationBar from "expo-navigation-bar";
 import { useEffect } from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { StatusBar } from "react-native";
-import { SCREEN_OPTIONS } from "../../config/constants.config";
-import { BACKGROUND_COLOR } from "../../config/colors.config";
+import { SCREEN_OPTIONS } from "../../../config/constants.config";
+import { BACKGROUND_COLOR } from "../../../config/colors.config";
 import LoggedOutRoutes from "./LoggedOutRoutes";
 import CheckUsernameScreen from "./CheckUsernameScreen";
 import SignUpScreen from "./SignUpScreen";
 import SignInScreen from "./SignInScreen";
-import FlexView from "../../components/FlexView";
+import FlexView from "../../../components/FlexView";
 
 const LoggedOutRouter = () => {
 	const Stack = createNativeStackNavigator();

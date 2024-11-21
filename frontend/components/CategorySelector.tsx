@@ -3,23 +3,24 @@ import { DISABLED_COLOR, PRIMARY_COLOR } from "../config/colors.config";
 import { FONT_SIZE, PADDING } from "../config/constants.config";
 import { MultiSelect } from "react-native-element-dropdown";
 import CustomText from "./CustomText";
-import useDatabase from "../util/DatabaseFunctions";
-import useTransactionStore from "../screens/finance/transaction/TransactionStore";
+import useDatabase from "../util/database/DatabaseFunctions";
 import dropdownStyle from "../styles/dropdown.style";
 import ExpenseType from "../types/ExpenseType";
 import RenderItemType from "../types/RenderItemType";
+import useStore from "../util/Zustand";
 
 const CategorySelector = () => {
-	const { type, categories, setCategories } = useTransactionStore();
-	const { categories: categoryModels } = useDatabase();
-	const categoryList = categoryModels
-		.filter((category) => category.type === type)
+	const { transactionType, transactionCategoryIds, setTransactionCategoryIds } = useStore();
+	const { getCategories } = useDatabase();
+
+	const categoryList = getCategories()
+		.filter((category) => category.type === transactionType)
 		.map((category) => ({
 			label: category.name,
-			value: category.id,
+			value: category.id
 		}));
 
-	if (type === ExpenseType.TRANSFER || type === ExpenseType.INVESTMENT)
+	if (transactionType === ExpenseType.TRANSFER || transactionType === ExpenseType.INVESTMENT)
 		return null;
 
 	if (categoryList.length === 0)
@@ -27,7 +28,7 @@ const CategorySelector = () => {
 			<View
 				style={{
 					paddingLeft: PADDING * 2,
-					paddingVertical: PADDING,
+					paddingVertical: PADDING
 				}}
 			>
 				<CustomText
@@ -47,8 +48,8 @@ const CategorySelector = () => {
 		<View
 			style={[
 				dropdownStyle.renderItem,
-				categories.includes(item.value) &&
-					dropdownStyle.renderItemSelected,
+				transactionCategoryIds.includes(item.value) &&
+				dropdownStyle.renderItemSelected
 			]}
 		>
 			<CustomText text={item.label} color={PRIMARY_COLOR} />
@@ -58,12 +59,12 @@ const CategorySelector = () => {
 	return (
 		<View style={dropdownStyle.wrapper}>
 			<MultiSelect
-				placeholder="Select Categories"
-				labelField="label"
-				valueField="value"
+				placeholder={"Select Categories"}
+				labelField={"label"}
+				valueField={"value"}
 				data={categoryList}
-				value={categories}
-				onChange={setCategories}
+				value={transactionCategoryIds}
+				onChange={setTransactionCategoryIds}
 				renderItem={item}
 				renderSelectedItem={selectedItem}
 				style={dropdownStyle.multiselect}

@@ -9,7 +9,10 @@ const FinanceRouter = () => {
 	const Tab = createMaterialTopTabNavigator();
 	return (
 		<View style={styles.view}>
-			<Tab.Navigator tabBar={(props) => <FinanceTabBar {...props} />}>
+			<Tab.Navigator
+				tabBar={(props) => <FinanceTabBar {...props} />}
+				screenOptions={{ tabBarScrollEnabled: true }}
+			>
 				{Object.entries(FinanceRoutes).map(([name, { page }]) => (
 					<Tab.Screen name={name} component={page} key={name} />
 				))}
@@ -19,7 +22,7 @@ const FinanceRouter = () => {
 };
 
 const styles = StyleSheet.create({
-	view: { flex: FLEX_ONE, backgroundColor: SECONDARY_COLOR },
+	view: { flex: FLEX_ONE, backgroundColor: SECONDARY_COLOR }
 });
 
 export default FinanceRouter;

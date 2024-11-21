@@ -3,14 +3,9 @@
 	"version": "1.0.0",
 	"main": "expo/AppEntry.js",
 	"scripts": {
-		"start": "expo start",
-		"android": "expo run:android",
-		"ios": "expo run:ios",
-		"web": "expo start --web",
+		"dev": "expo start -c -a -p 4000",
 		"clean": "rm -rf node_modules yarn.lock && yarn cache clean && yarn",
-		"doctor": "npx expo-doctor",
-		"setup": "npx expo prebuild --clean",
-		"postsetup": "echo \"sdk.dir = /Users/purplevarun/Library/Android/sdk\" > android/local.properties"
+		"doctor": "npx expo-doctor"
 	},
 	"dependencies": {
 		"@react-native-community/datetimepicker": "8.0.1",
@@ -19,12 +14,12 @@
 		"@react-navigation/material-top-tabs": "^6.6.14",
 		"@react-navigation/native": "^6.1.18",
 		"@react-navigation/native-stack": "^6.11.0",
-		"@realm/react": "^0.10.1",
 		"axios": "^1.7.7",
 		"expo": "~51.0.39",
 		"expo-font": "~12.0.10",
 		"expo-image": "~1.13.0",
 		"expo-navigation-bar": "~3.0.7",
+		"expo-sqlite": "~14.0.6",
 		"expo-status-bar": "~1.12.1",
 		"expo-system-ui": "~3.0.7",
 		"react": "18.2.0",
@@ -38,13 +33,7 @@
 		"react-native-tab-view": "^3.5.2",
 		"react-native-uuid": "^2.0.2",
 		"react-native-vector-icons": "^10.1.0",
-		"realm": "^12.13.1",
 		"zustand": "^4.5.5"
-	},
-	"resolutions": {
-		"metro": "0.80.8",
-		"metro-resolver": "0.80.8",
-		"metro-config": "0.80.8"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.20.0",
@@ -52,6 +41,5 @@
 		"prettier": "^3.3.3",
 		"typescript": "~5.3.3"
 	},
-	"private": true,
-	"packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+	"private": true
 }

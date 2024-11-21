@@ -1,31 +1,36 @@
-import { View } from "react-native";
+import { useCallback, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import { ICategory } from "../../../util/database/DatabaseSchema";
 import CategoryRoutes from "./CategoryRoutes";
 import ScreenLayout from "../../../components/ScreenLayout";
 import PlusButton from "../../../components/PlusButton";
 import CategorySection from "./CategorySection";
 import NoContent from "../../other/NoContent";
-import useDatabase from "../../../util/DatabaseFunctions";
+import useDatabase from "../../../util/database/DatabaseFunctions";
 import ExpenseType from "../../../types/ExpenseType";
 
 const CategoryMain = () => {
-	const { categories } = useDatabase();
+	const { getCategories } = useDatabase();
+	const [categories, setCategories] = useState<null | ICategory[]>(null);
+
+	useFocusEffect(useCallback(() => {
+		setCategories(getCategories());
+	}, []));
+
+	if (!categories || categories.length === 0)
+		return <NoContent categories />;
+
 	return (
 		<ScreenLayout>
 			<PlusButton to={CategoryRoutes.Add} />
-			{categories.length === 0 ? (
-				<NoContent categories />
-			) : (
-				<View>
-					<CategorySection
-						categoryList={categories}
-						type={ExpenseType.EXPENSE}
-					/>
-					<CategorySection
-						categoryList={categories}
-						type={ExpenseType.INCOME}
-					/>
-				</View>
-			)}
+			<CategorySection
+				categoryList={categories}
+				type={ExpenseType.EXPENSE}
+			/>
+			<CategorySection
+				categoryList={categories}
+				type={ExpenseType.INCOME}
+			/>
 		</ScreenLayout>
 	);
 };

@@ -1,5 +1,5 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { SCREEN_OPTIONS } from "../../config/constants.config";
+import { SCREEN_OPTIONS } from "../../../config/constants.config";
 import UserScreen from "./UserScreen";
 import LoggedInRoutes from "./LoggedInRoutes";
 import LoggedInScreen from "./LoggedInScreen";

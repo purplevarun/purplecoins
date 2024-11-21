@@ -1,5 +1,4 @@
 import { FC } from "react";
-import { Results } from "realm";
 import { FlatList, View } from "react-native";
 import { CENTER, PADDING, FIFTY_P } from "../../../config/constants.config";
 import CustomText from "../../../components/CustomText";

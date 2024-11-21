@@ -4,17 +4,17 @@ import {
 	DISABLED_COLOR,
 	PRIMARY_COLOR,
 	SECONDARY_COLOR,
-} from "../config/colors.config";
+} from "../../../../config/colors.config";
 import {
 	BOTTOM_TAB_HEIGHT,
 	CENTER,
 	FLEX_ROW,
 	FONT_SIZE,
 	SPACE_EVENLY,
-} from "../config/constants.config";
+} from "../../../../config/constants.config";
 import BottomRoutes from "./BottomRoutes";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
-import CustomText from "../components/CustomText";
+import CustomText from "../../../../components/CustomText";
 
 const BottomTabBar = ({ state, navigation }: BottomTabBarProps) => {
 	return (

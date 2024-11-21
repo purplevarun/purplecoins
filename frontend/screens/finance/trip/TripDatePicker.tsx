@@ -4,7 +4,7 @@ import {
 	DimensionValue,
 	StyleSheet,
 	TouchableOpacity,
-	View,
+	View
 } from "react-native";
 import { formatDate } from "../../../util/HelperFunctions";
 import {
@@ -15,35 +15,35 @@ import {
 	MARGIN,
 	NINETY_P,
 	PADDING,
-	SPACE_BETWEEN,
+	SPACE_BETWEEN
 } from "../../../config/constants.config";
-import useTripStore from "./TripStore";
 import RNDateTimePicker from "@react-native-community/datetimepicker";
 import CustomText from "../../../components/CustomText";
+import useStore from "../../../util/Zustand";
 
 const TripDatePicker = () => {
 	const {
-		startDate,
-		setStartDate,
-		endDate,
-		setEndDate,
-		setStartDateSet,
-		setEndDateSet,
-	} = useTripStore();
+		tripStartDate,
+		setTripStartDate,
+		tripEndDate,
+		setTripEndDate,
+		setTripStartDateSet,
+		setTripEndDateSet
+	} = useStore();
 
 	return (
 		<View style={styles.wrapper}>
 			<CustomDatePicker
 				name={"Start Date"}
-				date={startDate}
-				setDate={setStartDate}
-				confirmer={setStartDateSet}
+				date={tripStartDate}
+				setDate={setTripStartDate}
+				confirmer={setTripStartDateSet}
 			/>
 			<CustomDatePicker
 				name={"End Date"}
-				date={endDate}
-				setDate={setEndDate}
-				confirmer={setEndDateSet}
+				date={tripEndDate}
+				setDate={setTripEndDate}
+				confirmer={setTripEndDateSet}
 			/>
 		</View>
 	);
@@ -58,12 +58,11 @@ interface Props {
 }
 
 const CustomDatePicker = ({
-	date,
-	setDate,
-	name,
-	confirmer,
-	width = "48%",
-}: Props) => {
+							  date,
+							  setDate,
+							  name,
+							  confirmer
+						  }: Props) => {
 	const [showPicker, setShowPicker] = useState(false);
 	const [clicked, setClicked] = useState(false);
 
@@ -84,10 +83,10 @@ const CustomDatePicker = ({
 				borderWidth: BORDER_WIDTH,
 				borderColor: PRIMARY_COLOR,
 				borderRadius: BORDER_RADIUS,
-				width,
+				width: "48%",
 				alignSelf: CENTER,
 				padding: PADDING,
-				marginTop: MARGIN * 2,
+				marginTop: MARGIN * 2
 			}}
 			onPress={() => {
 				setShowPicker(true);
@@ -108,8 +107,8 @@ const styles = StyleSheet.create({
 		flexDirection: FLEX_ROW,
 		justifyContent: SPACE_BETWEEN,
 		width: NINETY_P,
-		alignSelf: CENTER,
-	},
+		alignSelf: CENTER
+	}
 });
 
 export default TripDatePicker;

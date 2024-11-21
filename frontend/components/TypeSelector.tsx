@@ -1,10 +1,11 @@
 import ExpenseType, { ExpenseData } from "../types/ExpenseType";
-import useTransactionStore from "../screens/finance/transaction/TransactionStore";
 import RadioButtonGroup from "./RadioButtonGroup";
 
-const TypeSelector = ({ transaction = false }: { transaction?: boolean }) => {
-	const { type, setType } = useTransactionStore();
-
+const TypeSelector = ({ type, setType, transaction = false }: {
+	type: ExpenseType,
+	setType: (val: ExpenseType) => void,
+	transaction?: boolean
+}) => {
 	const radioButtons = Object.keys(ExpenseType).map((key, index) => {
 		const type = ExpenseType[key as keyof typeof ExpenseType];
 		const { name, color } = ExpenseData[type];
@@ -12,15 +13,13 @@ const TypeSelector = ({ transaction = false }: { transaction?: boolean }) => {
 			id: index.toString(),
 			label: name,
 			value: type,
-			color: color,
+			color: color
 		};
 	});
 
 	const handlePress = (id: string) => {
 		const selectedButton = radioButtons.find((btn) => btn.id === id);
-		if (selectedButton) {
-			setType(selectedButton.value);
-		}
+		if (selectedButton) setType(selectedButton.value);
 	};
 
 	return (

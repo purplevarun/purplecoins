@@ -4,7 +4,7 @@ import CustomText from "../../components/CustomText";
 const PasswordScreen = () => {
 	return (
 		<ScreenLayout>
-			<CustomText text="PasswordScreen" />
+			<CustomText text={"PasswordScreen"} />
 		</ScreenLayout>
 	);
 };

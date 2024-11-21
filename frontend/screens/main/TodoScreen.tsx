@@ -4,7 +4,7 @@ import CustomText from "../../components/CustomText";
 const TodoScreen = () => {
 	return (
 		<ScreenLayout>
-			<CustomText text="TodoScreen" />
+			<CustomText text={"TodoScreen"} />
 		</ScreenLayout>
 	);
 };

@@ -4,7 +4,7 @@ import CustomText from "../../components/CustomText";
 const SettingsScreen = () => {
 	return (
 		<ScreenLayout>
-			<CustomText text="Settings" />
+			<CustomText text={"Settings"} />
 		</ScreenLayout>
 	);
 };
