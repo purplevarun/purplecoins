@@ -8,6 +8,9 @@
 		"icon": "./assets/images/icon.png",
 		"userInterfaceStyle": "dark",
 		"backgroundColor": "#0C1117",
+		"splash": {
+			"backgroundColor": "#0C1117"
+		},
 		"android": {
 			"package": "com.keyshoe.purplecoins",
 			"softwareKeyboardLayoutMode": "pan"
@@ -16,6 +19,11 @@
 			[
 				"expo-font"
 			]
-		]
+		],
+		"extra": {
+			"eas": {
+				"projectId": "f5e5d54b-0f71-4af6-9f3a-818d428cefbf"
+			}
+		}
 	}
 }
