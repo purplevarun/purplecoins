@@ -15,13 +15,11 @@ import Vertical from "../../../components/Vertical";
 import CustomButton from "../../../components/CustomButton";
 import LoadingScreen from "../../other/LoadingScreen";
 import ErrorMessage from "./ErrorMessage";
-import useDatabase from "../../../util/database/DatabaseFunctions";
-import useStore from "../../../util/Zustand";
+import useAuthService from "../AuthService";
 
 const SignInScreen = ({ route }: any) => {
-	const { createUser } = useDatabase();
-	const { refresh } = useStore();
 	const { username } = route.params;
+	const { addNewUser } = useAuthService();
 	const [password, setPassword] = useState("");
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState("");
@@ -31,10 +29,7 @@ const SignInScreen = ({ route }: any) => {
 		const { status, userId } = await verifyUser(username, password);
 		if (status === HTTP.SERVER_ERROR) setError(SERVER_ERROR);
 		else if (status === HTTP.INVALID_REQUEST) setError(INCORRECT_PASSWORD);
-		else {
-			createUser(userId, username);
-			refresh();
-		}
+		else addNewUser(userId, username);
 		setLoading(false);
 	};
 

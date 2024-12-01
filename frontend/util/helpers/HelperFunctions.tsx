@@ -15,7 +15,8 @@ export const formatDate = (date: Date | null | undefined) => {
 	return `${day}/${month}/${year}`;
 };
 
-export const formatMoney = (money: number) => {
+export const formatMoney = (money: number | null) => {
+	if (money === null) return "null";
 	return "₹" + money.toLocaleString("en-IN");
 };
 
@@ -25,4 +26,10 @@ export const logger = (label: string, data?: any) => {
 	} else {
 		console.log(label + " : " + JSON.stringify(data, null, 2));
 	}
+};
+
+export const toInt = (str: string) => {
+	if (str.length === 0)
+		return 0;
+	return parseInt(str);
 };

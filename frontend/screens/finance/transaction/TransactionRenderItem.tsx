@@ -12,7 +12,8 @@ import CustomText from "../../../components/CustomText";
 
 const TransactionRenderItem = ({ item }: { item: ITransaction }) => {
 	return <TouchableOpacity style={styles.outer}>
-		<CustomText text={item.id} />
+		<CustomText text={item.amount} />
+		<CustomText text={item.reason} />
 	</TouchableOpacity>;
 };
 

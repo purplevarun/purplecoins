@@ -1,4 +1,4 @@
-import { formatMoney } from "../../../util/HelperFunctions";
+import { formatMoney } from "../../../util/helpers/HelperFunctions";
 import { ISource } from "../../../util/database/DatabaseSchema";
 import { TouchableOpacity } from "react-native";
 import { SECONDARY_COLOR } from "../../../config/colors.config";

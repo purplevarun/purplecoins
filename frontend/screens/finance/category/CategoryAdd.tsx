@@ -1,27 +1,24 @@
 import { useNavigation } from "@react-navigation/native";
 import { CENTER, LARGE_FONT_SIZE } from "../../../config/constants.config";
 import CategoryRoutes from "./CategoryRoutes";
-import useStore from "../../../util/Zustand";
 import ScreenLayout from "../../../components/ScreenLayout";
 import CustomText from "../../../components/CustomText";
 import CustomInput from "../../../components/CustomInput";
 import CustomButton from "../../../components/CustomButton";
 import CloseButton from "../../../components/CloseButton";
 import TypeSelector from "../../../components/TypeSelector";
-import useDatabase from "../../../util/database/DatabaseFunctions";
 import Vertical from "../../../components/Vertical";
-import ExpenseType from "../../../types/ExpenseType";
+import useCategoryStore from "./CategoryStore";
+import useCategoryService from "./CategoryService";
 
 const CategoryAdd = () => {
-	const { categoryName, categoryType, setCategoryName, setCategoryType } = useStore();
+	const { categoryName, categoryType, setCategoryName, setCategoryType } = useCategoryStore();
 	const { navigate } = useNavigation<any>();
-	const { createCategory } = useDatabase();
+	const { addNewCategory } = useCategoryService();
 
 	const handlePress = () => {
-		createCategory(categoryName, categoryType);
-		setCategoryName("");
-		setCategoryType(ExpenseType.EXPENSE);
-		navigate(CategoryRoutes.Main);
+		addNewCategory();
+		// navigate(CategoryRoutes.Main);
 	};
 
 	return (

@@ -2,7 +2,7 @@ import { IInvestment } from "../../../util/database/DatabaseSchema";
 import { View } from "react-native";
 import { PADDING } from "../../../config/constants.config";
 import CustomText from "../../../components/CustomText";
-import { formatMoney } from "../../../util/HelperFunctions";
+import { formatMoney } from "../../../util/helpers/HelperFunctions";
 
 const InvestmentAnalysis = ({ investments }: { investments: IInvestment[] }) => {
 	const investedSum = investments.reduce((sum, model) => sum + model.investedAmount, 0);

@@ -1,6 +1,6 @@
 import { API_URL } from "./constants.config";
 import axios from "axios";
-import { objectify } from "../util/HelperFunctions";
+import { objectify } from "../util/helpers/HelperFunctions";
 
 export const verifyUser = async (username: string, password: string) => {
 	const url = `${API_URL}/verify-user?name=${username}&password=${password}`;

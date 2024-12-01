@@ -2,18 +2,18 @@ import { View } from "react-native";
 import { DISABLED_COLOR, PRIMARY_COLOR } from "../config/colors.config";
 import { FONT_SIZE, PADDING } from "../config/constants.config";
 import { MultiSelect } from "react-native-element-dropdown";
-import CustomText from "./CustomText";
-import useDatabase from "../util/database/DatabaseFunctions";
 import dropdownStyle from "../styles/dropdown.style";
+import useTransactionStore from "../screens/finance/transaction/TransactionStore";
+import useCategoryService from "../screens/finance/category/CategoryService";
+import CustomText from "./CustomText";
 import ExpenseType from "../types/ExpenseType";
 import RenderItemType from "../types/RenderItemType";
-import useStore from "../util/Zustand";
 
 const CategorySelector = () => {
-	const { transactionType, transactionCategoryIds, setTransactionCategoryIds } = useStore();
-	const { getCategories } = useDatabase();
+	const { transactionType, transactionCategoryIds, setTransactionCategoryIds } = useTransactionStore();
+	const { fetchCategory } = useCategoryService();
 
-	const categoryList = getCategories()
+	const categoryList = fetchCategory()
 		.filter((category) => category.type === transactionType)
 		.map((category) => ({
 			label: category.name,

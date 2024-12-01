@@ -10,7 +10,7 @@ dotenv.config();
 const port = process.env.PORT || 3000;
 const app = express();
 app.use(cors());
-mongoose.connect(process.env.MONGO_URL);
+await mongoose.connect(process.env.MONGO_URL);
 
 app.use("/check-user", checkUser);
 app.use("/create-user", createUser);

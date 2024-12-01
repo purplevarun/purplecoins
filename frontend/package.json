@@ -1,10 +1,10 @@
 {
-	"name": "supercoins",
+	"name": "pupercoins",
 	"version": "1.0.0",
 	"main": "expo/AppEntry.js",
 	"scripts": {
-		"dev": "expo start -c -a -p 4000",
-		"clean": "rm -rf node_modules yarn.lock && yarn cache clean && yarn",
+		"dev": "expo start -c -p 4002",
+		"clean": "rm -rf node_modules yarn.lock .expo && yarn",
 		"doctor": "npx expo-doctor"
 	},
 	"dependencies": {

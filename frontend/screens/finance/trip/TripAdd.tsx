@@ -14,7 +14,7 @@ import CustomButton from "../../../components/CustomButton";
 import Vertical from "../../../components/Vertical";
 import TripDatePicker from "./TripDatePicker";
 import useDatabase from "../../../util/database/DatabaseFunctions";
-import useStore from "../../../util/Zustand";
+import useTripStore from "./TipStore";
 
 const TripAdd = () => {
 	const [name, setName] = useState("");
@@ -27,7 +27,7 @@ const TripAdd = () => {
 		tripEndDateSet,
 		setTripStartDateSet,
 		setTripEndDateSet
-	} = useStore();
+	} = useTripStore();
 
 	const handlePress = () => {
 		createTrip(name, tripStartDateSet ? tripStartDate : null, tripEndDateSet ? tripEndDate : null);

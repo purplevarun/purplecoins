@@ -1,14 +1,17 @@
+import { logger } from "../../util/helpers/HelperFunctions";
+import { useEffect } from "react";
 import useDatabase from "../../util/database/DatabaseFunctions";
 import LoggedOutRouter from "./logged_out/LoggedOutRouter";
 import LoggedInRouter from "./logged_in/LoggedInRouter";
-import { useEffect } from "react";
-import useStore from "../../util/Zustand";
-import { logger } from "../../util/HelperFunctions";
+import useAuthService from "./AuthService";
+import useAuthStore from "./AuthStore";
 
 const AuthRouter = () => {
-	const { createTables, doesUserExist } = useDatabase();
-	const { refreshValue } = useStore();
+	const { createTables } = useDatabase();
+	const { doesUserExist } = useAuthService();
+	const { refreshValue } = useAuthStore();
 	createTables();
+
 	useEffect(() => {
 		logger("checking if user is logged in");
 	}, [refreshValue]);

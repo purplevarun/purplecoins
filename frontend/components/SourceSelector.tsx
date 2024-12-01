@@ -16,10 +16,10 @@ import {
 import RenderItemType from "../types/RenderItemType";
 import CustomText from "./CustomText";
 import useDatabase from "../util/database/DatabaseFunctions";
-import useStore from "../util/Zustand";
+import useTransactionStore from "../screens/finance/transaction/TransactionStore";
 
 const SourceSelector = () => {
-	const { transactionSourceId, setTransactionSourceId } = useStore();
+	const { transactionSourceId, setTransactionSourceId } = useTransactionStore();
 	const { getSources } = useDatabase();
 
 	const sourceModels = getSources().map((s) => ({

@@ -15,28 +15,23 @@ import Vertical from "../../../components/Vertical";
 import LoadingScreen from "../../other/LoadingScreen";
 import CustomButton from "../../../components/CustomButton";
 import ErrorMessage from "./ErrorMessage";
-import useDatabase from "../../../util/database/DatabaseFunctions";
-import useStore from "../../../util/Zustand";
+import useAuthService from "../AuthService";
 
 const SignUpScreen = ({ route }: any) => {
 	const { username } = route.params;
-	const { createUser } = useDatabase();
-	const { refresh } = useStore();
-	const [password1, setPassword1] = useState("");
-	const [password2, setPassword2] = useState("");
+	const { addNewUser } = useAuthService();
+	const [pin1, setPin1] = useState("");
+	const [pin2, setPin2] = useState("");
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState("");
 
 	const handlePress = async () => {
 		try {
 			setLoading(true);
-			const { status, userId } = await createNewUser(username, password1);
+			const { status, userId } = await createNewUser(username, pin1);
 			if (status === HTTP.SERVER_ERROR) setError(SERVER_ERROR);
 			else if (status === HTTP.INVALID_REQUEST) setError(USER_EXISTS);
-			else {
-				createUser(userId, username);
-				refresh();
-			}
+			else addNewUser(userId, username);
 			setLoading(false);
 		} catch (error) {
 		}
@@ -55,24 +50,22 @@ const SignUpScreen = ({ route }: any) => {
 			<Vertical />
 			<CustomInput
 				name={"Password"}
-				value={password1}
-				setValue={setPassword1}
+				value={pin1}
+				setValue={setPin1}
 				password
 				numeric
 			/>
 			<Vertical />
 			<CustomInput
 				name={"Confirm Password"}
-				value={password2}
-				setValue={setPassword2}
+				value={pin2}
+				setValue={setPin2}
 				password
 				numeric
 			/>
 			<CustomButton
 				onPress={handlePress}
-				disabled={
-					password1 !== password2 || password1.length < MINIMUM_LENGTH
-				}
+				disabled={pin1 !== pin2 || pin1.length < MINIMUM_LENGTH}
 			/>
 		</LoggedOutScreenLayout>
 	);

@@ -3,7 +3,7 @@ import { TouchableOpacity, View } from "react-native";
 import { SECONDARY_COLOR } from "../../../config/colors.config";
 import { BORDER_RADIUS, CENTER, FLEX_ROW, MARGIN, PADDING, SPACE_BETWEEN } from "../../../config/constants.config";
 import CustomText from "../../../components/CustomText";
-import { formatMoney } from "../../../util/HelperFunctions";
+import { formatMoney } from "../../../util/helpers/HelperFunctions";
 
 const InvestmentRenderItem = ({ item }: { item: IInvestment }) => {
 	const { name, investedAmount, currentAmount } = item;

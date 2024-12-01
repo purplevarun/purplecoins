@@ -17,23 +17,23 @@ import {
 	SCREEN_HEIGHT,
 	SCREEN_WIDTH
 } from "../../../config/constants.config";
+import { USER_ICON } from "../../../config/icons.config";
 import ScreenLayout from "../../../components/ScreenLayout";
 import CustomText from "../../../components/CustomText";
 import CloseButton from "../../../components/CloseButton";
 import Vertical from "../../../components/Vertical";
-import useDatabase from "../../../util/database/DatabaseFunctions";
 import LoggedInRoutes from "./LoggedInRoutes";
-import { USER_ICON } from "../../../config/icons.config";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import CustomButton from "../../../components/CustomButton";
-import useStore from "../../../util/Zustand";
+import useAuthService from "../AuthService";
+import useAuthStore from "../AuthStore";
 
 const UserScreen = () => {
 	useEffect(() => {
 		NavigationBar.setBackgroundColorAsync(BACKGROUND_COLOR).catch();
 	}, []);
-	const { getUser, logOut } = useDatabase();
-	const { refresh } = useStore();
+	const { getUser, logOut } = useAuthService();
+	const { refresh } = useAuthStore();
 	return (
 		<ScreenLayout>
 			<StatusBar backgroundColor={BACKGROUND_COLOR} />

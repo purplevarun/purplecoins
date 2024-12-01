@@ -7,15 +7,13 @@ import ScreenLayout from "../../../components/ScreenLayout";
 import PlusButton from "../../../components/PlusButton";
 import TransactionRenderItem from "./TransactionRenderItem";
 import NoContent from "../../other/NoContent";
-import useDatabase from "../../../util/database/DatabaseFunctions";
+import useTransactionService from "./TransactionService";
 
 const TransactionMain = () => {
-	const { getTransactions } = useDatabase();
+	const { fetchTransactions } = useTransactionService();
 	const [transactions, setTransactions] = useState<null | ITransaction[]>(null);
 
-	useFocusEffect(useCallback(() => {
-		setTransactions(getTransactions());
-	}, []));
+	useFocusEffect(useCallback(() => setTransactions(fetchTransactions()), []));
 
 	if (!transactions || transactions.length === 0)
 		return <NoContent transactions />;

@@ -7,10 +7,10 @@ import CustomText from "./CustomText";
 import dropdownStyle from "../styles/dropdown.style";
 import ExpenseType from "../types/ExpenseType";
 import RenderItemType from "../types/RenderItemType";
-import useStore from "../util/Zustand";
+import useTransactionStore from "../screens/finance/transaction/TransactionStore";
 
 const TripSelector = () => {
-	const { transactionType, transactionTripIds, setTransactionTripIds } = useStore();
+	const { transactionType, transactionTripIds, setTransactionTripIds } = useTransactionStore();
 	const { getTrips } = useDatabase();
 	const tripList = getTrips().map(({ id, name }) => ({
 		label: name,

@@ -4,7 +4,7 @@ import {
 	CENTER,
 	LARGE_FONT_SIZE,
 	MARGIN,
-	MINIMUM_LENGTH,
+	MINIMUM_LENGTH
 } from "../../../config/constants.config";
 import SourceRoutes from "./SourceRoutes";
 import ScreenLayout from "../../../components/ScreenLayout";
@@ -14,15 +14,22 @@ import CustomInput from "../../../components/CustomInput";
 import Vertical from "../../../components/Vertical";
 import CustomButton from "../../../components/CustomButton";
 import useDatabase from "../../../util/database/DatabaseFunctions";
+import useAuthStore from "../../auth/AuthStore";
+import TransactionRoutes from "../transaction/TransactionRoutes";
 
-const SourceAdd = () => {
+const SourceAdd = ({ route }: { route: any }) => {
+	console.log(route);
 	const { createSource } = useDatabase();
 	const { navigate } = useNavigation<any>();
 	const [name, setName] = useState("");
 	const [initialAmount, setInitialAmount] = useState("");
+	const { refresh } = useAuthStore();
 
 	const handlePress = () => {
 		createSource(name, initialAmount);
+		refresh();
+		if (route.params.transaction)
+			navigate(TransactionRoutes.Add);
 		navigate(SourceRoutes.Main);
 	};
 

@@ -50,6 +50,20 @@ export interface ITransaction {
 	date: Date;
 }
 
+export interface ITransactionData {
+	id: string;
+	userId: string;
+	sourceId: string;
+	destinationId?: string;
+	investmentId?: string;
+	amount: number;
+	reason: string;
+	type: ExpenseType;
+	date: Date;
+	categories: ICategory[];
+	trips: ITrip[];
+}
+
 export interface ITransactionTrip {
 	transactionId: string;
 	tripId: string;

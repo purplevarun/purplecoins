@@ -17,10 +17,10 @@ import ExpenseType from "../types/ExpenseType";
 import RenderItemType from "../types/RenderItemType";
 import CustomText from "./CustomText";
 import useDatabase from "../util/database/DatabaseFunctions";
-import useStore from "../util/Zustand";
+import useTransactionStore from "../screens/finance/transaction/TransactionStore";
 
 const SourceSelector = () => {
-	const { transactionInvestmentId, setTransactionInvestmentId, transactionType } = useStore();
+	const { transactionInvestmentId, setTransactionInvestmentId, transactionType } = useTransactionStore();
 	const { getInvestments } = useDatabase();
 	const investmentModels = getInvestments().map((investment) => ({
 		label: investment.name,

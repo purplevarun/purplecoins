@@ -17,10 +17,10 @@ import ExpenseType from "../types/ExpenseType";
 import RenderItemType from "../types/RenderItemType";
 import CustomText from "./CustomText";
 import useDatabase from "../util/database/DatabaseFunctions";
-import useStore from "../util/Zustand";
+import useTransactionStore from "../screens/finance/transaction/TransactionStore";
 
 const SourceSelector = () => {
-	const { transactionSourceId, transactionDestinationId, setTransactionDestinationId, transactionType } = useStore();
+	const { transactionSourceId, transactionDestinationId, setTransactionDestinationId, transactionType } = useTransactionStore();
 	const { getSources } = useDatabase();
 
 	if (transactionType !== ExpenseType.TRANSFER) return null;

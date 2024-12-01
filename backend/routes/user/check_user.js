@@ -6,14 +6,29 @@ const router = express.Router();
 router.get("/", async (req, res) => {
 	try {
 		const { name } = req.query;
-		const user = await UserModel.findOne({ name }).exec();
-		if (!user) {
-			return res.json({ status: 404, message: "User not found" });
+		if (!name) {
+			return res.json({
+				status: 400,
+				message: "Username not provided"
+			});
 		}
-		return res.json({ status: 200, message: "User found" });
+		const user = await UserModel.findOne({ name }, {}, null).exec();
+		if (!user) {
+			return res.json({
+				status: 404,
+				message: "User not found"
+			});
+		}
+		return res.json({
+			status: 200,
+			message: "User found"
+		});
 	} catch (error) {
 		console.error("Error:", error);
-		return res.json({ status: 500, message: "Internal server error" });
+		return res.json({
+			status: 500,
+			message: "Internal server error"
+		});
 	}
 });
 

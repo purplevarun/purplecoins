@@ -3,6 +3,3 @@ root = true
 [*]
 tab_width = 4
 indent_style = tab
-
-[*.sql]
-max_line_length = 100

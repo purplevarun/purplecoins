@@ -6,7 +6,7 @@ import {
 	TouchableOpacity,
 	View
 } from "react-native";
-import { formatDate } from "../../../util/HelperFunctions";
+import { formatDate } from "../../../util/helpers/HelperFunctions";
 import {
 	BORDER_RADIUS,
 	BORDER_WIDTH,
@@ -19,17 +19,18 @@ import {
 } from "../../../config/constants.config";
 import RNDateTimePicker from "@react-native-community/datetimepicker";
 import CustomText from "../../../components/CustomText";
-import useStore from "../../../util/Zustand";
+import useTripStore from "./TipStore";
 
 const TripDatePicker = () => {
 	const {
 		tripStartDate,
 		setTripStartDate,
 		tripEndDate,
+		tripStartDateSet,
 		setTripEndDate,
 		setTripStartDateSet,
 		setTripEndDateSet
-	} = useStore();
+	} = useTripStore();
 
 	return (
 		<View style={styles.wrapper}>
@@ -39,12 +40,12 @@ const TripDatePicker = () => {
 				setDate={setTripStartDate}
 				confirmer={setTripStartDateSet}
 			/>
-			<CustomDatePicker
+			{tripStartDateSet && <CustomDatePicker
 				name={"End Date"}
 				date={tripEndDate}
 				setDate={setTripEndDate}
 				confirmer={setTripEndDateSet}
-			/>
+			/>}
 		</View>
 	);
 };
@@ -57,15 +58,9 @@ interface Props {
 	width?: DimensionValue;
 }
 
-const CustomDatePicker = ({
-							  date,
-							  setDate,
-							  name,
-							  confirmer
-						  }: Props) => {
+const CustomDatePicker = ({ date, setDate, name, confirmer }: Props) => {
 	const [showPicker, setShowPicker] = useState(false);
 	const [clicked, setClicked] = useState(false);
-
 	if (showPicker)
 		return (
 			<RNDateTimePicker
