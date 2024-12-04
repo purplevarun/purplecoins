@@ -1,14 +1,13 @@
 import * as NavigationBar from "expo-navigation-bar";
 import { useEffect } from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { StatusBar } from "react-native";
-import { SCREEN_OPTIONS } from "../../../config/constants.config";
-import { BACKGROUND_COLOR } from "../../../config/colors.config";
+import { StatusBar, StyleSheet, View } from "react-native";
+import { FLEX_ONE, SCREEN_OPTIONS } from "../../../config/constants.config";
+import { BACKGROUND_COLOR, SECONDARY_COLOR } from "../../../config/colors.config";
 import LoggedOutRoutes from "./LoggedOutRoutes";
 import CheckUsernameScreen from "./CheckUsernameScreen";
 import SignUpScreen from "./SignUpScreen";
 import SignInScreen from "./SignInScreen";
-import FlexView from "../../../components/FlexView";
 
 const LoggedOutRouter = () => {
 	const Stack = createNativeStackNavigator();
@@ -17,7 +16,7 @@ const LoggedOutRouter = () => {
 	}, []);
 
 	return (
-		<FlexView>
+		<View style={styles.flexView}>
 			<StatusBar backgroundColor={BACKGROUND_COLOR} />
 			<Stack.Navigator screenOptions={SCREEN_OPTIONS}>
 				<Stack.Screen
@@ -33,8 +32,10 @@ const LoggedOutRouter = () => {
 					component={SignInScreen}
 				/>
 			</Stack.Navigator>
-		</FlexView>
+		</View>
 	);
 };
+
+const styles = StyleSheet.create({ flexView: { flex: FLEX_ONE, backgroundColor: SECONDARY_COLOR } });
 
 export default LoggedOutRouter;

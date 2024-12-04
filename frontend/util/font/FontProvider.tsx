@@ -2,9 +2,9 @@ import { useFonts } from "expo-font";
 import { NavigationContainer } from "@react-navigation/native";
 import ErrorScreen from "../../screens/other/ErrorScreen";
 import LoadingScreen from "../../screens/other/LoadingScreen";
-import ProviderType from "../../types/ProviderType";
+import Provider from "../../types/Provider";
 
-const FontProvider = ({ children }: ProviderType) => {
+const FontProvider: Provider = ({ children }) => {
 	const fontSource = "./../../assets/fonts/Ubuntu-Regular.ttf";
 	const [loaded, error] = useFonts({
 		Ubuntu: require(fontSource)

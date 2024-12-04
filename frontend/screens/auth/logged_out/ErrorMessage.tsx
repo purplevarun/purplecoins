@@ -1,19 +1,24 @@
-import Center from "../../../components/Center";
-import CustomText from "../../../components/CustomText";
+import { View } from "react-native";
 import { RED_COLOR } from "../../../config/colors.config";
-import { CENTER, SMALL_FONT_SIZE } from "../../../config/constants.config";
+import { CENTER, PADDING, SMALL_FONT_SIZE } from "../../../config/constants.config";
 import Vertical from "../../../components/Vertical";
+import CustomText from "../../../components/CustomText";
 
 const ErrorMessage = ({ error }: { error: string }) => {
 	return error.length > 0 ? (
-		<Center>
+		<View
+			style={{
+				justifyContent: CENTER,
+				padding: PADDING
+			}}
+		>
 			<CustomText
 				text={error}
 				color={RED_COLOR}
 				alignSelf={CENTER}
 				fontSize={SMALL_FONT_SIZE}
 			/>
-		</Center>
+		</View>
 	) : (
 		<Vertical size={4} />
 	);

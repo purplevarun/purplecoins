@@ -9,8 +9,8 @@ import {
 	PADDING,
 	SMALL_FONT_SIZE,
 	SPACE_EVENLY,
-} from "../config/constants.config";
-import CustomText from "./CustomText";
+} from "../../../config/constants.config";
+import CustomText from "../../../components/CustomText";
 
 interface IRadioGroup {
 	onPress: (selectedId: string) => void;

@@ -10,12 +10,12 @@ import { SERVER_ERROR, USER_EXISTS } from "../../../config/error.config";
 import HTTP from "../../../config/http_codes.config";
 import CustomInput from "../../../components/CustomInput";
 import CustomText from "../../../components/CustomText";
-import LoggedOutScreenLayout from "./LoggedOutScreenLayout";
 import Vertical from "../../../components/Vertical";
 import LoadingScreen from "../../other/LoadingScreen";
 import CustomButton from "../../../components/CustomButton";
 import ErrorMessage from "./ErrorMessage";
 import useAuthService from "../AuthService";
+import ScreenLayout from "../../../components/ScreenLayout";
 
 const SignUpScreen = ({ route }: any) => {
 	const { username } = route.params;
@@ -39,7 +39,8 @@ const SignUpScreen = ({ route }: any) => {
 
 	if (loading) return <LoadingScreen />;
 	return (
-		<LoggedOutScreenLayout>
+		<ScreenLayout>
+			<Vertical size={40} />
 			<CustomText
 				text={`SignUp for ${expo.name}`}
 				alignSelf={CENTER}
@@ -67,7 +68,7 @@ const SignUpScreen = ({ route }: any) => {
 				onPress={handlePress}
 				disabled={pin1 !== pin2 || pin1.length < MINIMUM_LENGTH}
 			/>
-		</LoggedOutScreenLayout>
+		</ScreenLayout>
 	);
 };
 

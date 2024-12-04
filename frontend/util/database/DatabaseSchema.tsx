@@ -1,4 +1,4 @@
-import ExpenseType from "../../types/ExpenseType";
+import TransactionType from "../../types/TransactionType";
 
 export interface IUser {
 	id: string;
@@ -17,7 +17,7 @@ export interface ICategory {
 	id: string;
 	userId: string;
 	name: string;
-	type: ExpenseType;
+	type: TransactionType;
 	monthlyBudget?: number;
 	annualBudget?: number;
 }
@@ -46,7 +46,7 @@ export interface ITransaction {
 	investmentId?: string;
 	amount: number;
 	reason: string;
-	type: ExpenseType;
+	type: TransactionType;
 	date: Date;
 }
 
@@ -58,7 +58,7 @@ export interface ITransactionData {
 	investmentId?: string;
 	amount: number;
 	reason: string;
-	type: ExpenseType;
+	type: TransactionType;
 	date: Date;
 	categories: ICategory[];
 	trips: ITrip[];

@@ -1,20 +1,20 @@
 import { FC } from "react";
 import { FlatList, View } from "react-native";
 import { CENTER, PADDING, FIFTY_P } from "../../../config/constants.config";
+import { ICategory } from "../../../util/database/DatabaseSchema";
 import CustomText from "../../../components/CustomText";
 import CategoryRenderItem from "./CategoryRenderItem";
-import CategoryModel from "../../../models/CategoryModel";
-import ExpenseType from "../../../types/ExpenseType";
+import TransactionType from "../../../types/TransactionType";
 
 type Props = FC<{
-	categoryList: CategoryModel[];
-	type: ExpenseType;
+	categoryList: ICategory[];
+	type: TransactionType;
 }>;
 
 const CategorySection: Props = ({ categoryList, type }) => {
 	const filteredList = categoryList.filter((x) => x.type === type);
 	const text =
-		type === ExpenseType.EXPENSE
+		type === TransactionType.EXPENSE
 			? "Expense Categories"
 			: "Income Categories";
 	return (

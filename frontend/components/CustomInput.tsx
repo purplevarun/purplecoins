@@ -1,21 +1,26 @@
 import { Animated, Easing, TextInput, View } from "react-native";
 import {
 	ABSOLUTE,
+	BORDER_RADIUS,
 	CENTER,
 	FONT_SIZE,
-	PADDING_TOP_ADD_SCREEN,
-	UBUNTU_FONT,
 	NINETY_P,
+	PADDING,
+	PADDING_TOP_ADD_SCREEN,
+	UBUNTU_FONT
 } from "../config/constants.config";
-import { FC, useEffect, useRef, useState } from "react";
-import {
-	BACKGROUND_COLOR,
-	DISABLED_COLOR,
-	PRIMARY_COLOR,
-} from "../config/colors.config";
-import { BORDER_RADIUS, PADDING } from "../config/constants.config";
+import { useEffect, useRef, useState } from "react";
+import { BACKGROUND_COLOR, DISABLED_COLOR, PRIMARY_COLOR } from "../config/colors.config";
 
-interface Input {
+const CustomInput = ({
+						 value,
+						 setValue,
+						 name,
+						 numeric = false,
+						 password = false,
+						 disabled = false,
+						 required = false
+					 }: {
 	value: string;
 	setValue?: (_: string) => void;
 	name: string;
@@ -23,16 +28,6 @@ interface Input {
 	password?: boolean;
 	disabled?: boolean;
 	required?: boolean;
-}
-
-const CustomInput: FC<Input> = ({
-	value,
-	setValue,
-	name,
-	numeric = false,
-	password = false,
-	disabled = false,
-	required = false,
 }) => {
 	const [isFocused, setIsFocused] = useState(false);
 	const animatedValue = useRef(new Animated.Value(value ? 1 : 0)).current;
@@ -42,7 +37,7 @@ const CustomInput: FC<Input> = ({
 			toValue: isFocused || value ? 1 : 0,
 			duration: 200,
 			easing: Easing.linear,
-			useNativeDriver: false,
+			useNativeDriver: false
 		}).start();
 	}, [isFocused, value]);
 
@@ -53,7 +48,7 @@ const CustomInput: FC<Input> = ({
 			style={{
 				paddingTop: PADDING_TOP_ADD_SCREEN,
 				width: NINETY_P,
-				alignSelf: CENTER,
+				alignSelf: CENTER
 			}}
 		>
 			<Animated.Text
@@ -62,16 +57,16 @@ const CustomInput: FC<Input> = ({
 					left: PADDING,
 					top: animatedValue.interpolate({
 						inputRange: [0, 1],
-						outputRange: [FONT_SIZE, 0],
+						outputRange: [FONT_SIZE, 0]
 					}),
 					fontSize: animatedValue.interpolate({
 						inputRange: [0, 1],
-						outputRange: [FONT_SIZE, FONT_SIZE / 1.5],
+						outputRange: [FONT_SIZE, FONT_SIZE / 1.5]
 					}),
 					color: DISABLED_COLOR,
 					backgroundColor: BACKGROUND_COLOR,
 					zIndex: 1,
-					fontFamily: UBUNTU_FONT,
+					fontFamily: UBUNTU_FONT
 				}}
 				onPress={() => inputRef.current?.focus()}
 			>
@@ -93,7 +88,7 @@ const CustomInput: FC<Input> = ({
 					borderColor: PRIMARY_COLOR,
 					color: disabled ? DISABLED_COLOR : PRIMARY_COLOR,
 					fontFamily: UBUNTU_FONT,
-					fontSize: FONT_SIZE,
+					fontSize: FONT_SIZE
 				}}
 				keyboardType={numeric ? "decimal-pad" : "default"}
 				secureTextEntry={password}

@@ -7,7 +7,7 @@ import PlusButton from "../../../components/PlusButton";
 import CategorySection from "./CategorySection";
 import NoContent from "../../other/NoContent";
 import useCategoryService from "./CategoryService";
-import ExpenseType from "../../../types/ExpenseType";
+import TransactionType from "../../../types/TransactionType";
 
 const CategoryMain = () => {
 	const { fetchCategory } = useCategoryService();
@@ -23,11 +23,11 @@ const CategoryMain = () => {
 			<PlusButton to={CategoryRoutes.Add} />
 			<CategorySection
 				categoryList={categories}
-				type={ExpenseType.EXPENSE}
+				type={TransactionType.EXPENSE}
 			/>
 			<CategorySection
 				categoryList={categories}
-				type={ExpenseType.INCOME}
+				type={TransactionType.INCOME}
 			/>
 		</ScreenLayout>
 	);

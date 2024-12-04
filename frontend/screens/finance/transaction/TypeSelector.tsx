@@ -1,13 +1,13 @@
-import ExpenseType, { ExpenseData } from "../types/ExpenseType";
+import TransactionType, { ExpenseData } from "../../../types/TransactionType";
 import RadioButtonGroup from "./RadioButtonGroup";
 
 const TypeSelector = ({ type, setType, transaction = false }: {
-	type: ExpenseType,
-	setType: (val: ExpenseType) => void,
+	type: TransactionType,
+	setType: (val: TransactionType) => void,
 	transaction?: boolean
 }) => {
-	const radioButtons = Object.keys(ExpenseType).map((key, index) => {
-		const type = ExpenseType[key as keyof typeof ExpenseType];
+	const radioButtons = Object.keys(TransactionType).map((key, index) => {
+		const type = TransactionType[key as keyof typeof TransactionType];
 		const { name, color } = ExpenseData[type];
 		return {
 			id: index.toString(),

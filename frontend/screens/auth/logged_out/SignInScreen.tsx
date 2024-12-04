@@ -10,12 +10,12 @@ import {
 import HTTP from "../../../config/http_codes.config";
 import CustomInput from "../../../components/CustomInput";
 import CustomText from "../../../components/CustomText";
-import LoggedOutScreenLayout from "./LoggedOutScreenLayout";
 import Vertical from "../../../components/Vertical";
 import CustomButton from "../../../components/CustomButton";
 import LoadingScreen from "../../other/LoadingScreen";
 import ErrorMessage from "./ErrorMessage";
 import useAuthService from "../AuthService";
+import ScreenLayout from "../../../components/ScreenLayout";
 
 const SignInScreen = ({ route }: any) => {
 	const { username } = route.params;
@@ -35,7 +35,8 @@ const SignInScreen = ({ route }: any) => {
 
 	if (loading) return <LoadingScreen />;
 	return (
-		<LoggedOutScreenLayout>
+		<ScreenLayout>
+			<Vertical size={40} />
 			<CustomText
 				text={`SignIn to ${expo.name}`}
 				alignSelf={CENTER}
@@ -56,7 +57,7 @@ const SignInScreen = ({ route }: any) => {
 				disabled={password.length < MINIMUM_LENGTH}
 				onPress={handlePress}
 			/>
-		</LoggedOutScreenLayout>
+		</ScreenLayout>
 	);
 };
 

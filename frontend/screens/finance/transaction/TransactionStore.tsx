@@ -1,9 +1,9 @@
 import { create } from "zustand";
-import ExpenseType from "../../../types/ExpenseType";
+import TransactionType from "../../../types/TransactionType";
 
 interface TransactionStore {
-	transactionType: ExpenseType;
-	setTransactionType: (type: ExpenseType) => void;
+	transactionType: TransactionType;
+	setTransactionType: (type: TransactionType) => void;
 	transactionAmount: string;
 	setTransactionAmount: (amount: string) => void;
 	transactionReason: string;
@@ -23,7 +23,7 @@ interface TransactionStore {
 }
 
 const useTransactionStore = create<TransactionStore>(set => ({
-	transactionType: ExpenseType.EXPENSE,
+	transactionType: TransactionType.EXPENSE,
 	setTransactionType: (transactionType) => set({ transactionType }),
 	transactionAmount: "",
 	setTransactionAmount: (transactionAmount) => set({ transactionAmount }),

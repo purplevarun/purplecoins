@@ -2,8 +2,7 @@ import {
 	BACKGROUND_COLOR,
 	DISABLED_COLOR,
 	PRIMARY_COLOR
-} from "../config/colors.config";
-import { Dropdown } from "react-native-element-dropdown";
+} from "../../../config/colors.config";
 import { StyleSheet, View } from "react-native";
 import {
 	BORDER_RADIUS,
@@ -12,24 +11,27 @@ import {
 	NINETY_P,
 	PADDING,
 	PADDING_TOP_ADD_SCREEN
-} from "../config/constants.config";
-import RenderItemType from "../types/RenderItemType";
-import CustomText from "./CustomText";
-import useDatabase from "../util/database/DatabaseFunctions";
-import useTransactionStore from "../screens/finance/transaction/TransactionStore";
+} from "../../../config/constants.config";
+import { Dropdown } from "react-native-element-dropdown";
+import TransactionType from "../../../types/TransactionType";
+import RenderItem from "../../../types/RenderItem";
+import CustomText from "../../../components/CustomText";
+import useDatabase from "../../../util/database/DatabaseFunctions";
+import useTransactionStore from "./TransactionStore";
 
-const SourceSelector = () => {
-	const { transactionSourceId, setTransactionSourceId } = useTransactionStore();
-	const { getSources } = useDatabase();
-
-	const sourceModels = getSources().map((s) => ({
-		label: s.name,
-		value: s.id
+const InvestmentSelector = () => {
+	const { transactionInvestmentId, setTransactionInvestmentId, transactionType } = useTransactionStore();
+	const { getInvestments } = useDatabase();
+	const investmentModels = getInvestments().map((investment) => ({
+		label: investment.name,
+		value: investment.id
 	}));
 
-	const item = (item: RenderItemType) => {
+	if (transactionType !== TransactionType.INVESTMENT) return null;
+
+	const item = (item: RenderItem) => {
 		const backgroundColor =
-			transactionSourceId === item.value ? DISABLED_COLOR : BACKGROUND_COLOR;
+			transactionInvestmentId === item.value ? DISABLED_COLOR : BACKGROUND_COLOR;
 		return (
 			<View
 				style={{
@@ -45,12 +47,12 @@ const SourceSelector = () => {
 	return (
 		<View style={styles.wrapper}>
 			<Dropdown
-				placeholder={"Select Source *"}
+				placeholder={"Select Investment *"}
 				labelField={"label"}
 				valueField={"value"}
-				data={sourceModels}
-				value={transactionSourceId}
-				onChange={(item) => setTransactionSourceId(item.value)}
+				data={investmentModels}
+				value={transactionInvestmentId}
+				onChange={(item) => setTransactionInvestmentId(item.value)}
 				renderItem={item}
 				style={styles.dropdown}
 				placeholderStyle={styles.placeholder}
@@ -99,4 +101,4 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default SourceSelector;
+export default InvestmentSelector;

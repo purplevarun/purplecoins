@@ -33,6 +33,7 @@ export const UBUNTU_FONT = "Ubuntu";
 export const FLEX_START = "flex-start";
 export const ABSOLUTE = "absolute";
 export const API_URL = process.env.EXPO_PUBLIC_API_KEY;
+export const DB_NAME = "purplecoins.db";
 export const SCREEN_OPTIONS: NativeStackNavigationOptions = {
 	headerShown: false,
 	animation: "ios"

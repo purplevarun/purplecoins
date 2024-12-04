@@ -1,20 +1,20 @@
-import CategoryModel from "../../../models/CategoryModel";
 import { Animated, TouchableOpacity } from "react-native";
 import { SECONDARY_COLOR } from "../../../config/colors.config";
 import {
 	BORDER_RADIUS,
 	MARGIN,
-	PADDING,
+	PADDING
 } from "../../../config/constants.config";
+import { ICategory } from "../../../util/database/DatabaseSchema";
 import CustomText from "../../../components/CustomText";
 
-const CategoryRenderItem = ({ item }: { item: CategoryModel }) => (
+const CategoryRenderItem = ({ item }: { item: ICategory }) => (
 	<TouchableOpacity
 		style={{
 			backgroundColor: SECONDARY_COLOR,
 			borderRadius: BORDER_RADIUS,
 			padding: PADDING,
-			margin: MARGIN,
+			margin: MARGIN
 		}}
 	>
 		<Animated.View>

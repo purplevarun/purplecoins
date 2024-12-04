@@ -1,13 +1,13 @@
 import { View } from "react-native";
-import { DISABLED_COLOR, PRIMARY_COLOR } from "../config/colors.config";
-import { FONT_SIZE, PADDING } from "../config/constants.config";
+import { DISABLED_COLOR, PRIMARY_COLOR } from "../../../config/colors.config";
+import { FONT_SIZE, PADDING } from "../../../config/constants.config";
 import { MultiSelect } from "react-native-element-dropdown";
-import dropdownStyle from "../styles/dropdown.style";
-import useTransactionStore from "../screens/finance/transaction/TransactionStore";
-import useCategoryService from "../screens/finance/category/CategoryService";
-import CustomText from "./CustomText";
-import ExpenseType from "../types/ExpenseType";
-import RenderItemType from "../types/RenderItemType";
+import dropdownStyle from "../../../styles/dropdown.style";
+import useTransactionStore from "./TransactionStore";
+import useCategoryService from "../category/CategoryService";
+import CustomText from "../../../components/CustomText";
+import TransactionType from "../../../types/TransactionType";
+import RenderItem from "../../../types/RenderItem";
 
 const CategorySelector = () => {
 	const { transactionType, transactionCategoryIds, setTransactionCategoryIds } = useTransactionStore();
@@ -20,7 +20,7 @@ const CategorySelector = () => {
 			value: category.id
 		}));
 
-	if (transactionType === ExpenseType.TRANSFER || transactionType === ExpenseType.INVESTMENT)
+	if (transactionType === TransactionType.TRANSFER || transactionType === TransactionType.INVESTMENT)
 		return null;
 
 	if (categoryList.length === 0)
@@ -38,13 +38,13 @@ const CategorySelector = () => {
 			</View>
 		);
 
-	const selectedItem = (item: RenderItemType) => (
+	const selectedItem = (item: RenderItem) => (
 		<View style={dropdownStyle.renderSelected}>
 			<CustomText text={item.label} fontSize={FONT_SIZE / 2} />
 		</View>
 	);
 
-	const item = (item: RenderItemType) => (
+	const item = (item: RenderItem) => (
 		<View
 			style={[
 				dropdownStyle.renderItem,

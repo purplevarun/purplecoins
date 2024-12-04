@@ -1,7 +1,6 @@
 import { generateUUID, logger, toInt } from "../helpers/HelperFunctions";
 import { useSQLiteContext } from "expo-sqlite";
 import { IInvestment, ISource, ITrip } from "./DatabaseSchema";
-import ExpenseType from "../../types/ExpenseType";
 import useAuthService from "../../screens/auth/AuthService";
 
 const useDatabase = () => {

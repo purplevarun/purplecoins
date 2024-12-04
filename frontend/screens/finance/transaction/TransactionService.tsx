@@ -2,7 +2,7 @@ import { generateUUID, logger } from "../../../util/helpers/HelperFunctions";
 import { useSQLiteContext } from "expo-sqlite";
 import useAuthService from "../../auth/AuthService";
 import useTransactionStore from "./TransactionStore";
-import ExpenseType from "../../../types/ExpenseType";
+import TransactionType from "../../../types/TransactionType";
 import { ICategory, ITransactionData, ITrip } from "../../../util/database/DatabaseSchema";
 import TransactionRoutes from "./TransactionRoutes";
 import { useNavigation } from "@react-navigation/native";
@@ -64,14 +64,14 @@ const useTransactionService = () => {
 			db.runSync(query, [id, getUserId(), transactionSourceId, calculatedAmount, transactionReason, transactionType, transactionDate.toString(), transactionDestinationId, transactionInvestmentId]);
 			transactionTripIds.forEach(tripId => createTransactionTrip(id, tripId));
 			transactionCategoryIds.forEach(categoryId => createTransactionCategory(id, categoryId));
-			if (transactionType === ExpenseType.EXPENSE) {
+			if (transactionType === TransactionType.EXPENSE) {
 				db.runSync(sourceQuery, [calculatedAmount, transactionSourceId]);
-			} else if (transactionType === ExpenseType.INCOME) {
+			} else if (transactionType === TransactionType.INCOME) {
 				db.runSync(destinationQuery, [calculatedAmount, transactionSourceId]);
-			} else if (transactionType === ExpenseType.INVESTMENT) {
+			} else if (transactionType === TransactionType.INVESTMENT) {
 				db.runSync(sourceQuery, [calculatedAmount, transactionSourceId]);
 				db.runSync(investmentQuery, [calculatedAmount, transactionSourceId]);
-			} else if (transactionType === ExpenseType.TRANSFER) {
+			} else if (transactionType === TransactionType.TRANSFER) {
 				db.runSync(sourceQuery, [calculatedAmount, transactionSourceId]);
 				db.runSync(destinationQuery, [calculatedAmount, transactionDestinationId]);
 			}
@@ -121,13 +121,13 @@ const useTransactionService = () => {
 	const submitEnabled = useMemo(() => {
 		const amountInt = parseInt(transactionAmount);
 		if (isNaN(amountInt)) return false;
-		if (transactionType === ExpenseType.EXPENSE || transactionType === ExpenseType.INCOME) {
+		if (transactionType === TransactionType.EXPENSE || transactionType === TransactionType.INCOME) {
 			return amountInt > 0 && transactionReason.length > 0 && transactionSourceId.length > 0;
 		}
-		if (transactionType === ExpenseType.TRANSFER) {
+		if (transactionType === TransactionType.TRANSFER) {
 			return amountInt > 0 && transactionSourceId.length > 0 && transactionDestinationId.length > 0;
 		}
-		if (transactionType === ExpenseType.INVESTMENT) {
+		if (transactionType === TransactionType.INVESTMENT) {
 			return amountInt > 0 && transactionSourceId.length > 0 && transactionInvestmentId.length > 0;
 		}
 		return false;

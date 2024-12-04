@@ -1,14 +1,17 @@
+import { DB_NAME } from "../../config/constants.config";
 import { Suspense } from "react";
 import { SQLiteProvider } from "expo-sqlite";
 import LoadingScreen from "../../screens/other/LoadingScreen";
-import ProviderType from "../../types/ProviderType";
+import Provider from "../../types/Provider";
 
-const DatabaseProvider = ({ children }: ProviderType) => {
-	return <Suspense fallback={<LoadingScreen />}>
-		<SQLiteProvider databaseName={"purplecoins.db"} useSuspense>
-			{children}
-		</SQLiteProvider>
-	</Suspense>;
+const DatabaseProvider: Provider = ({ children }) => {
+	return (
+		<Suspense fallback={<LoadingScreen />}>
+			<SQLiteProvider databaseName={DB_NAME} useSuspense>
+				{children}
+			</SQLiteProvider>
+		</Suspense>
+	);
 };
 
 export default DatabaseProvider;

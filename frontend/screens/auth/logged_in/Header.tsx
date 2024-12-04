@@ -1,19 +1,19 @@
 import { StyleSheet, TouchableOpacity, View } from "react-native";
-import { PRIMARY_COLOR, SECONDARY_COLOR } from "../config/colors.config";
+import { PRIMARY_COLOR, SECONDARY_COLOR } from "../../../config/colors.config";
 import {
 	CENTER,
 	FLEX_ROW,
 	HEADER_HEIGHT,
 	LARGE_FONT_SIZE,
-	SPACE_BETWEEN,
-} from "../config/constants.config";
-import { PADDING } from "../config/constants.config";
-import CustomText from "./CustomText";
+	SPACE_BETWEEN
+} from "../../../config/constants.config";
+import { PADDING } from "../../../config/constants.config";
+import CustomText from "../../../components/CustomText";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import app from "./../app.json";
-import { USER_ICON } from "../config/icons.config";
+import app from "../../../app.json";
+import { USER_ICON } from "../../../config/icons.config";
 import { useNavigation } from "@react-navigation/native";
-import LoggedInRoutes from "../screens/auth/logged_in/LoggedInRoutes";
+import LoggedInRoutes from "./LoggedInRoutes";
 
 const Header = () => {
 	const { navigate } = useNavigation<any>();
@@ -44,8 +44,8 @@ const styles = StyleSheet.create({
 		flexDirection: FLEX_ROW,
 		justifyContent: SPACE_BETWEEN,
 		alignItems: CENTER,
-		paddingHorizontal: PADDING,
-	},
+		paddingHorizontal: PADDING
+	}
 });
 
 export default Header;

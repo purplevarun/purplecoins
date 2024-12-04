@@ -1,9 +1,9 @@
-import { useEffect } from "react";
 import * as NavigationBar from "expo-navigation-bar";
+import { useEffect } from "react";
 import { SECONDARY_COLOR } from "../../../config/colors.config";
-import FlexView from "../../../components/FlexView";
-import { StatusBar } from "react-native";
-import Header from "../../../components/Header";
+import { FLEX_ONE } from "../../../config/constants.config";
+import { StatusBar, StyleSheet, View } from "react-native";
+import Header from "./Header";
 import BottomRouter from "./bottom_router/BottomRouter";
 
 const LoggedInScreen = () => {
@@ -12,12 +12,19 @@ const LoggedInScreen = () => {
 	}, []);
 
 	return (
-		<FlexView>
+		<View style={styles.flexView}>
 			<StatusBar backgroundColor={SECONDARY_COLOR} />
 			<Header />
 			<BottomRouter />
-		</FlexView>
+		</View>
 	);
 };
+
+const styles = StyleSheet.create({
+	flexView: {
+		flex: FLEX_ONE,
+		backgroundColor: SECONDARY_COLOR
+	}
+});
 
 export default LoggedInScreen;
