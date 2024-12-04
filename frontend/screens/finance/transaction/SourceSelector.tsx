@@ -13,7 +13,7 @@ import {
 	PADDING,
 	PADDING_TOP_ADD_SCREEN
 } from "../../../config/constants.config";
-import RenderItem from "../../../types/RenderItem";
+import RenderItem from "../../../interfaces/RenderItem";
 import CustomText from "../../../components/CustomText";
 import useDatabase from "../../../util/database/DatabaseFunctions";
 import useTransactionStore from "./TransactionStore";

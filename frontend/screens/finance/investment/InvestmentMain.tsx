@@ -1,6 +1,5 @@
 import { useCallback, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
-import { IInvestment } from "../../../util/database/DatabaseSchema";
 import { FlatList } from "react-native";
 import ScreenLayout from "../../../components/ScreenLayout";
 import InvestmentRoutes from "./InvestmentRoutes";
@@ -9,6 +8,7 @@ import NoContent from "../../other/NoContent";
 import useDatabase from "../../../util/database/DatabaseFunctions";
 import InvestmentAnalysis from "./InvestementAnalysis";
 import InvestmentRenderItem from "./InvestmentRenderItem";
+import IInvestment from "../../../interfaces/IInvestment";
 
 const InvestmentMain = () => {
 	const { getInvestments } = useDatabase();

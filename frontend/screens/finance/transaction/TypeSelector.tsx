@@ -1,4 +1,4 @@
-import TransactionType, { ExpenseData } from "../../../types/TransactionType";
+import TransactionType, { ExpenseData } from "../../../components/TransactionType";
 import RadioButtonGroup from "./RadioButtonGroup";
 
 const TypeSelector = ({ type, setType, transaction = false }: {

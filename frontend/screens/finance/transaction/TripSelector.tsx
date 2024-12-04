@@ -5,8 +5,8 @@ import { MultiSelect } from "react-native-element-dropdown";
 import useDatabase from "../../../util/database/DatabaseFunctions";
 import CustomText from "../../../components/CustomText";
 import dropdownStyle from "../../../styles/dropdown.style";
-import TransactionType from "../../../types/TransactionType";
-import RenderItem from "../../../types/RenderItem";
+import TransactionType from "../../../components/TransactionType";
+import RenderItem from "../../../interfaces/RenderItem";
 import useTransactionStore from "./TransactionStore";
 
 const TripSelector = () => {

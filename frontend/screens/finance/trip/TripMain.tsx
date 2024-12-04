@@ -1,6 +1,5 @@
 import { useCallback, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
-import { ITrip } from "../../../util/database/DatabaseSchema";
 import { FlatList } from "react-native";
 import ScreenLayout from "../../../components/ScreenLayout";
 import PlusButton from "../../../components/PlusButton";
@@ -8,6 +7,7 @@ import TripRoutes from "./TripRoutes";
 import NoContent from "../../other/NoContent";
 import useDatabase from "../../../util/database/DatabaseFunctions";
 import TripRenderItem from "./TripRenderItem";
+import ITrip from "../../../interfaces/ITrip";
 
 const TripMain = () => {
 	const { getTrips } = useDatabase();

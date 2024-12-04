@@ -1,10 +1,10 @@
 import { generateUUID, logger } from "../../../util/helpers/HelperFunctions";
 import { useSQLiteContext } from "expo-sqlite";
 import { useNavigation } from "@react-navigation/native";
-import { ICategory } from "../../../util/database/DatabaseSchema";
 import useAuthService from "../../auth/AuthService";
 import useCategoryStore from "./CategoryStore";
 import CategoryRoutes from "./CategoryRoutes";
+import ICategory from "../../../interfaces/ICategory";
 
 const useCategoryService = () => {
 	const db = useSQLiteContext();

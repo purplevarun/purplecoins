@@ -1,6 +1,5 @@
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useState } from "react";
-import { ISource } from "../../../util/database/DatabaseSchema";
 import { FlatList } from "react-native";
 import ScreenLayout from "../../../components/ScreenLayout";
 import PlusButton from "../../../components/PlusButton";
@@ -9,6 +8,7 @@ import NoContent from "../../other/NoContent";
 import useDatabase from "../../../util/database/DatabaseFunctions";
 import SourceTotal from "./SourceTotal";
 import SourceRenderItem from "./SourceRenderItem";
+import ISource from "../../../interfaces/ISource";
 
 const SourceMain = () => {
 	const { getSources } = useDatabase();

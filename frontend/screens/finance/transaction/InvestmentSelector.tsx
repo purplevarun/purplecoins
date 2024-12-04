@@ -13,8 +13,8 @@ import {
 	PADDING_TOP_ADD_SCREEN
 } from "../../../config/constants.config";
 import { Dropdown } from "react-native-element-dropdown";
-import TransactionType from "../../../types/TransactionType";
-import RenderItem from "../../../types/RenderItem";
+import TransactionType from "../../../components/TransactionType";
+import RenderItem from "../../../interfaces/RenderItem";
 import CustomText from "../../../components/CustomText";
 import useDatabase from "../../../util/database/DatabaseFunctions";
 import useTransactionStore from "./TransactionStore";

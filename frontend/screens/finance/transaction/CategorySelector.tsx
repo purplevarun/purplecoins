@@ -6,8 +6,8 @@ import dropdownStyle from "../../../styles/dropdown.style";
 import useTransactionStore from "./TransactionStore";
 import useCategoryService from "../category/CategoryService";
 import CustomText from "../../../components/CustomText";
-import TransactionType from "../../../types/TransactionType";
-import RenderItem from "../../../types/RenderItem";
+import TransactionType from "../../../components/TransactionType";
+import RenderItem from "../../../interfaces/RenderItem";
 
 const CategorySelector = () => {
 	const { transactionType, transactionCategoryIds, setTransactionCategoryIds } = useTransactionStore();

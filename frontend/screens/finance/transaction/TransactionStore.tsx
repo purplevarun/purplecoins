@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import TransactionType from "../../../types/TransactionType";
+import TransactionType from "../../../components/TransactionType";
 
 interface TransactionStore {
 	transactionType: TransactionType;

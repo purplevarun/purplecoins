@@ -5,8 +5,8 @@ import {
 	MARGIN,
 	PADDING
 } from "../../../config/constants.config";
-import { ICategory } from "../../../util/database/DatabaseSchema";
 import CustomText from "../../../components/CustomText";
+import ICategory from "../../../interfaces/ICategory";
 
 const CategoryRenderItem = ({ item }: { item: ICategory }) => (
 	<TouchableOpacity

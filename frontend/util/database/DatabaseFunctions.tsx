@@ -1,7 +1,9 @@
 import { generateUUID, logger, toInt } from "../helpers/HelperFunctions";
 import { useSQLiteContext } from "expo-sqlite";
-import { IInvestment, ISource, ITrip } from "./DatabaseSchema";
 import useAuthService from "../../screens/auth/AuthService";
+import ISource from "../../interfaces/ISource";
+import ITrip from "../../interfaces/ITrip";
+import IInvestment from "../../interfaces/IInvestment";
 
 const useDatabase = () => {
 	const db = useSQLiteContext();

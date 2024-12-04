@@ -1,13 +1,13 @@
 import { useCallback, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
-import { ICategory } from "../../../util/database/DatabaseSchema";
 import CategoryRoutes from "./CategoryRoutes";
 import ScreenLayout from "../../../components/ScreenLayout";
 import PlusButton from "../../../components/PlusButton";
 import CategorySection from "./CategorySection";
 import NoContent from "../../other/NoContent";
 import useCategoryService from "./CategoryService";
-import TransactionType from "../../../types/TransactionType";
+import TransactionType from "../../../components/TransactionType";
+import ICategory from "../../../interfaces/ICategory";
 
 const CategoryMain = () => {
 	const { fetchCategory } = useCategoryService();

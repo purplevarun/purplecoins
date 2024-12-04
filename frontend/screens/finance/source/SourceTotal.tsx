@@ -1,8 +1,8 @@
-import { ISource } from "../../../util/database/DatabaseSchema";
 import { View } from "react-native";
 import { CENTER, PADDING } from "../../../config/constants.config";
-import CustomText from "../../../components/CustomText";
 import { formatMoney } from "../../../util/helpers/HelperFunctions";
+import CustomText from "../../../components/CustomText";
+import ISource from "../../../interfaces/ISource";
 
 const SourceTotal = ({ sources }: { sources: ISource[] }) => {
 	const total = sources.reduce((sum, model) => sum + model.currentAmount, 0);

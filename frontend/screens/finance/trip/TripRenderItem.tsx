@@ -1,9 +1,9 @@
-import { ITrip } from "../../../util/database/DatabaseSchema";
+import { formatDate } from "../../../util/helpers/HelperFunctions";
 import { TouchableOpacity, View } from "react-native";
 import { BORDER_RADIUS, FLEX_ROW, MARGIN, PADDING, SPACE_BETWEEN } from "../../../config/constants.config";
 import { SECONDARY_COLOR } from "../../../config/colors.config";
 import CustomText from "../../../components/CustomText";
-import { formatDate } from "../../../util/helpers/HelperFunctions";
+import ITrip from "../../../interfaces/ITrip";
 
 const TripRenderItem = ({ item }: { item: ITrip }) => (
 	<TouchableOpacity

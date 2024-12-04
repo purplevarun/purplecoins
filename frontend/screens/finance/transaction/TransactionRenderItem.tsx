@@ -7,8 +7,8 @@ import {
 	SEVENTY_P,
 	SPACE_BETWEEN
 } from "../../../config/constants.config";
-import { ITransaction } from "../../../util/database/DatabaseSchema";
 import CustomText from "../../../components/CustomText";
+import ITransaction from "../../../interfaces/ITransaction";
 
 const TransactionRenderItem = ({ item }: { item: ITransaction }) => {
 	return <TouchableOpacity style={styles.outer}>

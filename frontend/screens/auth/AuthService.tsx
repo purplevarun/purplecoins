@@ -1,7 +1,7 @@
-import { IUser } from "../../util/database/DatabaseSchema";
 import { logger } from "../../util/helpers/HelperFunctions";
 import { useSQLiteContext } from "expo-sqlite";
 import useAuthStore from "./AuthStore";
+import IUser from "../../interfaces/IUser";
 
 const useAuthService = () => {
 	const db = useSQLiteContext();

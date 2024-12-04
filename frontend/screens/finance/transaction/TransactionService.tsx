@@ -1,12 +1,24 @@
+import { useMemo } from "react";
+import { useNavigation } from "@react-navigation/native";
 import { generateUUID, logger } from "../../../util/helpers/HelperFunctions";
 import { useSQLiteContext } from "expo-sqlite";
 import useAuthService from "../../auth/AuthService";
 import useTransactionStore from "./TransactionStore";
-import TransactionType from "../../../types/TransactionType";
-import { ICategory, ITransactionData, ITrip } from "../../../util/database/DatabaseSchema";
+import TransactionType from "../../../components/TransactionType";
 import TransactionRoutes from "./TransactionRoutes";
-import { useNavigation } from "@react-navigation/native";
-import { useMemo } from "react";
+import ITransaction from "../../../interfaces/ITransaction";
+import ITrip from "../../../interfaces/ITrip";
+import ICategory from "../../../interfaces/ICategory";
+
+interface ITransactionTrip {
+	transactionId: string;
+	tripId: string;
+}
+
+interface ITransactionCategory {
+	transactionId: string;
+	categoryId: string;
+}
 
 const useTransactionService = () => {
 	const db = useSQLiteContext();
@@ -91,19 +103,21 @@ const useTransactionService = () => {
 	};
 
 	const fetchTransactions = () => {
+
+
 		try {
 			const query = "SELECT * from transaction_record WHERE userId=?";
-			const transactions = db.getAllSync<ITransactionData>(query, [getUserId()]);
+			const transactions = db.getAllSync<ITransaction>(query, [getUserId()]);
 			transactions.forEach(t => {
 				const categories: ICategory[] = [];
 				const trips: ITrip[] = [];
-				const catIds = db.getAllSync<any>("SELECT categoryId FROM transaction_category where transactionId=?", [t.id]).map(c => c.categoryId);
+				const catIds = db.getAllSync<ITransactionCategory>("SELECT categoryId FROM transaction_category where transactionId=?", [t.id]).map(c => c.categoryId);
 				catIds.forEach(cId => {
 					const cat = db.getFirstSync<ICategory>("SELECT * FROM category where id=?", [cId]);
 					if (cat) categories.push(cat);
 				});
 				t.categories = categories;
-				const trIds = db.getAllSync<any>("SELECT tripId FROM transaction_trip where transactionId=?", [t.id]).map(t => t.tripId);
+				const trIds = db.getAllSync<ITransactionTrip>("SELECT tripId FROM transaction_trip where transactionId=?", [t.id]).map(t => t.tripId);
 				trIds.forEach(tId => {
 					const tr = db.getFirstSync<ITrip>("SELECT * FROM trip where id=?", [tId]);
 					if (tr) trips.push(tr);

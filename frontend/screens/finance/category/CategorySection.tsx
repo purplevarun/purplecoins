@@ -1,10 +1,10 @@
 import { FC } from "react";
 import { FlatList, View } from "react-native";
 import { CENTER, PADDING, FIFTY_P } from "../../../config/constants.config";
-import { ICategory } from "../../../util/database/DatabaseSchema";
 import CustomText from "../../../components/CustomText";
 import CategoryRenderItem from "./CategoryRenderItem";
-import TransactionType from "../../../types/TransactionType";
+import TransactionType from "../../../components/TransactionType";
+import ICategory from "../../../interfaces/ICategory";
 
 type Props = FC<{
 	categoryList: ICategory[];

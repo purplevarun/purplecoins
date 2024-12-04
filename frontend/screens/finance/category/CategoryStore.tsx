@@ -1,4 +1,4 @@
-import TransactionType from "../../../types/TransactionType";
+import TransactionType from "../../../components/TransactionType";
 import { create } from "zustand";
 
 interface CategoryStore {
