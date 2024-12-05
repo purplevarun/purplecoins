@@ -1,0 +1,12 @@
+#!/bin/sh
+
+if [ "$1" = "test" ]; then
+	cd test
+	./auth/delete_test_user
+	export MONGO_URL=mongodb://localhost:27017/purplecoins_test
+	maestro test automation.yaml
+elif [ "$1" = "frontend" ]; then
+	cd frontend && yarn dev
+elif [ "$1" = "backend" ]; then
+    cd backend && yarn dev
+fi

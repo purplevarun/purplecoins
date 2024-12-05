@@ -1,0 +1,12 @@
+appId: host.exp.exponent
+---
+
+-   assertVisible: "Purplecoins"
+-   assertVisible: "Transactions"
+-   assertVisible: "Categories"
+-   assertVisible: "Trips"
+-   assertVisible: "Investments"
+-   assertVisible: "Finance"
+-   assertVisible: "Settings"
+-   assertVisible: "Todo"
+-   assertVisible: "Passwords"

@@ -65,6 +65,7 @@ const SignUpScreen = ({ route }: any) => {
 				numeric
 			/>
 			<CustomButton
+				text={"Sign Up"}
 				onPress={handlePress}
 				disabled={pin1 !== pin2 || pin1.length < MINIMUM_LENGTH}
 			/>

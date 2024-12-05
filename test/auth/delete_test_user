@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Variables
+MONGO_URI="mongodb://localhost:27017"
+DB_NAME="purplecoinsv2"
+COLLECTION_NAME="users"
+USER_NAME="Test User"
+
+# Command to delete the user
+mongosh "$MONGO_URI/$DB_NAME" --eval "
+    db.getCollection('$COLLECTION_NAME').deleteOne({ name: '$USER_NAME' });
+    print('Deleted document with name: \"$USER_NAME\"');
+" > /dev/null
+
+if [ $? -eq 0 ]; then
+    echo "Successfully deleted document with name: \"$USER_NAME\""
+else
+    echo "Failed to delete document with name: \"$USER_NAME\""
+fi

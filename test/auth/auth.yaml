@@ -1,0 +1,12 @@
+appId: host.exp.exponent
+---
+
+-   runFlow: expo_setup.yaml
+-   runFlow: sign_up.yaml
+-   killApp
+-   runFlow: expo_setup.yaml
+-   runFlow: sign_in.yaml
+-   killApp
+-   launchApp
+-   openLink: exp://192.168.1.6:4002
+-   runFlow: homepage.yaml
