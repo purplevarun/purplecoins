@@ -14,24 +14,24 @@ import {
 } from "../../../config/constants.config";
 import { Dropdown } from "react-native-element-dropdown";
 import TransactionType from "../../../components/TransactionType";
-import RenderItem from "../../../interfaces/RenderItem";
+import IRenderItem from "../../../interfaces/IRenderItem";
 import CustomText from "../../../components/CustomText";
-import useDatabase from "../../../util/database/DatabaseFunctions";
 import useTransactionStore from "./TransactionStore";
+import useInvestmentService from "../investment/InvestmentService";
 
 const InvestmentSelector = () => {
-	const { transactionInvestmentId, setTransactionInvestmentId, transactionType } = useTransactionStore();
-	const { getInvestments } = useDatabase();
-	const investmentModels = getInvestments().map((investment) => ({
+	const { investmentId, setInvestmentId, type } = useTransactionStore();
+	const { fetchInvestments } = useInvestmentService();
+	const investmentModels = fetchInvestments().map((investment) => ({
 		label: investment.name,
 		value: investment.id
 	}));
 
-	if (transactionType !== TransactionType.INVESTMENT) return null;
+	if (type !== TransactionType.INVESTMENT) return null;
 
-	const item = (item: RenderItem) => {
+	const item = (item: IRenderItem) => {
 		const backgroundColor =
-			transactionInvestmentId === item.value ? DISABLED_COLOR : BACKGROUND_COLOR;
+			investmentId === item.value ? DISABLED_COLOR : BACKGROUND_COLOR;
 		return (
 			<View
 				style={{
@@ -51,8 +51,8 @@ const InvestmentSelector = () => {
 				labelField={"label"}
 				valueField={"value"}
 				data={investmentModels}
-				value={transactionInvestmentId}
-				onChange={(item) => setTransactionInvestmentId(item.value)}
+				value={investmentId}
+				onChange={(item) => setInvestmentId(item.value)}
 				renderItem={item}
 				style={styles.dropdown}
 				placeholderStyle={styles.placeholder}

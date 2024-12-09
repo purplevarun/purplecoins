@@ -1,13 +1,15 @@
 import mongoose from "mongoose";
 
 const categorySchema = new mongoose.Schema({
-	// id: { type: String, required: true, unique: true },
-	name: { type: String, required: true },
+	name: {
+		type: String,
+		required: true
+	},
 	type: {
 		type: String,
 		required: true,
-		enum: ["EXPENSE", "INCOME", "TRANSFER"],
-	},
+		enum: ["EXPENSE", "INCOME"]
+	}
 });
 
 const CategoryModel = mongoose.model("Category", categorySchema);

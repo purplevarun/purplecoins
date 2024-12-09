@@ -1,5 +1,3 @@
-import { useNavigation } from "@react-navigation/native";
-import { useState } from "react";
 import {
 	CENTER,
 	LARGE_FONT_SIZE,
@@ -13,29 +11,21 @@ import CustomText from "../../../components/CustomText";
 import CustomInput from "../../../components/CustomInput";
 import Vertical from "../../../components/Vertical";
 import CustomButton from "../../../components/CustomButton";
-import useDatabase from "../../../util/database/DatabaseFunctions";
-import useAuthStore from "../../auth/AuthStore";
-import TransactionRoutes from "../transaction/TransactionRoutes";
+import useSourceStore from "./SourceStore";
+import useSourceService from "./SourceService";
 
-const SourceAdd = ({ route }: { route: any }) => {
-	console.log(route);
-	const { createSource } = useDatabase();
-	const { navigate } = useNavigation<any>();
-	const [name, setName] = useState("");
-	const [initialAmount, setInitialAmount] = useState("");
-	const { refresh } = useAuthStore();
-
-	const handlePress = () => {
-		createSource(name, initialAmount);
-		refresh();
-		if (route.params.transaction)
-			navigate(TransactionRoutes.Add);
-		navigate(SourceRoutes.Main);
-	};
+const SourceAdd = () => {
+	const {
+		name,
+		setName,
+		initialAmount,
+		setInitialAmount
+	} = useSourceStore();
+	const { addNewSource, clearStore } = useSourceService();
 
 	return (
 		<ScreenLayout>
-			<CloseButton path={SourceRoutes.Main} />
+			<CloseButton path={SourceRoutes.Main} onPress={clearStore} />
 			<Vertical />
 			<CustomText
 				text={"Add Source"}
@@ -58,7 +48,7 @@ const SourceAdd = ({ route }: { route: any }) => {
 			/>
 			<CustomButton
 				disabled={name.length < MINIMUM_LENGTH}
-				onPress={handlePress}
+				onPress={addNewSource}
 			/>
 		</ScreenLayout>
 	);

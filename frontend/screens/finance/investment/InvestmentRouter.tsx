@@ -4,7 +4,7 @@ import InvestmentRoutes from "./InvestmentRoutes";
 import InvestmentMain from "./InvestmentMain";
 import InvestmentAdd from "./InvestmentAdd";
 
-const InvestmentScreen = () => {
+const InvestmentRouter = () => {
 	const Stack = createNativeStackNavigator();
 	return (
 		<Stack.Navigator screenOptions={SCREEN_OPTIONS}>
@@ -20,4 +20,4 @@ const InvestmentScreen = () => {
 	);
 };
 
-export default InvestmentScreen;
+export default InvestmentRouter;

@@ -4,7 +4,7 @@ import { SECONDARY_COLOR } from "../../../config/colors.config";
 import { FLEX_ONE } from "../../../config/constants.config";
 import { StatusBar, StyleSheet, View } from "react-native";
 import Header from "./Header";
-import BottomRouter from "./bottom_router/BottomRouter";
+import BottomRouter from "./BottomRouter";
 
 const LoggedInScreen = () => {
 	useEffect(() => {

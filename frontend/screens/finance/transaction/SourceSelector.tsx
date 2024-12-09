@@ -13,23 +13,23 @@ import {
 	PADDING,
 	PADDING_TOP_ADD_SCREEN
 } from "../../../config/constants.config";
-import RenderItem from "../../../interfaces/RenderItem";
+import IRenderItem from "../../../interfaces/IRenderItem";
 import CustomText from "../../../components/CustomText";
-import useDatabase from "../../../util/database/DatabaseFunctions";
 import useTransactionStore from "./TransactionStore";
+import useSourceService from "../source/SourceService";
 
 const SourceSelector = () => {
-	const { transactionSourceId, setTransactionSourceId } = useTransactionStore();
-	const { getSources } = useDatabase();
+	const { sourceId, setSourceId } = useTransactionStore();
+	const { fetchSources } = useSourceService();
 
-	const sourceModels = getSources().map((s) => ({
+	const sourceModels = fetchSources().map((s) => ({
 		label: s.name,
 		value: s.id
 	}));
 
-	const item = (item: RenderItem) => {
+	const item = (item: IRenderItem) => {
 		const backgroundColor =
-			transactionSourceId === item.value ? DISABLED_COLOR : BACKGROUND_COLOR;
+			sourceId === item.value ? DISABLED_COLOR : BACKGROUND_COLOR;
 		return (
 			<View
 				style={{
@@ -49,8 +49,8 @@ const SourceSelector = () => {
 				labelField={"label"}
 				valueField={"value"}
 				data={sourceModels}
-				value={transactionSourceId}
-				onChange={(item) => setTransactionSourceId(item.value)}
+				value={sourceId}
+				onChange={(item) => setSourceId(item.value)}
 				renderItem={item}
 				style={styles.dropdown}
 				placeholderStyle={styles.placeholder}

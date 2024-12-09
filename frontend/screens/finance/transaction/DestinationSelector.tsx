@@ -14,32 +14,32 @@ import {
 	PADDING_TOP_ADD_SCREEN
 } from "../../../config/constants.config";
 import TransactionType from "../../../components/TransactionType";
-import RenderItem from "../../../interfaces/RenderItem";
+import IRenderItem from "../../../interfaces/IRenderItem";
 import CustomText from "../../../components/CustomText";
-import useDatabase from "../../../util/database/DatabaseFunctions";
 import useTransactionStore from "./TransactionStore";
+import useSourceService from "../source/SourceService";
 
 const DestinationSelector = () => {
 	const {
-		transactionSourceId,
-		transactionDestinationId,
-		setTransactionDestinationId,
-		transactionType
+		sourceId,
+		destinationId,
+		setDestinationId,
+		type
 	} = useTransactionStore();
-	const { getSources } = useDatabase();
+	const { fetchSources } = useSourceService();
 
-	if (transactionType !== TransactionType.TRANSFER) return null;
+	if (type !== TransactionType.TRANSFER) return null;
 
-	const destinationDropdownData = getSources()
-		.filter((destination) => destination.id !== transactionSourceId)
+	const destinationDropdownData = fetchSources()
+		.filter((destination) => destination.id !== sourceId)
 		.map((source) => ({
 			label: source.name,
 			value: source.id
 		}));
 
-	const item = (item: RenderItem) => {
+	const item = (item: IRenderItem) => {
 		const backgroundColor =
-			transactionDestinationId === item.value ? DISABLED_COLOR : BACKGROUND_COLOR;
+			destinationId === item.value ? DISABLED_COLOR : BACKGROUND_COLOR;
 		return (
 			<View
 				style={{
@@ -59,8 +59,8 @@ const DestinationSelector = () => {
 				labelField={"label"}
 				valueField={"value"}
 				data={destinationDropdownData}
-				value={transactionDestinationId}
-				onChange={(item) => setTransactionDestinationId(item.value)}
+				value={destinationId}
+				onChange={(item) => setDestinationId(item.value)}
 				renderItem={item}
 				style={styles.dropdown}
 				placeholderStyle={styles.placeholder}

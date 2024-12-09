@@ -1,7 +1,4 @@
-import {
-	CENTER, FIFTY_P, FONT_SIZE,
-	LARGE_FONT_SIZE
-} from "../../../config/constants.config";
+import { CENTER, FIFTY_P, FONT_SIZE, LARGE_FONT_SIZE } from "../../../config/constants.config";
 import { useNavigation } from "@react-navigation/native";
 import TransactionRoutes from "./TransactionRoutes";
 import CustomText from "../../../components/CustomText";
@@ -15,36 +12,40 @@ import SourceSelector from "./SourceSelector";
 import DestinationSelector from "./DestinationSelector";
 import InvestmentSelector from "./InvestmentSelector";
 import TripSelector from "./TripSelector";
-import useDatabase from "../../../util/database/DatabaseFunctions";
 import TransactionDatePicker from "./TransactionDatePicker";
 import Vertical from "../../../components/Vertical";
 import SourceRoutes from "../source/SourceRoutes";
 import useTransactionStore from "./TransactionStore";
 import useTransactionService from "./TransactionService";
+import useSourceService from "../source/SourceService";
 
 const TransactionAdd = () => {
 	const { navigate } = useNavigation<any>();
 	const {
-		transactionAmount,
-		transactionReason,
-		setTransactionReason,
-		transactionType,
-		setTransactionAmount,
-		setTransactionType
+		amount,
+		reason,
+		setReason,
+		type,
+		setAmount,
+		setType
 	} = useTransactionStore();
 
-	const { getSources } = useDatabase();
+	const { fetchSources } = useSourceService();
 	const { addNewTransaction, submitEnabled } = useTransactionService();
-	const sources = getSources();
 
-	if (sources.length === 0) {
-		return <ScreenLayout>
-			<CloseButton path={TransactionRoutes.Main} />
-			<Vertical size={FONT_SIZE} />
-			<CustomText text={"To add a transaction, you need to add a source"} alignSelf={CENTER} />
-			<CustomButton text={"Add Source"} width={FIFTY_P}
-						  onPress={() => navigate(SourceRoutes.Add, { transaction: true })} />
-		</ScreenLayout>;
+	if (fetchSources().length === 0) {
+		return (
+			<ScreenLayout>
+				<CloseButton path={TransactionRoutes.Main} />
+				<Vertical size={FONT_SIZE} />
+				<CustomText text={"To add a transaction, you need to add a source"} alignSelf={CENTER} />
+				<CustomButton
+					text={"Add Source"}
+					width={FIFTY_P}
+					onPress={() => navigate(SourceRoutes.Add)}
+				/>
+			</ScreenLayout>
+		);
 	}
 
 	return (
@@ -56,18 +57,18 @@ const TransactionAdd = () => {
 				alignSelf={CENTER}
 				fontSize={LARGE_FONT_SIZE}
 			/>
-			<TypeSelector type={transactionType} setType={setTransactionType} transaction />
+			<TypeSelector type={type} setType={setType} transaction />
 			<CustomInput
 				name={"Amount"}
-				value={transactionAmount}
-				setValue={setTransactionAmount}
+				value={amount}
+				setValue={setAmount}
 				numeric
 				required
 			/>
 			<CustomInput
 				name={"Reason"}
-				value={transactionReason}
-				setValue={setTransactionReason}
+				value={reason}
+				setValue={setReason}
 				required
 			/>
 			<TransactionDatePicker />

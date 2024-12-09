@@ -11,6 +11,9 @@ export const HEADER_HEIGHT = SCREEN_HEIGHT * 0.06;
 export const FONT_SIZE = PixelRatio.roundToNearestPixel(
 	(SCREEN_WIDTH * 0.05) / FONT_SCALE
 );
+export const MODAL_HEIGHT = SCREEN_HEIGHT * 0.15;
+export const MODAL_WIDTH = SCREEN_WIDTH * 0.9;
+export const MODAL_BUTTON_WIDTH = SCREEN_WIDTH * 0.2;
 export const LARGE_FONT_SIZE = PixelRatio.roundToNearestPixel(FONT_SIZE * 1.4);
 export const LOADER_SIZE = SCREEN_WIDTH * 0.5;
 export const SMALL_FONT_SIZE = FONT_SIZE * 0.8;
@@ -29,8 +32,10 @@ export const NINETY_P = "90%";
 export const FIFTY_P = "50%";
 export const SEVENTY_P = "70%";
 export const HUNDRED_P = "100%";
+export const FORTY_EIGHT_P = "48%";
 export const UBUNTU_FONT = "Ubuntu";
 export const FLEX_START = "flex-start";
+export const FLEX_END = "flex-end";
 export const ABSOLUTE = "absolute";
 export const API_URL = process.env.EXPO_PUBLIC_API_KEY;
 export const DB_NAME = "purplecoins.db";

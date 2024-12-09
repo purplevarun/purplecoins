@@ -9,38 +9,30 @@ import TransactionRoutes from "./TransactionRoutes";
 import ITransaction from "../../../interfaces/ITransaction";
 import ITrip from "../../../interfaces/ITrip";
 import ICategory from "../../../interfaces/ICategory";
-
-interface ITransactionTrip {
-	transactionId: string;
-	tripId: string;
-}
-
-interface ITransactionCategory {
-	transactionId: string;
-	categoryId: string;
-}
+import ITransactionCategory from "../../../interfaces/ITransactionCategory";
+import ITransactionTrip from "../../../interfaces/ITransactionTrip";
 
 const useTransactionService = () => {
 	const db = useSQLiteContext();
 	const { getUserId } = useAuthService();
 	const {
-		transactionTripIds,
-		transactionCategoryIds,
-		transactionAmount,
-		transactionReason,
-		transactionType,
-		transactionDate,
-		transactionSourceId,
-		transactionDestinationId,
-		transactionInvestmentId,
-		setTransactionAmount,
-		setTransactionReason,
-		setTransactionSourceId,
-		setTransactionDestinationId,
-		setTransactionInvestmentId,
-		setTransactionCategoryIds,
-		setTransactionTripIds,
-		setTransactionDate
+		tripIds,
+		categoryIds,
+		amount,
+		reason,
+		type,
+		date,
+		sourceId,
+		destinationId,
+		investmentId,
+		setAmount,
+		setReason,
+		setSourceId,
+		setDestinationId,
+		setInvestmentId,
+		setCategoryIds,
+		setTripIds,
+		setDate
 	} = useTransactionStore();
 	const { navigate } = useNavigation<any>();
 
@@ -67,57 +59,55 @@ const useTransactionService = () => {
 
 	const addNewTransaction = () => {
 		try {
-			const calculatedAmount = parseInt(transactionAmount);
+			const calculatedAmount = parseInt(amount);
 			const id = generateUUID();
 			const query = "INSERT INTO transaction_record (id,userId,sourceId,amount,reason,type,date,destinationId,investmentId) VALUES (?,?,?,?,?,?,?,?,?)";
 			const sourceQuery = "UPDATE source SET currentAmount=currentAmount-? WHERE id=?";
 			const destinationQuery = "UPDATE source SET currentAmount=currentAmount+? WHERE id=?";
 			const investmentQuery = "UPDATE investment SET investedAmount=investedAmount+? WHERE id=?";
-			db.runSync(query, [id, getUserId(), transactionSourceId, calculatedAmount, transactionReason, transactionType, transactionDate.toString(), transactionDestinationId, transactionInvestmentId]);
-			transactionTripIds.forEach(tripId => createTransactionTrip(id, tripId));
-			transactionCategoryIds.forEach(categoryId => createTransactionCategory(id, categoryId));
-			if (transactionType === TransactionType.EXPENSE) {
-				db.runSync(sourceQuery, [calculatedAmount, transactionSourceId]);
-			} else if (transactionType === TransactionType.INCOME) {
-				db.runSync(destinationQuery, [calculatedAmount, transactionSourceId]);
-			} else if (transactionType === TransactionType.INVESTMENT) {
-				db.runSync(sourceQuery, [calculatedAmount, transactionSourceId]);
-				db.runSync(investmentQuery, [calculatedAmount, transactionSourceId]);
-			} else if (transactionType === TransactionType.TRANSFER) {
-				db.runSync(sourceQuery, [calculatedAmount, transactionSourceId]);
-				db.runSync(destinationQuery, [calculatedAmount, transactionDestinationId]);
+			db.runSync(query, [id, getUserId(), sourceId, calculatedAmount, reason, type, date.toString(), destinationId, investmentId]);
+			tripIds.forEach(tripId => createTransactionTrip(id, tripId));
+			categoryIds.forEach(categoryId => createTransactionCategory(id, categoryId));
+			if (type === TransactionType.EXPENSE) {
+				db.runSync(sourceQuery, [calculatedAmount, sourceId]);
+			} else if (type === TransactionType.INCOME) {
+				db.runSync(destinationQuery, [calculatedAmount, sourceId]);
+			} else if (type === TransactionType.INVESTMENT) {
+				db.runSync(sourceQuery, [calculatedAmount, sourceId]);
+				db.runSync(investmentQuery, [calculatedAmount, sourceId]);
+			} else if (type === TransactionType.TRANSFER) {
+				db.runSync(sourceQuery, [calculatedAmount, sourceId]);
+				db.runSync(destinationQuery, [calculatedAmount, destinationId]);
 			}
 			logger("added new transaction");
 		} catch (e) {
 			logger("ERROR: creating transaction", e);
 		}
-		setTransactionAmount("");
-		setTransactionReason("");
-		setTransactionSourceId("");
-		setTransactionDestinationId("");
-		setTransactionInvestmentId("");
-		setTransactionCategoryIds([]);
-		setTransactionTripIds([]);
-		setTransactionDate(new Date());
+		setAmount("");
+		setReason("");
+		setSourceId("");
+		setDestinationId("");
+		setInvestmentId("");
+		setCategoryIds([]);
+		setTripIds([]);
+		setDate(new Date());
 		navigate(TransactionRoutes.Main);
 	};
 
 	const fetchTransactions = () => {
-
-
 		try {
-			const query = "SELECT * from transaction_record WHERE userId=?";
+			const query = "SELECT * FROM transaction_record WHERE userId=?";
 			const transactions = db.getAllSync<ITransaction>(query, [getUserId()]);
 			transactions.forEach(t => {
 				const categories: ICategory[] = [];
 				const trips: ITrip[] = [];
-				const catIds = db.getAllSync<ITransactionCategory>("SELECT categoryId FROM transaction_category where transactionId=?", [t.id]).map(c => c.categoryId);
+				const catIds = db.getAllSync<ITransactionCategory>("SELECT categoryId FROM transaction_category WHERE transactionId=?", [t.id]).map(c => c.categoryId);
 				catIds.forEach(cId => {
 					const cat = db.getFirstSync<ICategory>("SELECT * FROM category where id=?", [cId]);
 					if (cat) categories.push(cat);
 				});
 				t.categories = categories;
-				const trIds = db.getAllSync<ITransactionTrip>("SELECT tripId FROM transaction_trip where transactionId=?", [t.id]).map(t => t.tripId);
+				const trIds = db.getAllSync<ITransactionTrip>("SELECT tripId FROM transaction_trip WHERE transactionId=?", [t.id]).map(t => t.tripId);
 				trIds.forEach(tId => {
 					const tr = db.getFirstSync<ITrip>("SELECT * FROM trip where id=?", [tId]);
 					if (tr) trips.push(tr);
@@ -133,19 +123,19 @@ const useTransactionService = () => {
 	};
 
 	const submitEnabled = useMemo(() => {
-		const amountInt = parseInt(transactionAmount);
+		const amountInt = parseInt(amount);
 		if (isNaN(amountInt)) return false;
-		if (transactionType === TransactionType.EXPENSE || transactionType === TransactionType.INCOME) {
-			return amountInt > 0 && transactionReason.length > 0 && transactionSourceId.length > 0;
+		if (type === TransactionType.EXPENSE || type === TransactionType.INCOME) {
+			return amountInt > 0 && reason.length > 0 && sourceId.length > 0;
 		}
-		if (transactionType === TransactionType.TRANSFER) {
-			return amountInt > 0 && transactionSourceId.length > 0 && transactionDestinationId.length > 0;
+		if (type === TransactionType.TRANSFER) {
+			return amountInt > 0 && sourceId.length > 0 && destinationId.length > 0;
 		}
-		if (transactionType === TransactionType.INVESTMENT) {
-			return amountInt > 0 && transactionSourceId.length > 0 && transactionInvestmentId.length > 0;
+		if (type === TransactionType.INVESTMENT) {
+			return amountInt > 0 && sourceId.length > 0 && investmentId.length > 0;
 		}
 		return false;
-	}, [transactionAmount, transactionReason, transactionSourceId, transactionDestinationId, transactionInvestmentId]);
+	}, [amount, reason, sourceId, destinationId, investmentId]);
 
 	return { addNewTransaction, fetchTransactions, submitEnabled };
 };

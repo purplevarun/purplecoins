@@ -3,6 +3,7 @@ import { SCREEN_OPTIONS } from "../../../config/constants.config";
 import TripMain from "./TripMain";
 import TripAdd from "./TripAdd";
 import TripRoutes from "./TripRoutes";
+import TripDetail from "./TripDetail";
 
 const TripRouter = () => {
 	const Stack = createNativeStackNavigator();
@@ -10,6 +11,7 @@ const TripRouter = () => {
 		<Stack.Navigator screenOptions={SCREEN_OPTIONS}>
 			<Stack.Screen name={TripRoutes.Main} component={TripMain} />
 			<Stack.Screen name={TripRoutes.Add} component={TripAdd} />
+			<Stack.Screen name={TripRoutes.Detail} component={TripDetail} />
 		</Stack.Navigator>
 	);
 };

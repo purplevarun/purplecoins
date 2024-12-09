@@ -1,5 +1,3 @@
-import { useNavigation } from "@react-navigation/native";
-import { useState } from "react";
 import {
 	CENTER,
 	LARGE_FONT_SIZE,
@@ -13,36 +11,18 @@ import CustomInput from "../../../components/CustomInput";
 import CustomButton from "../../../components/CustomButton";
 import Vertical from "../../../components/Vertical";
 import TripDatePicker from "./TripDatePicker";
-import useDatabase from "../../../util/database/DatabaseFunctions";
-import useTripStore from "./TipStore";
+import useTripStore from "./TripStore";
+import useTripService from "./TripService";
 
 const TripAdd = () => {
-	const [name, setName] = useState("");
-	const { navigate } = useNavigation<any>();
-	const { createTrip } = useDatabase();
-	const {
-		tripStartDate,
-		tripEndDate,
-		tripStartDateSet,
-		tripEndDateSet,
-		setTripStartDateSet,
-		setTripEndDateSet
-	} = useTripStore();
-
-	const handlePress = () => {
-		createTrip(name, tripStartDateSet ? tripStartDate : null, tripEndDateSet ? tripEndDate : null);
-		setName("");
-		setTripStartDateSet(false);
-		setTripEndDateSet(false);
-		navigate(TripRoutes.Main);
-	};
-
+	const { name, setName } = useTripStore();
+	const { addNewTrip, clearStore, isEdit } = useTripService();
 	return (
 		<ScreenLayout>
-			<CloseButton path={TripRoutes.Main} />
+			<CloseButton path={TripRoutes.Main} onPress={clearStore} />
 			<Vertical />
 			<CustomText
-				text={"Add Trip"}
+				text={isEdit ? "Edit Trip" : "Add Trip"}
 				alignSelf={CENTER}
 				fontSize={LARGE_FONT_SIZE}
 			/>
@@ -53,7 +33,7 @@ const TripAdd = () => {
 				setValue={setName}
 				required />
 			<TripDatePicker />
-			<CustomButton disabled={name.length == 0} onPress={handlePress} />
+			<CustomButton disabled={name.length == 0} onPress={addNewTrip} />
 		</ScreenLayout>
 	);
 };

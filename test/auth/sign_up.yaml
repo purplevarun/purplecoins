@@ -1,6 +1,5 @@
 appId: host.exp.exponent
 ---
-
 -   tapOn: " Username "
 -   inputText: "Test User"
 -   tapOn: "Submit"

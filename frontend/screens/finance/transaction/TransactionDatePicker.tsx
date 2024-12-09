@@ -8,16 +8,16 @@ import RNDateTimePicker from "@react-native-community/datetimepicker";
 import useTransactionStore from "./TransactionStore";
 
 const TransactionDatePicker = () => {
-	const { transactionDate, setTransactionDate } = useTransactionStore();
+	const { date, setDate } = useTransactionStore();
 	const [showPicker, setShowPicker] = useState(false);
 	const [clicked, setClicked] = useState(false);
 	if (showPicker)
 		return (
 			<RNDateTimePicker
-				value={transactionDate}
+				value={date}
 				onChange={(_, newDate) => {
 					setShowPicker(false);
-					setTransactionDate(newDate ?? new Date());
+					setDate(newDate ?? new Date());
 					setClicked(true);
 				}}
 			/>
@@ -35,7 +35,7 @@ const TransactionDatePicker = () => {
 			}}
 			onPress={() => setShowPicker(true)}
 		>
-			<CustomText text={formatDate(transactionDate)} color={clicked ? PRIMARY_COLOR : DISABLED_COLOR} />
+			<CustomText text={formatDate(date)} color={clicked ? PRIMARY_COLOR : DISABLED_COLOR} />
 		</TouchableOpacity>
 	);
 };

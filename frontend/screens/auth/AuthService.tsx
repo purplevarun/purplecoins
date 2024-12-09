@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { logger } from "../../util/helpers/HelperFunctions";
 import { useSQLiteContext } from "expo-sqlite";
 import useAuthStore from "./AuthStore";
@@ -5,14 +6,14 @@ import IUser from "../../interfaces/IUser";
 
 const useAuthService = () => {
 	const db = useSQLiteContext();
-	const { refresh } = useAuthStore();
+	const { toggleRefresh, refresh } = useAuthStore();
 
 	const addNewUser = (userId: string, username: string) => {
 		try {
 			const query = "INSERT INTO user (id, name) VALUES (?, ?)";
 			db.runSync(query, [userId, username]);
-			refresh();
-			logger("created new user");
+			toggleRefresh();
+			console.log("created new user");
 		} catch (e) {
 			logger("ERROR: creating user", e);
 		}
@@ -36,7 +37,7 @@ const useAuthService = () => {
 		}
 	};
 
-	const doesUserExist = () => {
+	const doesUserExist = useMemo(() => {
 		try {
 			const query = "SELECT * from user";
 			const users = db.getAllSync<IUser>(query);
@@ -46,22 +47,27 @@ const useAuthService = () => {
 			logger("ERROR: fetching users", e);
 			return false;
 		}
-	};
+	}, [refresh]);
 
-	const getUserId = () => {
-		return getUser().id;
-	};
+	const getUserId = () => getUser().id;
 
 	const logOut = () => {
 		try {
-			db.runSync("DROP TABLE user;");
+			db.runSync("DELETE FROM user;");
+			toggleRefresh();
 			logger("dropped user table");
 		} catch (e) {
 			logger("ERROR: deleting user table");
 		}
 	};
 
-	return { addNewUser, getUserId, getUser, doesUserExist, logOut };
+	return {
+		doesUserExist,
+		addNewUser,
+		getUserId,
+		getUser,
+		logOut
+	};
 };
 
 export default useAuthService;

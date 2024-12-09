@@ -5,18 +5,16 @@ import ScreenLayout from "../../../components/ScreenLayout";
 import InvestmentRoutes from "./InvestmentRoutes";
 import PlusButton from "../../../components/PlusButton";
 import NoContent from "../../other/NoContent";
-import useDatabase from "../../../util/database/DatabaseFunctions";
 import InvestmentAnalysis from "./InvestementAnalysis";
 import InvestmentRenderItem from "./InvestmentRenderItem";
 import IInvestment from "../../../interfaces/IInvestment";
+import useInvestmentService from "./InvestmentService";
 
 const InvestmentMain = () => {
-	const { getInvestments } = useDatabase();
+	const { fetchInvestments } = useInvestmentService();
 	const [investments, setInvestments] = useState<null | IInvestment[]>(null);
 
-	useFocusEffect(useCallback(() => {
-		setInvestments(getInvestments());
-	}, []));
+	useFocusEffect(useCallback(() => setInvestments(fetchInvestments()), []));
 
 	if (!investments || investments.length === 0)
 		return <NoContent investments />;

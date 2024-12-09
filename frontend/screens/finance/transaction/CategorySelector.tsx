@@ -7,20 +7,20 @@ import useTransactionStore from "./TransactionStore";
 import useCategoryService from "../category/CategoryService";
 import CustomText from "../../../components/CustomText";
 import TransactionType from "../../../components/TransactionType";
-import RenderItem from "../../../interfaces/RenderItem";
+import IRenderItem from "../../../interfaces/IRenderItem";
 
 const CategorySelector = () => {
-	const { transactionType, transactionCategoryIds, setTransactionCategoryIds } = useTransactionStore();
+	const { type, categoryIds, setCategoryIds } = useTransactionStore();
 	const { fetchCategory } = useCategoryService();
 
 	const categoryList = fetchCategory()
-		.filter((category) => category.type === transactionType)
+		.filter((category) => category.type === type)
 		.map((category) => ({
 			label: category.name,
 			value: category.id
 		}));
 
-	if (transactionType === TransactionType.TRANSFER || transactionType === TransactionType.INVESTMENT)
+	if (type === TransactionType.TRANSFER || type === TransactionType.INVESTMENT)
 		return null;
 
 	if (categoryList.length === 0)
@@ -38,17 +38,17 @@ const CategorySelector = () => {
 			</View>
 		);
 
-	const selectedItem = (item: RenderItem) => (
+	const selectedItem = (item: IRenderItem) => (
 		<View style={dropdownStyle.renderSelected}>
 			<CustomText text={item.label} fontSize={FONT_SIZE / 2} />
 		</View>
 	);
 
-	const item = (item: RenderItem) => (
+	const item = (item: IRenderItem) => (
 		<View
 			style={[
 				dropdownStyle.renderItem,
-				transactionCategoryIds.includes(item.value) &&
+				categoryIds.includes(item.value) &&
 				dropdownStyle.renderItemSelected
 			]}
 		>
@@ -63,8 +63,8 @@ const CategorySelector = () => {
 				labelField={"label"}
 				valueField={"value"}
 				data={categoryList}
-				value={transactionCategoryIds}
-				onChange={setTransactionCategoryIds}
+				value={categoryIds}
+				onChange={setCategoryIds}
 				renderItem={item}
 				renderSelectedItem={selectedItem}
 				style={dropdownStyle.multiselect}

@@ -3,7 +3,7 @@
 	"version": "1.0.0",
 	"main": "expo/AppEntry.js",
 	"scripts": {
-		"dev": "expo start -c -p 4002",
+		"dev": "expo start -c -p 4004",
 		"clean": "rm -rf node_modules yarn.lock .expo && yarn",
 		"doctor": "npx expo-doctor"
 	},
@@ -16,6 +16,7 @@
 		"@react-navigation/native-stack": "^6.11.0",
 		"axios": "^1.7.7",
 		"expo": "~51.0.39",
+		"expo-dev-client": "~4.0.29",
 		"expo-font": "~12.0.10",
 		"expo-image": "~1.13.0",
 		"expo-navigation-bar": "~3.0.7",

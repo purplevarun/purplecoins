@@ -5,30 +5,30 @@ import ScreenLayout from "../../../components/ScreenLayout";
 import PlusButton from "../../../components/PlusButton";
 import SourceRoutes from "./SourceRoutes";
 import NoContent from "../../other/NoContent";
-import useDatabase from "../../../util/database/DatabaseFunctions";
 import SourceTotal from "./SourceTotal";
 import SourceRenderItem from "./SourceRenderItem";
 import ISource from "../../../interfaces/ISource";
+import useSourceService from "./SourceService";
 
 const SourceMain = () => {
-	const { getSources } = useDatabase();
+	const { fetchSources } = useSourceService();
 	const [sources, setSources] = useState<null | ISource[]>(null);
 
-	useFocusEffect(useCallback(() => {
-		setSources(getSources());
-	}, []));
+	useFocusEffect(useCallback(() => setSources(fetchSources()), []));
 
 	if (!sources || sources.length === 0)
 		return <NoContent sources />;
 
-	return <ScreenLayout>
-		<SourceTotal sources={sources} />
-		<FlatList
-			data={sources}
-			renderItem={SourceRenderItem}
-		/>
-		<PlusButton to={SourceRoutes.Add} />
-	</ScreenLayout>;
+	return (
+		<ScreenLayout>
+			<SourceTotal sources={sources} />
+			<FlatList
+				data={sources}
+				renderItem={SourceRenderItem}
+			/>
+			<PlusButton to={SourceRoutes.Add} />
+		</ScreenLayout>
+	);
 };
 
 

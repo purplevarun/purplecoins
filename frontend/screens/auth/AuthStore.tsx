@@ -1,13 +1,13 @@
 import { create } from "zustand";
 
 interface AuthStore {
-	refreshValue: boolean;
-	refresh: () => void;
+	refresh: boolean;
+	toggleRefresh: () => void;
 }
 
 const useAuthStore = create<AuthStore>(set => ({
-	refreshValue: true,
-	refresh: () => set((state) => ({ refreshValue: !state.refreshValue }))
+	refresh: true,
+	toggleRefresh: () => set((state) => ({ refresh: !state.refresh }))
 }));
 
 

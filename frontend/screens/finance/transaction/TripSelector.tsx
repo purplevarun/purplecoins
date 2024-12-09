@@ -2,22 +2,22 @@ import { View } from "react-native";
 import { DISABLED_COLOR, PRIMARY_COLOR } from "../../../config/colors.config";
 import { FONT_SIZE, PADDING } from "../../../config/constants.config";
 import { MultiSelect } from "react-native-element-dropdown";
-import useDatabase from "../../../util/database/DatabaseFunctions";
 import CustomText from "../../../components/CustomText";
 import dropdownStyle from "../../../styles/dropdown.style";
 import TransactionType from "../../../components/TransactionType";
-import RenderItem from "../../../interfaces/RenderItem";
+import IRenderItem from "../../../interfaces/IRenderItem";
 import useTransactionStore from "./TransactionStore";
+import useTripService from "../trip/TripService";
 
 const TripSelector = () => {
-	const { transactionType, transactionTripIds, setTransactionTripIds } = useTransactionStore();
-	const { getTrips } = useDatabase();
-	const tripList = getTrips().map(({ id, name }) => ({
+	const { type, tripIds, setTripIds } = useTransactionStore();
+	const { fetchTrips } = useTripService();
+	const tripList = fetchTrips().map(({ id, name }) => ({
 		label: name,
 		value: id
 	}));
 
-	if (transactionType === TransactionType.TRANSFER || transactionType === TransactionType.INVESTMENT)
+	if (type === TransactionType.TRANSFER || type === TransactionType.INVESTMENT)
 		return null;
 
 	if (tripList.length === 0)
@@ -36,17 +36,17 @@ const TripSelector = () => {
 		);
 
 
-	const selectedItem = (item: RenderItem) => (
+	const selectedItem = (item: IRenderItem) => (
 		<View style={dropdownStyle.renderSelected}>
 			<CustomText text={item.label} fontSize={FONT_SIZE / 2} />
 		</View>
 	);
 
-	const item = (item: RenderItem) => (
+	const item = (item: IRenderItem) => (
 		<View
 			style={[
 				dropdownStyle.renderItem,
-				transactionTripIds.includes(item.value) && dropdownStyle.renderItemSelected
+				tripIds.includes(item.value) && dropdownStyle.renderItemSelected
 			]}
 		>
 			<CustomText text={item.label} color={PRIMARY_COLOR} />
@@ -60,8 +60,8 @@ const TripSelector = () => {
 				labelField={"label"}
 				valueField={"value"}
 				data={tripList}
-				value={transactionTripIds}
-				onChange={setTransactionTripIds}
+				value={tripIds}
+				onChange={setTripIds}
 				renderItem={item}
 				renderSelectedItem={selectedItem}
 				style={dropdownStyle.multiselect}

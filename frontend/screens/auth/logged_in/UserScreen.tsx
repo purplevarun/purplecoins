@@ -26,14 +26,12 @@ import LoggedInRoutes from "./LoggedInRoutes";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import CustomButton from "../../../components/CustomButton";
 import useAuthService from "../AuthService";
-import useAuthStore from "../AuthStore";
 
 const UserScreen = () => {
 	useEffect(() => {
 		NavigationBar.setBackgroundColorAsync(BACKGROUND_COLOR).catch();
 	}, []);
 	const { getUser, logOut } = useAuthService();
-	const { refresh } = useAuthStore();
 	return (
 		<ScreenLayout>
 			<StatusBar backgroundColor={BACKGROUND_COLOR} />
@@ -70,10 +68,7 @@ const UserScreen = () => {
 				text={"Log out"}
 				width={SCREEN_WIDTH / 2}
 				color={RED_COLOR}
-				onPress={() => {
-					logOut();
-					refresh();
-				}}
+				onPress={logOut}
 			/>
 		</ScreenLayout>
 	);

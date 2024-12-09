@@ -4,9 +4,32 @@ appId: host.exp.exponent
 -   assertVisible: "Purplecoins"
 -   assertVisible: "Transactions"
 -   assertVisible: "Categories"
--   assertVisible: "Trips"
 -   assertVisible: "Investments"
+-   assertVisible: "Sources"
+-   assertVisible: "Trips"
 -   assertVisible: "Finance"
+-   assertVisible: "Passwords"
 -   assertVisible: "Settings"
 -   assertVisible: "Todo"
--   assertVisible: "Passwords"
+-   assertVisible: "No Transactions found"
+-   swipe:
+        direction: LEFT
+-   assertVisible: "No Categories found"
+-   swipe:
+        direction: LEFT
+-   assertVisible: "No Investments found"
+-   swipe:
+        direction: LEFT
+-   assertVisible: "No Sources found"
+-   swipe:
+        direction: LEFT
+-   assertVisible: "No Trips found"
+-   tapOn: "Passwords"
+-   assertVisible: "PasswordScreen"
+-   tapOn: "Todo"
+-   assertVisible: "TodoScreen"
+-   tapOn: "Settings"
+-   assertVisible: "Settings"
+-   tapOn: "Finance"
+-   tapOn: "Transactions"
+-   assertVisible: "No Transactions found"

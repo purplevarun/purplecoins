@@ -6,3 +6,4 @@ export const RED_COLOR = "#DC4C64";
 export const GREEN_COLOR = "#006769";
 export const BLUE_COLOR = "#3B71CA";
 export const YELLOW_COLOR = "#D9D16F";
+export const SHADOW_COLOR = "rgba(0,0,0,0.7)";

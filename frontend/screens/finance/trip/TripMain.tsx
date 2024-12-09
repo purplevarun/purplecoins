@@ -5,26 +5,21 @@ import ScreenLayout from "../../../components/ScreenLayout";
 import PlusButton from "../../../components/PlusButton";
 import TripRoutes from "./TripRoutes";
 import NoContent from "../../other/NoContent";
-import useDatabase from "../../../util/database/DatabaseFunctions";
 import TripRenderItem from "./TripRenderItem";
 import ITrip from "../../../interfaces/ITrip";
+import useTripService from "./TripService";
 
 const TripMain = () => {
-	const { getTrips } = useDatabase();
+	const { fetchTrips } = useTripService();
 	const [trips, setTrips] = useState<null | ITrip[]>(null);
-
-	useFocusEffect(useCallback(() => {
-		setTrips(getTrips());
-	}, []));
-
+	useFocusEffect(useCallback(() => setTrips(fetchTrips()), []));
 	if (!trips || trips.length === 0)
 		return <NoContent trips />;
-
 	return (
 		<ScreenLayout>
 			<FlatList
 				data={trips}
-				renderItem={TripRenderItem}
+				renderItem={({ item }) => <TripRenderItem item={item} />}
 			/>
 			<PlusButton to={TripRoutes.Add} />
 		</ScreenLayout>

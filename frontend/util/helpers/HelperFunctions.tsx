@@ -7,7 +7,7 @@ export const objectify = (data: any) => {
 };
 
 export const formatDate = (date: Date | null | undefined) => {
-	if (date === null || date === undefined) return "null";
+	if (date === null || date === undefined) return "Not specified";
 	date = new Date(date);
 	const day = String(date.getDate()).padStart(2, "0");
 	const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -22,9 +22,9 @@ export const formatMoney = (money: number | null) => {
 
 export const logger = (label: string, data?: any) => {
 	if (data === undefined) {
-		return console.log(label);
+		console.log(label);
 	} else {
-		console.log(label + " : " + JSON.stringify(data, null, 2));
+		console.table(label + " : " + JSON.stringify(data, null, 2));
 	}
 };
 

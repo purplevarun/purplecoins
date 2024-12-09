@@ -36,6 +36,11 @@ const LoggedOutRouter = () => {
 	);
 };
 
-const styles = StyleSheet.create({ flexView: { flex: FLEX_ONE, backgroundColor: SECONDARY_COLOR } });
+const styles = StyleSheet.create({
+	flexView: {
+		flex: FLEX_ONE,
+		backgroundColor: SECONDARY_COLOR
+	}
+});
 
 export default LoggedOutRouter;

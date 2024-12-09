@@ -2,7 +2,7 @@ appId: host.exp.exponent
 ---
 -   launchApp:
         clearState: true
--   openLink: exp://192.168.1.6:4002
+-   runFlow: open_link.yaml
 -   tapOn: "Continue"
 -   tapOn:
         point: 93%,38%

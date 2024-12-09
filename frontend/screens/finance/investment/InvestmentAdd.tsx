@@ -1,10 +1,8 @@
-import { useState } from "react";
-import { useNavigation } from "@react-navigation/native";
 import {
 	CENTER,
 	LARGE_FONT_SIZE,
-	MINIMUM_LENGTH,
-	PADDING
+	MARGIN,
+	MINIMUM_LENGTH
 } from "../../../config/constants.config";
 import InvestmentRoutes from "./InvestmentRoutes";
 import ScreenLayout from "../../../components/ScreenLayout";
@@ -13,18 +11,19 @@ import CloseButton from "../../../components/CloseButton";
 import Vertical from "../../../components/Vertical";
 import CustomInput from "../../../components/CustomInput";
 import CustomButton from "../../../components/CustomButton";
-import useDatabase from "../../../util/database/DatabaseFunctions";
+import useInvestmentStore from "./InvestmentStore";
+import useInvestmentService from "./InvestmentService";
 
 const InvestmentAdd = () => {
-	const [name, setName] = useState("");
-	const [investedAmount, setInvestedAmount] = useState("");
-	const [currentAmount, setCurrentAmount] = useState("");
-	const { navigate } = useNavigation<any>();
-	const { createInvestment } = useDatabase();
-	const handlePress = () => {
-		createInvestment(name, investedAmount, currentAmount);
-		navigate(InvestmentRoutes.Main);
-	};
+	const {
+		name,
+		setName,
+		investedAmount,
+		setInvestedAmount,
+		currentAmount,
+		setCurrentAmount
+	} = useInvestmentStore();
+	const { addNewInvestment } = useInvestmentService();
 
 	return (
 		<ScreenLayout>
@@ -35,7 +34,7 @@ const InvestmentAdd = () => {
 				alignSelf={CENTER}
 				fontSize={LARGE_FONT_SIZE}
 			/>
-			<Vertical size={PADDING / 2} />
+			<Vertical size={MARGIN} />
 			<CustomInput
 				name={"Name"}
 				value={name}
@@ -56,7 +55,7 @@ const InvestmentAdd = () => {
 			/>
 			<CustomButton
 				disabled={name.length < MINIMUM_LENGTH}
-				onPress={handlePress}
+				onPress={addNewInvestment}
 			/>
 		</ScreenLayout>
 	);

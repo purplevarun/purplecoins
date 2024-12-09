@@ -5,13 +5,24 @@ import { TouchableOpacity, View, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 
-const CloseButton = ({ path }: { path: string }) => {
+interface ICloseButton {
+	path: string,
+	onPress?: () => void
+}
+
+const MockedFn = () => {
+};
+
+const CloseButton = ({ path, onPress = MockedFn }: ICloseButton) => {
 	const { navigate } = useNavigation<any>();
 	return (
 		<View>
 			<TouchableOpacity
 				style={styles.button}
-				onPress={() => navigate(path)}
+				onPress={() => {
+					navigate(path);
+					onPress();
+				}}
 			>
 				<FontAwesome
 					name={CLOSE_ICON}
@@ -27,11 +38,11 @@ const CloseButton = ({ path }: { path: string }) => {
 const styles = StyleSheet.create({
 	button: {
 		position: ABSOLUTE,
-		top: PADDING * 1.2,
+		top: PADDING * 1.2
 	},
 	buffer: {
-		paddingTop: PADDING,
-	},
+		paddingTop: PADDING
+	}
 });
 
 export default CloseButton;
