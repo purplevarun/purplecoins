@@ -1,12 +1,28 @@
 #!/bin/sh
 
+function delete_user() {
+    MONGO_URI="mongodb://localhost:27017"
+    DB_NAME="purplecoinsv2"
+    COLLECTION_NAME="users"
+    USER_NAME="Test User"
+
+    mongosh "$MONGO_URI/$DB_NAME" --eval "
+        db.getCollection('$COLLECTION_NAME').deleteOne({ name: '$USER_NAME' });
+        print('Deleted document with name: \"$USER_NAME\"');
+    "
+}
+
 if [ "$1" = "test" ]; then
-	cd test
-	./auth/delete_test_user
-	export MONGO_URL=mongodb://localhost:27017/purplecoins_test
-	maestro test automation.yaml
+    cd test || exit 1
+    maestro test automation.yaml
+    delete_user
 elif [ "$1" = "frontend" ]; then
-	cd frontend && yarn dev
+    cd frontend || exit 1
+    yarn dev
 elif [ "$1" = "backend" ]; then
-    cd backend && yarn dev
+    cd backend || exit 1
+    yarn dev
+else
+    echo "Usage: $0 {test|frontend|backend}"
+    exit 1
 fi

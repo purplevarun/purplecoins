@@ -27,10 +27,10 @@ const useTripService = () => {
 	} = useTripStore();
 	const { navigate } = useNavigation<any>();
 
-	const isEdit = useMemo(() => currentTripId.length !== 0, [currentTripId]);
+	const isEdit =()=> currentTripId.length !== 0
 
 	const addNewTrip = () => {
-		if (isEdit) {
+		if (isEdit()) {
 			try {
 				const bothQuery = "UPDATE trip SET name = ?, startDate = ?, endDate = ? WHERE id = ?";
 				const singleQuery = "UPDATE trip SET name = ?, startDate = ? WHERE id = ?";

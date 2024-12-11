@@ -7,17 +7,19 @@ import {
 } from "../config/constants.config";
 
 const CustomText = ({
-						text,
-						fontSize = FONT_SIZE,
-						color = PRIMARY_COLOR,
-						alignSelf = FLEX_START,
-						paddingTop = 0
-					}: {
+	text,
+	fontSize = FONT_SIZE,
+	color = PRIMARY_COLOR,
+	alignSelf = FLEX_START,
+	paddingTop = 0,
+	right = 0
+}: {
 	text: string | number;
 	fontSize?: number;
 	color?: ColorValue;
 	alignSelf?: FlexAlignType;
 	paddingTop?: number;
+	right?: number
 }) => {
 	const fontFamily = UBUNTU_FONT;
 	return (
@@ -27,7 +29,8 @@ const CustomText = ({
 				fontFamily,
 				fontSize,
 				alignSelf,
-				paddingTop
+				paddingTop,
+				right
 			}}
 		>
 			{text}

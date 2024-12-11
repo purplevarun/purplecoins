@@ -22,7 +22,7 @@ const TripAdd = () => {
 			<CloseButton path={TripRoutes.Main} onPress={clearStore} />
 			<Vertical />
 			<CustomText
-				text={isEdit ? "Edit Trip" : "Add Trip"}
+				text={isEdit() ? "Edit Trip" : "Add Trip"}
 				alignSelf={CENTER}
 				fontSize={LARGE_FONT_SIZE}
 			/>

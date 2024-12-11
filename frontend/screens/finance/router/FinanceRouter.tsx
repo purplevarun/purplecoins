@@ -22,7 +22,6 @@ const FinanceRouter = () => {
 		<View style={styles.view}>
 			<Tab.Navigator
 				tabBar={(props) => <FinanceTabBar {...props} />}
-				screenOptions={{ tabBarScrollEnabled: true }}
 			>
 				{Object.entries(FinanceRoutes).map(([name, { page }]) => (
 					<Tab.Screen name={name} component={page} key={name} />

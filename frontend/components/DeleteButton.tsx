@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
 		alignSelf: FLEX_END,
 		position: ABSOLUTE,
 		margin: PADDING * 1.3,
-		right: FONT_SIZE * 2.2,
+		right: FONT_SIZE * 2,
 		backgroundColor: RED_COLOR,
 		paddingHorizontal: 6,
 		paddingVertical: 2.5,

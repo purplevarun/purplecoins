@@ -1,8 +1,0 @@
-appId: host.exp.exponent
----
--   launchApp:
-        clearState: true
--   runFlow: open_link.yaml
--   tapOn: "Continue"
--   tapOn:
-        point: 93%,38%

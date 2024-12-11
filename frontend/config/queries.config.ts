@@ -1,3 +1,14 @@
+export const FETCH_SOURCES = `
+	SELECT * FROM source WHERE userId=?
+`;
+
+export const ADD_SOURCE = `
+	INSERT INTO source 
+		(id, userId, name, initialAmount, currentAmount)
+	VALUES
+		(?, ?, ?, ?, ?)
+`;
+
 const CREATE_USER = `
 	CREATE TABLE IF NOT EXISTS user (
 		id TEXT PRIMARY KEY,
@@ -72,10 +83,8 @@ const CREATE_TRANSACTION_TRIP = `
 	CREATE TABLE IF NOT EXISTS transaction_trip (
 		transactionId TEXT NOT NULL,
 		tripId TEXT NOT NULL,
-		userId TEXT NOT NULL,
 		FOREIGN KEY (transactionId) REFERENCES transaction_record (id),
 		FOREIGN KEY (tripId) REFERENCES trip (id),
-		FOREIGN KEY (userId) REFERENCES user (id),
 		PRIMARY KEY (transactionId, tripId)
 	);
 `;
@@ -84,10 +93,8 @@ const CREATE_TRANSACTION_CATEGORY = `
 	CREATE TABLE IF NOT EXISTS transaction_category (
 		transactionId TEXT NOT NULL,
 		categoryId TEXT NOT NULL,
-		userId TEXT NOT NULL,
 		FOREIGN KEY (transactionId) REFERENCES transaction_record (id),
 		FOREIGN KEY (categoryId) REFERENCES category (id),
-		FOREIGN KEY (userId) REFERENCES user (id),
 		PRIMARY KEY (transactionId, categoryId)
 	);
 `;

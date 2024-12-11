@@ -1,9 +1,0 @@
-appId: host.exp.exponent
----
-
--   tapOn:
-        point: "94%,9%"
--   tapOn:
-        point: "50%,55%"
--   runFlow: sign_in.yaml
--   runFlow: homepage.yaml

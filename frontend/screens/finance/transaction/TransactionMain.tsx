@@ -22,7 +22,9 @@ const TransactionMain = () => {
 		<ScreenLayout>
 			<FlatList
 				data={transactions}
-				renderItem={TransactionRenderItem}
+				renderItem={({ item }) =>
+					<TransactionRenderItem item={item} />
+				}
 			/>
 			<PlusButton to={TransactionRoutes.Add} />
 		</ScreenLayout>

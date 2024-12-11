@@ -18,6 +18,7 @@ import SourceRoutes from "../source/SourceRoutes";
 import useTransactionStore from "./TransactionStore";
 import useTransactionService from "./TransactionService";
 import useSourceService from "../source/SourceService";
+import useSourceStore from "../source/SourceStore";
 
 const TransactionAdd = () => {
 	const { navigate } = useNavigation<any>();
@@ -29,6 +30,8 @@ const TransactionAdd = () => {
 		setAmount,
 		setType
 	} = useTransactionStore();
+
+	const { setRedirect } = useSourceStore();
 
 	const { fetchSources } = useSourceService();
 	const { addNewTransaction, submitEnabled } = useTransactionService();
@@ -42,7 +45,10 @@ const TransactionAdd = () => {
 				<CustomButton
 					text={"Add Source"}
 					width={FIFTY_P}
-					onPress={() => navigate(SourceRoutes.Add)}
+					onPress={() => {
+						setRedirect(true);
+						navigate(SourceRoutes.Add);
+					}}
 				/>
 			</ScreenLayout>
 		);

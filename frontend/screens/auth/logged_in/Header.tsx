@@ -2,7 +2,7 @@ import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { PRIMARY_COLOR, SECONDARY_COLOR } from "../../../config/colors.config";
 import {
 	CENTER,
-	FLEX_ROW,
+	FLEX_ROW, FLEX_START,
 	HEADER_HEIGHT,
 	LARGE_FONT_SIZE,
 	SPACE_BETWEEN
@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
 		height: HEADER_HEIGHT,
 		flexDirection: FLEX_ROW,
 		justifyContent: SPACE_BETWEEN,
-		alignItems: CENTER,
+		alignItems: FLEX_START,
 		paddingHorizontal: PADDING
 	}
 });

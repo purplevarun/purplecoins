@@ -2,9 +2,10 @@ import * as NavigationBar from "expo-navigation-bar";
 import { useEffect } from "react";
 import { SECONDARY_COLOR } from "../../../config/colors.config";
 import { FLEX_ONE } from "../../../config/constants.config";
-import { StatusBar, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import Header from "./Header";
 import BottomRouter from "./BottomRouter";
+import { StatusBar } from "react-native";
 
 const LoggedInScreen = () => {
 	useEffect(() => {

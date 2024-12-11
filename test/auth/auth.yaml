@@ -1,14 +1,22 @@
 appId: host.exp.exponent
 ---
-
--   killApp
--   runFlow: expo_setup.yaml
--   runFlow: sign_up.yaml
--   killApp
--   runFlow: expo_setup.yaml
--   runFlow: sign_in.yaml
--   killApp
--   launchApp
--   runFlow: open_link.yaml
--   runFlow: homepage.yaml
--   runFlow: logout.yaml
+-   tapOn: " Username "
+-   inputText: "Test User"
+-   tapOn: "Submit"
+-   tapOn: " Password "
+-   inputText: "1234"
+-   tapOn: " Confirm Password "
+-   inputText: "1234"
+-   tapOn: "Sign Up"
+-   runFlow: verify_homepage.yaml
+-   tapOn:
+        point: "94%,9%"
+-   tapOn:
+        point: "50%,55%"
+-   tapOn: " Username "
+-   inputText: "Test User"
+-   tapOn: "Submit"
+-   tapOn: " Password "
+-   inputText: "1234"
+-   tapOn: "Sign In"
+-   runFlow: verify_homepage.yaml

@@ -15,6 +15,7 @@ import Vertical from "../../../components/Vertical";
 import DeleteButton from "../../../components/DeleteButton";
 import EditButton from "../../../components/EditButton";
 import useTripService from "./TripService";
+import TransactionRenderItem from "../transaction/TransactionRenderItem";
 
 const TripDetail = () => {
 	const {
@@ -49,12 +50,7 @@ const TripDetail = () => {
 			{transactions && transactions.length > 0 &&
 				<FlatList
 					data={transactions}
-					renderItem={({ item }) => (
-						<View style={{ borderWidth: 2, borderColor: PRIMARY_COLOR }}>
-							<CustomText text={item.amount} />
-							<CustomText text={item.reason} />
-						</View>
-					)}
+					renderItem={({ item }) => <TransactionRenderItem item={item} />}
 				/>
 			}
 		</ScreenLayout>

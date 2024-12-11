@@ -7,7 +7,7 @@ export const SCREEN_WIDTH = Dimensions.get("window").width;
 export const SCREEN_HEIGHT = Dimensions.get("window").height;
 export const BOTTOM_TAB_HEIGHT = SCREEN_HEIGHT * 0.08;
 export const TOP_TAB_HEIGHT = SCREEN_HEIGHT * 0.05;
-export const HEADER_HEIGHT = SCREEN_HEIGHT * 0.06;
+export const HEADER_HEIGHT = SCREEN_HEIGHT * 0.04;
 export const FONT_SIZE = PixelRatio.roundToNearestPixel(
 	(SCREEN_WIDTH * 0.05) / FONT_SCALE
 );
