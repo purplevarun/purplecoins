@@ -4,7 +4,6 @@ import {
 	MARGIN,
 	MINIMUM_LENGTH
 } from "../../../config/constants.config";
-import SourceRoutes from "./SourceRoutes";
 import ScreenLayout from "../../../components/ScreenLayout";
 import CloseButton from "../../../components/CloseButton";
 import CustomText from "../../../components/CustomText";
@@ -25,7 +24,7 @@ const SourceAdd = () => {
 
 	return (
 		<ScreenLayout>
-			<CloseButton path={SourceRoutes.Main} onPress={clearStore} />
+			<CloseButton onPress={clearStore} />
 			<Vertical />
 			<CustomText
 				text={"Add Source"}

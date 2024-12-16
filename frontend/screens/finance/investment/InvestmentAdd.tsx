@@ -4,7 +4,6 @@ import {
 	MARGIN,
 	MINIMUM_LENGTH
 } from "../../../config/constants.config";
-import InvestmentRoutes from "./InvestmentRoutes";
 import ScreenLayout from "../../../components/ScreenLayout";
 import CustomText from "../../../components/CustomText";
 import CloseButton from "../../../components/CloseButton";
@@ -27,7 +26,7 @@ const InvestmentAdd = () => {
 
 	return (
 		<ScreenLayout>
-			<CloseButton path={InvestmentRoutes.Main} />
+			<CloseButton />
 			<Vertical />
 			<CustomText
 				text={"Add Investment"}

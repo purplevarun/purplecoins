@@ -1,9 +1,9 @@
-import { create_queries } from "./config/queries.config";
 import { useFonts } from "expo-font";
 import { NavigationContainer } from "@react-navigation/native";
 import { Suspense } from "react";
-import { SQLiteDatabase, SQLiteProvider } from "expo-sqlite";
+import { SQLiteProvider } from "expo-sqlite";
 import { DB_NAME } from "./config/constants.config";
+import create_queries from "./config/create_queries.config";
 import AppRouter from "./screens/auth/AppRouter";
 import ErrorScreen from "./screens/other/ErrorScreen";
 import LoadingScreen from "./screens/other/LoadingScreen";
@@ -22,9 +22,11 @@ const App = () => {
 };
 
 const NavigationProvider: IProvider = ({ children }) => {
-	return <NavigationContainer fallback={<LoadingScreen />}>
-		{children}
-	</NavigationContainer>;
+	return (
+		<NavigationContainer fallback={<LoadingScreen />}>
+			{children}
+		</NavigationContainer>
+	);
 };
 
 const FontProvider: IProvider = ({ children }) => {
@@ -35,14 +37,11 @@ const FontProvider: IProvider = ({ children }) => {
 };
 
 const DatabaseProvider: IProvider = ({ children }) => {
-	const onInit =
-		async (db: SQLiteDatabase) =>
-			create_queries.forEach(query => db.runSync(query));
 	return (
 		<Suspense fallback={<LoadingScreen />}>
 			<SQLiteProvider
 				databaseName={DB_NAME}
-				onInit={onInit}
+				onInit={async (db) => create_queries.forEach(query => db.runSync(query))}
 				useSuspense
 			>
 				{children}

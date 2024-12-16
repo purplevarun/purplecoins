@@ -8,7 +8,7 @@ import { useNavigation } from "@react-navigation/native";
 
 const useInvestmentService = () => {
 	const db = useSQLiteContext();
-	const { getUserId } = useAuthService();
+	const { userId } = useAuthService();
 	const {
 		name,
 		setName,
@@ -22,7 +22,6 @@ const useInvestmentService = () => {
 	const fetchInvestments = () => {
 		try {
 			const query = "SELECT * from investment where userId=?";
-			const userId = getUserId();
 			const investments = db.getAllSync<IInvestment>(query, [userId]);
 			logger("fetched investments", investments);
 			return investments;
@@ -36,7 +35,6 @@ const useInvestmentService = () => {
 		try {
 			const query = "INSERT INTO investment (id, userId, name, investedAmount, currentAmount) VALUES (?, ?, ?, ?, ?)";
 			const id = generateUUID();
-			const userId = getUserId();
 			db.runSync(query, [id, userId, name, toInt(investedAmount), toInt(currentAmount)]);
 		} catch (e) {
 			logger("ERROR: creating investment", e);

@@ -6,11 +6,10 @@ import useAuthService from "../../auth/AuthService";
 import TripRoutes from "./TripRoutes";
 import ITrip from "../../../interfaces/ITrip";
 import ITransaction from "../../../interfaces/ITransaction";
-import { useMemo } from "react";
 
 const useTripService = () => {
 	const db = useSQLiteContext();
-	const { getUserId } = useAuthService();
+	const { userId } = useAuthService();
 	const {
 		name,
 		setName,
@@ -27,7 +26,7 @@ const useTripService = () => {
 	} = useTripStore();
 	const { navigate } = useNavigation<any>();
 
-	const isEdit =()=> currentTripId.length !== 0
+	const isEdit = () => currentTripId.length !== 0;
 
 	const addNewTrip = () => {
 		if (isEdit()) {
@@ -45,7 +44,6 @@ const useTripService = () => {
 		} else {
 			try {
 				const id = generateUUID();
-				const userId = getUserId();
 				const bothQuery = "INSERT INTO trip (id, userId, name, startDate, endDate) VALUES (?, ?, ?, ?, ?)";
 				const singleQuery = "INSERT INTO trip (id, userId, name, startDate) VALUES (?, ?, ?, ?)";
 				const noneQuery = "INSERT INTO trip (id, userId, name) VALUES (?, ?, ?)";
@@ -63,7 +61,6 @@ const useTripService = () => {
 
 	const fetchTrips = () => {
 		try {
-			const userId = getUserId();
 			const trips = db.getAllSync<ITrip>("SELECT t.* from trip t where userId=?", [userId]);
 			logger("fetched trips", trips);
 			return trips;
@@ -79,6 +76,12 @@ const useTripService = () => {
 
 	const fetchTransactionsForCurrentTrip = () => {
 		return db.getAllSync<ITransaction>(`SELECT t.* FROM transaction_record t JOIN transaction_trip tt ON t.id = tt.transactionId WHERE tt.tripId = ?;`, [currentTripId]);
+	};
+
+	const fetchTotalForCurrentTrip = (tripId: string) => {
+		return db.getFirstSync<{
+			total: number
+		}>(`SELECT sum(t.amount) as total FROM transaction_record t JOIN transaction_trip tt ON t.id = tt.transactionId WHERE tt.tripId = ?;`, [tripId])?.total ?? 0;
 	};
 
 	const handleEdit = () => {
@@ -123,6 +126,7 @@ const useTripService = () => {
 		selectTrip,
 		fetchCurrentTrip,
 		fetchTransactionsForCurrentTrip,
+		fetchTotalForCurrentTrip,
 		isEdit
 	};
 };

@@ -2,17 +2,21 @@ import TransactionType from "../../../components/TransactionType";
 import { create } from "zustand";
 
 interface CategoryStore {
-	categoryName: string;
-	setCategoryName: (value: string) => void;
-	categoryType: TransactionType;
-	setCategoryType: (value: TransactionType) => void;
+	name: string;
+	setName: (value: string) => void;
+	type: TransactionType;
+	setType: (value: TransactionType) => void;
+	currentId: string;
+	setCurrentId: (value: string) => void;
 }
 
 const useCategoryStore = create<CategoryStore>(set => ({
-	categoryName: "",
-	setCategoryName: (categoryName) => set({ categoryName }),
-	categoryType: TransactionType.EXPENSE,
-	setCategoryType: (categoryType) => set({ categoryType })
+	name: "",
+	setName: (name) => set({ name }),
+	type: TransactionType.EXPENSE,
+	setType: (type) => set({ type }),
+	currentId: "",
+	setCurrentId: (currentId) => set({ currentId })
 }));
 
 

@@ -1,16 +1,22 @@
 import { FlatList, View } from "react-native";
 import { formatDate, formatMoney } from "../../../util/helpers/HelperFunctions";
-import { CENTER, FLEX_ROW, FONT_SIZE, LARGE_FONT_SIZE, PADDING, SPACE_BETWEEN } from "../../../config/constants.config";
+import {
+	CENTER,
+	FONT_SIZE,
+	LARGE_FONT_SIZE,
+	PADDING,
+	USABLE_SCREEN_HEIGHT
+} from "../../../config/constants.config";
 import ScreenLayout from "../../../components/ScreenLayout";
 import CloseButton from "../../../components/CloseButton";
-import TransactionRoutes from "./TransactionRoutes";
 import EditButton from "../../../components/EditButton";
 import DeleteButton from "../../../components/DeleteButton";
 import Vertical from "../../../components/Vertical";
 import CustomText from "../../../components/CustomText";
 import useTransactionService from "./TransactionService";
-import { PRIMARY_COLOR } from "../../../config/colors.config";
 import TripRenderItem from "../trip/TripRenderItem";
+import CategoryRenderItem from "../category/CategoryRenderItem";
+import DataTab from "../../../components/DataTab";
 
 const TransactionDetail = () => {
 	const {
@@ -29,54 +35,53 @@ const TransactionDetail = () => {
 		categories,
 		trips
 	} = fetchTransaction();
+
+	const plank = 0.32;
+	const UPPER_HALF_HEIGHT = USABLE_SCREEN_HEIGHT * plank;
+	const LIST_HEIGHT = (USABLE_SCREEN_HEIGHT - UPPER_HALF_HEIGHT) / (plank * 10);
+
 	return (
 		<ScreenLayout>
-			<CloseButton path={TransactionRoutes.Main} />
-			<EditButton onPress={handleEdit} />
-			<DeleteButton onDelete={handleDelete} />
-			<Vertical />
-			<CustomText
-				text={"Transaction Details"}
-				alignSelf={CENTER}
-				fontSize={LARGE_FONT_SIZE}
-				right={FONT_SIZE}
-			/>
-			<Vertical size={5} />
-			<Tab name={"Amount"} value={formatMoney(amount)} />
-			<Tab name={"Reason"} value={reason} />
-			<Tab name={"Type"} value={type} />
-			<Tab name={"Date"} value={formatDate(date)} />
-			<Tab name={"Source"} value={source} />
-			{destination && <Tab name={"Destination"} value={destination} />}
-			{investment && <Tab name={"Investment"} value={investment} />}
-			{categories && <View style={{ paddingTop: PADDING }}>
-				<CustomText text={"Categories"} fontSize={FONT_SIZE * 1.1} />
+			<View style={{ height: UPPER_HALF_HEIGHT }}>
+				<CloseButton />
+				<EditButton onPress={handleEdit} />
+				<DeleteButton onDelete={handleDelete} />
+				<Vertical />
+				<CustomText
+					text={"Transaction Details"}
+					alignSelf={CENTER}
+					fontSize={LARGE_FONT_SIZE}
+					right={FONT_SIZE}
+				/>
+				<Vertical size={3} />
+				<DataTab name={"Amount"} value={formatMoney(amount)} />
+				<DataTab name={"Reason"} value={reason} />
+				<DataTab name={"Type"} value={type} />
+				<DataTab name={"Date"} value={formatDate(date)} />
+				<DataTab name={"Source"} value={source} />
+				{destination && <DataTab name={"Destination"} value={destination} />}
+				{investment && <DataTab name={"Investment"} value={investment} />}
+			</View>
+			{categories && <View>
+				<CustomText text={"Categories"} fontSize={LARGE_FONT_SIZE} />
+				<Vertical size={2} />
 				<FlatList
+					style={{ maxHeight: LIST_HEIGHT }}
 					data={JSON.parse(categories)}
-					renderItem={({ item }) => <CustomText text={item.name} />}
+					renderItem={({ item }) => <CategoryRenderItem item={item} />}
 				/>
 			</View>}
 			{trips && <View style={{ paddingTop: PADDING }}>
-				<CustomText text={"Trips"} fontSize={FONT_SIZE * 1.1} />
+				<CustomText text={"Trips"} fontSize={LARGE_FONT_SIZE} />
+				<Vertical size={2} />
 				<FlatList
+					style={{ maxHeight: LIST_HEIGHT }}
 					data={JSON.parse(trips)}
-					renderItem={({ item }) => <TripRenderItem item={item}/>}
+					renderItem={({ item }) => <TripRenderItem item={item} />}
 				/>
 			</View>}
 		</ScreenLayout>
 	);
-};
-
-const Tab = ({ name, value }: { name: string, value: string | number }) => {
-	return <View
-		style={{
-			justifyContent: SPACE_BETWEEN,
-			flexDirection: FLEX_ROW
-		}}
-	>
-		<CustomText text={name} />
-		<CustomText text={value} />
-	</View>;
 };
 
 export default TransactionDetail;

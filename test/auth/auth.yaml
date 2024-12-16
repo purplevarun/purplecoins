@@ -10,9 +10,8 @@ appId: host.exp.exponent
 -   tapOn: "Sign Up"
 -   runFlow: verify_homepage.yaml
 -   tapOn:
-        point: "94%,9%"
--   tapOn:
-        point: "50%,55%"
+        point: "94%,9%" # User Icon
+-   tapOn: "Log out"
 -   tapOn: " Username "
 -   inputText: "Test User"
 -   tapOn: "Submit"

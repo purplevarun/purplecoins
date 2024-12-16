@@ -11,9 +11,9 @@ import IRenderItem from "../../../interfaces/IRenderItem";
 
 const CategorySelector = () => {
 	const { type, categoryIds, setCategoryIds } = useTransactionStore();
-	const { fetchCategory } = useCategoryService();
+	const { fetchCategories } = useCategoryService();
 
-	const categoryList = fetchCategory()
+	const categoryList = fetchCategories()
 		.filter((category) => category.type === type)
 		.map((category) => ({
 			label: category.name,

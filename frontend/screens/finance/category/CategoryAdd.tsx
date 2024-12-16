@@ -1,5 +1,4 @@
 import { CENTER, LARGE_FONT_SIZE } from "../../../config/constants.config";
-import CategoryRoutes from "./CategoryRoutes";
 import ScreenLayout from "../../../components/ScreenLayout";
 import CustomText from "../../../components/CustomText";
 import CustomInput from "../../../components/CustomInput";
@@ -11,26 +10,26 @@ import useCategoryStore from "./CategoryStore";
 import useCategoryService from "./CategoryService";
 
 const CategoryAdd = () => {
-	const { categoryName, categoryType, setCategoryName, setCategoryType } = useCategoryStore();
+	const { name, type, setName, setType } = useCategoryStore();
 	const { addNewCategory } = useCategoryService();
 
 	return (
 		<ScreenLayout>
-			<CloseButton path={CategoryRoutes.Main} />
+			<CloseButton/>
 			<Vertical />
 			<CustomText
 				text={"Add Category"}
 				alignSelf={CENTER}
 				fontSize={LARGE_FONT_SIZE}
 			/>
-			<TypeSelector type={categoryType} setType={setCategoryType} />
+			<TypeSelector type={type} setType={setType} />
 			<CustomInput
-				value={categoryName}
-				setValue={setCategoryName}
+				value={name}
+				setValue={setName}
 				name={"Category Name"}
 				required
 			/>
-			<CustomButton disabled={categoryName.length == 0} onPress={addNewCategory} />
+			<CustomButton disabled={name.length == 0} onPress={addNewCategory} />
 		</ScreenLayout>
 	);
 };

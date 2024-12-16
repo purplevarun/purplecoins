@@ -1,33 +1,36 @@
 import { FC } from "react";
-import { formatDate } from "../../../util/helpers/HelperFunctions";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
-import { BORDER_RADIUS, FLEX_ROW, MARGIN, PADDING, SPACE_BETWEEN } from "../../../config/constants.config";
+import { StyleSheet, TouchableOpacity } from "react-native";
+import {
+	BORDER_RADIUS,
+	FLEX_ROW,
+	MARGIN,
+	PADDING,
+	SPACE_BETWEEN
+} from "../../../config/constants.config";
 import { SECONDARY_COLOR } from "../../../config/colors.config";
 import CustomText from "../../../components/CustomText";
-import ITrip from "../../../interfaces/ITrip";
 import useTripService from "./TripService";
+import ITrip from "../../../interfaces/ITrip";
 
 const TripRenderItem: Props = ({ item }) => {
-	const { selectTrip } = useTripService();
+	const {
+		selectTrip,
+		fetchTotalForCurrentTrip
+	} = useTripService();
+
+	const total = fetchTotalForCurrentTrip(item.id);
+
 	return (
 		<TouchableOpacity
 			style={styles.button}
 			onPress={() => selectTrip(item.id)}
 		>
 			<CustomText text={item.name} />
-			<View>
-				<CustomText
-					text={formatDate(item.startDate)}
-					alignSelf={"flex-end"}
-				/>
-				<CustomText
-					text={formatDate(item.endDate)}
-					alignSelf={"flex-end"}
-				/>
-			</View>
+			<CustomText text={total} />
 		</TouchableOpacity>
 	);
 };
+
 
 type Props = FC<{ item: ITrip }>;
 

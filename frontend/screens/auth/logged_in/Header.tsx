@@ -19,13 +19,11 @@ const Header = () => {
 	const { navigate } = useNavigation<any>();
 	return (
 		<View style={styles.container}>
-			<TouchableOpacity style={{ paddingLeft: PADDING / 2 }}>
-				<CustomText
-					text={app.expo.name}
-					fontSize={LARGE_FONT_SIZE}
-					alignSelf={CENTER}
-				/>
-			</TouchableOpacity>
+			<CustomText
+				text={app.expo.name}
+				fontSize={LARGE_FONT_SIZE}
+				alignSelf={CENTER}
+			/>
 			<TouchableOpacity onPress={() => navigate(LoggedInRoutes.User)}>
 				<FontAwesome5
 					name={USER_ICON}

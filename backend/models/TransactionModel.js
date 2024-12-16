@@ -1,40 +1,19 @@
 import mongoose from "mongoose";
 
-const transactionSchema = new mongoose.Schema({
-	amount: {
-		type: Number,
-		required: true
-	},
-	reason: {
-		type: String,
-		required: true
-	},
-	type: {
-		type: String,
-		required: true
-	},
-	date: {
-		type: Date,
-		required: true
-	},
-	userId: {
-		type: String,
-		required: true
-	},
-	categories: {
-		type: [String],
-		default: []
-	},
-	tripId: {
-		type: String,
-		default: null
-	},
-	labelId: {
-		type: String,
-		default: null
-	}
-});
+const transactionSchema =
+	new mongoose.Schema({
+			id: { type: String, required: true, unique: true },
+			userId: { type: String, required: true },
+			sourceId: { type: String, required: true },
+			amount: { type: Number, required: true },
+			reason: { type: String, required: true },
+			date: { type: Date, required: true },
+			type: { type: String, enum: ["EXPENSE", "INCOME", "TRANSFER", "INVESTMENT"], required: true },
+			destinationId: { type: String },
+			investmentId: { type: String }
+		}
+	);
 
-const TransactionModel = mongoose.model("Transaction", transactionSchema);
+const Transaction = mongoose.model("Transaction", transactionSchema);
 
-export default TransactionModel;
+export default Transaction;

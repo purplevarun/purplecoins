@@ -3,7 +3,6 @@ import {
 	LARGE_FONT_SIZE,
 	PADDING
 } from "../../../config/constants.config";
-import TripRoutes from "./TripRoutes";
 import ScreenLayout from "../../../components/ScreenLayout";
 import CustomText from "../../../components/CustomText";
 import CloseButton from "../../../components/CloseButton";
@@ -19,7 +18,7 @@ const TripAdd = () => {
 	const { addNewTrip, clearStore, isEdit } = useTripService();
 	return (
 		<ScreenLayout>
-			<CloseButton path={TripRoutes.Main} onPress={clearStore} />
+			<CloseButton onPress={clearStore} />
 			<Vertical />
 			<CustomText
 				text={isEdit() ? "Edit Trip" : "Add Trip"}

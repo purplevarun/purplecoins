@@ -1,4 +1,4 @@
-import { Animated, TouchableOpacity } from "react-native";
+import { StyleSheet, TouchableOpacity } from "react-native";
 import { SECONDARY_COLOR } from "../../../config/colors.config";
 import {
 	BORDER_RADIUS,
@@ -7,20 +7,24 @@ import {
 } from "../../../config/constants.config";
 import CustomText from "../../../components/CustomText";
 import ICategory from "../../../interfaces/ICategory";
+import useCategoryService from "./CategoryService";
 
-const CategoryRenderItem = ({ item }: { item: ICategory }) => (
-	<TouchableOpacity
-		style={{
-			backgroundColor: SECONDARY_COLOR,
-			borderRadius: BORDER_RADIUS,
-			padding: PADDING,
-			margin: MARGIN
-		}}
-	>
-		<Animated.View>
+const CategoryRenderItem = ({ item }: { item: ICategory }) => {
+	const { selectCategory } = useCategoryService();
+	return (
+		<TouchableOpacity style={styles.btn} onPress={() => selectCategory(item.id)}>
 			<CustomText text={item.name} />
-		</Animated.View>
-	</TouchableOpacity>
-);
+		</TouchableOpacity>
+	);
+};
+
+const styles = StyleSheet.create({
+	btn: {
+		backgroundColor: SECONDARY_COLOR,
+		borderRadius: BORDER_RADIUS,
+		padding: PADDING,
+		margin: MARGIN
+	}
+});
 
 export default CategoryRenderItem;

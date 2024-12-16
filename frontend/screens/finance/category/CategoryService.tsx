@@ -5,30 +5,37 @@ import useAuthService from "../../auth/AuthService";
 import useCategoryStore from "./CategoryStore";
 import CategoryRoutes from "./CategoryRoutes";
 import ICategory from "../../../interfaces/ICategory";
+import TransactionType from "../../../components/TransactionType";
+import ITransaction from "../../../interfaces/ITransaction";
 
 const useCategoryService = () => {
 	const db = useSQLiteContext();
-	const { getUserId } = useAuthService();
-	const { categoryName, categoryType, setCategoryName } = useCategoryStore();
+	const { userId } = useAuthService();
+	const {
+		name,
+		setName,
+		setType,
+		type,
+		currentId,
+		setCurrentId
+	} = useCategoryStore();
 	const { navigate } = useNavigation<any>();
 
 	const addNewCategory = () => {
 		try {
 			const query = "INSERT INTO category (id, userId, name, type) VALUES (?, ?, ?, ?)";
-			const userId = getUserId();
 			const id = generateUUID();
-			db.runSync(query, [id, userId, categoryName, categoryType]);
-			setCategoryName("");
-			navigate(CategoryRoutes.Main);
+			db.runSync(query, [id, userId, name, type]);
 		} catch (e) {
 			logger("ERROR: creating category", e);
 		}
+		clearStore();
+		navigate(CategoryRoutes.Main);
 	};
 
-	const fetchCategory = () => {
+	const fetchCategories = () => {
 		try {
 			const query = "SELECT * from category where userId=?";
-			const userId = getUserId();
 			const categories = db.getAllSync<ICategory>(query, [userId]);
 			logger("fetched categories", categories);
 			return categories;
@@ -38,7 +45,45 @@ const useCategoryService = () => {
 		}
 	};
 
-	return { addNewCategory, fetchCategory };
+	const selectCategory = (categoryId: string) => {
+		setCurrentId(categoryId);
+		navigate(CategoryRoutes.Detail);
+	};
+
+	const fetchCategory = () => {
+		return db.getFirstSync<ICategory>("SELECT * from category where id=?", [currentId]) as ICategory;
+	};
+
+	const handleEdit = () => {
+	};
+
+	const handleDelete = () => {
+	};
+
+	const fetchTransactions = () => {
+		return db.getAllSync<ITransaction>(`
+			SELECT t.* 
+			FROM transaction_record t 
+			JOIN transaction_category tc ON t.id = tc.transactionId 
+			WHERE tc.categoryId = ?;
+		`, [currentId]);
+	};
+
+	const clearStore = () => {
+		setName("");
+		setCurrentId("");
+		setType(TransactionType.EXPENSE);
+	};
+
+	return {
+		addNewCategory,
+		fetchCategories,
+		selectCategory,
+		fetchCategory,
+		handleEdit,
+		handleDelete,
+		fetchTransactions
+	};
 };
 
 export default useCategoryService;

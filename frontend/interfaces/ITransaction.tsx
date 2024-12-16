@@ -1,6 +1,4 @@
 import TransactionType from "../components/TransactionType";
-import ICategory from "./ICategory";
-import ITrip from "./ITrip";
 
 interface ITransaction {
 	id: string;
@@ -15,5 +13,7 @@ interface ITransaction {
 	categories?: string;
 	trips?: string;
 }
+
+export type IGroupedTransactions = { title: string, data: ITransaction[] }[];
 
 export default ITransaction;

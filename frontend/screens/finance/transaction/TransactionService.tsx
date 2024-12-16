@@ -1,12 +1,12 @@
 import { useMemo } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { generateUUID, logger, objectify } from "../../../util/helpers/HelperFunctions";
+import { formatDate, generateUUID, logger, objectify } from "../../../util/helpers/HelperFunctions";
 import { useSQLiteContext } from "expo-sqlite";
 import useAuthService from "../../auth/AuthService";
 import useTransactionStore from "./TransactionStore";
 import TransactionType from "../../../components/TransactionType";
 import TransactionRoutes from "./TransactionRoutes";
-import ITransaction from "../../../interfaces/ITransaction";
+import ITransaction, { IGroupedTransactions } from "../../../interfaces/ITransaction";
 
 const FETCH_TRANSACTION = `
 	SELECT 
@@ -24,7 +24,8 @@ const FETCH_TRANSACTION = `
 			THEN
 				JSON_GROUP_ARRAY(
 					DISTINCT JSON_OBJECT(
-						'name', c.name
+						'name', c.name,
+						'id', c.id
 					)
 				) 
 			ELSE NULL 
@@ -88,11 +89,12 @@ const FETCH_TRANSACTIONS = `
 	LEFT JOIN user u ON t.userId = u.id
 	WHERE t.userId = ?
 	GROUP BY t.id
+	ORDER BY t.date DESC;
 `;
 
 const useTransactionService = () => {
 	const db = useSQLiteContext();
-	const { getUserId } = useAuthService();
+	const { userId } = useAuthService();
 	const {
 		tripIds,
 		categoryIds,
@@ -119,7 +121,6 @@ const useTransactionService = () => {
 	const createTransactionTrip = (transactionId: string, tripId: string) => {
 		try {
 			const query = "INSERT INTO transaction_trip (userId, transactionId, tripId) VALUES (?, ?, ?)";
-			const userId = getUserId();
 			db.runSync(query, [userId, transactionId, tripId]);
 		} catch (e) {
 			logger("ERROR: creating transaction_trip", e);
@@ -130,7 +131,6 @@ const useTransactionService = () => {
 	const createTransactionCategory = (transactionId: string, categoryId: string) => {
 		try {
 			const query = "INSERT INTO transaction_category (userId, transactionId, categoryId) VALUES (?, ?, ?)";
-			const userId = getUserId();
 			db.runSync(query, [userId, transactionId, categoryId]);
 		} catch (e) {
 			logger("ERROR: creating transaction_category", e);
@@ -145,7 +145,7 @@ const useTransactionService = () => {
 			const sourceQuery = "UPDATE source SET currentAmount=currentAmount-? WHERE id=?";
 			const destinationQuery = "UPDATE source SET currentAmount=currentAmount+? WHERE id=?";
 			const investmentQuery = "UPDATE investment SET investedAmount=investedAmount+? WHERE id=?";
-			db.runSync(query, [id, getUserId(), sourceId, calculatedAmount, reason, type, date.toString(), destinationId, investmentId]);
+			db.runSync(query, [id, userId, sourceId, calculatedAmount, reason, type, date.toString(), destinationId, investmentId]);
 			tripIds.forEach(tripId => createTransactionTrip(id, tripId));
 			categoryIds.forEach(categoryId => createTransactionCategory(id, categoryId));
 			if (type === TransactionType.EXPENSE) {
@@ -176,8 +176,6 @@ const useTransactionService = () => {
 
 	const fetchTransactions = () => {
 		try {
-			const userId = getUserId();
-
 			const transactions = db.getAllSync<ITransaction>(FETCH_TRANSACTIONS, [userId]);
 			console.log("FETCHED TRANSACTIONS");
 			return transactions;
@@ -186,48 +184,18 @@ const useTransactionService = () => {
 			return [];
 		}
 	};
-	/*
-
-		const fetchTransactions_backup = () => {
-			try {
-				const query = "SELECT * FROM transaction_record WHERE userId=?";
-				const transactions = db.getAllSync<ITransaction>(query, [getUserId()]);
-				transactions.forEach(t => {
-					const categories: ICategory[] = [];
-					const trips: ITrip[] = [];
-					const categoryIds = db.getAllSync<ITransactionCategory>("SELECT categoryId FROM transaction_category WHERE transactionId=?", [t.id]).map(c => c.categoryId);
-					categoryIds.forEach(cId => {
-						const cat = db.getFirstSync<ICategory>("SELECT * FROM category where id=?", [cId]);
-						if (cat) categories.push(cat);
-					});
-					t.categories = categories;
-					const tripIds = db.getAllSync<ITransactionTrip>("SELECT tripId FROM transaction_trip WHERE transactionId=?", [t.id]).map(t => t.tripId);
-					tripIds.forEach(tId => {
-						const tr = db.getFirstSync<ITrip>("SELECT * FROM trip where id=?", [tId]);
-						if (tr) trips.push(tr);
-					});
-					t.trips = trips;
-				});
-				console.log("FETCHED TRANSACTIONS", objectify(transactions));
-				return transactions;
-			} catch (e) {
-				console.log("ERROR FETCHING TRANSACTIONS");
-				return [];
-			}
-		};
-	 */
 
 	const submitEnabled = useMemo(() => {
 		const amountInt = parseInt(amount);
 		if (isNaN(amountInt)) return false;
 		if (type === TransactionType.EXPENSE || type === TransactionType.INCOME) {
-			return amountInt > 0 && reason.length > 0 && sourceId.length > 0;
+			return reason.length > 0 && sourceId.length > 0;
 		}
 		if (type === TransactionType.TRANSFER) {
-			return amountInt > 0 && sourceId.length > 0 && destinationId.length > 0;
+			return sourceId.length > 0 && destinationId.length > 0;
 		}
 		if (type === TransactionType.INVESTMENT) {
-			return amountInt > 0 && sourceId.length > 0 && investmentId.length > 0;
+			return sourceId.length > 0 && investmentId.length > 0;
 		}
 		return false;
 	}, [amount, reason, sourceId, destinationId, investmentId]);
@@ -249,6 +217,21 @@ const useTransactionService = () => {
 		return transaction;
 	};
 
+	const fetchGroupedTransactions = () => {
+		const transactions = fetchTransactions();
+		const groupedTransactions: IGroupedTransactions = Object.entries(
+			transactions.reduce<Record<string, ITransaction[]>>((acc, transaction) => {
+				const normalizedDate = new Date(transaction.date);
+				normalizedDate.setHours(0, 0, 0, 0);
+				const date = normalizedDate.getTime();
+				(acc[date] ||= []).push(transaction);
+				return acc;
+			}, {})
+		).map(([title, data]) => ({ title, data })).sort((a, b) => parseInt(b.title) - parseInt(a.title));
+		groupedTransactions.forEach(group => group.title = formatDate(new Date(parseInt(group.title)), true));
+		return groupedTransactions;
+	};
+
 	return {
 		submitEnabled,
 		addNewTransaction,
@@ -256,7 +239,8 @@ const useTransactionService = () => {
 		selectTransaction,
 		handleEdit,
 		handleDelete,
-		fetchTransaction
+		fetchTransaction,
+		fetchGroupedTransactions
 	};
 };
 

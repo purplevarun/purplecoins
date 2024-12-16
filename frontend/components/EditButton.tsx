@@ -10,7 +10,8 @@ const EditButton = ({ onPress }: { onPress: () => void }) => {
 			style={{
 				alignSelf: FLEX_END,
 				position: ABSOLUTE,
-				padding: PADDING
+				padding: PADDING,
+				paddingRight: PADDING / 2
 			}}
 			onPress={onPress}
 		>

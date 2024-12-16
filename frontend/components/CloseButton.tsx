@@ -4,23 +4,23 @@ import { CLOSE_ICON } from "../config/icons.config";
 import { TouchableOpacity, View, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { FC } from "react";
 
-interface ICloseButton {
-	path: string,
-	onPress?: () => void
-}
+type ICloseButton = FC<{
+	onPress?: () => void;
+}>
 
 const MockedFn = () => {
 };
 
-const CloseButton = ({ path, onPress = MockedFn }: ICloseButton) => {
-	const { navigate } = useNavigation<any>();
+const CloseButton: ICloseButton = ({ onPress = MockedFn }) => {
+	const { goBack } = useNavigation<any>();
 	return (
 		<View>
 			<TouchableOpacity
 				style={styles.button}
 				onPress={() => {
-					navigate(path);
+					goBack();
 					onPress();
 				}}
 			>

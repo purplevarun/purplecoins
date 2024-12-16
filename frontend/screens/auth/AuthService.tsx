@@ -1,71 +1,52 @@
-import { useMemo } from "react";
-import { logger } from "../../util/helpers/HelperFunctions";
+import { useMemo, useCallback } from "react";
 import { useSQLiteContext } from "expo-sqlite";
+import { DELETE_USER, INSERT_USER, SELECT_USERS } from "../../config/queries.config";
 import useAuthStore from "./AuthStore";
 import IUser from "../../interfaces/IUser";
 
 const useAuthService = () => {
 	const db = useSQLiteContext();
+	const undefinedUser = { id: "undefinedId", name: "undefinedName" };
 	const { toggleRefresh, refresh } = useAuthStore();
 
-	const addNewUser = (userId: string, username: string) => {
+	const user = useMemo((): IUser => {
 		try {
-			const query = "INSERT INTO user (id, name) VALUES (?, ?)";
-			db.runSync(query, [userId, username]);
-			toggleRefresh();
-			console.log("created new user");
-		} catch (e) {
-			logger("ERROR: creating user", e);
-		}
-	};
-
-	const getUser = () => {
-		const undefinedUser = { id: "undefinedId", name: "undefinedName" };
-		try {
-			const query = "SELECT * from user";
-			const firstUser = db.getFirstSync<IUser>(query);
+			const firstUser = db.getFirstSync<IUser>(SELECT_USERS);
 			if (firstUser) {
-				logger("fetched first user", firstUser);
+				console.log("FETCHED FIRST USER");
 				return firstUser;
-			} else {
-				logger("firstUser is null");
-				return undefinedUser;
 			}
-		} catch (e) {
-			logger("ERROR: fetching first user", e);
-			return undefinedUser;
+		} catch (error) {
+			console.error("ERROR FETCHING FIRST USER:", error);
 		}
-	};
+		return undefinedUser;
+	}, [refresh]);
 
-	const doesUserExist = useMemo(() => {
+	const addNewUser = useCallback((userId: string, username: string) => {
 		try {
-			const query = "SELECT * from user";
-			const users = db.getAllSync<IUser>(query);
-			logger("fetched users", users);
-			return users != null && users.length > 0;
-		} catch (e) {
-			logger("ERROR: fetching users", e);
-			return false;
+			db.runSync(INSERT_USER, [userId, username]);
+			toggleRefresh();
+			console.log("CREATED NEW USER");
+		} catch (error) {
+			console.error("ERROR CREATING USER:", error);
 		}
 	}, [refresh]);
 
-	const getUserId = () => getUser().id;
-
-	const logOut = () => {
+	const logOut = useCallback(() => {
 		try {
-			db.runSync("DELETE FROM user;");
+			db.runSync(DELETE_USER);
 			toggleRefresh();
-			logger("dropped user table");
-		} catch (e) {
-			logger("ERROR: deleting user table");
+			console.log("CLEARED USER TABLE");
+		} catch (error) {
+			console.error("ERROR DELETING USER TABLE:", error);
 		}
-	};
+	}, [refresh]);
 
 	return {
-		doesUserExist,
+		userName: user.name,
+		userId: user.id,
+		doesUserExist: user.id !== undefinedUser.id,
 		addNewUser,
-		getUserId,
-		getUser,
 		logOut
 	};
 };

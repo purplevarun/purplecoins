@@ -1,6 +1,6 @@
-import { ADD_SOURCE, FETCH_SOURCES } from "../../../config/queries.config";
+import { INSERT_SOURCE, SELECT_SOURCES } from "../../../config/queries.config";
 import { useNavigation } from "@react-navigation/native";
-import { generateUUID, objectify } from "../../../util/helpers/HelperFunctions";
+import { generateUUID } from "../../../util/helpers/HelperFunctions";
 import { useSQLiteContext } from "expo-sqlite";
 import ISource from "../../../interfaces/ISource";
 import useAuthService from "../../auth/AuthService";
@@ -11,7 +11,7 @@ import useTransactionStore from "../transaction/TransactionStore";
 
 const useSourceService = () => {
 	const db = useSQLiteContext();
-	const { getUserId } = useAuthService();
+	const { userId } = useAuthService();
 	const {
 		name,
 		setName,
@@ -25,10 +25,7 @@ const useSourceService = () => {
 
 	const fetchSources = () => {
 		try {
-			const userId = getUserId();
-			const sources = db.getAllSync<ISource>(FETCH_SOURCES, [userId]);
-			console.log("FETCHED SOURCES", objectify(sources));
-			return sources;
+			return db.getAllSync<ISource>(SELECT_SOURCES, [userId]);
 		} catch {
 			console.log("ERROR FETCHING SOURCES");
 			return [];
@@ -38,9 +35,8 @@ const useSourceService = () => {
 	const addNewSource = () => {
 		const id = generateUUID();
 		try {
-			const userId = getUserId();
 			const iAmount = initialAmount.length === 0 ? 0 : parseInt(initialAmount);
-			db.runSync(ADD_SOURCE, [id, userId, name, iAmount, iAmount]);
+			db.runSync(INSERT_SOURCE, [id, userId, name, iAmount, iAmount]);
 			console.log("ADDED NEW SOURCE", name);
 		} catch {
 			console.log("ERROR ADDING SOURCE");

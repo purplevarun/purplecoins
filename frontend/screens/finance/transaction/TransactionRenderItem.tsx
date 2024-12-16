@@ -1,7 +1,8 @@
-import { SECONDARY_COLOR } from "../../../config/colors.config";
+import { formatMoney } from "../../../util/helpers/HelperFunctions";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import {
-	BORDER_RADIUS, FLEX_ROW,
+	BORDER_RADIUS, CENTER,
+	FLEX_ROW, FONT_SIZE,
 	MARGIN,
 	PADDING,
 	SEVENTY_P,
@@ -14,26 +15,24 @@ import useTransactionService from "./TransactionService";
 
 const TransactionRenderItem = ({ item }: { item: ITransaction }) => {
 	const { selectTransaction } = useTransactionService();
-	const border = { borderColor: ExpenseData[item.type].color };
-
+	const { color: borderColor } = ExpenseData[item.type];
 	return (
 		<TouchableOpacity
-			style={[styles.outer, border]}
+			style={[styles.outer, { borderColor }]}
 			onPress={() => selectTransaction(item.id)}
 		>
-			<CustomText text={item.reason} />
-			<CustomText text={item.amount} />
+			<CustomText text={item.reason} alignSelf={CENTER} />
+			<CustomText text={formatMoney(item.amount)} alignSelf={CENTER} />
 		</TouchableOpacity>
 	);
 };
 
 const styles = StyleSheet.create({
 	outer: {
-		backgroundColor: SECONDARY_COLOR,
+		borderWidth: FONT_SIZE / 5,
 		borderRadius: BORDER_RADIUS,
 		padding: PADDING,
-		margin: MARGIN,
-		borderWidth: 4,
+		margin: MARGIN / 2,
 		justifyContent: SPACE_BETWEEN,
 		flexDirection: FLEX_ROW
 	},

@@ -10,10 +10,10 @@ import TransactionType from "../../../components/TransactionType";
 import ICategory from "../../../interfaces/ICategory";
 
 const CategoryMain = () => {
-	const { fetchCategory } = useCategoryService();
+	const { fetchCategories } = useCategoryService();
 	const [categories, setCategories] = useState<null | ICategory[]>(null);
 
-	useFocusEffect(useCallback(() => setCategories(fetchCategory()), []));
+	useFocusEffect(useCallback(() => setCategories(fetchCategories()), []));
 
 	if (!categories || categories.length === 0)
 		return <NoContent categories />;
