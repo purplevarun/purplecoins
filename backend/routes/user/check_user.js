@@ -9,25 +9,25 @@ router.get("/", async (req, res) => {
 		if (!name) {
 			return res.json({
 				status: 400,
-				message: "Username not provided"
+				message: "Username not provided",
 			});
 		}
 		const user = await UserModel.findOne({ name }, {}, null).exec();
 		if (!user) {
 			return res.json({
 				status: 404,
-				message: "User not found"
+				message: "User not found",
 			});
 		}
 		return res.json({
 			status: 200,
-			message: "User found"
+			message: "User found",
 		});
 	} catch (error) {
 		console.error("Error:", error);
 		return res.json({
 			status: 500,
-			message: "Internal server error"
+			message: "Internal server error",
 		});
 	}
 });

@@ -17,10 +17,13 @@ const CategorySelector = () => {
 		.filter((category) => category.type === type)
 		.map((category) => ({
 			label: category.name,
-			value: category.id
+			value: category.id,
 		}));
 
-	if (type === TransactionType.TRANSFER || type === TransactionType.INVESTMENT)
+	if (
+		type === TransactionType.TRANSFER ||
+		type === TransactionType.INVESTMENT
+	)
 		return null;
 
 	if (categoryList.length === 0)
@@ -28,7 +31,7 @@ const CategorySelector = () => {
 			<View
 				style={{
 					paddingLeft: PADDING * 2,
-					paddingVertical: PADDING
+					paddingVertical: PADDING,
 				}}
 			>
 				<CustomText
@@ -49,7 +52,7 @@ const CategorySelector = () => {
 			style={[
 				dropdownStyle.renderItem,
 				categoryIds.includes(item.value) &&
-				dropdownStyle.renderItemSelected
+					dropdownStyle.renderItemSelected,
 			]}
 		>
 			<CustomText text={item.label} color={PRIMARY_COLOR} />

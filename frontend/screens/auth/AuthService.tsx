@@ -1,6 +1,10 @@
 import { useMemo, useCallback } from "react";
 import { useSQLiteContext } from "expo-sqlite";
-import { DELETE_USER, INSERT_USER, SELECT_USERS } from "../../config/queries.config";
+import {
+	DELETE_USER,
+	INSERT_USER,
+	SELECT_USERS,
+} from "../../config/queries.config";
 import useAuthStore from "./AuthStore";
 import IUser from "../../interfaces/IUser";
 
@@ -22,15 +26,18 @@ const useAuthService = () => {
 		return undefinedUser;
 	}, [refresh]);
 
-	const addNewUser = useCallback((userId: string, username: string) => {
-		try {
-			db.runSync(INSERT_USER, [userId, username]);
-			toggleRefresh();
-			console.log("CREATED NEW USER");
-		} catch (error) {
-			console.error("ERROR CREATING USER:", error);
-		}
-	}, [refresh]);
+	const addNewUser = useCallback(
+		(userId: string, username: string) => {
+			try {
+				db.runSync(INSERT_USER, [userId, username]);
+				toggleRefresh();
+				console.log("CREATED NEW USER");
+			} catch (error) {
+				console.error("ERROR CREATING USER:", error);
+			}
+		},
+		[refresh],
+	);
 
 	const logOut = useCallback(() => {
 		try {
@@ -47,7 +54,7 @@ const useAuthService = () => {
 		userId: user.id,
 		doesUserExist: user.id !== undefinedUser.id,
 		addNewUser,
-		logOut
+		logOut,
 	};
 };
 

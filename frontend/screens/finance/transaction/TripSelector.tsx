@@ -14,10 +14,13 @@ const TripSelector = () => {
 	const { fetchTrips } = useTripService();
 	const tripList = fetchTrips().map(({ id, name }) => ({
 		label: name,
-		value: id
+		value: id,
 	}));
 
-	if (type === TransactionType.TRANSFER || type === TransactionType.INVESTMENT)
+	if (
+		type === TransactionType.TRANSFER ||
+		type === TransactionType.INVESTMENT
+	)
 		return null;
 
 	if (tripList.length === 0)
@@ -25,7 +28,7 @@ const TripSelector = () => {
 			<View
 				style={{
 					paddingLeft: PADDING * 2,
-					paddingVertical: PADDING
+					paddingVertical: PADDING,
 				}}
 			>
 				<CustomText
@@ -34,7 +37,6 @@ const TripSelector = () => {
 				/>
 			</View>
 		);
-
 
 	const selectedItem = (item: IRenderItem) => (
 		<View style={dropdownStyle.renderSelected}>
@@ -46,7 +48,8 @@ const TripSelector = () => {
 		<View
 			style={[
 				dropdownStyle.renderItem,
-				tripIds.includes(item.value) && dropdownStyle.renderItemSelected
+				tripIds.includes(item.value) &&
+					dropdownStyle.renderItemSelected,
 			]}
 		>
 			<CustomText text={item.label} color={PRIMARY_COLOR} />

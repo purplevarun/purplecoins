@@ -13,8 +13,7 @@ const TripMain = () => {
 	const { fetchTrips } = useTripService();
 	const [trips, setTrips] = useState<null | ITrip[]>(null);
 	useFocusEffect(useCallback(() => setTrips(fetchTrips()), []));
-	if (!trips || trips.length === 0)
-		return <NoContent trips />;
+	if (!trips || trips.length === 0) return <NoContent trips />;
 	return (
 		<ScreenLayout>
 			<FlatList

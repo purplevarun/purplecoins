@@ -15,9 +15,15 @@ import {
 	MODAL_HEIGHT,
 	MODAL_WIDTH,
 	PADDING,
-	SPACE_EVENLY
+	SPACE_EVENLY,
 } from "../config/constants.config";
-import { BACKGROUND_COLOR, PRIMARY_COLOR, RED_COLOR, SECONDARY_COLOR, SHADOW_COLOR } from "../config/colors.config";
+import {
+	BACKGROUND_COLOR,
+	PRIMARY_COLOR,
+	RED_COLOR,
+	SECONDARY_COLOR,
+	SHADOW_COLOR,
+} from "../config/colors.config";
 import { DELETE_ICON } from "../config/icons.config";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import Vertical from "./Vertical";
@@ -36,10 +42,7 @@ const DeleteButton: IDeleteButton = ({ onDelete }) => {
 				size={FONT_SIZE * 1.5}
 				color={BACKGROUND_COLOR}
 			/>
-			{modal && <DeleteModal
-				setModal={setModal}
-				onDelete={onDelete}
-			/>}
+			{modal && <DeleteModal setModal={setModal} onDelete={onDelete} />}
 		</TouchableOpacity>
 	);
 };
@@ -68,7 +71,8 @@ const DeleteModal: IDeleteModal = ({ setModal, onDelete }) => {
 							text={"No"}
 							color={RED_COLOR}
 							width={MODAL_BUTTON_WIDTH}
-							onPress={() => setModal(false)} />
+							onPress={() => setModal(false)}
+						/>
 					</View>
 				</View>
 			</View>
@@ -77,7 +81,10 @@ const DeleteModal: IDeleteModal = ({ setModal, onDelete }) => {
 };
 
 type IDeleteButton = FC<{ onDelete: () => void }>;
-type IDeleteModal = FC<{ setModal: (value: boolean) => void, onDelete: () => void }>;
+type IDeleteModal = FC<{
+	setModal: (value: boolean) => void;
+	onDelete: () => void;
+}>;
 
 const styles = StyleSheet.create({
 	deleteButton: {
@@ -88,13 +95,13 @@ const styles = StyleSheet.create({
 		backgroundColor: RED_COLOR,
 		paddingHorizontal: 6,
 		paddingVertical: 2.5,
-		borderRadius: MARGIN
+		borderRadius: MARGIN,
 	},
 	modalOverlay: {
 		flex: FLEX_ONE,
 		alignItems: CENTER,
 		justifyContent: CENTER,
-		backgroundColor: SHADOW_COLOR
+		backgroundColor: SHADOW_COLOR,
 	},
 	modalContent: {
 		alignItems: CENTER,
@@ -104,13 +111,13 @@ const styles = StyleSheet.create({
 		justifyContent: SPACE_EVENLY,
 		borderRadius: FONT_SIZE,
 		borderWidth: BORDER_WIDTH,
-		borderColor: PRIMARY_COLOR
+		borderColor: PRIMARY_COLOR,
 	},
 	buttonContainer: {
 		flexDirection: FLEX_ROW,
 		justifyContent: SPACE_EVENLY,
-		width: HUNDRED_P
-	}
+		width: HUNDRED_P,
+	},
 });
 
 export default DeleteButton;

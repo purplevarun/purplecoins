@@ -14,6 +14,6 @@ interface ITransaction {
 	trips?: string;
 }
 
-export type IGroupedTransactions = { title: string, data: ITransaction[] }[];
+export type IGroupedTransactions = { title: string; data: ITransaction[] }[];
 
 export default ITransaction;

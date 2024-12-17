@@ -22,14 +22,10 @@ const InvestmentMain = () => {
 	return (
 		<ScreenLayout>
 			<InvestmentAnalysis investments={investments} />
-			<FlatList
-				data={investments}
-				renderItem={InvestmentRenderItem}
-			/>
+			<FlatList data={investments} renderItem={InvestmentRenderItem} />
 			<PlusButton to={InvestmentRoutes.Add} />
 		</ScreenLayout>
 	);
 };
-
 
 export default InvestmentMain;

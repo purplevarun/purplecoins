@@ -5,7 +5,7 @@ import {
 	FONT_SIZE,
 	LARGE_FONT_SIZE,
 	PADDING,
-	USABLE_SCREEN_HEIGHT
+	USABLE_SCREEN_HEIGHT,
 } from "../../../config/constants.config";
 import ScreenLayout from "../../../components/ScreenLayout";
 import CloseButton from "../../../components/CloseButton";
@@ -19,11 +19,8 @@ import CategoryRenderItem from "../category/CategoryRenderItem";
 import DataTab from "../../../components/DataTab";
 
 const TransactionDetail = () => {
-	const {
-		handleEdit,
-		handleDelete,
-		fetchTransaction
-	} = useTransactionService();
+	const { handleEdit, handleDelete, fetchTransaction } =
+		useTransactionService();
 	const {
 		amount,
 		reason,
@@ -33,12 +30,13 @@ const TransactionDetail = () => {
 		destination,
 		investment,
 		categories,
-		trips
+		trips,
 	} = fetchTransaction();
 
 	const plank = 0.32;
 	const UPPER_HALF_HEIGHT = USABLE_SCREEN_HEIGHT * plank;
-	const LIST_HEIGHT = (USABLE_SCREEN_HEIGHT - UPPER_HALF_HEIGHT) / (plank * 10);
+	const LIST_HEIGHT =
+		(USABLE_SCREEN_HEIGHT - UPPER_HALF_HEIGHT) / (plank * 10);
 
 	return (
 		<ScreenLayout>
@@ -59,27 +57,42 @@ const TransactionDetail = () => {
 				<DataTab name={"Type"} value={type} />
 				<DataTab name={"Date"} value={formatDate(date)} />
 				<DataTab name={"Source"} value={source} />
-				{destination && <DataTab name={"Destination"} value={destination} />}
-				{investment && <DataTab name={"Investment"} value={investment} />}
+				{destination && (
+					<DataTab name={"Destination"} value={destination} />
+				)}
+				{investment && (
+					<DataTab name={"Investment"} value={investment} />
+				)}
 			</View>
-			{categories && <View>
-				<CustomText text={"Categories"} fontSize={LARGE_FONT_SIZE} />
-				<Vertical size={2} />
-				<FlatList
-					style={{ maxHeight: LIST_HEIGHT }}
-					data={JSON.parse(categories)}
-					renderItem={({ item }) => <CategoryRenderItem item={item} />}
-				/>
-			</View>}
-			{trips && <View style={{ paddingTop: PADDING }}>
-				<CustomText text={"Trips"} fontSize={LARGE_FONT_SIZE} />
-				<Vertical size={2} />
-				<FlatList
-					style={{ maxHeight: LIST_HEIGHT }}
-					data={JSON.parse(trips)}
-					renderItem={({ item }) => <TripRenderItem item={item} />}
-				/>
-			</View>}
+			{categories && (
+				<View>
+					<CustomText
+						text={"Categories"}
+						fontSize={LARGE_FONT_SIZE}
+					/>
+					<Vertical size={2} />
+					<FlatList
+						style={{ maxHeight: LIST_HEIGHT }}
+						data={JSON.parse(categories)}
+						renderItem={({ item }) => (
+							<CategoryRenderItem item={item} />
+						)}
+					/>
+				</View>
+			)}
+			{trips && (
+				<View style={{ paddingTop: PADDING }}>
+					<CustomText text={"Trips"} fontSize={LARGE_FONT_SIZE} />
+					<Vertical size={2} />
+					<FlatList
+						style={{ maxHeight: LIST_HEIGHT }}
+						data={JSON.parse(trips)}
+						renderItem={({ item }) => (
+							<TripRenderItem item={item} />
+						)}
+					/>
+				</View>
+			)}
 		</ScreenLayout>
 	);
 };

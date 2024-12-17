@@ -4,7 +4,7 @@ import { expo } from "../../../app.json";
 import {
 	CENTER,
 	LARGE_FONT_SIZE,
-	MINIMUM_LENGTH
+	MINIMUM_LENGTH,
 } from "../../../config/constants.config";
 import { SERVER_ERROR } from "../../../config/error.config";
 import { checkUser } from "../../../config/api.config";

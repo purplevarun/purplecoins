@@ -15,7 +15,7 @@ const CategoryAdd = () => {
 
 	return (
 		<ScreenLayout>
-			<CloseButton/>
+			<CloseButton />
 			<Vertical />
 			<CustomText
 				text={"Add Category"}
@@ -27,9 +27,11 @@ const CategoryAdd = () => {
 				value={name}
 				setValue={setName}
 				name={"Category Name"}
-				required
 			/>
-			<CustomButton disabled={name.length == 0} onPress={addNewCategory} />
+			<CustomButton
+				disabled={name.length == 0}
+				onPress={addNewCategory}
+			/>
 		</ScreenLayout>
 	);
 };

@@ -10,7 +10,7 @@ const styles = StyleSheet.create({
 	container: {
 		flex: FLEX_ONE,
 		backgroundColor: BACKGROUND_COLOR,
-		paddingHorizontal: PADDING
-	}
+		paddingHorizontal: PADDING,
+	},
 });
 export default ScreenLayout;

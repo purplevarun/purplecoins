@@ -8,10 +8,9 @@ import { FC } from "react";
 
 type ICloseButton = FC<{
 	onPress?: () => void;
-}>
+}>;
 
-const MockedFn = () => {
-};
+const MockedFn = () => {};
 
 const CloseButton: ICloseButton = ({ onPress = MockedFn }) => {
 	const { goBack } = useNavigation<any>();
@@ -38,11 +37,11 @@ const CloseButton: ICloseButton = ({ onPress = MockedFn }) => {
 const styles = StyleSheet.create({
 	button: {
 		position: ABSOLUTE,
-		top: PADDING * 1.2
+		top: PADDING * 1.2,
 	},
 	buffer: {
-		paddingTop: PADDING
-	}
+		paddingTop: PADDING,
+	},
 });
 
 export default CloseButton;

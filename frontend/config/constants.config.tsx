@@ -7,8 +7,9 @@ export const SCREEN_WIDTH = Dimensions.get("window").width;
 export const SCREEN_HEIGHT = Dimensions.get("window").height;
 export const BOTTOM_TAB_HEIGHT = SCREEN_HEIGHT * 0.08;
 export const TOP_TAB_HEIGHT = SCREEN_HEIGHT * 0.05;
-export const HEADER_HEIGHT = SCREEN_HEIGHT * 0.04;
-export const USABLE_SCREEN_HEIGHT = SCREEN_HEIGHT - BOTTOM_TAB_HEIGHT - TOP_TAB_HEIGHT - HEADER_HEIGHT;
+export const HEADER_HEIGHT = SCREEN_HEIGHT * 0.05;
+export const USABLE_SCREEN_HEIGHT =
+	SCREEN_HEIGHT - BOTTOM_TAB_HEIGHT - TOP_TAB_HEIGHT - HEADER_HEIGHT;
 export const FONT_SIZE = (SCREEN_WIDTH * 0.05) / FONT_SCALE;
 export const MODAL_HEIGHT = SCREEN_HEIGHT * 0.15;
 export const MODAL_WIDTH = SCREEN_WIDTH * 0.9;
@@ -36,12 +37,12 @@ export const UBUNTU_FONT = "Ubuntu";
 export const FLEX_START = "flex-start";
 export const FLEX_END = "flex-end";
 export const ABSOLUTE = "absolute";
-export const API_URL = __DEV__ ?
-	"http://192.168.1.9:3000" :
-	"https://purplecoins.onrender.com";
+export const API_URL = __DEV__
+	? process.env.EXPO_PUBLIC_API_URL
+	: "https://purplecoins.onrender.com";
 export const DB_NAME = "purplecoins.db";
 export const SCREEN_OPTIONS: NativeStackNavigationOptions = {
 	headerShown: false,
-	animation: "ios"
+	animation: "ios",
 };
 export const MINIMUM_LENGTH = 4;

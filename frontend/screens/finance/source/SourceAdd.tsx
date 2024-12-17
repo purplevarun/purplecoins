@@ -2,7 +2,7 @@ import {
 	CENTER,
 	LARGE_FONT_SIZE,
 	MARGIN,
-	MINIMUM_LENGTH
+	MINIMUM_LENGTH,
 } from "../../../config/constants.config";
 import ScreenLayout from "../../../components/ScreenLayout";
 import CloseButton from "../../../components/CloseButton";
@@ -14,12 +14,7 @@ import useSourceStore from "./SourceStore";
 import useSourceService from "./SourceService";
 
 const SourceAdd = () => {
-	const {
-		name,
-		setName,
-		initialAmount,
-		setInitialAmount
-	} = useSourceStore();
+	const { name, setName, initialAmount, setInitialAmount } = useSourceStore();
 	const { addNewSource, clearStore } = useSourceService();
 
 	return (
@@ -32,18 +27,12 @@ const SourceAdd = () => {
 				fontSize={LARGE_FONT_SIZE}
 			/>
 			<Vertical size={MARGIN} />
-			<CustomInput
-				name={"Name"}
-				value={name}
-				setValue={setName}
-				required
-			/>
+			<CustomInput name={"Name"} value={name} setValue={setName} />
 			<CustomInput
 				name={"Initial Balance"}
 				value={initialAmount}
 				setValue={setInitialAmount}
 				numeric
-				required
 			/>
 			<CustomButton
 				disabled={name.length < MINIMUM_LENGTH}

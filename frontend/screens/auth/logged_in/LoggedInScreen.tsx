@@ -24,8 +24,8 @@ const LoggedInScreen = () => {
 const styles = StyleSheet.create({
 	flexView: {
 		flex: FLEX_ONE,
-		backgroundColor: SECONDARY_COLOR
-	}
+		backgroundColor: SECONDARY_COLOR,
+	},
 });
 
 export default LoggedInScreen;

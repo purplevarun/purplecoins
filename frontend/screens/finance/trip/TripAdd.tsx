@@ -1,7 +1,7 @@
 import {
 	CENTER,
 	LARGE_FONT_SIZE,
-	PADDING
+	PADDING,
 } from "../../../config/constants.config";
 import ScreenLayout from "../../../components/ScreenLayout";
 import CustomText from "../../../components/CustomText";
@@ -26,11 +26,7 @@ const TripAdd = () => {
 				fontSize={LARGE_FONT_SIZE}
 			/>
 			<Vertical size={PADDING / 2} />
-			<CustomInput
-				name={"Trip Name"}
-				value={name}
-				setValue={setName}
-				required />
+			<CustomInput name={"Trip Name"} value={name} setValue={setName} />
 			<TripDatePicker />
 			<CustomButton disabled={name.length == 0} onPress={addNewTrip} />
 		</ScreenLayout>

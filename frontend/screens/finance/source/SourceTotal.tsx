@@ -6,12 +6,14 @@ import ISource from "../../../interfaces/ISource";
 
 const SourceTotal = ({ sources }: { sources: ISource[] }) => {
 	const total = sources.reduce((sum, model) => sum + model.currentAmount, 0);
-	return <View style={{ paddingVertical: PADDING }}>
-		<CustomText
-			text={`Total Net Worth = ${formatMoney(total)}`}
-			alignSelf={CENTER}
-		/>
-	</View>;
+	return (
+		<View style={{ paddingVertical: PADDING }}>
+			<CustomText
+				text={`Total Net Worth = ${formatMoney(total)}`}
+				alignSelf={CENTER}
+			/>
+		</View>
+	);
 };
 
 export default SourceTotal;

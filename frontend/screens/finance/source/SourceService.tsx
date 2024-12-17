@@ -18,7 +18,7 @@ const useSourceService = () => {
 		initialAmount,
 		setInitialAmount,
 		redirect,
-		setRedirect
+		setRedirect,
 	} = useSourceStore();
 	const { setSourceId } = useTransactionStore();
 	const { navigate } = useNavigation<any>();
@@ -35,7 +35,8 @@ const useSourceService = () => {
 	const addNewSource = () => {
 		const id = generateUUID();
 		try {
-			const iAmount = initialAmount.length === 0 ? 0 : parseInt(initialAmount);
+			const iAmount =
+				initialAmount.length === 0 ? 0 : parseInt(initialAmount);
 			db.runSync(INSERT_SOURCE, [id, userId, name, iAmount, iAmount]);
 			console.log("ADDED NEW SOURCE", name);
 		} catch {
@@ -59,7 +60,7 @@ const useSourceService = () => {
 	return {
 		fetchSources,
 		addNewSource,
-		clearStore
+		clearStore,
 	};
 };
 

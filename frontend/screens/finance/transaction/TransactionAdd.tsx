@@ -1,4 +1,9 @@
-import { CENTER, FIFTY_P, FONT_SIZE, LARGE_FONT_SIZE } from "../../../config/constants.config";
+import {
+	CENTER,
+	FIFTY_P,
+	FONT_SIZE,
+	LARGE_FONT_SIZE,
+} from "../../../config/constants.config";
 import { useNavigation } from "@react-navigation/native";
 import CustomText from "../../../components/CustomText";
 import CustomInput from "../../../components/CustomInput";
@@ -21,14 +26,8 @@ import useSourceStore from "../source/SourceStore";
 
 const TransactionAdd = () => {
 	const { navigate } = useNavigation<any>();
-	const {
-		amount,
-		reason,
-		setReason,
-		type,
-		setAmount,
-		setType
-	} = useTransactionStore();
+	const { amount, reason, setReason, type, setAmount, setType } =
+		useTransactionStore();
 
 	const { setRedirect } = useSourceStore();
 
@@ -38,9 +37,12 @@ const TransactionAdd = () => {
 	if (fetchSources().length === 0) {
 		return (
 			<ScreenLayout>
-				<CloseButton/>
+				<CloseButton />
 				<Vertical size={FONT_SIZE} />
-				<CustomText text={"To add a transaction, you need to add a source"} alignSelf={CENTER} />
+				<CustomText
+					text={"To add a transaction, you need to add a source"}
+					alignSelf={CENTER}
+				/>
 				<CustomButton
 					text={"Add Source"}
 					width={FIFTY_P}
@@ -68,21 +70,18 @@ const TransactionAdd = () => {
 				value={amount}
 				setValue={setAmount}
 				numeric
-				required
 			/>
-			<CustomInput
-				name={"Reason"}
-				value={reason}
-				setValue={setReason}
-				required
-			/>
+			<CustomInput name={"Reason"} value={reason} setValue={setReason} />
 			<TransactionDatePicker />
 			<SourceSelector />
 			<DestinationSelector />
 			<CategorySelector />
 			<InvestmentSelector />
 			<TripSelector />
-			<CustomButton disabled={!submitEnabled} onPress={addNewTransaction} />
+			<CustomButton
+				disabled={!submitEnabled}
+				onPress={addNewTransaction}
+			/>
 		</ScreenLayout>
 	);
 };

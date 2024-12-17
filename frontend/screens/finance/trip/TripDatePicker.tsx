@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { DISABLED_COLOR, PRIMARY_COLOR } from "../../../config/colors.config";
-import { DimensionValue, StyleSheet, TouchableOpacity, View } from "react-native";
+import {
+	DimensionValue,
+	StyleSheet,
+	TouchableOpacity,
+	View,
+} from "react-native";
 import { formatDate } from "../../../util/helpers/HelperFunctions";
 import {
 	BORDER_RADIUS,
@@ -10,7 +15,7 @@ import {
 	FORTY_EIGHT_P,
 	NINETY_P,
 	PADDING,
-	SPACE_BETWEEN
+	SPACE_BETWEEN,
 } from "../../../config/constants.config";
 import RNDateTimePicker from "@react-native-community/datetimepicker";
 import CustomText from "../../../components/CustomText";
@@ -25,7 +30,7 @@ const TripDatePicker = () => {
 		setEndDate,
 		setStartDateSet,
 		setEndDateSet,
-		endDateSet
+		endDateSet,
 	} = useTripStore();
 
 	return (
@@ -37,24 +42,32 @@ const TripDatePicker = () => {
 				confirmer={setStartDateSet}
 				isSet={startDateSet}
 			/>
-			{startDateSet && <CustomDatePicker
-				name={"End Date"}
-				date={endDate}
-				setDate={setEndDate}
-				confirmer={setEndDateSet}
-				isSet={endDateSet}
-			/>}
+			{startDateSet && (
+				<CustomDatePicker
+					name={"End Date"}
+					date={endDate}
+					setDate={setEndDate}
+					confirmer={setEndDateSet}
+					isSet={endDateSet}
+				/>
+			)}
 		</View>
 	);
 };
 
-const CustomDatePicker = ({ date, setDate, name, confirmer, isSet }: {
+const CustomDatePicker = ({
+	date,
+	setDate,
+	name,
+	confirmer,
+	isSet,
+}: {
 	date: Date;
 	setDate: (val: Date) => void;
 	name: string;
 	confirmer: (val: boolean) => void;
 	width?: DimensionValue;
-	isSet: boolean
+	isSet: boolean;
 }) => {
 	const [showPicker, setShowPicker] = useState(false);
 	const [clicked, setClicked] = useState(false);
@@ -91,7 +104,7 @@ const styles = StyleSheet.create({
 		flexDirection: FLEX_ROW,
 		justifyContent: SPACE_BETWEEN,
 		width: NINETY_P,
-		alignSelf: CENTER
+		alignSelf: CENTER,
 	},
 	button: {
 		borderWidth: BORDER_WIDTH,
@@ -100,8 +113,8 @@ const styles = StyleSheet.create({
 		width: FORTY_EIGHT_P,
 		alignSelf: CENTER,
 		padding: PADDING,
-		marginTop: PADDING
-	}
+		marginTop: PADDING,
+	},
 });
 
 export default TripDatePicker;

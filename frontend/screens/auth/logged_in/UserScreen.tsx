@@ -1,17 +1,13 @@
 import * as NavigationBar from "expo-navigation-bar";
 import { useEffect } from "react";
-import {
-	StatusBar,
-	StyleSheet,
-	View
-} from "react-native";
+import { StatusBar, StyleSheet, View } from "react-native";
 import {
 	BACKGROUND_COLOR,
 	BLUE_COLOR,
 	DISABLED_COLOR,
 	GREEN_COLOR,
 	PRIMARY_COLOR,
-	RED_COLOR
+	RED_COLOR,
 } from "../../../config/colors.config";
 import { USER_ICON } from "../../../config/icons.config";
 import {
@@ -22,7 +18,7 @@ import {
 	LARGE_FONT_SIZE,
 	PADDING,
 	SCREEN_HEIGHT,
-	SCREEN_WIDTH
+	SCREEN_WIDTH,
 } from "../../../config/constants.config";
 import ScreenLayout from "../../../components/ScreenLayout";
 import CustomText from "../../../components/CustomText";
@@ -58,12 +54,13 @@ const UserScreen = () => {
 				/>
 			</View>
 			<Vertical size={FONT_SIZE / 4} />
-			{msg.text.length > 0 &&
+			{msg.text.length > 0 && (
 				<CustomText
 					text={msg.text}
 					color={msg.color}
 					alignSelf={CENTER}
-				/>}
+				/>
+			)}
 			<CustomButton
 				text={"Upload Data"}
 				width={SCREEN_WIDTH / 1.5}
@@ -97,8 +94,8 @@ const styles = StyleSheet.create({
 		alignItems: CENTER,
 		borderColor: PRIMARY_COLOR,
 		borderWidth: BORDER_WIDTH,
-		justifyContent: CENTER
-	}
+		justifyContent: CENTER,
+	},
 });
 
 export default UserScreen;

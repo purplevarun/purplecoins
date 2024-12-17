@@ -1,12 +1,14 @@
 import { formatMoney } from "../../../util/helpers/HelperFunctions";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import {
-	BORDER_RADIUS, CENTER,
-	FLEX_ROW, FONT_SIZE,
+	BORDER_RADIUS,
+	CENTER,
+	FLEX_ROW,
+	FONT_SIZE,
 	MARGIN,
 	PADDING,
 	SEVENTY_P,
-	SPACE_BETWEEN
+	SPACE_BETWEEN,
 } from "../../../config/constants.config";
 import { ExpenseData } from "../../../components/TransactionType";
 import CustomText from "../../../components/CustomText";
@@ -34,9 +36,9 @@ const styles = StyleSheet.create({
 		padding: PADDING,
 		margin: MARGIN / 2,
 		justifyContent: SPACE_BETWEEN,
-		flexDirection: FLEX_ROW
+		flexDirection: FLEX_ROW,
 	},
-	reason: { width: SEVENTY_P }
+	reason: { width: SEVENTY_P },
 });
 
 export default TransactionRenderItem;

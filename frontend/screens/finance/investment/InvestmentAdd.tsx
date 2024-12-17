@@ -2,7 +2,7 @@ import {
 	CENTER,
 	LARGE_FONT_SIZE,
 	MARGIN,
-	MINIMUM_LENGTH
+	MINIMUM_LENGTH,
 } from "../../../config/constants.config";
 import ScreenLayout from "../../../components/ScreenLayout";
 import CustomText from "../../../components/CustomText";
@@ -20,7 +20,7 @@ const InvestmentAdd = () => {
 		investedAmount,
 		setInvestedAmount,
 		currentAmount,
-		setCurrentAmount
+		setCurrentAmount,
 	} = useInvestmentStore();
 	const { addNewInvestment } = useInvestmentService();
 
@@ -34,12 +34,7 @@ const InvestmentAdd = () => {
 				fontSize={LARGE_FONT_SIZE}
 			/>
 			<Vertical size={MARGIN} />
-			<CustomInput
-				name={"Name"}
-				value={name}
-				setValue={setName}
-				required
-			/>
+			<CustomInput name={"Name"} value={name} setValue={setName} />
 			<CustomInput
 				name={"Invested Amount"}
 				value={investedAmount}

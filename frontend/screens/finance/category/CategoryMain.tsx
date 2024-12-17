@@ -15,8 +15,7 @@ const CategoryMain = () => {
 
 	useFocusEffect(useCallback(() => setCategories(fetchCategories()), []));
 
-	if (!categories || categories.length === 0)
-		return <NoContent categories />;
+	if (!categories || categories.length === 0) return <NoContent categories />;
 
 	return (
 		<ScreenLayout>

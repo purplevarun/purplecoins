@@ -5,10 +5,9 @@ interface AuthStore {
 	toggleRefresh: () => void;
 }
 
-const useAuthStore = create<AuthStore>(set => ({
+const useAuthStore = create<AuthStore>((set) => ({
 	refresh: true,
-	toggleRefresh: () => set((state) => ({ refresh: !state.refresh }))
+	toggleRefresh: () => set((state) => ({ refresh: !state.refresh })),
 }));
-
 
 export default useAuthStore;

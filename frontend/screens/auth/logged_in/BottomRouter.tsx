@@ -1,18 +1,28 @@
 import {
 	BottomTabBarProps,
 	BottomTabNavigationOptions,
-	createBottomTabNavigator
+	createBottomTabNavigator,
 } from "@react-navigation/bottom-tabs";
 import {
-	BOTTOM_TAB_HEIGHT, CENTER,
+	BOTTOM_TAB_HEIGHT,
+	CENTER,
 	FLEX_ROW,
 	FONT_SIZE,
 	SCREEN_OPTIONS,
-	SPACE_EVENLY
+	SPACE_EVENLY,
 } from "../../../config/constants.config";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
-import { DISABLED_COLOR, PRIMARY_COLOR, SECONDARY_COLOR } from "../../../config/colors.config";
-import { FINANCE_ICON, PASSWORDS_ICON, SETTINGS_ICON, TODO_ICON } from "../../../config/icons.config";
+import {
+	DISABLED_COLOR,
+	PRIMARY_COLOR,
+	SECONDARY_COLOR,
+} from "../../../config/colors.config";
+import {
+	FINANCE_ICON,
+	PASSWORDS_ICON,
+	SETTINGS_ICON,
+	TODO_ICON,
+} from "../../../config/icons.config";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import CustomText from "../../../components/CustomText";
 import FinanceRouter from "../../finance/router/FinanceRouter";
@@ -24,7 +34,7 @@ const BottomRoutes = {
 	Finance: { page: FinanceRouter, icon: FINANCE_ICON },
 	Passwords: { page: PasswordScreen, icon: PASSWORDS_ICON },
 	Todo: { page: TodoScreen, icon: TODO_ICON },
-	Settings: { page: SettingsScreen, icon: SETTINGS_ICON }
+	Settings: { page: SettingsScreen, icon: SETTINGS_ICON },
 };
 
 const BottomRouter = () => {
@@ -75,9 +85,9 @@ const styles = StyleSheet.create({
 		height: BOTTOM_TAB_HEIGHT,
 		flexDirection: FLEX_ROW,
 		justifyContent: SPACE_EVENLY,
-		alignItems: CENTER
+		alignItems: CENTER,
 	},
-	button: { alignItems: CENTER }
+	button: { alignItems: CENTER },
 });
 
 export default BottomRouter;

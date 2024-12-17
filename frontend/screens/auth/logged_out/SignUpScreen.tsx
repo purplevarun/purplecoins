@@ -4,7 +4,7 @@ import { createNewUser } from "../../../config/api.config";
 import {
 	CENTER,
 	LARGE_FONT_SIZE,
-	MINIMUM_LENGTH
+	MINIMUM_LENGTH,
 } from "../../../config/constants.config";
 import { SERVER_ERROR, USER_EXISTS } from "../../../config/error.config";
 import HTTP from "../../../config/http_codes.config";
@@ -33,8 +33,7 @@ const SignUpScreen = ({ route }: any) => {
 			else if (status === HTTP.INVALID_REQUEST) setError(USER_EXISTS);
 			else addNewUser(userId, username);
 			setLoading(false);
-		} catch (error) {
-		}
+		} catch (error) {}
 	};
 
 	if (loading) return <LoadingScreen />;

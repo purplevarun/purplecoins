@@ -1,5 +1,5 @@
 import IInvestment from "../../../interfaces/IInvestment";
-import { generateUUID, logger, toInt } from "../../../util/helpers/HelperFunctions";
+import { generateUUID, toInt } from "../../../util/helpers/HelperFunctions";
 import { useSQLiteContext } from "expo-sqlite";
 import useAuthService from "../../auth/AuthService";
 import useInvestmentStore from "./InvestmentStore";
@@ -15,7 +15,7 @@ const useInvestmentService = () => {
 		investedAmount,
 		setInvestedAmount,
 		currentAmount,
-		setCurrentAmount
+		setCurrentAmount,
 	} = useInvestmentStore();
 	const { navigate } = useNavigation<any>();
 
@@ -23,21 +23,28 @@ const useInvestmentService = () => {
 		try {
 			const query = "SELECT * from investment where userId=?";
 			const investments = db.getAllSync<IInvestment>(query, [userId]);
-			logger("fetched investments", investments);
+			console.log("fetched investments", investments);
 			return investments;
 		} catch (e) {
-			logger("ERROR: fetching investments", e);
+			console.log("ERROR: fetching investments", e);
 			return [];
 		}
 	};
 
 	const addNewInvestment = () => {
 		try {
-			const query = "INSERT INTO investment (id, userId, name, investedAmount, currentAmount) VALUES (?, ?, ?, ?, ?)";
+			const query =
+				"INSERT INTO investment (id, userId, name, investedAmount, currentAmount) VALUES (?, ?, ?, ?, ?)";
 			const id = generateUUID();
-			db.runSync(query, [id, userId, name, toInt(investedAmount), toInt(currentAmount)]);
+			db.runSync(query, [
+				id,
+				userId,
+				name,
+				toInt(investedAmount),
+				toInt(currentAmount),
+			]);
 		} catch (e) {
-			logger("ERROR: creating investment", e);
+			console.log("ERROR: creating investment", e);
 		}
 		clearStore();
 		navigate(InvestmentRoutes.Main);
@@ -52,7 +59,7 @@ const useInvestmentService = () => {
 	return {
 		addNewInvestment,
 		fetchInvestments,
-		clearStore
+		clearStore,
 	};
 };
 

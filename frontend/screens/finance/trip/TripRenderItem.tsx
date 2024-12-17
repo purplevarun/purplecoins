@@ -5,7 +5,7 @@ import {
 	FLEX_ROW,
 	MARGIN,
 	PADDING,
-	SPACE_BETWEEN
+	SPACE_BETWEEN,
 } from "../../../config/constants.config";
 import { SECONDARY_COLOR } from "../../../config/colors.config";
 import CustomText from "../../../components/CustomText";
@@ -13,10 +13,7 @@ import useTripService from "./TripService";
 import ITrip from "../../../interfaces/ITrip";
 
 const TripRenderItem: Props = ({ item }) => {
-	const {
-		selectTrip,
-		fetchTotalForCurrentTrip
-	} = useTripService();
+	const { selectTrip, fetchTotalForCurrentTrip } = useTripService();
 
 	const total = fetchTotalForCurrentTrip(item.id);
 
@@ -31,7 +28,6 @@ const TripRenderItem: Props = ({ item }) => {
 	);
 };
 
-
 type Props = FC<{ item: ITrip }>;
 
 const styles = StyleSheet.create({
@@ -41,7 +37,7 @@ const styles = StyleSheet.create({
 		margin: MARGIN,
 		flexDirection: FLEX_ROW,
 		justifyContent: SPACE_BETWEEN,
-		backgroundColor: SECONDARY_COLOR
-	}
+		backgroundColor: SECONDARY_COLOR,
+	},
 });
 export default TripRenderItem;

@@ -30,7 +30,9 @@ const NavigationProvider: IProvider = ({ children }) => {
 };
 
 const FontProvider: IProvider = ({ children }) => {
-	const [loaded, error] = useFonts({ Ubuntu: require("./assets/fonts/Ubuntu-Regular.ttf") });
+	const [loaded, error] = useFonts({
+		Ubuntu: require("./assets/fonts/Ubuntu-Regular.ttf"),
+	});
 	if (error) return <ErrorScreen message={"Font not loaded"} />;
 	if (!loaded) return <LoadingScreen />;
 	return children;
@@ -41,7 +43,9 @@ const DatabaseProvider: IProvider = ({ children }) => {
 		<Suspense fallback={<LoadingScreen />}>
 			<SQLiteProvider
 				databaseName={DB_NAME}
-				onInit={async (db) => create_queries.forEach(query => db.runSync(query))}
+				onInit={async (db) =>
+					create_queries.forEach((query) => db.runSync(query))
+				}
 				useSuspense
 			>
 				{children}

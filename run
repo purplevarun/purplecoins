@@ -13,16 +13,23 @@ function delete_user() {
 }
 
 if [ "$1" = "test" ]; then
-    cd test || exit 1
+    cd test
     maestro test automation.yaml
     delete_user
 elif [ "$1" = "frontend" ]; then
-    cd frontend || exit 1
-    yarn dev
+    cd frontend && yarn dev
 elif [ "$1" = "backend" ]; then
-    cd backend || exit 1
-    yarn dev
+    cd backend && yarn dev
+elif [ "$1" = "format" ]; then
+    cd backend && yarn format
+    cd -
+    cd frontend && yarn format
+    cd -
 else
-    echo "Usage: $0 {test|frontend|backend}"
+    echo "Usage:"
+    echo "./run test - To run E2E tests"
+    echo "./run frontend - To run frontend"
+    echo "./run backend - To run backend"
+    echo "./run format - To format code"
     exit 1
 fi

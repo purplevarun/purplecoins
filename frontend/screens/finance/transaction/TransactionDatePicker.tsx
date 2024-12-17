@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { TouchableOpacity } from "react-native";
-import { BORDER_RADIUS, BORDER_WIDTH, CENTER, MARGIN, NINETY_P, PADDING } from "../../../config/constants.config";
+import {
+	BORDER_RADIUS,
+	BORDER_WIDTH,
+	CENTER,
+	MARGIN,
+	NINETY_P,
+	PADDING,
+} from "../../../config/constants.config";
 import { DISABLED_COLOR, PRIMARY_COLOR } from "../../../config/colors.config";
 import { formatDate } from "../../../util/helpers/HelperFunctions";
 import CustomText from "../../../components/CustomText";
@@ -31,11 +38,14 @@ const TransactionDatePicker = () => {
 				width: NINETY_P,
 				alignSelf: CENTER,
 				padding: PADDING,
-				marginTop: MARGIN * 2
+				marginTop: MARGIN * 2,
 			}}
 			onPress={() => setShowPicker(true)}
 		>
-			<CustomText text={formatDate(date)} color={clicked ? PRIMARY_COLOR : DISABLED_COLOR} />
+			<CustomText
+				text={formatDate(date)}
+				color={clicked ? PRIMARY_COLOR : DISABLED_COLOR}
+			/>
 		</TouchableOpacity>
 	);
 };

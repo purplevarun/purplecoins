@@ -10,25 +10,43 @@ import InvestmentRoutes from "../finance/investment/InvestmentRoutes";
 import SourceRoutes from "../finance/source/SourceRoutes";
 
 type INoContent = {
-	transactions?: boolean,
-	categories?: boolean,
-	trips?: boolean,
-	investments?: boolean,
-	sources?: boolean
+	transactions?: boolean;
+	categories?: boolean;
+	trips?: boolean;
+	investments?: boolean;
+	sources?: boolean;
 };
 
-const NoContent = ({ transactions, categories, trips, investments, sources }: INoContent) => {
+const NoContent = ({
+	transactions,
+	categories,
+	trips,
+	investments,
+	sources,
+}: INoContent) => {
 	const contentMapping = [
-		{ flag: transactions, message: "No Transactions found", route: TransactionRoutes.Add },
-		{ flag: categories, message: "No Categories found", route: CategoryRoutes.Add },
+		{
+			flag: transactions,
+			message: "No Transactions found",
+			route: TransactionRoutes.Add,
+		},
+		{
+			flag: categories,
+			message: "No Categories found",
+			route: CategoryRoutes.Add,
+		},
 		{ flag: trips, message: "No Trips found", route: TripRoutes.Add },
-		{ flag: investments, message: "No Investments found", route: InvestmentRoutes.Add },
-		{ flag: sources, message: "No Sources found", route: SourceRoutes.Add }
+		{
+			flag: investments,
+			message: "No Investments found",
+			route: InvestmentRoutes.Add,
+		},
+		{ flag: sources, message: "No Sources found", route: SourceRoutes.Add },
 	];
 
 	const matchedContent = contentMapping.find((item) => item.flag) || {
 		message: "No Content found",
-		route: TransactionRoutes.Main
+		route: TransactionRoutes.Main,
 	};
 
 	return (
@@ -47,8 +65,8 @@ const styles = StyleSheet.create({
 	view: {
 		flex: FLEX_ONE,
 		justifyContent: CENTER,
-		backgroundColor: BACKGROUND_COLOR
-	}
+		backgroundColor: BACKGROUND_COLOR,
+	},
 });
 
 export default NoContent;

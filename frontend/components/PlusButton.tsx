@@ -8,10 +8,7 @@ const PlusButton = ({ to }: { to: string }) => {
 	const source = require(addImgSource);
 	const { navigate } = useNavigation<any>();
 	return (
-		<TouchableOpacity
-			style={styles.button}
-			onPress={() => navigate(to)}
-		>
+		<TouchableOpacity style={styles.button} onPress={() => navigate(to)}>
 			<Image source={source} style={styles.image} />
 		</TouchableOpacity>
 	);
@@ -22,14 +19,14 @@ const styles = StyleSheet.create({
 		width: FONT_SIZE * 3,
 		height: FONT_SIZE * 3,
 		borderRadius: FONT_SIZE,
-		backgroundColor: BACKGROUND_COLOR
+		backgroundColor: BACKGROUND_COLOR,
 	},
 	button: {
 		position: ABSOLUTE,
 		right: FONT_SIZE / 2,
 		bottom: FONT_SIZE / 2,
-		zIndex: 1
-	}
+		zIndex: 1,
+	},
 });
 
 export default PlusButton;

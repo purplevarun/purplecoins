@@ -5,7 +5,7 @@ import { INCORRECT_PASSWORD, SERVER_ERROR } from "../../../config/error.config";
 import {
 	CENTER,
 	LARGE_FONT_SIZE,
-	MINIMUM_LENGTH
+	MINIMUM_LENGTH,
 } from "../../../config/constants.config";
 import HTTP from "../../../config/http_codes.config";
 import CustomInput from "../../../components/CustomInput";

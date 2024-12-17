@@ -26,9 +26,9 @@ const CategorySection: Props = ({ categoryList, type }) => {
 			{filteredList.length > 0 && (
 				<FlatList
 					data={filteredList}
-					renderItem={({ item }) =>
+					renderItem={({ item }) => (
 						<CategoryRenderItem item={item} />
-					}
+					)}
 				/>
 			)}
 		</View>

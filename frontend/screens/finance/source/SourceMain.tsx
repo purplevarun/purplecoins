@@ -16,20 +16,15 @@ const SourceMain = () => {
 
 	useFocusEffect(useCallback(() => setSources(fetchSources()), []));
 
-	if (!sources || sources.length === 0)
-		return <NoContent sources />;
+	if (!sources || sources.length === 0) return <NoContent sources />;
 
 	return (
 		<ScreenLayout>
 			<SourceTotal sources={sources} />
-			<FlatList
-				data={sources}
-				renderItem={SourceRenderItem}
-			/>
+			<FlatList data={sources} renderItem={SourceRenderItem} />
 			<PlusButton to={SourceRoutes.Add} />
 		</ScreenLayout>
 	);
 };
-
 
 export default SourceMain;

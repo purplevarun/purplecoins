@@ -24,29 +24,28 @@ interface TransactionStore {
 	setCurrentTransactionId: (id: string) => void;
 }
 
-const useTransactionStore = create<TransactionStore>(
-	set => ({
-		type: TransactionType.EXPENSE,
-		setType: (type) => set({ type }),
-		amount: "",
-		setAmount: (amount) => set({ amount }),
-		reason: "",
-		setReason: (reason) => set({ reason }),
-		sourceId: "",
-		setSourceId: (sourceId) => set({ sourceId }),
-		destinationId: "",
-		setDestinationId: (destinationId) => set({ destinationId }),
-		investmentId: "",
-		setInvestmentId: (investmentId) => set({ investmentId }),
-		categoryIds: [],
-		setCategoryIds: (categoryIds) => set({ categoryIds }),
-		tripIds: [],
-		setTripIds: (tripIds) => set({ tripIds }),
-		date: new Date(),
-		setDate: (date) => set({ date }),
-		currentTransactionId: "",
-		setCurrentTransactionId: (currentTransactionId) => set({ currentTransactionId })
-	})
-);
+const useTransactionStore = create<TransactionStore>((set) => ({
+	type: TransactionType.EXPENSE,
+	setType: (type) => set({ type }),
+	amount: "",
+	setAmount: (amount) => set({ amount }),
+	reason: "",
+	setReason: (reason) => set({ reason }),
+	sourceId: "",
+	setSourceId: (sourceId) => set({ sourceId }),
+	destinationId: "",
+	setDestinationId: (destinationId) => set({ destinationId }),
+	investmentId: "",
+	setInvestmentId: (investmentId) => set({ investmentId }),
+	categoryIds: [],
+	setCategoryIds: (categoryIds) => set({ categoryIds }),
+	tripIds: [],
+	setTripIds: (tripIds) => set({ tripIds }),
+	date: new Date(),
+	setDate: (date) => set({ date }),
+	currentTransactionId: "",
+	setCurrentTransactionId: (currentTransactionId) =>
+		set({ currentTransactionId }),
+}));
 
 export default useTransactionStore;

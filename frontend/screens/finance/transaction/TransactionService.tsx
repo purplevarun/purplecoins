@@ -1,12 +1,18 @@
 import { useMemo } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { formatDate, generateUUID, logger, objectify } from "../../../util/helpers/HelperFunctions";
+import {
+	formatDate,
+	generateUUID,
+	objectify,
+} from "../../../util/helpers/HelperFunctions";
 import { useSQLiteContext } from "expo-sqlite";
 import useAuthService from "../../auth/AuthService";
 import useTransactionStore from "./TransactionStore";
 import TransactionType from "../../../components/TransactionType";
 import TransactionRoutes from "./TransactionRoutes";
-import ITransaction, { IGroupedTransactions } from "../../../interfaces/ITransaction";
+import ITransaction, {
+	IGroupedTransactions,
+} from "../../../interfaces/ITransaction";
 
 const FETCH_TRANSACTION = `
 	SELECT 
@@ -114,26 +120,30 @@ const useTransactionService = () => {
 		setTripIds,
 		setDate,
 		currentTransactionId,
-		setCurrentTransactionId
+		setCurrentTransactionId,
 	} = useTransactionStore();
 	const { navigate } = useNavigation<any>();
 
 	const createTransactionTrip = (transactionId: string, tripId: string) => {
 		try {
-			const query = "INSERT INTO transaction_trip (userId, transactionId, tripId) VALUES (?, ?, ?)";
+			const query =
+				"INSERT INTO transaction_trip (userId, transactionId, tripId) VALUES (?, ?, ?)";
 			db.runSync(query, [userId, transactionId, tripId]);
 		} catch (e) {
-			logger("ERROR: creating transaction_trip", e);
+			console.log("ERROR: creating transaction_trip", e);
 		}
-
 	};
 
-	const createTransactionCategory = (transactionId: string, categoryId: string) => {
+	const createTransactionCategory = (
+		transactionId: string,
+		categoryId: string,
+	) => {
 		try {
-			const query = "INSERT INTO transaction_category (userId, transactionId, categoryId) VALUES (?, ?, ?)";
+			const query =
+				"INSERT INTO transaction_category (userId, transactionId, categoryId) VALUES (?, ?, ?)";
 			db.runSync(query, [userId, transactionId, categoryId]);
 		} catch (e) {
-			logger("ERROR: creating transaction_category", e);
+			console.log("ERROR: creating transaction_category", e);
 		}
 	};
 
@@ -141,13 +151,29 @@ const useTransactionService = () => {
 		try {
 			const calculatedAmount = parseInt(amount);
 			const id = generateUUID();
-			const query = "INSERT INTO transaction_record (id,userId,sourceId,amount,reason,type,date,destinationId,investmentId) VALUES (?,?,?,?,?,?,?,?,?)";
-			const sourceQuery = "UPDATE source SET currentAmount=currentAmount-? WHERE id=?";
-			const destinationQuery = "UPDATE source SET currentAmount=currentAmount+? WHERE id=?";
-			const investmentQuery = "UPDATE investment SET investedAmount=investedAmount+? WHERE id=?";
-			db.runSync(query, [id, userId, sourceId, calculatedAmount, reason, type, date.toString(), destinationId, investmentId]);
-			tripIds.forEach(tripId => createTransactionTrip(id, tripId));
-			categoryIds.forEach(categoryId => createTransactionCategory(id, categoryId));
+			const query =
+				"INSERT INTO transaction_record (id,userId,sourceId,amount,reason,type,date,destinationId,investmentId) VALUES (?,?,?,?,?,?,?,?,?)";
+			const sourceQuery =
+				"UPDATE source SET currentAmount=currentAmount-? WHERE id=?";
+			const destinationQuery =
+				"UPDATE source SET currentAmount=currentAmount+? WHERE id=?";
+			const investmentQuery =
+				"UPDATE investment SET investedAmount=investedAmount+? WHERE id=?";
+			db.runSync(query, [
+				id,
+				userId,
+				sourceId,
+				calculatedAmount,
+				reason,
+				type,
+				date.toString(),
+				destinationId,
+				investmentId,
+			]);
+			tripIds.forEach((tripId) => createTransactionTrip(id, tripId));
+			categoryIds.forEach((categoryId) =>
+				createTransactionCategory(id, categoryId),
+			);
 			if (type === TransactionType.EXPENSE) {
 				db.runSync(sourceQuery, [calculatedAmount, sourceId]);
 			} else if (type === TransactionType.INCOME) {
@@ -159,9 +185,9 @@ const useTransactionService = () => {
 				db.runSync(sourceQuery, [calculatedAmount, sourceId]);
 				db.runSync(destinationQuery, [calculatedAmount, destinationId]);
 			}
-			logger("added new transaction");
+			console.log("added new transaction");
 		} catch (e) {
-			logger("ERROR: creating transaction", e);
+			console.log("ERROR: creating transaction", e);
 		}
 		setAmount("");
 		setReason("");
@@ -176,7 +202,10 @@ const useTransactionService = () => {
 
 	const fetchTransactions = () => {
 		try {
-			const transactions = db.getAllSync<ITransaction>(FETCH_TRANSACTIONS, [userId]);
+			const transactions = db.getAllSync<ITransaction>(
+				FETCH_TRANSACTIONS,
+				[userId],
+			);
 			console.log("FETCHED TRANSACTIONS");
 			return transactions;
 		} catch {
@@ -188,7 +217,10 @@ const useTransactionService = () => {
 	const submitEnabled = useMemo(() => {
 		const amountInt = parseInt(amount);
 		if (isNaN(amountInt)) return false;
-		if (type === TransactionType.EXPENSE || type === TransactionType.INCOME) {
+		if (
+			type === TransactionType.EXPENSE ||
+			type === TransactionType.INCOME
+		) {
 			return reason.length > 0 && sourceId.length > 0;
 		}
 		if (type === TransactionType.TRANSFER) {
@@ -205,14 +237,14 @@ const useTransactionService = () => {
 		navigate(TransactionRoutes.Detail);
 	};
 
-	const handleEdit = () => {
-	};
+	const handleEdit = () => {};
 
-	const handleDelete = () => {
-	};
+	const handleDelete = () => {};
 
 	const fetchTransaction = () => {
-		const transaction = db.getFirstSync<ITransaction>(FETCH_TRANSACTION, [currentTransactionId]) as ITransaction;
+		const transaction = db.getFirstSync<ITransaction>(FETCH_TRANSACTION, [
+			currentTransactionId,
+		]) as ITransaction;
 		console.log("FETCHED CURRENT TRANSACTION", objectify(transaction));
 		return transaction;
 	};
@@ -220,15 +252,26 @@ const useTransactionService = () => {
 	const fetchGroupedTransactions = () => {
 		const transactions = fetchTransactions();
 		const groupedTransactions: IGroupedTransactions = Object.entries(
-			transactions.reduce<Record<string, ITransaction[]>>((acc, transaction) => {
-				const normalizedDate = new Date(transaction.date);
-				normalizedDate.setHours(0, 0, 0, 0);
-				const date = normalizedDate.getTime();
-				(acc[date] ||= []).push(transaction);
-				return acc;
-			}, {})
-		).map(([title, data]) => ({ title, data })).sort((a, b) => parseInt(b.title) - parseInt(a.title));
-		groupedTransactions.forEach(group => group.title = formatDate(new Date(parseInt(group.title)), true));
+			transactions.reduce<Record<string, ITransaction[]>>(
+				(acc, transaction) => {
+					const normalizedDate = new Date(transaction.date);
+					normalizedDate.setHours(0, 0, 0, 0);
+					const date = normalizedDate.getTime();
+					(acc[date] ||= []).push(transaction);
+					return acc;
+				},
+				{},
+			),
+		)
+			.map(([title, data]) => ({ title, data }))
+			.sort((a, b) => parseInt(b.title) - parseInt(a.title));
+		groupedTransactions.forEach(
+			(group) =>
+				(group.title = formatDate(
+					new Date(parseInt(group.title)),
+					true,
+				)),
+		);
 		return groupedTransactions;
 	};
 
@@ -240,7 +283,7 @@ const useTransactionService = () => {
 		handleEdit,
 		handleDelete,
 		fetchTransaction,
-		fetchGroupedTransactions
+		fetchGroupedTransactions,
 	};
 };
 

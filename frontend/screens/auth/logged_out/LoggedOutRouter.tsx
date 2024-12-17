@@ -3,7 +3,10 @@ import { useEffect } from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { StatusBar, StyleSheet, View } from "react-native";
 import { FLEX_ONE, SCREEN_OPTIONS } from "../../../config/constants.config";
-import { BACKGROUND_COLOR, SECONDARY_COLOR } from "../../../config/colors.config";
+import {
+	BACKGROUND_COLOR,
+	SECONDARY_COLOR,
+} from "../../../config/colors.config";
 import LoggedOutRoutes from "./LoggedOutRoutes";
 import CheckUsernameScreen from "./CheckUsernameScreen";
 import SignUpScreen from "./SignUpScreen";
@@ -39,8 +42,8 @@ const LoggedOutRouter = () => {
 const styles = StyleSheet.create({
 	flexView: {
 		flex: FLEX_ONE,
-		backgroundColor: SECONDARY_COLOR
-	}
+		backgroundColor: SECONDARY_COLOR,
+	},
 });
 
 export default LoggedOutRouter;

@@ -3,9 +3,10 @@
 	"version": "1.0.0",
 	"main": "expo/AppEntry.js",
 	"scripts": {
-		"dev": "expo start -c -p 4004",
+		"dev": "expo start -c -p 8000",
 		"clean": "rm -rf node_modules yarn.lock .expo && yarn",
-		"doctor": "npx expo-doctor"
+		"doctor": "npx expo-doctor",
+		"format": "prettier --write ."
 	},
 	"dependencies": {
 		"@react-native-community/datetimepicker": "8.0.1",
@@ -38,7 +39,7 @@
 	"devDependencies": {
 		"@babel/core": "^7.20.0",
 		"@types/react": "~18.2.45",
-		"prettier": "^3.3.3",
+		"prettier": "^3.4.2",
 		"typescript": "~5.3.3"
 	},
 	"private": true

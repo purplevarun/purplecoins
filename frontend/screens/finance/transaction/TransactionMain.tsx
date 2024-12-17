@@ -1,14 +1,16 @@
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useState } from "react";
 import { SectionList, StyleSheet, View } from "react-native";
-import ITransaction, { IGroupedTransactions } from "../../../interfaces/ITransaction";
+import ITransaction, {
+	IGroupedTransactions,
+} from "../../../interfaces/ITransaction";
 import {
 	BORDER_RADIUS,
 	CENTER,
 	FLEX_ROW,
 	LARGE_FONT_SIZE,
 	PADDING,
-	SPACE_BETWEEN
+	SPACE_BETWEEN,
 } from "../../../config/constants.config";
 import TransactionRoutes from "./TransactionRoutes";
 import ScreenLayout from "../../../components/ScreenLayout";
@@ -20,9 +22,12 @@ import CustomText from "../../../components/CustomText";
 
 const TransactionMain = () => {
 	const { fetchGroupedTransactions } = useTransactionService();
-	const [transactions, setTransactions] = useState<null | IGroupedTransactions>(null);
+	const [transactions, setTransactions] =
+		useState<null | IGroupedTransactions>(null);
 
-	useFocusEffect(useCallback(() => setTransactions(fetchGroupedTransactions()), []));
+	useFocusEffect(
+		useCallback(() => setTransactions(fetchGroupedTransactions()), []),
+	);
 
 	if (!transactions || transactions.length === 0)
 		return <NoContent transactions />;
@@ -43,10 +48,15 @@ const TransactionMain = () => {
 const KeyExtractor = (item: ITransaction, index: number) =>
 	`${item.id}-${index}`;
 
-const RenderItem = ({ item }: { item: ITransaction }) =>
-	<TransactionRenderItem item={item} />;
+const RenderItem = ({ item }: { item: ITransaction }) => (
+	<TransactionRenderItem item={item} />
+);
 
-const SectionHeader = ({ section: { title } }: { section: { title: string } }) => (
+const SectionHeader = ({
+	section: { title },
+}: {
+	section: { title: string };
+}) => (
 	<View style={styles.header}>
 		<CustomText
 			text={title}
@@ -61,8 +71,8 @@ const styles = StyleSheet.create({
 		paddingVertical: PADDING,
 		borderRadius: BORDER_RADIUS,
 		flexDirection: FLEX_ROW,
-		justifyContent: SPACE_BETWEEN
-	}
+		justifyContent: SPACE_BETWEEN,
+	},
 });
 
 export default TransactionMain;

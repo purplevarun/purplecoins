@@ -1,7 +1,7 @@
 const TripRoutes = {
 	Main: "Trip.Main",
 	Add: "Trip.Add",
-	Detail: "Trip.Detail"
+	Detail: "Trip.Detail",
 };
 
 export default TripRoutes;

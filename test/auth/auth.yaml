@@ -1,21 +1,21 @@
 appId: host.exp.exponent
 ---
--   tapOn: " Username "
+-   tapOn: "Username"
 -   inputText: "Test User"
 -   tapOn: "Submit"
--   tapOn: " Password "
+-   tapOn: "Password"
 -   inputText: "1234"
--   tapOn: " Confirm Password "
+-   tapOn: "Confirm Password"
 -   inputText: "1234"
 -   tapOn: "Sign Up"
 -   runFlow: verify_homepage.yaml
 -   tapOn:
-        point: "94%,9%" # User Icon
+        id: "userIcon"
 -   tapOn: "Log out"
--   tapOn: " Username "
+-   tapOn: "Username"
 -   inputText: "Test User"
 -   tapOn: "Submit"
--   tapOn: " Password "
+-   tapOn: "Password"
 -   inputText: "1234"
 -   tapOn: "Sign In"
 -   runFlow: verify_homepage.yaml

@@ -19,18 +19,22 @@ router.get("/", async (req, res) => {
 			Trip,
 			Category,
 			TransactionCategory,
-			TransactionTrip
+			TransactionTrip,
 		];
 		const data = {};
 		for (const model of models) {
-			data[model.modelName] = await model.find({ userId }, {}, null).exec();
+			data[model.modelName] = await model
+				.find({ userId }, {}, null)
+				.exec();
 		}
 		return res.json({
-			status: 200, data
+			status: 200,
+			data,
 		});
 	} catch (error) {
 		return res.json({
-			status: 500, message: "Internal server error"
+			status: 500,
+			message: "Internal server error",
 		});
 	}
 });

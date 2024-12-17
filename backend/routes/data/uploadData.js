@@ -19,7 +19,7 @@ router.post("/", async (req, res) => {
 			investments,
 			transaction_trips,
 			transaction_categories,
-			userId
+			userId,
 		} = req.body;
 
 		const models = [
@@ -29,26 +29,32 @@ router.post("/", async (req, res) => {
 			{ model: Trip, data: trips },
 			{ model: Category, data: categories },
 			{ model: TransactionCategory, data: transaction_categories },
-			{ model: TransactionTrip, data: transaction_trips }
+			{ model: TransactionTrip, data: transaction_trips },
 		];
 
-		Promise.all(models.map(async ({ model, data }) => {
-			await model.deleteMany({ userId });
-			await model.bulkSave(data.map(item => new model(item)));
-		})).then(() => {
-			return res.json({
-				status: 201, message: "Data Uploaded Successfully"
+		Promise.all(
+			models.map(async ({ model, data }) => {
+				await model.deleteMany({ userId });
+				await model.bulkSave(data.map((item) => new model(item)));
+			}),
+		)
+			.then(() => {
+				return res.json({
+					status: 201,
+					message: "Data Uploaded Successfully",
+				});
+			})
+			.catch(() => {
+				return res.json({
+					status: 500,
+					message: "Unknown error",
+				});
 			});
-		}).catch(() => {
-			return res.json({
-				status: 500, message: "Unknown error"
-			});
-		});
-
 	} catch (error) {
 		console.error("Error:", error);
 		return res.json({
-			status: 500, message: "Internal server error"
+			status: 500,
+			message: "Internal server error",
 		});
 	}
 });

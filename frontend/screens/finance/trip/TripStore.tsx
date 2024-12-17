@@ -15,21 +15,19 @@ interface TripStore {
 	setCurrentTripId: (id: string) => void;
 }
 
-const useTripStore = create<TripStore>(
-	set => ({
-		name: "",
-		setName: (name) => set({ name }),
-		startDate: new Date(),
-		endDate: new Date(),
-		startDateSet: false,
-		endDateSet: false,
-		setStartDate: (startDate) => set({ startDate }),
-		setEndDate: (endDate) => set({ endDate }),
-		setStartDateSet: (startDateSet) => set({ startDateSet }),
-		setEndDateSet: (endDateSet) => set({ endDateSet }),
-		currentTripId: "",
-		setCurrentTripId: (currentTripId) => set({ currentTripId })
-	})
-);
+const useTripStore = create<TripStore>((set) => ({
+	name: "",
+	setName: (name) => set({ name }),
+	startDate: new Date(),
+	endDate: new Date(),
+	startDateSet: false,
+	endDateSet: false,
+	setStartDate: (startDate) => set({ startDate }),
+	setEndDate: (endDate) => set({ endDate }),
+	setStartDateSet: (startDateSet) => set({ startDateSet }),
+	setEndDateSet: (endDateSet) => set({ endDateSet }),
+	currentTripId: "",
+	setCurrentTripId: (currentTripId) => set({ currentTripId }),
+}));
 
 export default useTripStore;

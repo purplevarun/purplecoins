@@ -1,4 +1,4 @@
-import { generateUUID, logger } from "../../../util/helpers/HelperFunctions";
+import { generateUUID } from "../../../util/helpers/HelperFunctions";
 import { useSQLiteContext } from "expo-sqlite";
 import { useNavigation } from "@react-navigation/native";
 import useAuthService from "../../auth/AuthService";
@@ -11,23 +11,18 @@ import ITransaction from "../../../interfaces/ITransaction";
 const useCategoryService = () => {
 	const db = useSQLiteContext();
 	const { userId } = useAuthService();
-	const {
-		name,
-		setName,
-		setType,
-		type,
-		currentId,
-		setCurrentId
-	} = useCategoryStore();
+	const { name, setName, setType, type, currentId, setCurrentId } =
+		useCategoryStore();
 	const { navigate } = useNavigation<any>();
 
 	const addNewCategory = () => {
 		try {
-			const query = "INSERT INTO category (id, userId, name, type) VALUES (?, ?, ?, ?)";
+			const query =
+				"INSERT INTO category (id, userId, name, type) VALUES (?, ?, ?, ?)";
 			const id = generateUUID();
 			db.runSync(query, [id, userId, name, type]);
 		} catch (e) {
-			logger("ERROR: creating category", e);
+			console.log("ERROR: creating category", e);
 		}
 		clearStore();
 		navigate(CategoryRoutes.Main);
@@ -37,10 +32,10 @@ const useCategoryService = () => {
 		try {
 			const query = "SELECT * from category where userId=?";
 			const categories = db.getAllSync<ICategory>(query, [userId]);
-			logger("fetched categories", categories);
+			console.log("fetched categories", categories);
 			return categories;
 		} catch (e) {
-			logger("ERROR: fetching categories", e);
+			console.log("ERROR: fetching categories", e);
 			return [];
 		}
 	};
@@ -51,22 +46,25 @@ const useCategoryService = () => {
 	};
 
 	const fetchCategory = () => {
-		return db.getFirstSync<ICategory>("SELECT * from category where id=?", [currentId]) as ICategory;
+		return db.getFirstSync<ICategory>("SELECT * from category where id=?", [
+			currentId,
+		]) as ICategory;
 	};
 
-	const handleEdit = () => {
-	};
+	const handleEdit = () => {};
 
-	const handleDelete = () => {
-	};
+	const handleDelete = () => {};
 
 	const fetchTransactions = () => {
-		return db.getAllSync<ITransaction>(`
+		return db.getAllSync<ITransaction>(
+			`
 			SELECT t.* 
 			FROM transaction_record t 
 			JOIN transaction_category tc ON t.id = tc.transactionId 
 			WHERE tc.categoryId = ?;
-		`, [currentId]);
+		`,
+			[currentId],
+		);
 	};
 
 	const clearStore = () => {
@@ -82,7 +80,7 @@ const useCategoryService = () => {
 		fetchCategory,
 		handleEdit,
 		handleDelete,
-		fetchTransactions
+		fetchTransactions,
 	};
 };
 
