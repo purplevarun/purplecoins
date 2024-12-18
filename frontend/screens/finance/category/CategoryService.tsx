@@ -21,8 +21,8 @@ const useCategoryService = () => {
 				"INSERT INTO category (id, userId, name, type) VALUES (?, ?, ?, ?)";
 			const id = generateUUID();
 			db.runSync(query, [id, userId, name, type]);
-		} catch (e) {
-			console.log("ERROR: creating category", e);
+		} catch {
+			console.log("ERROR: CREATING CATEGORY");
 		}
 		clearStore();
 		navigate(CategoryRoutes.Main);
@@ -30,12 +30,12 @@ const useCategoryService = () => {
 
 	const fetchCategories = () => {
 		try {
-			const query = "SELECT * from category where userId=?";
+			const query = "SELECT * FROM category WHERE userId=?";
 			const categories = db.getAllSync<ICategory>(query, [userId]);
-			console.log("fetched categories", categories);
+			console.log("FETCHED CATEGORIES", categories);
 			return categories;
-		} catch (e) {
-			console.log("ERROR: fetching categories", e);
+		} catch {
+			console.log("ERROR: FETCHING CATEGORIES");
 			return [];
 		}
 	};
@@ -57,12 +57,10 @@ const useCategoryService = () => {
 
 	const fetchTransactions = () => {
 		return db.getAllSync<ITransaction>(
-			`
-			SELECT t.* 
+			`SELECT t.* 
 			FROM transaction_record t 
 			JOIN transaction_category tc ON t.id = tc.transactionId 
-			WHERE tc.categoryId = ?;
-		`,
+			WHERE tc.categoryId = ?;`,
 			[currentId],
 		);
 	};

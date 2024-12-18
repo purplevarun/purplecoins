@@ -27,14 +27,14 @@ import Vertical from "../../../components/Vertical";
 import CustomButton from "../../../components/CustomButton";
 import useAuthService from "../AuthService";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import useSync from "./SyncService";
+import useSyncService from "./SyncService";
 
 const UserScreen = () => {
 	useEffect(() => {
 		NavigationBar.setBackgroundColorAsync(BACKGROUND_COLOR).catch();
 	}, []);
 	const { userName, logOut } = useAuthService();
-	const { uploadData, downloadData, msg } = useSync();
+	const { uploadData, downloadData, msg } = useSyncService();
 	return (
 		<ScreenLayout>
 			<StatusBar backgroundColor={BACKGROUND_COLOR} />

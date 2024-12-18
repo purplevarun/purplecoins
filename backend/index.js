@@ -7,6 +7,7 @@ import createUser from "./routes/user/create_user.js";
 import verifyUser from "./routes/user/verify_user.js";
 import uploadData from "./routes/data/uploadData.js";
 import downloadData from "./routes/data/downloadData.js";
+import healthCheck from "./routes/healthCheck.js";
 
 dotenv.config();
 const port = process.env.PORT || 3000;
@@ -20,7 +21,7 @@ app.use("/create-user", createUser);
 app.use("/verify-user", verifyUser);
 app.use("/upload-data", uploadData);
 app.use("/download-data", downloadData);
-
+app.use("/health", healthCheck);
 app.listen(port, () => {
 	console.log(`Server is running on http://localhost:${port}`);
 });

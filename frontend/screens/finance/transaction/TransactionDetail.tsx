@@ -18,6 +18,10 @@ import TripRenderItem from "../trip/TripRenderItem";
 import CategoryRenderItem from "../category/CategoryRenderItem";
 import DataTab from "../../../components/DataTab";
 
+const plank = 0.35;
+const UPPER_HALF_HEIGHT = USABLE_SCREEN_HEIGHT * plank;
+const LIST_HEIGHT = (USABLE_SCREEN_HEIGHT - UPPER_HALF_HEIGHT) / (plank * 8);
+
 const TransactionDetail = () => {
 	const { handleEdit, handleDelete, fetchTransaction } =
 		useTransactionService();
@@ -32,11 +36,6 @@ const TransactionDetail = () => {
 		categories,
 		trips,
 	} = fetchTransaction();
-
-	const plank = 0.32;
-	const UPPER_HALF_HEIGHT = USABLE_SCREEN_HEIGHT * plank;
-	const LIST_HEIGHT =
-		(USABLE_SCREEN_HEIGHT - UPPER_HALF_HEIGHT) / (plank * 10);
 
 	return (
 		<ScreenLayout>
@@ -57,44 +56,45 @@ const TransactionDetail = () => {
 				<DataTab name={"Type"} value={type} />
 				<DataTab name={"Date"} value={formatDate(date)} />
 				<DataTab name={"Source"} value={source} />
-				{destination && (
-					<DataTab name={"Destination"} value={destination} />
-				)}
-				{investment && (
-					<DataTab name={"Investment"} value={investment} />
-				)}
+				<DataTab name={"Destination"} value={destination} />
+				<DataTab name={"Investment"} value={investment} />
 			</View>
-			{categories && (
-				<View>
-					<CustomText
-						text={"Categories"}
-						fontSize={LARGE_FONT_SIZE}
-					/>
-					<Vertical size={2} />
-					<FlatList
-						style={{ maxHeight: LIST_HEIGHT }}
-						data={JSON.parse(categories)}
-						renderItem={({ item }) => (
-							<CategoryRenderItem item={item} />
-						)}
-					/>
-				</View>
-			)}
-			{trips && (
-				<View style={{ paddingTop: PADDING }}>
-					<CustomText text={"Trips"} fontSize={LARGE_FONT_SIZE} />
-					<Vertical size={2} />
-					<FlatList
-						style={{ maxHeight: LIST_HEIGHT }}
-						data={JSON.parse(trips)}
-						renderItem={({ item }) => (
-							<TripRenderItem item={item} />
-						)}
-					/>
-				</View>
-			)}
+			<Categories categories={categories} />
+			<Trips trips={trips} />
 		</ScreenLayout>
 	);
+};
+
+const Trips = ({ trips }: { trips: string | undefined }) => {
+	if (trips)
+		return (
+			<View style={{ paddingTop: PADDING }}>
+				<CustomText text={"Trips"} fontSize={LARGE_FONT_SIZE} />
+				<Vertical />
+				<FlatList
+					style={{ maxHeight: LIST_HEIGHT }}
+					data={JSON.parse(trips)}
+					renderItem={({ item }) => <TripRenderItem item={item} />}
+				/>
+			</View>
+		);
+};
+
+const Categories = ({ categories }: { categories: string | undefined }) => {
+	if (categories)
+		return (
+			<View>
+				<CustomText text={"Categories"} fontSize={LARGE_FONT_SIZE} />
+				<Vertical />
+				<FlatList
+					style={{ maxHeight: LIST_HEIGHT }}
+					data={JSON.parse(categories)}
+					renderItem={({ item }) => (
+						<CategoryRenderItem item={item} />
+					)}
+				/>
+			</View>
+		);
 };
 
 export default TransactionDetail;

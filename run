@@ -1,15 +1,18 @@
 #!/bin/sh
 
 function delete_user() {
-    MONGO_URI="mongodb://localhost:27017"
     DB_NAME="purplecoinsv2"
-    COLLECTION_NAME="users"
-    USER_NAME="Test User"
+    USER_NAME="Test User" # Specify the user name
+    mongosh "mongodb://localhost:27017/$DB_NAME" --eval "
+        const userName = '$USER_NAME';
+        const collections = ['users', 'transactions', 'categories', 'trips', 'investments', 'sources', 'transactiontrips', 'transactioncategories'];
 
-    mongosh "$MONGO_URI/$DB_NAME" --eval "
-        db.getCollection('$COLLECTION_NAME').deleteOne({ name: '$USER_NAME' });
-        print('Deleted document with name: \"$USER_NAME\"');
-    "
+        collections.forEach(collection => {
+            db.getCollection(collection).deleteMany({ name: userName });
+        });
+
+        print('Deleted data for user:', userName);
+    " || echo "Failed to delete user data. Check your MongoDB connection and script."
 }
 
 if [ "$1" = "test" ]; then

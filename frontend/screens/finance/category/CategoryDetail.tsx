@@ -2,7 +2,6 @@ import {
 	CENTER,
 	FONT_SIZE,
 	LARGE_FONT_SIZE,
-	PADDING,
 } from "../../../config/constants.config";
 import ScreenLayout from "../../../components/ScreenLayout";
 import useCategoryService from "./CategoryService";
@@ -12,8 +11,7 @@ import EditButton from "../../../components/EditButton";
 import DeleteButton from "../../../components/DeleteButton";
 import Vertical from "../../../components/Vertical";
 import DataTab from "../../../components/DataTab";
-import { FlatList, View } from "react-native";
-import TransactionRenderItem from "../transaction/TransactionRenderItem";
+import LinkedTransactions from "../../../components/LinkedTransactions";
 
 const CategoryDetail = () => {
 	const { fetchCategory, handleEdit, handleDelete, fetchTransactions } =
@@ -43,21 +41,7 @@ const CategoryDetail = () => {
 				name={"Annual Budget"}
 				value={category.annualBudget ?? "Not set"}
 			/>
-			{transactions && transactions.length > 0 && (
-				<View style={{ paddingTop: PADDING }}>
-					<CustomText
-						text={"Linked Transactions"}
-						fontSize={LARGE_FONT_SIZE}
-					/>
-					<Vertical />
-					<FlatList
-						data={transactions}
-						renderItem={({ item }) => (
-							<TransactionRenderItem item={item} />
-						)}
-					/>
-				</View>
-			)}
+			<LinkedTransactions transactions={transactions} />
 		</ScreenLayout>
 	);
 };
