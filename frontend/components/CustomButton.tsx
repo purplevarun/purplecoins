@@ -3,8 +3,8 @@ import {
 	BORDER_RADIUS,
 	CENTER,
 	FONT_SIZE,
-	NINETY_P,
 	PADDING,
+	SCREEN_WIDTH,
 } from "../config/constants.config";
 import { GREEN_COLOR } from "../config/colors.config";
 import CustomText from "./CustomText";
@@ -12,15 +12,17 @@ import CustomText from "./CustomText";
 const CustomButton = ({
 	text = "Submit",
 	onPress = () => {},
-	width = NINETY_P,
+	width = SCREEN_WIDTH / 2,
 	disabled = false,
 	color = GREEN_COLOR,
+	marginV = FONT_SIZE,
 }: {
 	text?: string;
 	onPress?: VoidFunction;
 	width?: DimensionValue;
 	disabled?: boolean;
 	color?: string;
+	marginV?: number;
 }) => {
 	return (
 		<TouchableOpacity
@@ -32,7 +34,7 @@ const CustomButton = ({
 				justifyContent: CENTER,
 				opacity: disabled ? 0.5 : 1,
 				width,
-				marginVertical: FONT_SIZE,
+				marginVertical: marginV,
 				alignSelf: CENTER,
 			}}
 			onPress={onPress}

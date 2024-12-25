@@ -22,6 +22,7 @@ const CloseButton: ICloseButton = ({ onPress = MockedFn }) => {
 					goBack();
 					onPress();
 				}}
+				testID={"closeIcon"}
 			>
 				<FontAwesome
 					name={CLOSE_ICON}

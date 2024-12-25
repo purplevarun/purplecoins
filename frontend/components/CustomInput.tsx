@@ -60,7 +60,7 @@ const CustomInput = ({
 					left: PADDING,
 					top: animatedValue.interpolate({
 						inputRange: [0, 1],
-						outputRange: [FONT_SIZE, 0],
+						outputRange: [FONT_SIZE, -2],
 					}),
 					fontSize: animatedValue.interpolate({
 						inputRange: [0, 1],
@@ -70,11 +70,16 @@ const CustomInput = ({
 					backgroundColor: BACKGROUND_COLOR,
 					zIndex: 1,
 					fontFamily: UBUNTU_FONT,
+					paddingHorizontal: animatedValue.interpolate({
+						inputRange: [0, 1],
+						outputRange: [0, 3],
+					}),
 				}}
 				onPress={() => inputRef.current?.focus()}
 			>
 				{name}
 			</Animated.Text>
+
 			<TextInput
 				ref={inputRef}
 				value={value}

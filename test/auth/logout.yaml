@@ -1,0 +1,6 @@
+appId: host.exp.exponent
+---
+-   tapOn:
+        id: "menuIcon"
+-   tapOn:
+        id: "logoutIcon"

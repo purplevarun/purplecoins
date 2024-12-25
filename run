@@ -2,20 +2,23 @@
 
 function delete_user() {
     DB_NAME="purplecoinsv2"
-    USER_NAME="Test User" # Specify the user name
+    USER_NAME="Test User"
+
     mongosh "mongodb://localhost:27017/$DB_NAME" --eval "
         const userName = '$USER_NAME';
-        const collections = ['users', 'transactions', 'categories', 'trips', 'investments', 'sources', 'transactiontrips', 'transactioncategories'];
-
-        collections.forEach(collection => {
-            db.getCollection(collection).deleteMany({ name: userName });
-        });
-
-        print('Deleted data for user:', userName);
+        const userId = db.getCollection('users').findOne({ name: userName })._id;
+		db.getCollection('users').deleteMany({_id:userId})
+        const collections = ['transactions', 'categories', 'trips', 'investments', 'sources', 'transactiontrips', 'transactioncategories'];
+        collections.forEach(collection => db.getCollection(collection).deleteMany({ userId }));
     " || echo "Failed to delete user data. Check your MongoDB connection and script."
 }
 
-if [ "$1" = "test" ]; then
+if [ "$#" -eq 0 ]; then
+    tmux new-session -d -s dev "cd frontend && yarn dev"
+    tmux split-window -v "cd backend && yarn dev"
+    tmux select-pane -t 0
+    tmux attach-session -t dev
+elif [ "$1" = "test" ]; then
     cd test
     maestro test automation.yaml
     delete_user
@@ -30,6 +33,7 @@ elif [ "$1" = "format" ]; then
     cd -
 else
     echo "Usage:"
+    echo "./run - To run both frontend and backend in tmux"
     echo "./run test - To run E2E tests"
     echo "./run frontend - To run frontend"
     echo "./run backend - To run backend"

@@ -16,8 +16,8 @@ import { Dropdown } from "react-native-element-dropdown";
 import TransactionType from "../../../components/TransactionType";
 import IRenderItem from "../../../interfaces/IRenderItem";
 import CustomText from "../../../components/CustomText";
-import useTransactionStore from "./TransactionStore";
-import useInvestmentService from "../investment/InvestmentService";
+import useTransactionStore from "../../transaction/TransactionStore";
+import useInvestmentService from "../../investment/InvestmentService";
 
 const InvestmentSelector = () => {
 	const { investmentId, setInvestmentId, type } = useTransactionStore();

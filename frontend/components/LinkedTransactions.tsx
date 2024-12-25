@@ -3,7 +3,7 @@ import { FlatList, StyleSheet, View } from "react-native";
 import { LARGE_FONT_SIZE, PADDING } from "../config/constants.config";
 import CustomText from "./CustomText";
 import Vertical from "./Vertical";
-import TransactionRenderItem from "../screens/finance/transaction/TransactionRenderItem";
+import TransactionRenderItem from "../screens/transaction/TransactionRenderItem";
 import { DISABLED_COLOR } from "../config/colors.config";
 
 const LinkedTransactions = ({

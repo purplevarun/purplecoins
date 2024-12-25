@@ -1,35 +1,41 @@
 appId: host.exp.exponent
 ---
 
--   assertVisible: "Purplecoins"
 -   assertVisible: "Transactions"
+-   assertVisible: "No Transactions found"
+-   tapOn:
+        id: "menuIcon"
+-   assertVisible: "Purplecoins"
+-   assertVisible: "by purplevarun"
+-   assertVisible: "Welcome Test User"
+-   tapOn: "Analysis"
+-   assertVisible: "Analysis"
+-   assertVisible: "No Analysis found"
+-   tapOn:
+        id: "menuIcon"
+-   tapOn: "Categories"
 -   assertVisible: "Categories"
--   assertVisible: "Investments"
--   assertVisible: "Sources"
--   assertVisible: "Trips"
--   assertVisible: "Finance"
--   assertVisible: "Passwords"
--   assertVisible: "Settings"
--   assertVisible: "Todo"
--   assertVisible: "No Transactions found"
--   swipe:
-        direction: LEFT
 -   assertVisible: "No Categories found"
--   swipe:
-        direction: LEFT
--   assertVisible: "No Investments found"
--   swipe:
-        direction: LEFT
--   assertVisible: "No Sources found"
--   swipe:
-        direction: LEFT
+-   tapOn:
+        id: "menuIcon"
+-   tapOn: "Trips"
+-   assertVisible: "Trips"
 -   assertVisible: "No Trips found"
--   tapOn: "Passwords"
--   assertVisible: "PasswordScreen"
--   tapOn: "Todo"
--   assertVisible: "TodoScreen"
--   tapOn: "Settings"
--   assertVisible: "Settings"
--   tapOn: "Finance"
+-   tapOn:
+        id: "menuIcon"
+-   tapOn: "Sources"
+-   assertVisible: "Sources"
+-   assertVisible: "No Sources found"
+-   tapOn:
+        id: "menuIcon"
+-   tapOn: "Investments"
+-   assertVisible: "Investments"
+-   assertVisible: "No Investments found"
+-   tapOn:
+        id: "menuIcon"
+-   tapOn: "Sync Data"
+-   assertVisible: "Upload Data"
+-   assertVisible: "Download Data"
+-   tapOn:
+        id: "menuIcon"
 -   tapOn: "Transactions"
--   assertVisible: "No Transactions found"

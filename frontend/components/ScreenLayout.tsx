@@ -1,9 +1,17 @@
 import { StyleSheet, View } from "react-native";
 import { BACKGROUND_COLOR } from "../config/colors.config";
 import { FLEX_ONE, PADDING } from "../config/constants.config";
-import IProvider from "../interfaces/IProvider";
+import { ReactNode } from "react";
+import LoadingScreen from "../LoadingScreen";
 
-const ScreenLayout: IProvider = ({ children }) => {
+const ScreenLayout = ({
+	children,
+	loading = false,
+}: {
+	children: ReactNode;
+	loading?: boolean;
+}) => {
+	if (loading) return <LoadingScreen />;
 	return <View style={styles.container}>{children}</View>;
 };
 const styles = StyleSheet.create({

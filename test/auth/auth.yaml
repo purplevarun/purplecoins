@@ -9,9 +9,7 @@ appId: host.exp.exponent
 -   inputText: "1234"
 -   tapOn: "Sign Up"
 -   runFlow: verify_homepage.yaml
--   tapOn:
-        id: "userIcon"
--   tapOn: "Log out"
+-   runFlow: logout.yaml
 -   tapOn: "Username"
 -   inputText: "Test User"
 -   tapOn: "Submit"

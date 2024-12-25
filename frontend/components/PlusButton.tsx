@@ -8,7 +8,11 @@ const PlusButton = ({ to }: { to: string }) => {
 	const source = require(addImgSource);
 	const { navigate } = useNavigation<any>();
 	return (
-		<TouchableOpacity style={styles.button} onPress={() => navigate(to)}>
+		<TouchableOpacity
+			style={styles.button}
+			onPress={() => navigate(to)}
+			testID={"plusIcon"}
+		>
 			<Image source={source} style={styles.image} />
 		</TouchableOpacity>
 	);
