@@ -11,8 +11,6 @@ interface TripStore {
 	setStartDateSet: (show: boolean) => void;
 	endDateSet: boolean;
 	setEndDateSet: (show: boolean) => void;
-	currentTripId: string;
-	setCurrentTripId: (id: string) => void;
 }
 
 const useTripStore = create<TripStore>((set) => ({
@@ -26,8 +24,6 @@ const useTripStore = create<TripStore>((set) => ({
 	setEndDate: (endDate) => set({ endDate }),
 	setStartDateSet: (startDateSet) => set({ startDateSet }),
 	setEndDateSet: (endDateSet) => set({ endDateSet }),
-	currentTripId: "",
-	setCurrentTripId: (currentTripId) => set({ currentTripId }),
 }));
 
 export default useTripStore;

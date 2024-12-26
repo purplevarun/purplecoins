@@ -17,6 +17,7 @@ const InvestmentAnalysis = ({
 		(sum, model) => sum + model.currentAmount,
 		0,
 	);
+	const percentage = Math.floor((currentSum / investedSum - 1) * 1000) / 10;
 	return (
 		<View
 			style={{
@@ -28,9 +29,7 @@ const InvestmentAnalysis = ({
 				text={`Total Investments = ${formatMoney(investedSum)}`}
 			/>
 			<CustomText text={`Total Returns = ${formatMoney(currentSum)}`} />
-			<CustomText
-				text={`Profit = ${(currentSum / investedSum - 1) * 100}%`}
-			/>
+			<CustomText text={`Profit = ${percentage}%`} />
 		</View>
 	);
 };

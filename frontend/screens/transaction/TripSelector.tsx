@@ -67,7 +67,7 @@ const TripSelector = () => {
 				onChange={setTripIds}
 				renderItem={item}
 				renderSelectedItem={selectedItem}
-				style={dropdownStyle.multiselect}
+				style={dropdownStyle.dropdown}
 				placeholderStyle={dropdownStyle.placeholder}
 				selectedTextStyle={dropdownStyle.selectedText}
 				itemContainerStyle={dropdownStyle.itemContainer}

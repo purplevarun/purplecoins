@@ -1,36 +1,26 @@
-import {
-	CENTER,
-	FONT_SIZE,
-	LARGE_FONT_SIZE,
-} from "../../config/constants.config";
+import { useCallback } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import ScreenLayout from "../../components/ScreenLayout";
 import useCategoryService from "./CategoryService";
-import CustomText from "../../components/CustomText";
-import CloseButton from "../../components/CloseButton";
-import EditButton from "../../components/EditButton";
-import DeleteButton from "../../components/DeleteButton";
-import Vertical from "../../components/Vertical";
 import DataTab from "../../components/DataTab";
 import LinkedTransactions from "../../components/LinkedTransactions";
+import useAppStore from "../../AppStore";
 
-const CategoryDetail = () => {
+const CategoryDetail = ({ route }: any) => {
+	const categoryId = route.params?.categoryId ?? null;
 	const { fetchCategory, handleEdit, handleDelete, fetchTransactions } =
 		useCategoryService();
-	const category = fetchCategory();
-	const transactions = fetchTransactions();
-
+	const { setOnDelete, setOnEdit } = useAppStore();
+	const category = fetchCategory(categoryId);
+	const transactions = fetchTransactions(categoryId);
+	useFocusEffect(
+		useCallback(() => {
+			setOnEdit(() => handleEdit(categoryId));
+			setOnDelete(() => handleDelete(categoryId));
+		}, [categoryId]),
+	);
 	return (
 		<ScreenLayout>
-			<CloseButton />
-			<EditButton onPress={handleEdit} />
-			<DeleteButton onDelete={handleDelete} />
-			<Vertical />
-			<CustomText
-				text={"Category Detail"}
-				fontSize={LARGE_FONT_SIZE}
-				alignSelf={CENTER}
-			/>
-			<Vertical size={FONT_SIZE / 5} />
 			<DataTab name={"Name"} value={category.name} />
 			<DataTab name={"Type"} value={category.type} />
 			<DataTab

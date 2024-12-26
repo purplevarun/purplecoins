@@ -13,15 +13,18 @@ import {
 import { ExpenseData } from "../../components/TransactionType";
 import CustomText from "../../components/CustomText";
 import ITransaction from "../../interfaces/ITransaction";
-import useTransactionService from "./TransactionService";
+import Routes from "../../Routes";
+import { useNavigation } from "@react-navigation/native";
 
 const TransactionRenderItem = ({ item }: { item: ITransaction }) => {
-	const { selectTransaction } = useTransactionService();
 	const { color: borderColor } = ExpenseData[item.type];
+	const { navigate } = useNavigation<any>();
 	return (
 		<TouchableOpacity
 			style={[styles.outer, { borderColor }]}
-			onPress={() => selectTransaction(item.id)}
+			onPress={() =>
+				navigate(Routes.Transaction.Detail, { transactionId: item.id })
+			}
 		>
 			<CustomText text={item.reason} alignSelf={CENTER} />
 			<CustomText text={formatMoney(item.amount)} alignSelf={CENTER} />

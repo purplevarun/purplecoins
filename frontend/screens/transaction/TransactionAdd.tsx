@@ -18,7 +18,8 @@ import useSourceStore from "../source/SourceStore";
 import Routes from "../../Routes";
 import InvestmentSelector from "../finance/transaction/InvestmentSelector";
 
-const TransactionAdd = () => {
+const TransactionAdd = ({ route }: any) => {
+	const transactionId = route.params?.transactionId ?? null;
 	const { navigate } = useNavigation<any>();
 	const { amount, reason, setReason, type, setAmount, setType } =
 		useTransactionStore();
@@ -64,7 +65,7 @@ const TransactionAdd = () => {
 			<TripSelector />
 			<CustomButton
 				disabled={!submitEnabled}
-				onPress={addNewTransaction}
+				onPress={() => addNewTransaction(transactionId)}
 			/>
 		</ScreenLayout>
 	);

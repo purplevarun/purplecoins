@@ -2,7 +2,8 @@ import { generateUUID } from "../../HelperFunctions";
 import { useSQLiteContext } from "expo-sqlite";
 import { useNavigation } from "@react-navigation/native";
 import {
-	delete_single_trip, fetch_all_trips,
+	delete_single_trip,
+	fetch_all_trips,
 	fetch_amount_for_trip,
 	fetch_single_trip,
 	fetch_transaction_for_trip,
@@ -34,31 +35,26 @@ const useTripService = () => {
 		setStartDateSet,
 		endDateSet,
 		setEndDateSet,
-		currentTripId,
-		setCurrentTripId,
 	} = useTripStore();
 	const { navigate } = useNavigation<any>();
 
-	const isEdit = () => currentTripId.length !== 0;
-
-	const addNewTrip = () => {
-		if (isEdit()) {
+	const addNewTrip = (tripId: string | null) => {
+		if (tripId) {
 			try {
 				if (startDateSet && endDateSet)
 					db.runSync(update_trip_with_start_and_end_date, [
 						name,
 						startDate.toString(),
 						endDate.toString(),
-						currentTripId,
+						tripId,
 					]);
 				else if (startDateSet)
 					db.runSync(update_trip_with_start_date, [
 						name,
 						startDate.toString(),
-						currentTripId,
+						tripId,
 					]);
-				else
-					db.runSync(update_trip_without_date, [name, currentTripId]);
+				else db.runSync(update_trip_without_date, [name, tripId]);
 				console.log("updated trip");
 			} catch (e) {
 				console.log("ERROR: updating trip", e);
@@ -93,10 +89,7 @@ const useTripService = () => {
 
 	const fetchTrips = () => {
 		try {
-			const trips = db.getAllSync<ITrip>(
-				fetch_all_trips,
-				[userId],
-			);
+			const trips = db.getAllSync<ITrip>(fetch_all_trips, [userId]);
 			console.log("fetched trips", trips);
 			return trips;
 		} catch (e) {
@@ -105,15 +98,13 @@ const useTripService = () => {
 		}
 	};
 
-	const fetchCurrentTrip = () => {
-		return db.getFirstSync<ITrip>(fetch_single_trip, [
-			currentTripId,
-		]) as ITrip;
+	const fetchCurrentTrip = (tripId: string) => {
+		return db.getFirstSync<ITrip>(fetch_single_trip, [tripId]) as ITrip;
 	};
 
-	const fetchTransactionsForCurrentTrip = () => {
+	const fetchTransactionsForCurrentTrip = (tripId: string) => {
 		return db.getAllSync<ITransaction>(fetch_transaction_for_trip, [
-			currentTripId,
+			tripId,
 		]);
 	};
 
@@ -125,8 +116,8 @@ const useTripService = () => {
 		);
 	};
 
-	const handleEdit = () => {
-		const trip = fetchCurrentTrip();
+	const handleEdit = (tripId: string) => {
+		const trip = fetchCurrentTrip(tripId);
 		setName(trip.name);
 		if (trip.startDate) {
 			setStartDateSet(true);
@@ -136,17 +127,12 @@ const useTripService = () => {
 				setEndDate(new Date(trip.endDate));
 			}
 		}
-		navigate(Routes.Trip.Add);
+		navigate(Routes.Trip.Add, { tripId });
 	};
 
-	const handleDelete = () => {
-		db.runSync(delete_single_trip, [currentTripId]);
+	const handleDelete = (tripId: string) => {
+		db.runSync(delete_single_trip, [tripId]);
 		navigate(Routes.Trip.Main);
-	};
-
-	const selectTrip = (tripId: string) => {
-		setCurrentTripId(tripId);
-		navigate(Routes.Trip.Detail);
 	};
 
 	const clearStore = () => {
@@ -155,7 +141,6 @@ const useTripService = () => {
 		setEndDate(new Date());
 		setStartDateSet(false);
 		setEndDateSet(false);
-		setCurrentTripId("");
 	};
 
 	return {
@@ -164,11 +149,9 @@ const useTripService = () => {
 		clearStore,
 		handleEdit,
 		handleDelete,
-		selectTrip,
 		fetchCurrentTrip,
 		fetchTransactionsForCurrentTrip,
 		fetchTotalForCurrentTrip,
-		isEdit,
 	};
 };
 

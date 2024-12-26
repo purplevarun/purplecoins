@@ -1,10 +1,8 @@
 import { FC, useState } from "react";
-import { Modal, TouchableOpacity, View, StyleSheet } from "react-native";
+import { Modal, StyleSheet, TouchableOpacity, View } from "react-native";
 import {
-	ABSOLUTE,
 	BORDER_WIDTH,
 	CENTER,
-	FLEX_END,
 	FLEX_ONE,
 	FLEX_ROW,
 	FONT_SIZE,
@@ -14,7 +12,6 @@ import {
 	MODAL_BUTTON_WIDTH,
 	MODAL_HEIGHT,
 	MODAL_WIDTH,
-	PADDING,
 	SPACE_EVENLY,
 } from "../config/constants.config";
 import {
@@ -88,13 +85,9 @@ type IDeleteModal = FC<{
 
 const styles = StyleSheet.create({
 	deleteButton: {
-		alignSelf: FLEX_END,
-		position: ABSOLUTE,
-		margin: PADDING * 1.3,
-		right: FONT_SIZE * 1.5,
 		backgroundColor: RED_COLOR,
 		paddingHorizontal: 6,
-		paddingVertical: 2.5,
+		paddingVertical: 2,
 		borderRadius: MARGIN,
 	},
 	modalOverlay: {

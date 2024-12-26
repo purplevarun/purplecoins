@@ -24,7 +24,7 @@ const dropdownStyle = StyleSheet.create({
 	renderItemSelected: {
 		backgroundColor: DISABLED_COLOR,
 	},
-	multiselect: {
+	dropdown: {
 		alignSelf: CENTER,
 		width: NINETY_P,
 		height: FONT_SIZE * 2.5,

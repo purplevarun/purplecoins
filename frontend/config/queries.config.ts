@@ -8,13 +8,20 @@ export const insert_source =
 	"INSERT INTO source (id, userId, name, initialAmount, currentAmount) VALUES (?, ?, ?, ?, ?);";
 export const fetch_transactions_for_category =
 	"SELECT t.* FROM transaction_record t JOIN transaction_category tc ON t.id = tc.transactionId WHERE tc.categoryId = ?;";
-export const insert_transaction = "INSERT INTO transaction_record (id,userId,sourceId,amount,reason,type,date,destinationId,investmentId) VALUES (?,?,?,?,?,?,?,?,?)";
-export const update_source_amount = "UPDATE source SET currentAmount=currentAmount-? WHERE id=?";
-export const update_destination_amount = "UPDATE source SET currentAmount=currentAmount+? WHERE id=?";
-export const update_investment_amount = "UPDATE investment SET investedAmount=investedAmount+? WHERE id=?";
-export const create_transaction_trip = "INSERT INTO transaction_trip (userId, transactionId, tripId) VALUES (?, ?, ?)";
-export const create_transaction_category = "INSERT INTO transaction_category (userId, transactionId, categoryId) VALUES (?, ?, ?)";
-export const insert_category = "INSERT INTO category (id, userId, name) VALUES (?, ?, ?)";
+export const insert_transaction =
+	"INSERT INTO transaction_record (id,userId,sourceId,amount,reason,type,date,destinationId,investmentId) VALUES (?,?,?,?,?,?,?,?,?)";
+export const update_source_amount =
+	"UPDATE source SET currentAmount=currentAmount-? WHERE id=?";
+export const update_destination_amount =
+	"UPDATE source SET currentAmount=currentAmount+? WHERE id=?";
+export const update_investment_amount =
+	"UPDATE investment SET investedAmount=investedAmount+? WHERE id=?";
+export const create_transaction_trip =
+	"INSERT INTO transaction_trip (userId, transactionId, tripId) VALUES (?, ?, ?)";
+export const create_transaction_category =
+	"INSERT INTO transaction_category (userId, transactionId, categoryId) VALUES (?, ?, ?)";
+export const insert_category =
+	"INSERT INTO category (id, userId, name) VALUES (?, ?, ?)";
 export const fetch_single_category = "SELECT * from category where id=?";
 export const fetch_all_category = "SELECT * FROM category WHERE userId=?";
 export const fetch_all_investments = "SELECT * from investment where userId=?";
@@ -44,8 +51,11 @@ export const fetch_single_transaction = `
 		t.reason,
 		t.type,
 		t.date,
+		s.id AS sourceId,
 		s.name AS source,
+		d.id AS destinationId,
 		d.name AS destination,
+		i.id AS investmentId,
 		i.name AS investment,
 		u.name AS user,
 			CASE 

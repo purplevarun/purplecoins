@@ -20,8 +20,6 @@ interface TransactionStore {
 	setTripIds: (trips: string[]) => void;
 	date: Date;
 	setDate: (newDate: Date) => void;
-	currentTransactionId: string;
-	setCurrentTransactionId: (id: string) => void;
 }
 
 const useTransactionStore = create<TransactionStore>((set) => ({
@@ -43,9 +41,6 @@ const useTransactionStore = create<TransactionStore>((set) => ({
 	setTripIds: (tripIds) => set({ tripIds }),
 	date: new Date(),
 	setDate: (date) => set({ date }),
-	currentTransactionId: "",
-	setCurrentTransactionId: (currentTransactionId) =>
-		set({ currentTransactionId }),
 }));
 
 export default useTransactionStore;

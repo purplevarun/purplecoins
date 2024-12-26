@@ -8,7 +8,8 @@ import IUser from "../../interfaces/IUser";
 import {
 	fetch_all_category,
 	fetch_single_category,
-	fetch_transactions_for_category, insert_category,
+	fetch_transactions_for_category,
+	insert_category,
 	select_all_users,
 } from "../../config/queries.config";
 import Routes from "../../Routes";
@@ -16,7 +17,7 @@ import Routes from "../../Routes";
 const useCategoryService = () => {
 	const db = useSQLiteContext();
 	const userId = (db.getFirstSync<IUser>(select_all_users) as IUser).id;
-	const { name, setName, currentId, setCurrentId } = useCategoryStore();
+	const { name, setName } = useCategoryStore();
 	const { navigate } = useNavigation<any>();
 
 	const addNewCategory = () => {
@@ -43,36 +44,30 @@ const useCategoryService = () => {
 		}
 	};
 
-	const selectCategory = (categoryId: string) => {
-		setCurrentId(categoryId);
-		navigate(Routes.Category.Detail);
-	};
-
-	const fetchCategory = () => {
+	const fetchCategory = (categoryId: string) => {
 		return db.getFirstSync<ICategory>(fetch_single_category, [
-			currentId,
+			categoryId,
 		]) as ICategory;
 	};
 
-	const handleEdit = () => {};
+	const handleEdit = (categoryId: string) => {};
 
-	const handleDelete = () => {};
+	const handleDelete = (categoryId: string) => {};
 
-	const fetchTransactions = () => {
+	const fetchTransactions = (categoryId: string) => {
 		return db.getAllSync<ITransaction>(fetch_transactions_for_category, [
-			currentId,
+			categoryId,
 		]);
 	};
 
 	const clearStore = () => {
 		setName("");
-		setCurrentId("");
 	};
 
 	return {
+		clearStore,
 		addNewCategory,
 		fetchCategories,
-		selectCategory,
 		fetchCategory,
 		handleEdit,
 		handleDelete,

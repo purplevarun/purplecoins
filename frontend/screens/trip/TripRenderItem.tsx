@@ -11,16 +11,18 @@ import { SECONDARY_COLOR } from "../../config/colors.config";
 import CustomText from "../../components/CustomText";
 import useTripService from "./TripService";
 import ITrip from "../../interfaces/ITrip";
+import Routes from "../../Routes";
+import { useNavigation } from "@react-navigation/native";
 
 const TripRenderItem: Props = ({ item }) => {
-	const { selectTrip, fetchTotalForCurrentTrip } = useTripService();
-
+	const { fetchTotalForCurrentTrip } = useTripService();
+	const { navigate } = useNavigation<any>();
 	const total = fetchTotalForCurrentTrip(item.id);
 
 	return (
 		<TouchableOpacity
 			style={styles.button}
-			onPress={() => selectTrip(item.id)}
+			onPress={() => navigate(Routes.Trip.Detail, { tripId: item.id })}
 		>
 			<CustomText text={item.name} />
 			<CustomText text={total} />

@@ -41,14 +41,17 @@ const useTransactionService = () => {
 		setCategoryIds,
 		setTripIds,
 		setDate,
-		currentTransactionId,
-		setCurrentTransactionId,
+		setType,
 	} = useTransactionStore();
 	const { navigate } = useNavigation<any>();
 
 	const createTransactionTrip = (transactionId: string, tripId: string) => {
 		try {
-			db.runSync(create_transaction_trip, [userId, transactionId, tripId]);
+			db.runSync(create_transaction_trip, [
+				userId,
+				transactionId,
+				tripId,
+			]);
 		} catch (e) {
 			console.log("ERROR: creating transaction_trip", e);
 		}
@@ -59,7 +62,11 @@ const useTransactionService = () => {
 		categoryId: string,
 	) => {
 		try {
-			db.runSync(create_transaction_category, [userId, transactionId, categoryId]);
+			db.runSync(create_transaction_category, [
+				userId,
+				transactionId,
+				categoryId,
+			]);
 		} catch (e) {
 			console.log("ERROR: creating transaction_category", e);
 		}
@@ -76,42 +83,171 @@ const useTransactionService = () => {
 		setDate(new Date());
 	};
 
-	const addNewTransaction = () => {
-		try {
-			const calculatedAmount = parseInt(amount);
-			const id = generateUUID();
-			db.runSync(insert_transaction, [
-				id,
-				userId,
-				sourceId,
-				calculatedAmount,
-				reason,
-				type,
-				date.toString(),
-				destinationId,
-				investmentId,
-			]);
-			tripIds.forEach((tripId) => createTransactionTrip(id, tripId));
-			categoryIds.forEach((categoryId) =>
-				createTransactionCategory(id, categoryId),
-			);
-			if (type === TransactionType.EXPENSE) {
-				db.runSync(update_source_amount, [calculatedAmount, sourceId]);
-			} else if (type === TransactionType.INCOME) {
-				db.runSync(update_destination_amount, [calculatedAmount, sourceId]);
-			} else if (type === TransactionType.INVESTMENT) {
-				db.runSync(update_source_amount, [calculatedAmount, sourceId]);
-				db.runSync(update_investment_amount, [calculatedAmount, sourceId]);
-			} else if (type === TransactionType.TRANSFER) {
-				db.runSync(update_source_amount, [calculatedAmount, sourceId]);
-				db.runSync(update_destination_amount, [calculatedAmount, destinationId]);
+	const addNewTransaction = (transactionId: string | null) => {
+		if (transactionId) {
+			try {
+				const existingTransaction = fetchTransaction(transactionId);
+				if (existingTransaction.type === TransactionType.EXPENSE) {
+					db.runSync(update_source_amount, [
+						existingTransaction.amount,
+						existingTransaction.sourceId,
+					]);
+				} else if (
+					existingTransaction.type === TransactionType.INCOME &&
+					existingTransaction.destinationId
+				) {
+					db.runSync(update_destination_amount, [
+						-existingTransaction.amount,
+						existingTransaction.destinationId,
+					]);
+				} else if (
+					existingTransaction.type === TransactionType.INVESTMENT &&
+					existingTransaction.investmentId
+				) {
+					db.runSync(update_source_amount, [
+						existingTransaction.amount,
+						existingTransaction.sourceId,
+					]);
+					db.runSync(update_investment_amount, [
+						-existingTransaction.amount,
+						existingTransaction.investmentId,
+					]);
+				} else if (
+					existingTransaction.type === TransactionType.TRANSFER &&
+					existingTransaction.destinationId
+				) {
+					db.runSync(update_source_amount, [
+						existingTransaction.amount,
+						existingTransaction.sourceId,
+					]);
+					db.runSync(update_destination_amount, [
+						-existingTransaction.amount,
+						existingTransaction.destinationId,
+					]);
+				}
+				const calculatedAmount = parseInt(amount);
+				const update_transaction = `
+				UPDATE transaction_record
+				SET 
+					sourceId = ?, 
+					amount = ?, 
+					reason = ?, 
+					type = ?, 
+					date = ?, 
+					destinationId = ?, 
+					investmentId = ?
+				WHERE 
+					id = ?;`;
+				db.runSync(update_transaction, [
+					sourceId,
+					calculatedAmount,
+					reason,
+					type,
+					date.toString(),
+					destinationId,
+					investmentId,
+					transactionId,
+				]);
+				if (type === TransactionType.EXPENSE) {
+					db.runSync(update_source_amount, [
+						-calculatedAmount,
+						sourceId,
+					]);
+				} else if (type === TransactionType.INCOME) {
+					db.runSync(update_destination_amount, [
+						calculatedAmount,
+						destinationId,
+					]);
+				} else if (type === TransactionType.INVESTMENT) {
+					db.runSync(update_source_amount, [
+						-calculatedAmount,
+						sourceId,
+					]);
+					db.runSync(update_investment_amount, [
+						calculatedAmount,
+						investmentId,
+					]);
+				} else if (type === TransactionType.TRANSFER) {
+					db.runSync(update_source_amount, [
+						-calculatedAmount,
+						sourceId,
+					]);
+					db.runSync(update_destination_amount, [
+						calculatedAmount,
+						destinationId,
+					]);
+				}
+				const delete_transaction_trips = `DELETE FROM transaction_trip where transactionId=?`;
+				const delete_transaction_categories = `DELETE FROM transaction_category where transactionId=?`;
+				db.runSync(delete_transaction_trips, [transactionId]);
+				db.runSync(delete_transaction_categories, [transactionId]);
+				tripIds.forEach((tripId) =>
+					createTransactionTrip(transactionId, tripId),
+				);
+				categoryIds.forEach((categoryId) =>
+					createTransactionCategory(transactionId, categoryId),
+				);
+
+				console.log("Transaction updated successfully");
+			} catch (error) {
+				console.error("Error updating transaction", error);
 			}
-			console.log("added new transaction");
-		} catch (e) {
-			console.log("ERROR: creating transaction", e);
+			navigate(Routes.Transaction.Detail, { transactionId });
+		} else {
+			try {
+				const calculatedAmount = parseInt(amount);
+				const id = generateUUID();
+				db.runSync(insert_transaction, [
+					id,
+					userId,
+					sourceId,
+					calculatedAmount,
+					reason,
+					type,
+					date.toString(),
+					destinationId,
+					investmentId,
+				]);
+				tripIds.forEach((tripId) => createTransactionTrip(id, tripId));
+				categoryIds.forEach((categoryId) =>
+					createTransactionCategory(id, categoryId),
+				);
+				if (type === TransactionType.EXPENSE) {
+					db.runSync(update_source_amount, [
+						calculatedAmount,
+						sourceId,
+					]);
+				} else if (type === TransactionType.INCOME) {
+					db.runSync(update_destination_amount, [
+						calculatedAmount,
+						sourceId,
+					]);
+				} else if (type === TransactionType.INVESTMENT) {
+					db.runSync(update_source_amount, [
+						calculatedAmount,
+						sourceId,
+					]);
+					db.runSync(update_investment_amount, [
+						calculatedAmount,
+						sourceId,
+					]);
+				} else if (type === TransactionType.TRANSFER) {
+					db.runSync(update_source_amount, [
+						calculatedAmount,
+						sourceId,
+					]);
+					db.runSync(update_destination_amount, [
+						calculatedAmount,
+						destinationId,
+					]);
+				}
+				console.log("added new transaction");
+			} catch {
+				console.log("error creating transaction");
+			}
+			navigate(Routes.Transaction.Main);
 		}
 		clearStore();
-		navigate(Routes.Transaction.Main);
 	};
 
 	const fetchTransactions = () => {
@@ -147,20 +283,33 @@ const useTransactionService = () => {
 	}, [amount, reason, sourceId, destinationId, investmentId]);
 
 	const selectTransaction = (id: string) => {
-		setCurrentTransactionId(id);
+		console.log("SELECTED TRANSACTION", id);
 		navigate(Routes.Transaction.Detail);
 	};
 
-	const handleEdit = () => {
+	const handleEdit = (transactionId: string) => {
+		const transaction = fetchTransaction(transactionId);
+		setAmount(transaction.amount.toString());
+		setReason(transaction.reason);
+		setSourceId(transaction.sourceId);
+		setDate(new Date(transaction.date));
+		setType(transaction.type);
+		transaction.destinationId &&
+			setDestinationId(transaction.destinationId);
+		transaction.investmentId && setInvestmentId(transaction.investmentId);
+		setCategoryIds(
+			JSON.parse(transaction.categories || "[]").map((c: any) => c.id),
+		);
+		setTripIds(JSON.parse(transaction.trips || "[]").map((t: any) => t.id));
+		navigate(Routes.Transaction.Add, { transactionId });
 	};
 
-	const handleDelete = () => {
-	};
+	const handleDelete = (transactionId: string) => {};
 
-	const fetchTransaction = () => {
+	const fetchTransaction = (transactionId: string) => {
 		const transaction = db.getFirstSync<ITransaction>(
 			fetch_single_transaction,
-			[currentTransactionId],
+			[transactionId],
 		) as ITransaction;
 		console.log("FETCHED CURRENT TRANSACTION", objectify(transaction));
 		return transaction;
@@ -193,6 +342,7 @@ const useTransactionService = () => {
 	};
 
 	return {
+		clearStore,
 		submitEnabled,
 		addNewTransaction,
 		fetchTransactions,

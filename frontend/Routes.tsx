@@ -43,4 +43,26 @@ export const menuRoutes = [
 	Routes.Investment.Main,
 ];
 
+export const headerCloseButtonMap = {
+	[Routes.User.Main]: Routes.Transaction.Main,
+	[Routes.Transaction.Add]: Routes.Transaction.Main,
+	[Routes.Category.Add]: Routes.Category.Main,
+	[Routes.Trip.Add]: Routes.Trip.Main,
+	[Routes.Source.Add]: Routes.Source.Main,
+	[Routes.Investment.Add]: Routes.Investment.Main,
+	[Routes.Transaction.Detail]: Routes.Transaction.Main,
+	[Routes.Category.Detail]: Routes.Category.Main,
+	[Routes.Trip.Detail]: Routes.Trip.Main,
+	[Routes.Source.Detail]: Routes.Source.Main,
+	[Routes.Investment.Detail]: Routes.Investment.Main,
+};
+
+export const headerDetailButtonsList = [
+	Routes.Transaction.Detail,
+	Routes.Category.Detail,
+	Routes.Trip.Detail,
+	Routes.Source.Detail,
+	Routes.Investment.Detail,
+];
+
 export default Routes;

@@ -4,19 +4,13 @@ import {
 	PRIMARY_COLOR,
 } from "../../config/colors.config";
 import { Dropdown } from "react-native-element-dropdown";
-import { StyleSheet, View } from "react-native";
-import {
-	BORDER_RADIUS,
-	CENTER,
-	FONT_SIZE,
-	NINETY_P,
-	PADDING,
-	PADDING_TOP_ADD_SCREEN,
-} from "../../config/constants.config";
+import { View } from "react-native";
+import { PADDING } from "../../config/constants.config";
 import IRenderItem from "../../interfaces/IRenderItem";
 import CustomText from "../../components/CustomText";
 import useTransactionStore from "./TransactionStore";
 import useSourceService from "../source/SourceService";
+import dropdownStyle from "../../styles/dropdown.style";
 
 const SourceSelector = () => {
 	const { sourceId, setSourceId } = useTransactionStore();
@@ -43,7 +37,7 @@ const SourceSelector = () => {
 	};
 
 	return (
-		<View style={styles.wrapper}>
+		<View style={dropdownStyle.wrapper}>
 			<Dropdown
 				placeholder={"Select Source *"}
 				labelField={"label"}
@@ -52,51 +46,15 @@ const SourceSelector = () => {
 				value={sourceId}
 				onChange={(item) => setSourceId(item.value)}
 				renderItem={item}
-				style={styles.dropdown}
-				placeholderStyle={styles.placeholder}
-				selectedTextStyle={styles.selectedText}
-				itemContainerStyle={styles.itemContainer}
-				containerStyle={styles.container}
-				itemTextStyle={styles.itemText}
+				style={dropdownStyle.dropdown}
+				placeholderStyle={dropdownStyle.placeholder}
+				selectedTextStyle={dropdownStyle.selectedText}
+				itemContainerStyle={dropdownStyle.itemContainer}
+				containerStyle={dropdownStyle.container}
+				itemTextStyle={dropdownStyle.itemText}
 			/>
 		</View>
 	);
 };
-
-const styles = StyleSheet.create({
-	wrapper: {
-		paddingTop: PADDING_TOP_ADD_SCREEN,
-	},
-	dropdown: {
-		alignSelf: CENTER,
-		width: NINETY_P,
-		height: FONT_SIZE * 2.5,
-		borderWidth: 2,
-		borderRadius: BORDER_RADIUS,
-		padding: PADDING,
-		borderColor: PRIMARY_COLOR,
-		backgroundColor: BACKGROUND_COLOR,
-	},
-	container: {
-		backgroundColor: BACKGROUND_COLOR,
-		borderWidth: 1,
-		borderTopRightRadius: 3,
-		borderTopLeftRadius: 3,
-	},
-	itemText: {
-		color: PRIMARY_COLOR,
-	},
-	itemContainer: {
-		backgroundColor: BACKGROUND_COLOR,
-	},
-	selectedText: {
-		fontSize: FONT_SIZE,
-		color: PRIMARY_COLOR,
-	},
-	placeholder: {
-		fontSize: FONT_SIZE,
-		color: DISABLED_COLOR,
-	},
-});
 
 export default SourceSelector;

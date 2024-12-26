@@ -13,12 +13,10 @@ const CategorySelector = () => {
 	const { type, categoryIds, setCategoryIds } = useTransactionStore();
 	const { fetchCategories } = useCategoryService();
 
-	const categoryList = fetchCategories()
-		.filter((category) => category.type === type)
-		.map((category) => ({
-			label: category.name,
-			value: category.id,
-		}));
+	const categoryList = fetchCategories().map((category) => ({
+		label: category.name,
+		value: category.id,
+	}));
 
 	if (
 		type === TransactionType.TRANSFER ||
@@ -70,7 +68,7 @@ const CategorySelector = () => {
 				onChange={setCategoryIds}
 				renderItem={item}
 				renderSelectedItem={selectedItem}
-				style={dropdownStyle.multiselect}
+				style={dropdownStyle.dropdown}
 				placeholderStyle={dropdownStyle.placeholder}
 				selectedTextStyle={dropdownStyle.selectedText}
 				itemContainerStyle={dropdownStyle.itemContainer}

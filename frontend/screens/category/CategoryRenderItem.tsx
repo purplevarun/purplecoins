@@ -1,16 +1,19 @@
+import { useNavigation } from "@react-navigation/native";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import { SECONDARY_COLOR } from "../../config/colors.config";
 import { BORDER_RADIUS, MARGIN, PADDING } from "../../config/constants.config";
 import CustomText from "../../components/CustomText";
 import ICategory from "../../interfaces/ICategory";
-import useCategoryService from "./CategoryService";
+import Routes from "../../Routes";
 
 const CategoryRenderItem = ({ item }: { item: ICategory }) => {
-	const { selectCategory } = useCategoryService();
+	const { navigate } = useNavigation<any>();
 	return (
 		<TouchableOpacity
 			style={styles.btn}
-			onPress={() => selectCategory(item.id)}
+			onPress={() =>
+				navigate(Routes.Category.Detail, { categoryId: item.id })
+			}
 		>
 			<CustomText text={item.name} />
 		</TouchableOpacity>

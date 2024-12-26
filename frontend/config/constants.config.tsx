@@ -1,8 +1,6 @@
 import { Dimensions } from "react-native";
-import { NativeStackNavigationOptions } from "@react-navigation/native-stack";
 
 const FONT_SCALE = Dimensions.get("screen").fontScale;
-
 export const SCREEN_WIDTH = Dimensions.get("screen").width;
 export const SCREEN_HEIGHT = Dimensions.get("screen").height;
 export const BOTTOM_TAB_HEIGHT = SCREEN_HEIGHT * 0.08;
@@ -41,8 +39,4 @@ export const API_URL = __DEV__
 	? process.env.EXPO_PUBLIC_API_URL
 	: "https://purplecoins.onrender.com";
 export const DB_NAME = "purplecoins.db";
-export const SCREEN_OPTIONS: NativeStackNavigationOptions = {
-	headerShown: false,
-	animation: "ios",
-};
 export const MINIMUM_LENGTH = 4;
