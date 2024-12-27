@@ -3,7 +3,7 @@
 	"version": "1.0.0",
 	"main": "expo/AppEntry.js",
 	"scripts": {
-		"dev": "expo start -c -p 3001",
+		"dev": "expo start -c -p 3002",
 		"clean": "rm -rf node_modules yarn.lock .expo && yarn",
 		"doctor": "npx expo-doctor",
 		"format": "prettier --write ."

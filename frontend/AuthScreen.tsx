@@ -8,11 +8,10 @@ import LoggedOutScreen from "./LoggedOutScreen";
 import Router from "./Router";
 
 const AuthScreen = () => {
-	const { isReRendering } = useAppStore();
 	const db = useSQLiteContext();
+	const { isReRendering } = useAppStore();
 	const firstUser = db.getFirstSync<IUser>(select_all_users);
 	useFocusEffect(useCallback(() => {}, [isReRendering]));
-
 	return firstUser !== null ? <Router /> : <LoggedOutScreen />;
 };
 

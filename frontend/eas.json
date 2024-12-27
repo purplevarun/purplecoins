@@ -1,11 +1,11 @@
 {
 	"build": {
-		"dev": {
+		"apk": {
 			"android": {
 				"buildType": "apk"
 			}
 		},
-		"prod": {
+		"aab": {
 			"android": {
 				"buildType": "app-bundle"
 			}

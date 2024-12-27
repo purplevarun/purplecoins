@@ -8,7 +8,8 @@
 		"icon": "./assets/images/icon.png",
 		"userInterfaceStyle": "dark",
 		"splash": {
-			"backgroundColor": "#0C1117"
+			"backgroundColor": "#0C1117",
+			"image": "./assets/images/splash.png"
 		},
 		"backgroundColor": "#0C1117",
 		"android": {

@@ -16,14 +16,7 @@ import { useMemo } from "react";
 const useSourceService = () => {
 	const db = useSQLiteContext();
 	const userId = (db.getFirstSync<IUser>(select_all_users) as IUser).id;
-	const {
-		name,
-		setName,
-		initialAmount,
-		setInitialAmount,
-		redirect,
-		setRedirect,
-	} = useSourceStore();
+	const { name, setName, initialAmount, setInitialAmount } = useSourceStore();
 	const { sourceId, setSourceId } = useTransactionStore();
 	const { navigate } = useNavigation<any>();
 
@@ -47,18 +40,12 @@ const useSourceService = () => {
 			console.log("ERROR ADDING SOURCE");
 		}
 		clearStore();
-		if (redirect) {
-			setSourceId(id);
-			navigate(Routes.Transaction.Add);
-		} else {
-			navigate(Routes.Source.Main);
-		}
+		navigate(Routes.Source.Main);
 	};
 
 	const clearStore = () => {
 		setName("");
 		setInitialAmount("");
-		setRedirect(false);
 	};
 
 	const sourceDropdownData = useMemo(() => {

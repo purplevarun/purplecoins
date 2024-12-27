@@ -24,27 +24,21 @@ const Routes = {
 		Add: "Add Investment",
 		Detail: "Investment Detail",
 	},
-	Analysis: {
-		Main: "Analysis",
-	},
-	User: {
-		Main: "User",
-	},
+	Analysis: "Analysis",
 	Sync: "Sync Data",
 };
 
 export const menuRoutes = [
-	Routes.Sync,
 	Routes.Transaction.Main,
-	Routes.Analysis.Main,
+	Routes.Analysis,
 	Routes.Category.Main,
 	Routes.Trip.Main,
 	Routes.Source.Main,
 	Routes.Investment.Main,
+	Routes.Sync,
 ];
 
 export const headerCloseButtonMap = {
-	[Routes.User.Main]: Routes.Transaction.Main,
 	[Routes.Transaction.Add]: Routes.Transaction.Main,
 	[Routes.Category.Add]: Routes.Category.Main,
 	[Routes.Trip.Add]: Routes.Trip.Main,
