@@ -1,4 +1,6 @@
 import {
+	fetch_all_sources,
+	fetch_transactions_for_source,
 	insert_source,
 	select_all_sources,
 	select_all_users,
@@ -12,6 +14,7 @@ import useTransactionStore from "../transaction/TransactionStore";
 import IUser from "../../interfaces/IUser";
 import Routes from "../../Routes";
 import { useMemo } from "react";
+import ITransaction from "../../interfaces/ITransaction";
 
 const useSourceService = () => {
 	const db = useSQLiteContext();
@@ -62,11 +65,25 @@ const useSourceService = () => {
 		};
 	}, [name]);
 
+	const fetchSource = (sourceId: string) => {
+		return db.getFirstSync<ISource>(fetch_all_sources, [
+			sourceId,
+		]) as ISource;
+	};
+
+	const fetchTransactionsForSource = (sourceId: string) => {
+		return db.getAllSync<ITransaction>(fetch_transactions_for_source, [
+			sourceId,
+		]);
+	};
+
 	return {
 		fetchSources,
 		addNewSource,
 		clearStore,
 		sourceDropdownData,
+		fetchSource,
+		fetchTransactionsForSource,
 	};
 };
 

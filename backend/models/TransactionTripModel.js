@@ -7,7 +7,7 @@ const transactionTripSchema = new mongoose.Schema({
 });
 
 const TransactionTrip = mongoose.model(
-	"TransactionTrip",
+	"Transaction Trip",
 	transactionTripSchema,
 );
 

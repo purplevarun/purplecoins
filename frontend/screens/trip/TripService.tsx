@@ -4,9 +4,9 @@ import { useNavigation } from "@react-navigation/native";
 import {
 	delete_single_trip,
 	fetch_all_trips,
-	fetch_amount_for_trip,
+	fetch_total_for_trip,
 	fetch_single_trip,
-	fetch_transaction_for_trip,
+	fetch_all_transactions_for_trip,
 	insert_trip_with_start_and_end_date,
 	insert_trip_with_start_date,
 	insert_trip_without_date,
@@ -103,7 +103,7 @@ const useTripService = () => {
 	};
 
 	const fetchTransactionsForCurrentTrip = (tripId: string) => {
-		return db.getAllSync<ITransaction>(fetch_transaction_for_trip, [
+		return db.getAllSync<ITransaction>(fetch_all_transactions_for_trip, [
 			tripId,
 		]);
 	};
@@ -112,7 +112,7 @@ const useTripService = () => {
 		return (
 			db.getFirstSync<{
 				total: number;
-			}>(fetch_amount_for_trip, [tripId])?.total ?? 0
+			}>(fetch_total_for_trip, [tripId])?.total ?? 0
 		);
 	};
 

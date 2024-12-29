@@ -7,7 +7,7 @@ const transactionCategorySchema = new mongoose.Schema({
 });
 
 const TransactionCategory = mongoose.model(
-	"TransactionCategory",
+	"Transaction Category",
 	transactionCategorySchema,
 );
 

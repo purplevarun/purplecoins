@@ -1,10 +1,13 @@
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { useCallback } from "react";
-import { FlatList, View } from "react-native";
+import { FlatList, TouchableOpacity, View } from "react-native";
 import { formatDate, formatMoney } from "../../HelperFunctions";
 import {
+	FLEX_ROW,
 	LARGE_FONT_SIZE,
+	MARGIN,
 	PADDING,
+	SPACE_BETWEEN,
 	USABLE_SCREEN_HEIGHT,
 } from "../../config/constants.config";
 import ScreenLayout from "../../components/ScreenLayout";
@@ -15,16 +18,14 @@ import TripRenderItem from "../trip/TripRenderItem";
 import CategoryRenderItem from "../category/CategoryRenderItem";
 import DataTab from "../../components/DataTab";
 import useAppStore from "../../AppStore";
+import Routes from "../../Routes";
 
 const plank = 0.35;
 const UPPER_HALF_HEIGHT = USABLE_SCREEN_HEIGHT * plank;
 const LIST_HEIGHT = (USABLE_SCREEN_HEIGHT - UPPER_HALF_HEIGHT) / (plank * 8);
 
-const TransactionDetail = ({
-	route: {
-		params: { transactionId },
-	},
-}: any) => {
+const TransactionDetail = ({ route }: any) => {
+	const transactionId = route.params?.transactionId ?? null;
 	const { handleEdit, handleDelete, fetchTransaction } =
 		useTransactionService();
 	const { setOnEdit, setOnDelete } = useAppStore();
@@ -39,12 +40,16 @@ const TransactionDetail = ({
 		reason,
 		type,
 		date,
+		sourceId,
 		source,
+		destinationId,
 		destination,
+		investmentId,
 		investment,
 		categories,
 		trips,
 	} = fetchTransaction(transactionId);
+
 	return (
 		<ScreenLayout>
 			<View style={{ height: UPPER_HALF_HEIGHT }}>
@@ -52,13 +57,99 @@ const TransactionDetail = ({
 				<DataTab name={"Reason"} value={reason} />
 				<DataTab name={"Type"} value={type} />
 				<DataTab name={"Date"} value={formatDate(date)} />
-				<DataTab name={"Source"} value={source} />
-				<DataTab name={"Destination"} value={destination} />
-				<DataTab name={"Investment"} value={investment} />
+				<Source source={source} sourceId={sourceId} />
+				<Destination
+					destination={destination}
+					destinationId={destinationId}
+				/>
+				<Investment
+					investment={investment}
+					investmentId={investmentId}
+				/>
 			</View>
 			<Categories categories={categories} />
 			<Trips trips={trips} />
 		</ScreenLayout>
+	);
+};
+
+const Investment = ({
+	investment,
+	investmentId,
+}: {
+	investment: string | undefined;
+	investmentId: string | undefined;
+}) => {
+	const { navigate } = useNavigation<any>();
+	if (investment)
+		return (
+			<View
+				style={{
+					justifyContent: SPACE_BETWEEN,
+					flexDirection: FLEX_ROW,
+					margin: MARGIN,
+				}}
+			>
+				<CustomText text={"Investment"} />
+				<TouchableOpacity
+					onPress={() =>
+						navigate(Routes.Investment.Detail, { investmentId })
+					}
+				>
+					<CustomText text={investment} decoration={"underline"} />
+				</TouchableOpacity>
+			</View>
+		);
+};
+
+const Destination = ({
+	destination,
+	destinationId,
+}: {
+	destination: string | undefined;
+	destinationId: string | undefined;
+}) => {
+	const { navigate } = useNavigation<any>();
+	if (destination)
+		return (
+			<View
+				style={{
+					justifyContent: SPACE_BETWEEN,
+					flexDirection: FLEX_ROW,
+					margin: MARGIN,
+				}}
+			>
+				<CustomText text={"Destination"} />
+				<TouchableOpacity
+					onPress={() =>
+						navigate(Routes.Source.Detail, {
+							sourceId: destinationId,
+						})
+					}
+				>
+					<CustomText text={destination} decoration={"underline"} />
+				</TouchableOpacity>
+			</View>
+		);
+};
+
+const Source = ({ source, sourceId }: { source: string; sourceId: string }) => {
+	const { navigate } = useNavigation<any>();
+	return (
+		<View
+			style={{
+				justifyContent: SPACE_BETWEEN,
+				flexDirection: FLEX_ROW,
+				margin: MARGIN,
+			}}
+		>
+			<CustomText text={"Source"} />
+			<TouchableOpacity
+				onPress={() => navigate(Routes.Source.Detail, { sourceId })}
+			>
+				<CustomText text={source} decoration={"underline"} />
+			</TouchableOpacity>
+		</View>
 	);
 };
 

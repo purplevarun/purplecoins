@@ -9,6 +9,7 @@ const CustomText = ({
 	alignSelf = FLEX_START,
 	paddingTop = 0,
 	right = 0,
+	decoration = undefined,
 }: {
 	text: string | number;
 	fontSize?: number;
@@ -16,6 +17,12 @@ const CustomText = ({
 	alignSelf?: FlexAlignType;
 	paddingTop?: number;
 	right?: number;
+	decoration?:
+		| "none"
+		| "underline"
+		| "line-through"
+		| "underline line-through"
+		| undefined;
 }) => {
 	const fontFamily = UBUNTU_FONT;
 	return (
@@ -27,6 +34,7 @@ const CustomText = ({
 				alignSelf,
 				paddingTop,
 				right,
+				textDecorationLine: decoration,
 			}}
 		>
 			{text}

@@ -3,15 +3,18 @@ import { useNavigation } from "@react-navigation/native";
 import { formatDate, generateUUID, objectify } from "../../HelperFunctions";
 import { useSQLiteContext } from "expo-sqlite";
 import {
-	create_transaction_category,
-	create_transaction_trip,
-	fetch_all_transactions,
-	fetch_single_transaction,
+	insert_transaction_category,
+	insert_transaction_trip,
+	fetch_all_detailed_transactions,
+	fetch_single_detailed_transaction,
 	insert_transaction,
 	select_all_users,
-	update_destination_amount,
+	update_source_deduct_current_amount,
 	update_investment_amount,
-	update_source_amount,
+	update_source_add_current_amount,
+	update_transaction,
+	delete_transaction_trips,
+	delete_transaction_categories,
 } from "../../config/queries.config";
 import useTransactionStore from "./TransactionStore";
 import TransactionType from "../../components/TransactionType";
@@ -47,7 +50,7 @@ const useTransactionService = () => {
 
 	const createTransactionTrip = (transactionId: string, tripId: string) => {
 		try {
-			db.runSync(create_transaction_trip, [
+			db.runSync(insert_transaction_trip, [
 				userId,
 				transactionId,
 				tripId,
@@ -62,7 +65,7 @@ const useTransactionService = () => {
 		categoryId: string,
 	) => {
 		try {
-			db.runSync(create_transaction_category, [
+			db.runSync(insert_transaction_category, [
 				userId,
 				transactionId,
 				categoryId,
@@ -88,7 +91,7 @@ const useTransactionService = () => {
 			try {
 				const existingTransaction = fetchTransaction(transactionId);
 				if (existingTransaction.type === TransactionType.EXPENSE) {
-					db.runSync(update_source_amount, [
+					db.runSync(update_source_add_current_amount, [
 						existingTransaction.amount,
 						existingTransaction.sourceId,
 					]);
@@ -96,7 +99,7 @@ const useTransactionService = () => {
 					existingTransaction.type === TransactionType.INCOME &&
 					existingTransaction.destinationId
 				) {
-					db.runSync(update_destination_amount, [
+					db.runSync(update_source_deduct_current_amount, [
 						-existingTransaction.amount,
 						existingTransaction.destinationId,
 					]);
@@ -104,7 +107,7 @@ const useTransactionService = () => {
 					existingTransaction.type === TransactionType.INVESTMENT &&
 					existingTransaction.investmentId
 				) {
-					db.runSync(update_source_amount, [
+					db.runSync(update_source_add_current_amount, [
 						existingTransaction.amount,
 						existingTransaction.sourceId,
 					]);
@@ -116,28 +119,16 @@ const useTransactionService = () => {
 					existingTransaction.type === TransactionType.TRANSFER &&
 					existingTransaction.destinationId
 				) {
-					db.runSync(update_source_amount, [
+					db.runSync(update_source_add_current_amount, [
 						existingTransaction.amount,
 						existingTransaction.sourceId,
 					]);
-					db.runSync(update_destination_amount, [
+					db.runSync(update_source_deduct_current_amount, [
 						-existingTransaction.amount,
 						existingTransaction.destinationId,
 					]);
 				}
 				const calculatedAmount = parseInt(amount);
-				const update_transaction = `
-				UPDATE transaction_record
-				SET 
-					sourceId = ?, 
-					amount = ?, 
-					reason = ?, 
-					type = ?, 
-					date = ?, 
-					destinationId = ?, 
-					investmentId = ?
-				WHERE 
-					id = ?;`;
 				db.runSync(update_transaction, [
 					sourceId,
 					calculatedAmount,
@@ -149,17 +140,17 @@ const useTransactionService = () => {
 					transactionId,
 				]);
 				if (type === TransactionType.EXPENSE) {
-					db.runSync(update_source_amount, [
+					db.runSync(update_source_add_current_amount, [
 						-calculatedAmount,
 						sourceId,
 					]);
 				} else if (type === TransactionType.INCOME) {
-					db.runSync(update_destination_amount, [
+					db.runSync(update_source_deduct_current_amount, [
 						calculatedAmount,
 						destinationId,
 					]);
 				} else if (type === TransactionType.INVESTMENT) {
-					db.runSync(update_source_amount, [
+					db.runSync(update_source_add_current_amount, [
 						-calculatedAmount,
 						sourceId,
 					]);
@@ -168,17 +159,16 @@ const useTransactionService = () => {
 						investmentId,
 					]);
 				} else if (type === TransactionType.TRANSFER) {
-					db.runSync(update_source_amount, [
+					db.runSync(update_source_add_current_amount, [
 						-calculatedAmount,
 						sourceId,
 					]);
-					db.runSync(update_destination_amount, [
+					db.runSync(update_source_deduct_current_amount, [
 						calculatedAmount,
 						destinationId,
 					]);
 				}
-				const delete_transaction_trips = `DELETE FROM transaction_trip where transactionId=?`;
-				const delete_transaction_categories = `DELETE FROM transaction_category where transactionId=?`;
+
 				db.runSync(delete_transaction_trips, [transactionId]);
 				db.runSync(delete_transaction_categories, [transactionId]);
 				tripIds.forEach((tripId) =>
@@ -213,17 +203,17 @@ const useTransactionService = () => {
 					createTransactionCategory(id, categoryId),
 				);
 				if (type === TransactionType.EXPENSE) {
-					db.runSync(update_source_amount, [
+					db.runSync(update_source_add_current_amount, [
 						calculatedAmount,
 						sourceId,
 					]);
 				} else if (type === TransactionType.INCOME) {
-					db.runSync(update_destination_amount, [
+					db.runSync(update_source_deduct_current_amount, [
 						calculatedAmount,
 						sourceId,
 					]);
 				} else if (type === TransactionType.INVESTMENT) {
-					db.runSync(update_source_amount, [
+					db.runSync(update_source_add_current_amount, [
 						calculatedAmount,
 						sourceId,
 					]);
@@ -232,11 +222,11 @@ const useTransactionService = () => {
 						sourceId,
 					]);
 				} else if (type === TransactionType.TRANSFER) {
-					db.runSync(update_source_amount, [
+					db.runSync(update_source_add_current_amount, [
 						calculatedAmount,
 						sourceId,
 					]);
-					db.runSync(update_destination_amount, [
+					db.runSync(update_source_deduct_current_amount, [
 						calculatedAmount,
 						destinationId,
 					]);
@@ -253,7 +243,7 @@ const useTransactionService = () => {
 	const fetchTransactions = () => {
 		try {
 			const transactions = db.getAllSync<ITransaction>(
-				fetch_all_transactions,
+				fetch_all_detailed_transactions,
 				[userId],
 			);
 			console.log("FETCHED TRANSACTIONS");
@@ -308,7 +298,7 @@ const useTransactionService = () => {
 
 	const fetchTransaction = (transactionId: string) => {
 		const transaction = db.getFirstSync<ITransaction>(
-			fetch_single_transaction,
+			fetch_single_detailed_transaction,
 			[transactionId],
 		) as ITransaction;
 		console.log("FETCHED CURRENT TRANSACTION", objectify(transaction));

@@ -21,7 +21,10 @@ const SourceMain = () => {
 	return (
 		<ScreenLayout>
 			<SourceTotal sources={sources} />
-			<FlatList data={sources} renderItem={SourceRenderItem} />
+			<FlatList
+				data={sources}
+				renderItem={({ item }) => <SourceRenderItem item={item} />}
+			/>
 			<PlusButton to={Routes.Source.Add} />
 		</ScreenLayout>
 	);

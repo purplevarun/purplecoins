@@ -1,14 +1,14 @@
+import { FC } from "react";
 import { StyleSheet, View } from "react-native";
 import { FLEX_ROW, MARGIN, SPACE_BETWEEN } from "../config/constants.config";
 import CustomText from "./CustomText";
 
-const DataTab = ({
-	name,
-	value,
-}: {
+type IDataTab = FC<{
 	name: string;
 	value: string | number | undefined;
-}) => {
+}>;
+
+const DataTab: IDataTab = ({ name, value }) => {
 	if (value)
 		return (
 			<View style={styles.tab}>

@@ -27,6 +27,21 @@ const DestinationSelector = () => {
 			value: source.id,
 		}));
 
+	if (destinationDropdownData.length === 0)
+		return (
+			<View
+				style={{
+					paddingLeft: PADDING * 2,
+					paddingVertical: PADDING,
+				}}
+			>
+				<CustomText
+					text={"No destinations available"}
+					color={DISABLED_COLOR}
+				/>
+			</View>
+		);
+
 	const item = (item: IRenderItem) => {
 		const backgroundColor =
 			destinationId === item.value ? DISABLED_COLOR : BACKGROUND_COLOR;

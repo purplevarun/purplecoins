@@ -10,8 +10,11 @@ import {
 } from "../../config/constants.config";
 import CustomText from "../../components/CustomText";
 import ISource from "../../interfaces/ISource";
+import { useNavigation } from "@react-navigation/native";
+import Routes from "../../Routes";
 
 const SourceRenderItem = ({ item }: { item: ISource }) => {
+	const { navigate } = useNavigation<any>();
 	return (
 		<TouchableOpacity
 			style={{
@@ -22,6 +25,9 @@ const SourceRenderItem = ({ item }: { item: ISource }) => {
 				flexDirection: FLEX_ROW,
 				justifyContent: SPACE_BETWEEN,
 			}}
+			onPress={() =>
+				navigate(Routes.Source.Detail, { sourceId: item.id })
+			}
 		>
 			<CustomText text={item.name} />
 			<CustomText text={formatMoney(item.currentAmount)} />

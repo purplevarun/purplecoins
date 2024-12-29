@@ -6,7 +6,7 @@ import ICategory from "../../interfaces/ICategory";
 import ITransaction from "../../interfaces/ITransaction";
 import IUser from "../../interfaces/IUser";
 import {
-	fetch_all_category,
+	fetch_all_categories,
 	fetch_single_category,
 	fetch_transactions_for_category,
 	insert_category,
@@ -33,7 +33,7 @@ const useCategoryService = () => {
 
 	const fetchCategories = () => {
 		try {
-			const categories = db.getAllSync<ICategory>(fetch_all_category, [
+			const categories = db.getAllSync<ICategory>(fetch_all_categories, [
 				userId,
 			]);
 			console.log("FETCHED CATEGORIES", categories);
