@@ -12,8 +12,8 @@ import useAppStore from "./AppStore";
 import Router from "./Router";
 import LoggedOutScreen from "./LoggedOutScreen";
 import useService from "./useService";
-import IProvider from "./IProvider";
 import LoadingScreen from "./LoadingScreen";
+import IProvider from "./IProvider";
 
 const Main = () => {
 	const { isReRendering } = useAppStore();

@@ -1,8 +1,10 @@
+import { logger } from "./HelperFunctions";
 import { useState } from "react";
 import { useSQLiteContext } from "expo-sqlite";
-import { BLUE_COLOR, GREEN_COLOR, RED_COLOR } from "./colors.config";
+import { GREEN_COLOR, RED_COLOR } from "./colors.config";
 import { API_URL, CENTER, DB_NAME, FONT_SIZE } from "./constants.config";
 import { select_all_users, sync_queries } from "./queries.config";
+import * as DocumentPicker from "expo-document-picker";
 import ScreenLayout from "./ScreenLayout";
 import CustomButton from "./CustomButton";
 import CustomText from "./CustomText";
@@ -133,6 +135,28 @@ const SyncScreen = () => {
 		await Sharing.shareAsync(dbPath);
 	};
 
+	const handleImport = async () => {
+		const dbPath = `${FileSystem.documentDirectory}SQLite/${DB_NAME}`;
+		try {
+			// Open document picker to select a .db file
+			const result = await DocumentPicker.getDocumentAsync();
+			if (result.assets) {
+				logger(result.assets[0]);
+				const newFileUri = result.assets[0].uri;
+				const newContent = await FileSystem.readAsStringAsync(
+					newFileUri,
+					{
+						encoding: FileSystem.EncodingType.Base64,
+					},
+				);
+				await FileSystem.writeAsStringAsync(dbPath, newContent, {
+					encoding: FileSystem.EncodingType.Base64,
+				});
+			}
+		} catch (error) {
+			console.error("Error importing database:", error);
+		}
+	};
 	return (
 		<ScreenLayout>
 			<Vertical size={FONT_SIZE * 2} />
@@ -144,18 +168,19 @@ const SyncScreen = () => {
 				/>
 			)}
 			<CustomButton text={"Export Data"} onPress={handleExport} />
-			<Vertical size={FONT_SIZE / 2} />
-			<CustomButton
-				text={"Upload Data"}
-				color={GREEN_COLOR}
-				onPress={uploadData}
-			/>
-			<Vertical size={FONT_SIZE / 2} />
-			<CustomButton
-				text={"Download Data"}
-				color={BLUE_COLOR}
-				onPress={downloadData}
-			/>
+			<CustomButton text={"Import Data"} onPress={handleImport} />
+			{/*<Vertical size={FONT_SIZE / 2} />*/}
+			{/*<CustomButton*/}
+			{/*	text={"Upload Data"}*/}
+			{/*	color={GREEN_COLOR}*/}
+			{/*	onPress={uploadData}*/}
+			{/*/>*/}
+			{/*<Vertical size={FONT_SIZE / 2} />*/}
+			{/*<CustomButton*/}
+			{/*	text={"Download Data"}*/}
+			{/*	color={BLUE_COLOR}*/}
+			{/*	onPress={downloadData}*/}
+			{/*/>*/}
 		</ScreenLayout>
 	);
 };
