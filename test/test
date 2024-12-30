@@ -1,0 +1,17 @@
+#!/bin/sh
+
+function delete_user() {
+    DB_NAME="purplecoins_local"
+    USER_NAME="Test User"
+
+    mongosh "mongodb://localhost:27017/$DB_NAME" --eval "
+        const userName = '$USER_NAME';
+        const userId = db.getCollection('users').findOne({ name: userName })._id;
+		db.getCollection('users').deleteMany({_id:userId})
+        const collections = ['transactions', 'categories', 'trips', 'investments', 'sources', 'transaction trips', 'transaction categories'];
+        collections.forEach(collection => db.getCollection(collection).deleteMany({ userId }));
+    " || echo "Failed to delete user data. Check your MongoDB connection and script."
+}
+
+maestro test automation.yaml
+delete_user

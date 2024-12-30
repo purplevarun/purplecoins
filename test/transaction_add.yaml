@@ -1,0 +1,36 @@
+appId: host.exp.exponent
+---
+- tapOn:
+      id: "menuIcon"
+- tapOn: "Transactions"
+- tapOn:
+      id: "plusIcon"
+- assertVisible: "Income"
+- assertVisible: "Expense"
+- assertVisible: "Transfer"
+- assertVisible: "Investment"
+- tapOn: "Expense"
+- assertVisible: "Amount"
+- assertVisible: "Reason"
+- assertVisible: "Amount"
+- runScript: data.js
+- assertVisible: ${output.data.todayDate}
+- tapOn: "Select Source"
+- assertVisible: "Source 1"
+- assertVisible: "Source 2"
+- tapOn: "Source 1"
+- assertVisible: "No categories available"
+- assertVisible: "No trips available"
+- assertVisible: "Submit"
+- tapOn: "Submit"
+- assertVisible: "Submit" # submit was disabled
+- tapOn: "Amount"
+- inputText: "10"
+- assertVisible: "Submit"
+- tapOn: "Submit"
+- assertVisible: "Submit" # submit was disabled
+- tapOn: "Reason"
+- inputText: "Reason 1"
+- assertVisible: "Submit"
+- tapOn: "Submit"
+- assertNotVisible: "Submit" # submit was enabled

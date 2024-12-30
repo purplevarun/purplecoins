@@ -1,9 +1,12 @@
+# folders
 .idea/
 .expo/
 node_modules/
 dist/
 android/
 ios/
+
+# files
 __pycache__
 .DS_Store
 .env

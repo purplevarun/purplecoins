@@ -1,5 +1,6 @@
 appId: host.exp.exponent
 ---
--   runFlow: auth/auth.yaml
--   runFlow: first_transaction.yaml
--   runFlow: auth/logout.yaml
+- runFlow: auth.yaml
+- runFlow: source_add.yaml
+- runFlow: transaction_add.yaml
+- runFlow: logout.yaml
