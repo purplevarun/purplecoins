@@ -3,14 +3,13 @@ import { useSQLiteContext } from "expo-sqlite";
 import { useNavigation } from "@react-navigation/native";
 import {
 	delete_single_trip,
-	fetch_all_trips,
-	fetch_total_for_trip,
-	fetch_single_trip,
 	fetch_all_transactions_for_trip,
+	fetch_all_trips,
+	fetch_single_trip,
+	fetch_total_for_trip,
 	insert_trip_with_start_and_end_date,
 	insert_trip_with_start_date,
 	insert_trip_without_date,
-	select_all_users,
 	update_trip_with_start_and_end_date,
 	update_trip_with_start_date,
 	update_trip_without_date,
@@ -18,12 +17,10 @@ import {
 import useTripStore from "./TripStore";
 import ITrip from "./ITrip";
 import ITransaction from "./ITransaction";
-import IUser from "./IUser";
 import Routes from "./Routes";
 
 const useTripService = () => {
 	const db = useSQLiteContext();
-	const userId = (db.getFirstSync<IUser>(select_all_users) as IUser).id;
 	const {
 		name,
 		setName,
@@ -65,7 +62,6 @@ const useTripService = () => {
 				if (startDateSet && endDateSet)
 					db.runSync(insert_trip_with_start_and_end_date, [
 						id,
-						userId,
 						name,
 						startDate.toString(),
 						endDate.toString(),
@@ -73,11 +69,10 @@ const useTripService = () => {
 				else if (startDateSet)
 					db.runSync(insert_trip_with_start_date, [
 						id,
-						userId,
 						name,
 						startDate.toString(),
 					]);
-				else db.runSync(insert_trip_without_date, [id, userId, name]);
+				else db.runSync(insert_trip_without_date, [id, name]);
 				console.log("created new trip");
 			} catch (e) {
 				console.log("ERROR: creating trip", e);
@@ -89,7 +84,7 @@ const useTripService = () => {
 
 	const fetchTrips = () => {
 		try {
-			const trips = db.getAllSync<ITrip>(fetch_all_trips, [userId]);
+			const trips = db.getAllSync<ITrip>(fetch_all_trips);
 			console.log("fetched trips", trips);
 			return trips;
 		} catch (e) {

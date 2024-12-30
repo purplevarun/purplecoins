@@ -2,13 +2,11 @@ import { useNavigation } from "@react-navigation/native";
 import {
 	fetch_all_investments,
 	insert_investment,
-	select_all_users,
 } from "./queries.config";
 import { generateUUID, toInt } from "./HelperFunctions";
 import { useSQLiteContext } from "expo-sqlite";
 import IInvestment from "./IInvestment";
 import useInvestmentStore from "./InvestmentStore";
-import IUser from "./IUser";
 import Routes from "./Routes";
 import { useMemo } from "react";
 import useTransactionStore from "./TransactionStore";
@@ -16,7 +14,6 @@ import TransactionType from "./TransactionType";
 
 const useInvestmentService = () => {
 	const db = useSQLiteContext();
-	const userId = (db.getFirstSync<IUser>(select_all_users) as IUser).id;
 	const {
 		name,
 		setName,
@@ -33,7 +30,6 @@ const useInvestmentService = () => {
 		try {
 			const investments = db.getAllSync<IInvestment>(
 				fetch_all_investments,
-				[userId],
 			);
 			console.log("fetched investments", investments);
 			return investments;
@@ -48,7 +44,6 @@ const useInvestmentService = () => {
 			const id = generateUUID();
 			db.runSync(insert_investment, [
 				id,
-				userId,
 				name,
 				toInt(investedAmount),
 				toInt(currentAmount),

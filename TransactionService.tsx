@@ -1,31 +1,28 @@
 import { useMemo } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { formatDate, generateUUID, objectify } from "./HelperFunctions";
+import { formatDate, generateUUID, logger, objectify } from "./HelperFunctions";
 import { useSQLiteContext } from "expo-sqlite";
 import {
-	insert_transaction_category,
-	insert_transaction_trip,
+	delete_transaction_categories,
+	delete_transaction_trips,
 	fetch_all_detailed_transactions,
 	fetch_single_detailed_transaction,
 	insert_transaction,
-	select_all_users,
-	update_source_deduct_current_amount,
+	insert_transaction_category,
+	insert_transaction_trip,
 	update_investment_amount,
 	update_source_add_current_amount,
+	update_source_deduct_current_amount,
 	update_transaction,
-	delete_transaction_trips,
-	delete_transaction_categories,
 } from "./queries.config";
 import useTransactionStore from "./TransactionStore";
 import TransactionType from "./TransactionType";
 import ITransaction from "./ITransaction";
-import IUser from "./IUser";
 import Routes from "./Routes";
 import IGroupedTransactions from "./IGroupedTransactions";
 
 const useTransactionService = () => {
 	const db = useSQLiteContext();
-	const userId = (db.getFirstSync<IUser>(select_all_users) as IUser).id;
 	const {
 		tripIds,
 		categoryIds,
@@ -50,11 +47,7 @@ const useTransactionService = () => {
 
 	const createTransactionTrip = (transactionId: string, tripId: string) => {
 		try {
-			db.runSync(insert_transaction_trip, [
-				userId,
-				transactionId,
-				tripId,
-			]);
+			db.runSync(insert_transaction_trip, [transactionId, tripId]);
 		} catch (e) {
 			console.log("ERROR: creating transaction_trip", e);
 		}
@@ -66,7 +59,6 @@ const useTransactionService = () => {
 	) => {
 		try {
 			db.runSync(insert_transaction_category, [
-				userId,
 				transactionId,
 				categoryId,
 			]);
@@ -189,7 +181,6 @@ const useTransactionService = () => {
 				const id = generateUUID();
 				db.runSync(insert_transaction, [
 					id,
-					userId,
 					sourceId,
 					calculatedAmount,
 					reason,
@@ -244,7 +235,6 @@ const useTransactionService = () => {
 		try {
 			const transactions = db.getAllSync<ITransaction>(
 				fetch_all_detailed_transactions,
-				[userId],
 			);
 			console.log("FETCHED TRANSACTIONS");
 			return transactions;

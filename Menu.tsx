@@ -1,5 +1,5 @@
 import { DrawerContentComponentProps } from "@react-navigation/drawer";
-import { TouchableOpacity, View } from "react-native";
+import { View } from "react-native";
 import {
 	CENTER,
 	FLEX_END,
@@ -13,28 +13,15 @@ import {
 import {
 	BACKGROUND_COLOR,
 	DISABLED_COLOR,
-	RED_COLOR,
 	SECONDARY_COLOR,
 } from "./colors.config";
 import CustomText from "./CustomText";
 import { menuRoutes } from "./Routes";
 import CustomButton from "./CustomButton";
 import { expo } from "./app.json";
-import { useSQLiteContext } from "expo-sqlite";
-import IUser from "./IUser";
-import {
-	delete_single_user,
-	select_all_users,
-	sync_queries,
-} from "./queries.config";
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import useAppStore from "./AppStore";
 
 const Menu = ({ navigation }: DrawerContentComponentProps) => {
-	const db = useSQLiteContext();
 	const { navigate } = navigation;
-	const { triggerReRender } = useAppStore();
-	const userName = db.getFirstSync<IUser>(select_all_users)?.name ?? "User";
 	return (
 		<View
 			style={{
@@ -42,22 +29,6 @@ const Menu = ({ navigation }: DrawerContentComponentProps) => {
 				backgroundColor: BACKGROUND_COLOR,
 			}}
 		>
-			<TouchableOpacity
-				onPress={() => {
-					sync_queries.delete.forEach((query) => db.runSync(query));
-					db.runSync(delete_single_user);
-					triggerReRender();
-				}}
-				testID={"logoutIcon"}
-			>
-				<FontAwesome5
-					name="sign-out-alt"
-					size={FONT_SIZE * 2}
-					color={RED_COLOR}
-					alignSelf={FLEX_END}
-					right={FONT_SIZE}
-				/>
-			</TouchableOpacity>
 			<View
 				style={{
 					height: SCREEN_HEIGHT / 6,
@@ -71,7 +42,6 @@ const Menu = ({ navigation }: DrawerContentComponentProps) => {
 					/>
 					<CustomText
 						text={"by purplevarun"}
-						color={DISABLED_COLOR}
 						alignSelf={FLEX_END}
 					/>
 				</View>
@@ -83,11 +53,6 @@ const Menu = ({ navigation }: DrawerContentComponentProps) => {
 					/>
 				</View>
 			</View>
-			<CustomText
-				text={`Welcome ${userName}`}
-				fontSize={LARGE_FONT_SIZE}
-				alignSelf={CENTER}
-			/>
 			<View
 				style={{
 					backgroundColor: BACKGROUND_COLOR,

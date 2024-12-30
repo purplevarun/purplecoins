@@ -6,8 +6,12 @@ export const objectify = (data: any) => {
 	return JSON.stringify(data, null, 4);
 };
 
-export const logger = (data: any) => {
-	console.log(objectify(data));
+export const logger = (arg1: any, arg2?: any) => {
+	if (arg2) {
+		console.log(arg1, objectify(arg2));
+	} else {
+		console.log(objectify(arg1));
+	}
 };
 
 export const formatDate = (date: Date | null | undefined, full = false) => {

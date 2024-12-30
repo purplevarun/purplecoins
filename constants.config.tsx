@@ -34,6 +34,5 @@ export const UBUNTU_FONT = "Ubuntu";
 export const FLEX_START = "flex-start";
 export const FLEX_END = "flex-end";
 export const ABSOLUTE = "absolute";
-export const API_URL = process.env.EXPO_PUBLIC_API_URL;
 export const DB_NAME = "purplecoins.db";
 export const MINIMUM_LENGTH = 4;

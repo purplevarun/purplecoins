@@ -5,7 +5,6 @@ interface ITransaction {
 	amount: number;
 	reason: string;
 	date: Date;
-	user: string;
 	source: string;
 	sourceId: string;
 	type: TransactionType;

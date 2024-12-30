@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { RED_COLOR } from "./colors.config";
 import { FLEX_START, PADDING, SMALL_FONT_SIZE } from "./constants.config";
+import { View } from "react-native";
+import useTransactionStore from "./TransactionStore";
 import CustomButton from "./CustomButton";
 import CustomInput from "./CustomInput";
 import ScreenLayout from "./ScreenLayout";
@@ -11,11 +13,10 @@ import DestinationSelector from "./DestinationSelector";
 import SourceSelector from "./SourceSelector";
 import TransactionDatePicker from "./TransactionDatePicker";
 import useTransactionService from "./TransactionService";
-import useTransactionStore from "./TransactionStore";
 import TripSelector from "./TripSelector";
 import TypeSelector from "./TypeSelector";
 import CustomText from "./CustomText";
-import { View } from "react-native";
+import TransactionType from "./TransactionType";
 
 const TransactionAdd = ({ route }: any) => {
 	const transactionId = route.params?.transactionId ?? null;
@@ -26,7 +27,10 @@ const TransactionAdd = ({ route }: any) => {
 	const [insufficientBalance, setInsufficientBalance] = useState(false);
 	const onPress = () => {
 		const source = fetchSource(sourceId);
-		if (parseInt(amount) > source.currentAmount) {
+		if (
+			parseInt(amount) > source.currentAmount &&
+			type === TransactionType.EXPENSE
+		) {
 			setInsufficientBalance(true);
 		} else {
 			addNewTransaction(transactionId);

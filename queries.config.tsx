@@ -1,35 +1,17 @@
 export const fetch_all_trips = `
 	SELECT t.*
-	FROM trip t
-	WHERE userId = ?;
-`;
-
-export const delete_single_user = `
-	DELETE
-	FROM user;
-`;
-
-export const insert_user = `
-	INSERT
-	INTO user (id, name)
-	VALUES (?, ?);
-`;
-
-export const select_all_users = `
-	SELECT *
-	FROM user;
+	FROM trip t;
 `;
 
 export const select_all_sources = `
 	SELECT *
-	FROM source
-	WHERE userId=?;
+	FROM source;
 `;
 
 export const insert_source = `
 	INSERT
-	INTO source (id, userId, name, initialAmount, currentAmount)
-	VALUES (?, ?, ?, ?, ?);
+	INTO source (id, name, initialAmount, currentAmount)
+	VALUES (?, ?, ?, ?);
 `;
 
 export const fetch_transactions_for_category = `
@@ -47,8 +29,8 @@ export const fetch_transactions_for_source = `
 
 export const insert_transaction = `
 	INSERT
-	INTO transaction_record (id,userId,sourceId,amount,reason,type,date,destinationId,investmentId) 
-	VALUES (?,?,?,?,?,?,?,?,?);
+	INTO transaction_record (id, sourceId, amount, reason, type, date, destinationId, investmentId) 
+	VALUES (?,?,?,?,?,?,?,?);
 `;
 
 export const update_source_add_current_amount = `
@@ -71,20 +53,20 @@ export const update_investment_amount = `
 
 export const insert_transaction_trip = `
 	INSERT
-	INTO transaction_trip (userId, transactionId, tripId)
-	VALUES (?, ?, ?);
+	INTO transaction_trip (transactionId, tripId)
+	VALUES (?, ?);
 `;
 
 export const insert_transaction_category = `
 	INSERT
-	INTO transaction_category (userId, transactionId, categoryId) 
-	VALUES (?, ?, ?);
+	INTO transaction_category (transactionId, categoryId) 
+	VALUES (?, ?);
 `;
 
 export const insert_category = `
 	INSERT
-	INTO category (id, userId, name) 
-	VALUES (?, ?, ?);
+	INTO category (id, name) 
+	VALUES (?, ?);
 `;
 
 export const fetch_single_category = `
@@ -95,20 +77,18 @@ export const fetch_single_category = `
 
 export const fetch_all_categories = `
 	SELECT *
-	FROM category
-	WHERE userId=?;
+	FROM category;
 `;
 
 export const fetch_all_investments = `
 	SELECT *
-	FROM investment
-	WHERE userId=?;
+	FROM investment;
 `;
 
 export const insert_investment = `
 	INSERT
-	INTO investment (id, userId, name, investedAmount, currentAmount)
-	VALUES (?, ?, ?, ?, ?);
+	INTO investment (id, name, investedAmount, currentAmount)
+	VALUES (?, ?, ?, ?);
 `;
 
 export const fetch_single_trip = `
@@ -139,20 +119,20 @@ export const fetch_all_transactions_for_trip = `
 
 export const insert_trip_with_start_and_end_date = `
 	INSERT
-	INTO trip (id, userId, name, startDate, endDate)
-	VALUES (?, ?, ?, ?, ?);
+	INTO trip (id, name, startDate, endDate)
+	VALUES (?, ?, ?, ?);
 `;
 
 export const insert_trip_with_start_date = `
 	INSERT
-	INTO trip (id, userId, name, startDate)
-	VALUES (?, ?, ?, ?);
+	INTO trip (id, name, startDate)
+	VALUES (?, ?, ?);
 `;
 
 export const insert_trip_without_date = `
 	INSERT
-	INTO trip (id, userId, name)
-	VALUES (?, ?, ?);
+	INTO trip (id, name)
+	VALUES (?, ?);
 `;
 
 export const update_trip_with_start_and_end_date = `
@@ -186,7 +166,6 @@ export const fetch_single_detailed_transaction = `
 	d.name AS destination,
 	i.id AS investmentId,
 	i.name AS investment,
-	u.name AS user,
 	CASE WHEN COUNT(c.id) > 0 THEN JSON_GROUP_ARRAY(DISTINCT JSON_OBJECT('name', c.name,'id', c.id)) ELSE NULL END AS categories,
 	CASE WHEN COUNT(trip.id) > 0 THEN JSON_GROUP_ARRAY(DISTINCT JSON_OBJECT('name', trip.name,'id', trip.id)) ELSE NULL END AS trips
 	FROM transaction_record t
@@ -197,7 +176,6 @@ export const fetch_single_detailed_transaction = `
 	LEFT JOIN source s ON t.sourceId = s.id
 	LEFT JOIN source d ON t.destinationId = d.id
 	LEFT JOIN investment i ON t.investmentId = i.id
-	LEFT JOIN user u ON t.userId = u.id
 	WHERE t.id = ?;
 `;
 
@@ -211,7 +189,6 @@ export const fetch_all_detailed_transactions = `
 	s.name AS source,
 	d.name AS destination,
 	i.name AS investment,
-	u.name AS user,
 	CASE WHEN COUNT(c.id) > 0 THEN JSON_GROUP_ARRAY(DISTINCT JSON_OBJECT('name', c.name)) ELSE NULL END AS categories,
 	CASE WHEN COUNT(trip.id) > 0 THEN JSON_GROUP_ARRAY(DISTINCT JSON_OBJECT('name', trip.name)) ELSE NULL END AS trips
 	FROM transaction_record t
@@ -222,67 +199,49 @@ export const fetch_all_detailed_transactions = `
 	LEFT JOIN source s ON t.sourceId = s.id
 	LEFT JOIN source d ON t.destinationId = d.id
 	LEFT JOIN investment i ON t.investmentId = i.id
-	LEFT JOIN user u ON t.userId = u.id
-	WHERE t.userId = ?
 	GROUP BY t.id
 	ORDER BY t.date DESC;
-`;
-
-const create_user = `
-	CREATE TABLE IF NOT EXISTS user (
-		id TEXT PRIMARY KEY,
-		name TEXT NOT NULL
-	);
 `;
 
 const create_source = `
 	CREATE TABLE IF NOT EXISTS source (
 		id TEXT PRIMARY KEY,
-		userId TEXT NOT NULL,
 		name TEXT NOT NULL,
 		initialAmount INTEGER NOT NULL,
-		currentAmount INTEGER NOT NULL,
-		FOREIGN KEY (userId) REFERENCES user (id)
+		currentAmount INTEGER NOT NULL
 	);
 `;
 
 const create_category = `
 	CREATE TABLE IF NOT EXISTS category (
 		id TEXT PRIMARY KEY,
-		userId TEXT NOT NULL,
 		name TEXT NOT NULL,
 		monthlyBudget INTEGER,
-		annualBudget INTEGER,
-		FOREIGN KEY (userId) REFERENCES user (id)
+		annualBudget INTEGER
 	);
 `;
 
 const create_investment = `
 	CREATE TABLE IF NOT EXISTS investment (
 		id TEXT PRIMARY KEY,
-		userId TEXT NOT NULL,
 		name TEXT NOT NULL,
 		investedAmount INTEGER NOT NULL,
-		currentAmount INTEGER NOT NULL,
-		FOREIGN KEY (userId) REFERENCES user (id)
+		currentAmount INTEGER NOT NULL
 	);
 `;
 
 const create_trip = `
 	CREATE TABLE IF NOT EXISTS trip (
 		id TEXT PRIMARY KEY,
-		userId TEXT NOT NULL,
 		name TEXT NOT NULL,
 		startDate DATETIME,
-		endDate DATETIME,
-		FOREIGN KEY (userId) REFERENCES user (id)
+		endDate DATETIME
 	);
 `;
 
 const create_transaction = `
 	CREATE TABLE IF NOT EXISTS transaction_record (
 		id TEXT PRIMARY KEY,
-		userId TEXT NOT NULL,
 		sourceId TEXT NOT NULL,
 		destinationId TEXT,
 		investmentId TEXT,
@@ -290,7 +249,6 @@ const create_transaction = `
 		reason TEXT NOT NULL,
 		type TEXT NOT NULL,
 		date DATETIME NOT NULL,
-		FOREIGN KEY (userId) REFERENCES user (id),
 		FOREIGN KEY (sourceId) REFERENCES source (id),
 		FOREIGN KEY (destinationId) REFERENCES source (id),
 		FOREIGN KEY (investmentId) REFERENCES investment (id)
@@ -301,9 +259,6 @@ const create_transaction_trip = `
 	CREATE TABLE IF NOT EXISTS transaction_trip (
 		transactionId TEXT NOT NULL,
 		tripId TEXT NOT NULL,
-		userId TEXT NOT NULL,
-		FOREIGN KEY (transactionId) REFERENCES transaction_record (id),
-		FOREIGN KEY (tripId) REFERENCES trip (id),
 		PRIMARY KEY (transactionId, tripId)
 	);
 `;
@@ -312,9 +267,6 @@ const create_transaction_category = `
 	CREATE TABLE IF NOT EXISTS transaction_category (
 		transactionId TEXT NOT NULL,
 		categoryId TEXT NOT NULL,
-		userId TEXT NOT NULL,
-		FOREIGN KEY (transactionId) REFERENCES transaction_record (id),
-		FOREIGN KEY (categoryId) REFERENCES category (id),
 		PRIMARY KEY (transactionId, categoryId)
 	);
 `;
@@ -352,7 +304,6 @@ export const delete_transaction_categories = `
 `;
 
 export const create_queries = [
-	create_user,
 	create_transaction,
 	create_source,
 	create_category,
@@ -362,36 +313,12 @@ export const create_queries = [
 	create_transaction_category,
 ];
 
-export const sync_queries: {
-	upload: { [key: string]: string };
-	delete: string[];
-	download: { [key: string]: string };
-} = {
-	upload: {
-		transaction: `SELECT * FROM transaction_record WHERE userId=?`,
-		category: `SELECT * FROM category WHERE userId=?`,
-		source: `SELECT * FROM source WHERE userId=?`,
-		trip: `SELECT * FROM trip WHERE userId=?`,
-		investment: `SELECT * FROM investment WHERE userId=?`,
-		transaction_trip: `SELECT * FROM transaction_trip WHERE userId=?`,
-		transaction_category: `SELECT * FROM transaction_category WHERE userId=?`,
-	},
-	delete: [
-		`DELETE FROM transaction_record WHERE userId=?`,
-		`DELETE FROM category WHERE userId=?`,
-		`DELETE FROM source WHERE userId=?`,
-		`DELETE FROM trip WHERE userId=?`,
-		`DELETE FROM investment WHERE userId=?`,
-		`DELETE FROM transaction_trip WHERE userId=?`,
-		`DELETE FROM transaction_category WHERE userId=?`,
-	],
-	download: {
-		transaction: `INSERT INTO transaction_record(id,userId,sourceId,amount,reason,date,type,destinationId,investmentId) VALUES(?,?,?,?,?,?,?,?,?)`,
-		category: `INSERT INTO category(id,userId,name,type,monthlyBudget,annualBudget) VALUES(?,?,?,?,?,?)`,
-		trip: `INSERT INTO trip(id,userId,name,startDate,endDate) VALUES(?,?,?,?,?)`,
-		source: `INSERT INTO source(id,userId,name,initialAmount,currentAmount) VALUES(?,?,?,?,?)`,
-		investment: `INSERT INTO investment(id,userId,name,investedAmount,currentAmount) VALUES(?,?,?,?,?)`,
-		transaction_trip: `INSERT INTO transaction_trip(userId,transactionId,tripId) VALUES(?,?,?)`,
-		transaction_category: `INSERT INTO transaction_category(userId,transactionId,categoryId) VALUES(?,?,?)`,
-	},
-};
+export const delete_queries = [
+	`DELETE FROM transaction_record;`,
+	`DELETE FROM category;`,
+	`DELETE FROM source;`,
+	`DELETE FROM trip;`,
+	`DELETE FROM investment;`,
+	`DELETE FROM transaction_trip;`,
+	`DELETE FROM transaction_category;`,
+];

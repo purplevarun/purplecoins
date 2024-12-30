@@ -1,6 +1,36 @@
 appId: host.exp.exponent
 ---
-- runFlow: auth.yaml
+- assertVisible:
+    text: Transactions
+- assertVisible:
+    text: No Transactions found
+- assertVisible:
+    id: plusIcon
+- assertVisible:
+    id: menuIcon
+- tapOn:
+    id: menuIcon
+- assertVisible:
+    text: Purplecoins
+- assertVisible:
+    text: by purplevarun
+- assertVisible:
+    text: 1.0.1
+- assertVisible:
+    text: Transactions
+- assertVisible:
+    text: Analysis
+- assertVisible:
+    text: Categories
+- assertVisible:
+    text: Trips
+- assertVisible:
+    text: Sources
+- assertVisible:
+    text: Investments
+- assertVisible:
+    text: Sync Data
+- tapOn:
+    text: Transactions
 - runFlow: source_add.yaml
 - runFlow: transaction_add.yaml
-- runFlow: logout.yaml
