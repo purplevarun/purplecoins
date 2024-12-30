@@ -40,10 +40,7 @@ const Menu = ({ navigation }: DrawerContentComponentProps) => {
 						text={expo.name}
 						fontSize={LARGE_FONT_SIZE * 1.5}
 					/>
-					<CustomText
-						text={"by purplevarun"}
-						alignSelf={FLEX_END}
-					/>
+					<CustomText text={"by purplevarun"} alignSelf={FLEX_END} />
 				</View>
 				<View style={{ right: PADDING, top: FONT_SIZE }}>
 					<CustomText

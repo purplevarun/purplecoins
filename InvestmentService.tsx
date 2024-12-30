@@ -1,8 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
-import {
-	fetch_all_investments,
-	insert_investment,
-} from "./queries.config";
+import { fetch_all_investments, insert_investment } from "./queries.config";
 import { generateUUID, toInt } from "./HelperFunctions";
 import { useSQLiteContext } from "expo-sqlite";
 import IInvestment from "./IInvestment";

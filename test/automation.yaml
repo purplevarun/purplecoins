@@ -1,36 +1,36 @@
 appId: host.exp.exponent
 ---
 - assertVisible:
-    text: Transactions
+      text: Transactions
 - assertVisible:
-    text: No Transactions found
+      text: No Transactions found
 - assertVisible:
-    id: plusIcon
+      id: plusIcon
 - assertVisible:
-    id: menuIcon
+      id: menuIcon
 - tapOn:
-    id: menuIcon
+      id: menuIcon
 - assertVisible:
-    text: Purplecoins
+      text: Purplecoins
 - assertVisible:
-    text: by purplevarun
+      text: by purplevarun
 - assertVisible:
-    text: 1.0.1
+      text: 1.0.1
 - assertVisible:
-    text: Transactions
+      text: Transactions
 - assertVisible:
-    text: Analysis
+      text: Analysis
 - assertVisible:
-    text: Categories
+      text: Categories
 - assertVisible:
-    text: Trips
+      text: Trips
 - assertVisible:
-    text: Sources
+      text: Sources
 - assertVisible:
-    text: Investments
+      text: Investments
 - assertVisible:
-    text: Sync Data
+      text: Sync Data
 - tapOn:
-    text: Transactions
+      text: Transactions
 - runFlow: source_add.yaml
 - runFlow: transaction_add.yaml
