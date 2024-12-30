@@ -25,5 +25,6 @@ export const createNewUser = async (username: string, password: string) => {
 export const checkUser = async (username: string) => {
 	const url = `${API_URL}/check-user?name=${username}`;
 	const { data } = await axios.get(url);
+	logger(data);
 	return { status: data.status };
 };

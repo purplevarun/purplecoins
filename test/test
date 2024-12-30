@@ -13,5 +13,6 @@ function delete_user() {
     " || echo "Failed to delete user data. Check your MongoDB connection and script."
 }
 
+delete_user
 maestro test automation.yaml
 delete_user

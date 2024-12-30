@@ -10,7 +10,6 @@ import { generateUUID } from "./HelperFunctions";
 import { useSQLiteContext } from "expo-sqlite";
 import ISource from "./ISource";
 import useSourceStore from "./SourceStore";
-import useTransactionStore from "./TransactionStore";
 import IUser from "./IUser";
 import Routes from "./Routes";
 import ITransaction from "./ITransaction";
@@ -19,7 +18,6 @@ const useSourceService = () => {
 	const db = useSQLiteContext();
 	const userId = (db.getFirstSync<IUser>(select_all_users) as IUser).id;
 	const { name, setName, initialAmount, setInitialAmount } = useSourceStore();
-	const { sourceId, setSourceId } = useTransactionStore();
 	const { navigate } = useNavigation<any>();
 
 	const fetchSources = () => {

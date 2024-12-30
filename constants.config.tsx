@@ -27,7 +27,6 @@ export const SPACE_EVENLY = "space-evenly";
 export const SPACE_BETWEEN = "space-between";
 export const PADDING_TOP_ADD_SCREEN = FONT_SIZE * 0.35;
 export const NINETY_P = "90%";
-export const FIFTY_P = "50%";
 export const SEVENTY_P = "70%";
 export const HUNDRED_P = "100%";
 export const FORTY_EIGHT_P = "48%";
