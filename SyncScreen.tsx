@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useSQLiteContext } from "expo-sqlite";
 import { BLUE_COLOR, GREEN_COLOR, RED_COLOR } from "./colors.config";
-import { API_URL, CENTER, FONT_SIZE } from "./constants.config";
+import { API_URL, CENTER, DB_NAME, FONT_SIZE } from "./constants.config";
 import { select_all_users, sync_queries } from "./queries.config";
 import ScreenLayout from "./ScreenLayout";
 import CustomButton from "./CustomButton";
@@ -9,6 +9,8 @@ import CustomText from "./CustomText";
 import Vertical from "./Vertical";
 import IUser from "./IUser";
 import axios from "axios";
+import * as FileSystem from "expo-file-system";
+import * as Sharing from "expo-sharing";
 
 const SyncScreen = () => {
 	const db = useSQLiteContext();
@@ -126,6 +128,11 @@ const SyncScreen = () => {
 		}
 	};
 
+	const handleExport = async () => {
+		const dbPath = `${FileSystem.documentDirectory}SQLite/${DB_NAME}`;
+		await Sharing.shareAsync(dbPath);
+	};
+
 	return (
 		<ScreenLayout>
 			<Vertical size={FONT_SIZE * 2} />
@@ -136,6 +143,8 @@ const SyncScreen = () => {
 					alignSelf={CENTER}
 				/>
 			)}
+			<CustomButton text={"Export Data"} onPress={handleExport} />
+			<Vertical size={FONT_SIZE / 2} />
 			<CustomButton
 				text={"Upload Data"}
 				color={GREEN_COLOR}

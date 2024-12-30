@@ -1,149 +1,34 @@
-import { expo } from "./app.json";
-import {
-	CENTER,
-	FONT_SIZE,
-	LARGE_FONT_SIZE,
-	MINIMUM_LENGTH,
-} from "./constants.config";
+import { useState } from "react";
+import { checkUser, createNewUser, verifyUser } from "./api.config";
+import { INCORRECT_PASSWORD, SERVER_ERROR, USER_EXISTS } from "./error.config";
+import { CENTER, FONT_SIZE, LARGE_FONT_SIZE } from "./constants.config";
+import useAppStore from "./AppStore";
+import HTTP from "./http_codes.config";
 import ScreenLayout from "./ScreenLayout";
 import Vertical from "./Vertical";
 import CustomText from "./CustomText";
 import ErrorMessage from "./ErrorMessage";
 import CustomInput from "./CustomInput";
 import CustomButton from "./CustomButton";
-import { useSQLiteContext } from "expo-sqlite";
-import useAppStore from "./AppStore";
-import { checkUser, createNewUser, verifyUser } from "./api.config";
-import HTTP from "./http_codes.config";
-import { INCORRECT_PASSWORD, SERVER_ERROR, USER_EXISTS } from "./error.config";
-import { insert_user } from "./queries.config";
-import { create } from "zustand";
+import useService from "./useService";
 
 const LoggedOutScreen = () => {
-	const { mode } = useAuthStore();
-	switch (mode) {
-		case Mode.null:
-			return <CheckUserScreen />;
-		case Mode.sign_up:
-			return <SignUpScreen />;
-		case Mode.sign_in:
-			return <SignInScreen />;
-	}
-};
-
-const CheckUserScreen = () => {
-	const { loading, error, username, setUsername } = useAuthStore();
-	const { handleCheck } = useAuthService();
-
-	return (
-		<ScreenLayout loading={loading}>
-			<Vertical size={40} />
-			<CustomText
-				text={`Welcome to ${expo.name}`}
-				alignSelf={CENTER}
-				fontSize={LARGE_FONT_SIZE}
-			/>
-			<ErrorMessage error={error} />
-			<CustomInput
-				name={"Username"}
-				value={username}
-				setValue={setUsername}
-			/>
-			<CustomButton
-				onPress={handleCheck}
-				disabled={username.length < MINIMUM_LENGTH}
-				marginV={FONT_SIZE}
-			/>
-		</ScreenLayout>
-	);
-};
-
-const SignUpScreen = () => {
-	const {
-		username,
-		password,
-		confirmPassword,
-		error,
-		setPassword,
-		setConfirmPassword,
-		loading,
-	} = useAuthStore();
-	const { handleSignUp } = useAuthService();
-	return (
-		<ScreenLayout loading={loading}>
-			<Vertical size={40} />
-			<CustomText
-				text={`SignUp for ${expo.name}`}
-				alignSelf={CENTER}
-				fontSize={LARGE_FONT_SIZE}
-			/>
-			<ErrorMessage error={error} />
-			<CustomInput name={"Username"} value={username} disabled />
-			<Vertical />
-			<CustomInput
-				name={"Password"}
-				value={password}
-				setValue={setPassword}
-				password
-				numeric
-			/>
-			<Vertical />
-			<CustomInput
-				name={"Confirm Password"}
-				value={confirmPassword}
-				setValue={setConfirmPassword}
-				password
-				numeric
-			/>
-			<CustomButton
-				text={"Sign Up"}
-				onPress={handleSignUp}
-				disabled={
-					password !== confirmPassword ||
-					password.length < MINIMUM_LENGTH
-				}
-				marginV={FONT_SIZE}
-			/>
-		</ScreenLayout>
-	);
-};
-
-const SignInScreen = () => {
-	const { username, password, error, setPassword, loading } = useAuthStore();
-	const { handleSignIn } = useAuthService();
-	return (
-		<ScreenLayout loading={loading}>
-			<Vertical size={40} />
-			<CustomText
-				text={`SignIn to ${expo.name}`}
-				alignSelf={CENTER}
-				fontSize={LARGE_FONT_SIZE}
-			/>
-			<ErrorMessage error={error} />
-			<CustomInput name={"Username"} value={username} disabled />
-			<Vertical />
-			<CustomInput
-				name={"Password"}
-				value={password}
-				setValue={setPassword}
-				password
-				numeric
-			/>
-			<CustomButton
-				text={"Sign In"}
-				disabled={password.length < MINIMUM_LENGTH}
-				onPress={handleSignIn}
-				marginV={FONT_SIZE}
-			/>
-		</ScreenLayout>
-	);
-};
-
-const useAuthService = () => {
-	const db = useSQLiteContext();
+	const [mode, setMode] = useState(Mode.null);
+	const [username, setUsername] = useState("");
+	const [password, setPassword] = useState("");
+	const [confirmPassword, setConfirmPassword] = useState("");
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState("");
+	const clear = () => {
+		setMode(Mode.null);
+		setUsername("");
+		setPassword("");
+		setConfirmPassword("");
+		setLoading(false);
+		setError("");
+	};
 	const { triggerReRender } = useAppStore();
-	const { username, password, setError, setLoading, setMode, clear } =
-		useAuthStore();
+	const { addNewUser } = useService();
 
 	const handleCheck = async () => {
 		try {
@@ -171,7 +56,7 @@ const useAuthService = () => {
 			} else if (status === HTTP.INVALID_REQUEST) {
 				setError(USER_EXISTS);
 			} else {
-				db.runSync(insert_user, [userId, username]);
+				addNewUser(userId, username);
 				triggerReRender();
 				clear();
 			}
@@ -190,7 +75,7 @@ const useAuthService = () => {
 			} else if (status === HTTP.INVALID_REQUEST) {
 				setError(INCORRECT_PASSWORD);
 			} else {
-				db.runSync(insert_user, [userId, username]);
+				addNewUser(userId, username);
 				triggerReRender();
 				clear();
 			}
@@ -200,7 +85,64 @@ const useAuthService = () => {
 		}
 	};
 
-	return { handleCheck, handleSignIn, handleSignUp };
+	const data = {
+		[Mode.null]: {
+			title: "Welcome to Purplecoins",
+			function: handleCheck,
+			disabled: username.length <= 1,
+		},
+		[Mode.sign_in]: {
+			title: "Sign In to Purplecoins",
+			function: handleSignIn,
+			disabled: password.length < 4,
+		},
+		[Mode.sign_up]: {
+			title: "Sign Up for Purplecoins",
+			function: handleSignUp,
+			disabled: password !== confirmPassword,
+		},
+	};
+
+	return (
+		<ScreenLayout loading={loading}>
+			<Vertical size={FONT_SIZE * 2} />
+			<CustomText
+				text={data[mode].title}
+				alignSelf={CENTER}
+				fontSize={LARGE_FONT_SIZE}
+			/>
+			<ErrorMessage error={error} />
+			<CustomInput
+				name={"Username"}
+				value={username}
+				setValue={setUsername}
+			/>
+			{mode !== Mode.null && (
+				<CustomInput
+					name={"Password"}
+					value={password}
+					setValue={setPassword}
+					password
+					numeric
+				/>
+			)}
+			{mode === Mode.sign_up && (
+				<CustomInput
+					name={"Confirm Password"}
+					value={confirmPassword}
+					setValue={setConfirmPassword}
+					password
+					numeric
+				/>
+			)}
+			<CustomButton
+				text={"Submit"}
+				onPress={data[mode].function}
+				disabled={data[mode].disabled}
+				marginV={FONT_SIZE}
+			/>
+		</ScreenLayout>
+	);
 };
 
 enum Mode {
@@ -208,45 +150,5 @@ enum Mode {
 	sign_up,
 	sign_in,
 }
-
-interface AuthState {
-	username: string;
-	password: string;
-	confirmPassword: string;
-	error: string;
-	loading: boolean;
-	mode: Mode;
-	setUsername: (username: string) => void;
-	setPassword: (password: string) => void;
-	setConfirmPassword: (confirmPassword: string) => void;
-	setError: (error: string) => void;
-	setLoading: (loading: boolean) => void;
-	setMode: (mode: Mode) => void;
-	clear: () => void;
-}
-
-const useAuthStore = create<AuthState>((set) => ({
-	username: "",
-	password: "",
-	confirmPassword: "",
-	error: "",
-	loading: false,
-	mode: Mode.null,
-	setUsername: (username) => set({ username }),
-	setPassword: (password) => set({ password }),
-	setConfirmPassword: (confirmPassword) => set({ confirmPassword }),
-	setError: (error) => set({ error }),
-	setLoading: (loading) => set({ loading }),
-	setMode: (mode) => set({ mode }),
-	clear: () =>
-		set({
-			username: "",
-			password: "",
-			confirmPassword: "",
-			error: "",
-			loading: false,
-			mode: Mode.null,
-		}),
-}));
 
 export default LoggedOutScreen;
