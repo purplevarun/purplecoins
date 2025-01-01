@@ -1,16 +1,16 @@
+import { useNavigation } from "@react-navigation/native";
+import { useSQLiteContext } from "expo-sqlite";
+import { Alert } from "react-native";
+import { generateUUID } from "./HelperFunctions";
+import ISource from "./ISource";
+import ITransaction from "./ITransaction";
+import useSourceStore from "./SourceStore";
 import {
 	fetch_all_sources,
 	fetch_transactions_for_source,
 	insert_source,
 	select_all_sources,
 } from "./queries.config";
-import { useNavigation } from "@react-navigation/native";
-import { generateUUID } from "./HelperFunctions";
-import { useSQLiteContext } from "expo-sqlite";
-import ISource from "./ISource";
-import useSourceStore from "./SourceStore";
-import Routes from "./Routes";
-import ITransaction from "./ITransaction";
 
 const useSourceService = () => {
 	const db = useSQLiteContext();
@@ -25,6 +25,24 @@ const useSourceService = () => {
 			return [];
 		}
 	};
+	const handleEdit = (sourceId: string) => {
+		const source = fetchSource(sourceId);
+		setName(source.name);
+		setInitialAmount(source.initialAmount.toString());
+		navigate("Source.Edit", { sourceId });
+	};
+	const handleDelete = (sourceId: string) => {
+		const { count } = db.getFirstSync<{ count: number }>(
+			`select count(*) from transaction_record where sourceId=?`,
+			[sourceId],
+		) as { count: number };
+		if (count > 0) {
+			// cant delete source as it is in use
+			Alert.alert("Cannot delete source as it is in use");
+		} else {
+			db.runSync("DELETE FROM source WHERE id=?", [sourceId]);
+		}
+	};
 
 	const addNewSource = () => {
 		const id = generateUUID();
@@ -37,7 +55,7 @@ const useSourceService = () => {
 			console.log("ERROR ADDING SOURCE");
 		}
 		clearStore();
-		navigate(Routes.Source.Main);
+		navigate("Source.Main");
 	};
 
 	const clearStore = () => {
@@ -63,6 +81,8 @@ const useSourceService = () => {
 		clearStore,
 		fetchSource,
 		fetchTransactionsForSource,
+		handleEdit,
+		handleDelete,
 	};
 };
 

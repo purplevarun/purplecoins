@@ -1,7 +1,16 @@
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { useCallback } from "react";
 import { FlatList, TouchableOpacity, View } from "react-native";
+import useAppStore from "./AppStore";
+import CategoryRenderItem from "./CategoryRenderItem";
+import CustomText from "./CustomText";
+import DataTab from "./DataTab";
+import Header from "./Header";
 import { formatDate, formatMoney } from "./HelperFunctions";
+import ScreenLayout from "./ScreenLayout";
+import useTransactionService from "./TransactionService";
+import TripRenderItem from "./TripRenderItem";
+import Vertical from "./Vertical";
 import {
 	FLEX_ROW,
 	LARGE_FONT_SIZE,
@@ -10,15 +19,6 @@ import {
 	SPACE_BETWEEN,
 	USABLE_SCREEN_HEIGHT,
 } from "./constants.config";
-import ScreenLayout from "./ScreenLayout";
-import Vertical from "./Vertical";
-import CustomText from "./CustomText";
-import useTransactionService from "./TransactionService";
-import TripRenderItem from "./TripRenderItem";
-import CategoryRenderItem from "./CategoryRenderItem";
-import DataTab from "./DataTab";
-import useAppStore from "./AppStore";
-import Routes from "./Routes";
 
 const plank = 0.35;
 const UPPER_HALF_HEIGHT = USABLE_SCREEN_HEIGHT * plank;
@@ -52,6 +52,11 @@ const TransactionDetail = ({ route }: any) => {
 
 	return (
 		<ScreenLayout>
+			<Header
+				title={"Transaction Details"}
+				handleEdit={() => handleEdit(transactionId)}
+				handleDelete={() => handleDelete(transactionId)}
+			/>
 			<View style={{ height: UPPER_HALF_HEIGHT }}>
 				<DataTab name={"Amount"} value={formatMoney(amount)} />
 				<DataTab name={"Reason"} value={reason} />
@@ -93,7 +98,7 @@ const Investment = ({
 				<CustomText text={"Investment"} />
 				<TouchableOpacity
 					onPress={() =>
-						navigate(Routes.Investment.Detail, { investmentId })
+						navigate("Investment.Detail", { investmentId })
 					}
 				>
 					<CustomText text={investment} decoration={"underline"} />
@@ -122,7 +127,7 @@ const Destination = ({
 				<CustomText text={"Destination"} />
 				<TouchableOpacity
 					onPress={() =>
-						navigate(Routes.Source.Detail, {
+						navigate("Source.Detail", {
 							sourceId: destinationId,
 						})
 					}
@@ -145,7 +150,7 @@ const Source = ({ source, sourceId }: { source: string; sourceId: string }) => {
 		>
 			<CustomText text={"Source"} />
 			<TouchableOpacity
-				onPress={() => navigate(Routes.Source.Detail, { sourceId })}
+				onPress={() => navigate("Source.Detail", { sourceId })}
 			>
 				<CustomText text={source} decoration={"underline"} />
 			</TouchableOpacity>

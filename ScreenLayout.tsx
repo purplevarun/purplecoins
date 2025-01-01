@@ -1,8 +1,8 @@
+import { ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
+import LoadingScreen from "./LoadingScreen";
 import { BACKGROUND_COLOR } from "./colors.config";
 import { FLEX_ONE, PADDING } from "./constants.config";
-import { ReactNode } from "react";
-import LoadingScreen from "./LoadingScreen";
 
 const ScreenLayout = ({
 	children,
@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
 	container: {
 		flex: FLEX_ONE,
 		backgroundColor: BACKGROUND_COLOR,
-		paddingHorizontal: PADDING,
+		paddingHorizontal: PADDING / 2,
 	},
 });
 export default ScreenLayout;

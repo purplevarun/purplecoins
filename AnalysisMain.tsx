@@ -1,13 +1,10 @@
-import useTransactionService from "./TransactionService";
-import NoContent from "./NoContent";
-import ScreenLayout from "./ScreenLayout";
 import CustomText from "./CustomText";
+import ScreenLayout from "./ScreenLayout";
+import useTransactionService from "./TransactionService";
 
 const AnalysisMain = () => {
 	const { fetchTransactions } = useTransactionService();
 	const transactions = fetchTransactions();
-
-	if (transactions.length === 0) return <NoContent analysis />;
 
 	return (
 		<ScreenLayout>

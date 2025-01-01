@@ -1,13 +1,14 @@
-import { useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
-import ScreenLayout from "./ScreenLayout";
+import { useCallback } from "react";
+import useAppStore from "./AppStore";
 import useCategoryService from "./CategoryService";
 import DataTab from "./DataTab";
 import LinkedTransactions from "./LinkedTransactions";
-import useAppStore from "./AppStore";
+import ScreenLayout from "./ScreenLayout";
 
 const CategoryDetail = ({ route }: any) => {
 	const categoryId = route.params?.categoryId ?? null;
+	if (!categoryId) return null;
 	const { fetchCategory, handleEdit, handleDelete, fetchTransactions } =
 		useCategoryService();
 	const { setOnDelete, setOnEdit } = useAppStore();

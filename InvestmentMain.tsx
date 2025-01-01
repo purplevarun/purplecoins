@@ -1,14 +1,14 @@
-import { useCallback, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
+import { useCallback, useState } from "react";
 import { FlatList } from "react-native";
-import ScreenLayout from "./ScreenLayout";
-import PlusButton from "./PlusButton";
-import NoContent from "./NoContent";
+import CustomText from "./CustomText";
+import IInvestment from "./IInvestment";
 import InvestmentAnalysis from "./InvestementAnalysis";
 import InvestmentRenderItem from "./InvestmentRenderItem";
-import IInvestment from "./IInvestment";
 import useInvestmentService from "./InvestmentService";
-import Routes from "./Routes";
+import ScreenLayout from "./ScreenLayout";
+import { DISABLED_COLOR } from "./colors.config";
+import { CENTER, SCREEN_HEIGHT } from "./constants.config";
 
 const InvestmentMain = () => {
 	const { fetchInvestments } = useInvestmentService();
@@ -16,14 +16,24 @@ const InvestmentMain = () => {
 
 	useFocusEffect(useCallback(() => setInvestments(fetchInvestments()), []));
 
-	if (!investments || investments.length === 0)
-		return <NoContent investments />;
-
 	return (
 		<ScreenLayout>
-			<InvestmentAnalysis investments={investments} />
-			<FlatList data={investments} renderItem={InvestmentRenderItem} />
-			<PlusButton to={Routes.Investment.Add} />
+			{investments && investments.length > 0 ? (
+				<>
+					<InvestmentAnalysis investments={investments} />
+					<FlatList
+						data={investments}
+						renderItem={InvestmentRenderItem}
+					/>
+				</>
+			) : (
+				<CustomText
+					text={"No Sources found"}
+					alignSelf={CENTER}
+					color={DISABLED_COLOR}
+					paddingTop={SCREEN_HEIGHT / 3}
+				/>
+			)}
 		</ScreenLayout>
 	);
 };

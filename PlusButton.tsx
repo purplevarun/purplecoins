@@ -1,7 +1,7 @@
-import { TouchableOpacity, Image, StyleSheet } from "react-native";
-import { ABSOLUTE, FONT_SIZE } from "./constants.config";
 import { useNavigation } from "@react-navigation/native";
+import { Image, StyleSheet, TouchableOpacity } from "react-native";
 import { BACKGROUND_COLOR } from "./colors.config";
+import { ABSOLUTE, FONT_SIZE } from "./constants.config";
 
 const PlusButton = ({ to }: { to: string }) => {
 	const addImgSource = "./assets/images/add.png";

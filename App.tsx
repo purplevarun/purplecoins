@@ -1,28 +1,30 @@
-import "react-native-gesture-handler";
-import * as NavigationBar from "expo-navigation-bar";
 import { NavigationContainer } from "@react-navigation/native";
-import { Suspense } from "react";
-import { StatusBar } from "react-native";
-import { BACKGROUND_COLOR } from "./colors.config";
 import { useFonts } from "expo-font";
+import * as NavigationBar from "expo-navigation-bar";
 import { SQLiteDatabase, SQLiteProvider } from "expo-sqlite";
-import { create_queries } from "./queries.config";
-import { DB_NAME } from "./constants.config";
-import Router from "./Router";
-import LoadingScreen from "./LoadingScreen";
+import { Suspense } from "react";
+import { StatusBar, View } from "react-native";
+import "react-native-gesture-handler";
 import IProvider from "./IProvider";
+import LoadingScreen from "./LoadingScreen";
+import Router from "./Router";
+import { BACKGROUND_COLOR } from "./colors.config";
+import { DB_NAME, FLEX_ONE } from "./constants.config";
+import { create_queries } from "./queries.config";
 
 const App = () => {
 	NavigationBar.setBackgroundColorAsync(BACKGROUND_COLOR).catch();
 	return (
-		<FontProvider>
-			<DatabaseProvider>
-				<NavigationProvider>
-					<StatusBar backgroundColor={BACKGROUND_COLOR} />
-					<Router />
-				</NavigationProvider>
-			</DatabaseProvider>
-		</FontProvider>
+		<View style={{ flex: FLEX_ONE, backgroundColor: BACKGROUND_COLOR }}>
+			<FontProvider>
+				<DatabaseProvider>
+					<NavigationProvider>
+						<StatusBar backgroundColor={BACKGROUND_COLOR} />
+						<Router />
+					</NavigationProvider>
+				</DatabaseProvider>
+			</FontProvider>
+		</View>
 	);
 };
 

@@ -1,9 +1,15 @@
+import { StyleSheet, View } from "react-native";
+import { Dropdown } from "react-native-element-dropdown";
+import CustomText from "./CustomText";
+import IRenderItem from "./IRenderItem";
+import useInvestmentService from "./InvestmentService";
+import useTransactionStore from "./TransactionStore";
+import TransactionType from "./TransactionType";
 import {
 	BACKGROUND_COLOR,
 	DISABLED_COLOR,
 	PRIMARY_COLOR,
 } from "./colors.config";
-import { StyleSheet, View } from "react-native";
 import {
 	BORDER_RADIUS,
 	CENTER,
@@ -12,12 +18,6 @@ import {
 	PADDING,
 	PADDING_TOP_ADD_SCREEN,
 } from "./constants.config";
-import { Dropdown } from "react-native-element-dropdown";
-import TransactionType from "./TransactionType";
-import IRenderItem from "./IRenderItem";
-import CustomText from "./CustomText";
-import useTransactionStore from "./TransactionStore";
-import useInvestmentService from "./InvestmentService";
 
 const InvestmentSelector = () => {
 	const { investmentId, setInvestmentId, type } = useTransactionStore();

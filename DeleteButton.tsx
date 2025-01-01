@@ -1,5 +1,16 @@
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { FC, useState } from "react";
 import { Modal, StyleSheet, TouchableOpacity, View } from "react-native";
+import CustomButton from "./CustomButton";
+import CustomText from "./CustomText";
+import Vertical from "./Vertical";
+import {
+	BACKGROUND_COLOR,
+	PRIMARY_COLOR,
+	RED_COLOR,
+	SECONDARY_COLOR,
+	SHADOW_COLOR,
+} from "./colors.config";
 import {
 	BORDER_WIDTH,
 	CENTER,
@@ -14,18 +25,7 @@ import {
 	MODAL_WIDTH,
 	SPACE_EVENLY,
 } from "./constants.config";
-import {
-	BACKGROUND_COLOR,
-	PRIMARY_COLOR,
-	RED_COLOR,
-	SECONDARY_COLOR,
-	SHADOW_COLOR,
-} from "./colors.config";
 import { DELETE_ICON } from "./icons.config";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
-import Vertical from "./Vertical";
-import CustomText from "./CustomText";
-import CustomButton from "./CustomButton";
 
 const DeleteButton: IDeleteButton = ({ onDelete }) => {
 	const [modal, setModal] = useState(false);
@@ -38,6 +38,7 @@ const DeleteButton: IDeleteButton = ({ onDelete }) => {
 				name={DELETE_ICON}
 				size={FONT_SIZE * 1.5}
 				color={BACKGROUND_COLOR}
+				alignSelf={CENTER}
 			/>
 			{modal && <DeleteModal setModal={setModal} onDelete={onDelete} />}
 		</TouchableOpacity>
@@ -85,10 +86,12 @@ type IDeleteModal = FC<{
 
 const styles = StyleSheet.create({
 	deleteButton: {
-		backgroundColor: RED_COLOR,
+		backgroundColor: PRIMARY_COLOR,
 		paddingHorizontal: 6,
-		paddingVertical: 2,
 		borderRadius: MARGIN,
+		height: FONT_SIZE * 1.8,
+		alignSelf: CENTER,
+		justifyContent: CENTER,
 	},
 	modalOverlay: {
 		flex: FLEX_ONE,

@@ -1,29 +1,34 @@
-import { FlatList } from "react-native";
-import { useCallback, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
-import ScreenLayout from "./ScreenLayout";
-import PlusButton from "./PlusButton";
-import NoContent from "./NoContent";
-import useCategoryService from "./CategoryService";
-import ICategory from "./ICategory";
-import Routes from "./Routes";
+import { useCallback, useState } from "react";
+import { FlatList } from "react-native";
 import CategoryRenderItem from "./CategoryRenderItem";
+import useCategoryService from "./CategoryService";
+import CustomText from "./CustomText";
+import ICategory from "./ICategory";
+import ScreenLayout from "./ScreenLayout";
+import { DISABLED_COLOR } from "./colors.config";
+import { CENTER, SCREEN_HEIGHT } from "./constants.config";
 
 const CategoryMain = () => {
 	const { fetchCategories } = useCategoryService();
-	const [categories, setCategories] = useState<null | ICategory[]>(null);
+	const [categories, setCategories] = useState<ICategory[]>([]);
 	useFocusEffect(useCallback(() => setCategories(fetchCategories()), []));
-	if (!categories || categories.length === 0) return <NoContent categories />;
 
 	return (
 		<ScreenLayout>
-			<PlusButton to={Routes.Category.Add} />
-			{categories.length > 0 && (
+			{categories.length > 0 ? (
 				<FlatList
 					data={categories}
 					renderItem={({ item }) => (
 						<CategoryRenderItem item={item} />
 					)}
+				/>
+			) : (
+				<CustomText
+					text={"No Categories found"}
+					alignSelf={CENTER}
+					color={DISABLED_COLOR}
+					paddingTop={SCREEN_HEIGHT / 3}
 				/>
 			)}
 		</ScreenLayout>

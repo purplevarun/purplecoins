@@ -1,13 +1,13 @@
 import { View } from "react-native";
-import { DISABLED_COLOR, PRIMARY_COLOR } from "./colors.config";
-import { FONT_SIZE, PADDING } from "./constants.config";
 import { MultiSelect } from "react-native-element-dropdown";
 import CustomText from "./CustomText";
-import dropdownStyle from "./dropdown.style";
-import TransactionType from "./TransactionType";
 import IRenderItem from "./IRenderItem";
 import useTransactionStore from "./TransactionStore";
+import TransactionType from "./TransactionType";
 import useTripService from "./TripService";
+import { DISABLED_COLOR, PRIMARY_COLOR } from "./colors.config";
+import { FONT_SIZE, PADDING } from "./constants.config";
+import dropdownStyle from "./dropdown.style";
 
 const TripSelector = () => {
 	const { type, tripIds, setTripIds } = useTransactionStore();

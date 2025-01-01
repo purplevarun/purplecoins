@@ -1,13 +1,12 @@
 import { useNavigation } from "@react-navigation/native";
-import { fetch_all_investments, insert_investment } from "./queries.config";
-import { generateUUID, toInt } from "./HelperFunctions";
 import { useSQLiteContext } from "expo-sqlite";
+import { useMemo } from "react";
+import { generateUUID, toInt } from "./HelperFunctions";
 import IInvestment from "./IInvestment";
 import useInvestmentStore from "./InvestmentStore";
-import Routes from "./Routes";
-import { useMemo } from "react";
 import useTransactionStore from "./TransactionStore";
 import TransactionType from "./TransactionType";
+import { fetch_all_investments, insert_investment } from "./queries.config";
 
 const useInvestmentService = () => {
 	const db = useSQLiteContext();
@@ -49,7 +48,7 @@ const useInvestmentService = () => {
 			console.log("ERROR: creating investment", e);
 		}
 		clearStore();
-		navigate(Routes.Investment.Main);
+		navigate("Investment.Main");
 	};
 
 	const clearStore = () => {

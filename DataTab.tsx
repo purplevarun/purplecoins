@@ -1,7 +1,7 @@
 import { FC } from "react";
 import { StyleSheet, View } from "react-native";
-import { FLEX_ROW, MARGIN, SPACE_BETWEEN } from "./constants.config";
 import CustomText from "./CustomText";
+import { FLEX_ROW, MARGIN, SPACE_BETWEEN } from "./constants.config";
 
 type IDataTab = FC<{
 	name: string;

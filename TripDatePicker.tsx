@@ -1,12 +1,15 @@
+import RNDateTimePicker from "@react-native-community/datetimepicker";
 import { useState } from "react";
-import { DISABLED_COLOR, PRIMARY_COLOR } from "./colors.config";
 import {
 	DimensionValue,
 	StyleSheet,
 	TouchableOpacity,
 	View,
 } from "react-native";
+import CustomText from "./CustomText";
 import { formatDate } from "./HelperFunctions";
+import useTripStore from "./TripStore";
+import { DISABLED_COLOR, PRIMARY_COLOR } from "./colors.config";
 import {
 	BORDER_RADIUS,
 	BORDER_WIDTH,
@@ -17,9 +20,6 @@ import {
 	PADDING,
 	SPACE_BETWEEN,
 } from "./constants.config";
-import RNDateTimePicker from "@react-native-community/datetimepicker";
-import CustomText from "./CustomText";
-import useTripStore from "./TripStore";
 
 const TripDatePicker = () => {
 	const {

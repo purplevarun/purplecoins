@@ -1,4 +1,10 @@
+import { useEffect, useRef, useState } from "react";
 import { Animated, Easing, TextInput, View } from "react-native";
+import {
+	BACKGROUND_COLOR,
+	DISABLED_COLOR,
+	PRIMARY_COLOR,
+} from "./colors.config";
 import {
 	ABSOLUTE,
 	BORDER_RADIUS,
@@ -9,12 +15,6 @@ import {
 	PADDING_TOP_ADD_SCREEN,
 	UBUNTU_FONT,
 } from "./constants.config";
-import { useEffect, useRef, useState } from "react";
-import {
-	BACKGROUND_COLOR,
-	DISABLED_COLOR,
-	PRIMARY_COLOR,
-} from "./colors.config";
 
 const CustomInput = ({
 	value,

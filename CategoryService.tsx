@@ -1,7 +1,7 @@
-import { generateUUID } from "./HelperFunctions";
-import { useSQLiteContext } from "expo-sqlite";
 import { useNavigation } from "@react-navigation/native";
+import { useSQLiteContext } from "expo-sqlite";
 import useCategoryStore from "./CategoryStore";
+import { generateUUID } from "./HelperFunctions";
 import ICategory from "./ICategory";
 import ITransaction from "./ITransaction";
 import {
@@ -10,7 +10,6 @@ import {
 	fetch_transactions_for_category,
 	insert_category,
 } from "./queries.config";
-import Routes from "./Routes";
 
 const useCategoryService = () => {
 	const db = useSQLiteContext();
@@ -25,7 +24,7 @@ const useCategoryService = () => {
 			console.log("ERROR: CREATING CATEGORY");
 		}
 		clearStore();
-		navigate(Routes.Category.Main);
+		navigate("Category.Main");
 	};
 
 	const fetchCategories = () => {

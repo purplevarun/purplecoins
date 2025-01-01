@@ -1,5 +1,5 @@
-import TransactionType, { ExpenseData } from "./TransactionType";
 import RadioButtonGroup from "./RadioButtonGroup";
+import TransactionType, { ExpenseData } from "./TransactionType";
 
 interface ITypeSelector {
 	type: TransactionType;

@@ -1,13 +1,13 @@
-import { logger } from "./HelperFunctions";
-import { DB_NAME, FONT_SIZE } from "./constants.config";
-import { useSQLiteContext } from "expo-sqlite";
-import { delete_queries } from "./queries.config";
 import * as DocumentPicker from "expo-document-picker";
-import ScreenLayout from "./ScreenLayout";
-import CustomButton from "./CustomButton";
-import Vertical from "./Vertical";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
+import { useSQLiteContext } from "expo-sqlite";
+import CustomButton from "./CustomButton";
+import { logger } from "./HelperFunctions";
+import ScreenLayout from "./ScreenLayout";
+import Vertical from "./Vertical";
+import { DB_NAME, FONT_SIZE } from "./constants.config";
+import { delete_queries } from "./queries.config";
 
 const SyncScreen = () => {
 	const db = useSQLiteContext();

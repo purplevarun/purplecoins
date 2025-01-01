@@ -1,8 +1,8 @@
 import { View } from "react-native";
-import { PADDING } from "./constants.config";
 import CustomText from "./CustomText";
 import { formatMoney } from "./HelperFunctions";
 import IInvestment from "./IInvestment";
+import { PADDING } from "./constants.config";
 
 const InvestmentAnalysis = ({
 	investments,

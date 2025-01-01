@@ -3,7 +3,7 @@
 	"version": "1.0.0",
 	"main": "expo/AppEntry.js",
 	"scripts": {
-		"dev": "expo start -c -p 3003",
+		"dev": "expo start -c -p 3004",
 		"clean": "rm -rf node_modules yarn.lock .expo && yarn",
 		"doctor": "npx expo-doctor",
 		"format": "prettier --write .",
@@ -43,6 +43,7 @@
 		"@babel/core": "^7.20.0",
 		"@types/react": "~18.2.45",
 		"prettier": "^3.4.2",
+		"prettier-plugin-organize-imports": "^4.1.0",
 		"typescript": "~5.3.3"
 	},
 	"private": true

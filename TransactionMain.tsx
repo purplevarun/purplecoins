@@ -1,45 +1,56 @@
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { useCallback, useState } from "react";
 import { SectionList, StyleSheet, View } from "react-native";
+import CustomText from "./CustomText";
+import Header from "./Header";
+import IGroupedTransactions from "./IGroupedTransactions";
 import ITransaction from "./ITransaction";
+import ScreenLayout from "./ScreenLayout";
+import TransactionRenderItem from "./TransactionRenderItem";
+import useTransactionService from "./TransactionService";
+import { DISABLED_COLOR } from "./colors.config";
 import {
 	BORDER_RADIUS,
 	CENTER,
 	FLEX_ROW,
 	LARGE_FONT_SIZE,
 	PADDING,
+	SCREEN_HEIGHT,
 	SPACE_BETWEEN,
 } from "./constants.config";
-import ScreenLayout from "./ScreenLayout";
-import PlusButton from "./PlusButton";
-import TransactionRenderItem from "./TransactionRenderItem";
-import NoContent from "./NoContent";
-import useTransactionService from "./TransactionService";
-import CustomText from "./CustomText";
-import Routes from "./Routes";
-import IGroupedTransactions from "./IGroupedTransactions";
+
+const useFocus = (fn: () => void, params: any[]) => {
+	useFocusEffect(useCallback(fn, params));
+};
 
 const TransactionMain = () => {
 	const { fetchGroupedTransactions } = useTransactionService();
 	const [transactions, setTransactions] =
 		useState<null | IGroupedTransactions>(null);
 
-	useFocusEffect(
-		useCallback(() => setTransactions(fetchGroupedTransactions()), []),
-	);
-
-	if (!transactions || transactions.length === 0)
-		return <NoContent transactions />;
-
+	useFocus(() => setTransactions(fetchGroupedTransactions()), []);
+	const { navigate } = useNavigation<any>();
 	return (
 		<ScreenLayout>
-			<SectionList
-				sections={transactions}
-				keyExtractor={KeyExtractor}
-				renderSectionHeader={SectionHeader}
-				renderItem={RenderItem}
+			<Header
+				title={"Transactions"}
+				navigateToAddScreen={() => navigate("Transaction.Add")}
 			/>
-			<PlusButton to={Routes.Transaction.Add} />
+			{transactions && transactions.length > 0 ? (
+				<SectionList
+					sections={transactions}
+					keyExtractor={KeyExtractor}
+					renderSectionHeader={SectionHeader}
+					renderItem={RenderItem}
+				/>
+			) : (
+				<CustomText
+					text={"No Transactions found"}
+					alignSelf={CENTER}
+					color={DISABLED_COLOR}
+					paddingTop={SCREEN_HEIGHT / 3}
+				/>
+			)}
 		</ScreenLayout>
 	);
 };

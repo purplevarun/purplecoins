@@ -1,7 +1,11 @@
-import { useMemo } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { formatDate, generateUUID, logger, objectify } from "./HelperFunctions";
 import { useSQLiteContext } from "expo-sqlite";
+import { useMemo } from "react";
+import { formatDate, generateUUID, objectify } from "./HelperFunctions";
+import IGroupedTransactions from "./IGroupedTransactions";
+import ITransaction from "./ITransaction";
+import useTransactionStore from "./TransactionStore";
+import TransactionType from "./TransactionType";
 import {
 	delete_transaction_categories,
 	delete_transaction_trips,
@@ -15,11 +19,6 @@ import {
 	update_source_deduct_current_amount,
 	update_transaction,
 } from "./queries.config";
-import useTransactionStore from "./TransactionStore";
-import TransactionType from "./TransactionType";
-import ITransaction from "./ITransaction";
-import Routes from "./Routes";
-import IGroupedTransactions from "./IGroupedTransactions";
 
 const useTransactionService = () => {
 	const db = useSQLiteContext();
@@ -174,7 +173,7 @@ const useTransactionService = () => {
 			} catch (error) {
 				console.error("Error updating transaction", error);
 			}
-			navigate(Routes.Transaction.Detail, { transactionId });
+			navigate("Transaction.Detail", { transactionId });
 		} else {
 			try {
 				const calculatedAmount = parseInt(amount);
@@ -226,7 +225,7 @@ const useTransactionService = () => {
 			} catch {
 				console.log("error creating transaction");
 			}
-			navigate(Routes.Transaction.Main);
+			navigate("Transaction.Main");
 		}
 		clearStore();
 	};
@@ -264,7 +263,7 @@ const useTransactionService = () => {
 
 	const selectTransaction = (id: string) => {
 		console.log("SELECTED TRANSACTION", id);
-		navigate(Routes.Transaction.Detail);
+		navigate("Transaction.Detail");
 	};
 
 	const handleEdit = (transactionId: string) => {
@@ -281,7 +280,7 @@ const useTransactionService = () => {
 			JSON.parse(transaction.categories || "[]").map((c: any) => c.id),
 		);
 		setTripIds(JSON.parse(transaction.trips || "[]").map((t: any) => t.id));
-		navigate(Routes.Transaction.Add, { transactionId });
+		navigate("Transaction.Add", { transactionId });
 	};
 
 	const handleDelete = (transactionId: string) => {};

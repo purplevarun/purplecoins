@@ -1,5 +1,10 @@
+import { useNavigation } from "@react-navigation/native";
 import { FC } from "react";
 import { StyleSheet, TouchableOpacity } from "react-native";
+import CustomText from "./CustomText";
+import ITrip from "./ITrip";
+import useTripService from "./TripService";
+import { SECONDARY_COLOR } from "./colors.config";
 import {
 	BORDER_RADIUS,
 	FLEX_ROW,
@@ -7,12 +12,6 @@ import {
 	PADDING,
 	SPACE_BETWEEN,
 } from "./constants.config";
-import { SECONDARY_COLOR } from "./colors.config";
-import CustomText from "./CustomText";
-import useTripService from "./TripService";
-import ITrip from "./ITrip";
-import Routes from "./Routes";
-import { useNavigation } from "@react-navigation/native";
 
 const TripRenderItem: Props = ({ item }) => {
 	const { fetchTotalForCurrentTrip } = useTripService();
@@ -22,7 +21,7 @@ const TripRenderItem: Props = ({ item }) => {
 	return (
 		<TouchableOpacity
 			style={styles.button}
-			onPress={() => navigate(Routes.Trip.Detail, { tripId: item.id })}
+			onPress={() => navigate("Trip.Detail", { tripId: item.id })}
 		>
 			<CustomText text={item.name} />
 			<CustomText text={total} />

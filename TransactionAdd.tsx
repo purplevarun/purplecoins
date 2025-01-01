@@ -1,22 +1,24 @@
+import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
-import { RED_COLOR } from "./colors.config";
-import { FLEX_START, PADDING, SMALL_FONT_SIZE } from "./constants.config";
 import { View } from "react-native";
-import useTransactionStore from "./TransactionStore";
+import CategorySelector from "./CategorySelector";
 import CustomButton from "./CustomButton";
 import CustomInput from "./CustomInput";
-import ScreenLayout from "./ScreenLayout";
-import InvestmentSelector from "./InvestmentSelector";
-import useSourceService from "./SourceService";
-import CategorySelector from "./CategorySelector";
+import CustomText from "./CustomText";
 import DestinationSelector from "./DestinationSelector";
+import Header from "./Header";
+import InvestmentSelector from "./InvestmentSelector";
+import ScreenLayout from "./ScreenLayout";
 import SourceSelector from "./SourceSelector";
+import useSourceService from "./SourceService";
 import TransactionDatePicker from "./TransactionDatePicker";
 import useTransactionService from "./TransactionService";
+import useTransactionStore from "./TransactionStore";
+import TransactionType from "./TransactionType";
 import TripSelector from "./TripSelector";
 import TypeSelector from "./TypeSelector";
-import CustomText from "./CustomText";
-import TransactionType from "./TransactionType";
+import { RED_COLOR } from "./colors.config";
+import { FLEX_START, PADDING, SMALL_FONT_SIZE } from "./constants.config";
 
 const TransactionAdd = ({ route }: any) => {
 	const transactionId = route.params?.transactionId ?? null;
@@ -25,6 +27,7 @@ const TransactionAdd = ({ route }: any) => {
 	const { addNewTransaction, submitEnabled } = useTransactionService();
 	const { fetchSource } = useSourceService();
 	const [insufficientBalance, setInsufficientBalance] = useState(false);
+	const { navigate } = useNavigation<any>();
 	const onPress = () => {
 		const source = fetchSource(sourceId);
 		if (
@@ -39,6 +42,10 @@ const TransactionAdd = ({ route }: any) => {
 	};
 	return (
 		<ScreenLayout>
+			<Header
+				title={"Add Transaction"}
+				navigateToMainScreen={() => navigate("Transaction.Main")}
+			/>
 			<TypeSelector type={type} setType={setType} />
 			<CustomInput
 				name={"Amount"}

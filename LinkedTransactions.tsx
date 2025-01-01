@@ -1,10 +1,10 @@
-import ITransaction from "./ITransaction";
 import { FlatList, StyleSheet, View } from "react-native";
-import { LARGE_FONT_SIZE, PADDING } from "./constants.config";
 import CustomText from "./CustomText";
-import Vertical from "./Vertical";
+import ITransaction from "./ITransaction";
 import TransactionRenderItem from "./TransactionRenderItem";
+import Vertical from "./Vertical";
 import { DISABLED_COLOR } from "./colors.config";
+import { LARGE_FONT_SIZE, PADDING } from "./constants.config";
 
 const LinkedTransactions = ({
 	transactions,

@@ -1,4 +1,7 @@
 import { TouchableOpacity, View } from "react-native";
+import CustomText from "./CustomText";
+import { formatMoney } from "./HelperFunctions";
+import IInvestment from "./IInvestment";
 import { SECONDARY_COLOR } from "./colors.config";
 import {
 	BORDER_RADIUS,
@@ -8,9 +11,6 @@ import {
 	PADDING,
 	SPACE_BETWEEN,
 } from "./constants.config";
-import CustomText from "./CustomText";
-import { formatMoney } from "./HelperFunctions";
-import IInvestment from "./IInvestment";
 
 const InvestmentRenderItem = ({ item }: { item: IInvestment }) => {
 	const { name, investedAmount, currentAmount } = item;

@@ -1,5 +1,9 @@
-import { formatMoney } from "./HelperFunctions";
+import { useNavigation } from "@react-navigation/native";
 import { StyleSheet, TouchableOpacity } from "react-native";
+import CustomText from "./CustomText";
+import { formatMoney } from "./HelperFunctions";
+import ITransaction from "./ITransaction";
+import { ExpenseData } from "./TransactionType";
 import {
 	BORDER_RADIUS,
 	CENTER,
@@ -10,11 +14,6 @@ import {
 	SEVENTY_P,
 	SPACE_BETWEEN,
 } from "./constants.config";
-import { ExpenseData } from "./TransactionType";
-import CustomText from "./CustomText";
-import ITransaction from "./ITransaction";
-import Routes from "./Routes";
-import { useNavigation } from "@react-navigation/native";
 
 const TransactionRenderItem = ({ item }: { item: ITransaction }) => {
 	const { color: borderColor } = ExpenseData[item.type];
@@ -23,7 +22,7 @@ const TransactionRenderItem = ({ item }: { item: ITransaction }) => {
 		<TouchableOpacity
 			style={[styles.outer, { borderColor }]}
 			onPress={() =>
-				navigate(Routes.Transaction.Detail, { transactionId: item.id })
+				navigate("Transaction.Detail", { transactionId: item.id })
 			}
 		>
 			<CustomText text={item.reason} alignSelf={CENTER} />

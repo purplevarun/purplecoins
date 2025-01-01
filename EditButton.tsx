@@ -1,8 +1,8 @@
-import { TouchableOpacity } from "react-native";
-import { FONT_SIZE, PADDING } from "./constants.config";
-import { YELLOW_COLOR } from "./colors.config";
-import { EDIT_ICON } from "./icons.config";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { TouchableOpacity } from "react-native";
+import { YELLOW_COLOR } from "./colors.config";
+import { FONT_SIZE, PADDING } from "./constants.config";
+import { EDIT_ICON } from "./icons.config";
 
 const EditButton = ({ onPress }: { onPress: () => void }) => {
 	return (

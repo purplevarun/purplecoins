@@ -1,11 +1,11 @@
-import { FONT_SIZE } from "./constants.config";
-import ScreenLayout from "./ScreenLayout";
-import CustomInput from "./CustomInput";
 import CustomButton from "./CustomButton";
-import Vertical from "./Vertical";
+import CustomInput from "./CustomInput";
+import ScreenLayout from "./ScreenLayout";
 import TripDatePicker from "./TripDatePicker";
-import useTripStore from "./TripStore";
 import useTripService from "./TripService";
+import useTripStore from "./TripStore";
+import Vertical from "./Vertical";
+import { FONT_SIZE } from "./constants.config";
 
 const TripAdd = ({ route }: any) => {
 	const tripId = route.params?.tripId ?? null;

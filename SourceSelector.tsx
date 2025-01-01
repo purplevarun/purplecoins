@@ -1,15 +1,15 @@
+import { View } from "react-native";
+import { Dropdown } from "react-native-element-dropdown";
+import CustomText from "./CustomText";
+import IRenderItem from "./IRenderItem";
+import useSourceService from "./SourceService";
+import useTransactionStore from "./TransactionStore";
 import {
 	BACKGROUND_COLOR,
 	DISABLED_COLOR,
 	PRIMARY_COLOR,
 } from "./colors.config";
-import { Dropdown } from "react-native-element-dropdown";
-import { View } from "react-native";
 import { PADDING } from "./constants.config";
-import IRenderItem from "./IRenderItem";
-import CustomText from "./CustomText";
-import useTransactionStore from "./TransactionStore";
-import useSourceService from "./SourceService";
 import dropdownStyle from "./dropdown.style";
 
 const SourceSelector = () => {

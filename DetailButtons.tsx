@@ -1,8 +1,8 @@
-import { CENTER, FLEX_END, FLEX_ROW, PADDING } from "./constants.config";
 import { View } from "react-native";
-import EditButton from "./EditButton";
-import DeleteButton from "./DeleteButton";
 import useAppStore from "./AppStore";
+import DeleteButton from "./DeleteButton";
+import EditButton from "./EditButton";
+import { CENTER, FLEX_END, FLEX_ROW, PADDING } from "./constants.config";
 
 const DetailButtons = () => {
 	const { onEdit, onDelete } = useAppStore();

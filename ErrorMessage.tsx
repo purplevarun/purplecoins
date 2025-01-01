@@ -1,8 +1,8 @@
 import { View } from "react-native";
-import { CENTER, PADDING, SMALL_FONT_SIZE } from "./constants.config";
 import CustomText from "./CustomText";
-import { RED_COLOR } from "./colors.config";
 import Vertical from "./Vertical";
+import { RED_COLOR } from "./colors.config";
+import { CENTER, PADDING, SMALL_FONT_SIZE } from "./constants.config";
 
 const ErrorMessage = ({ error }: { error: string }) => {
 	return error.length > 0 ? (

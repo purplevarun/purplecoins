@@ -1,26 +1,39 @@
-import { useCallback, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
+import { useCallback, useState } from "react";
 import { FlatList } from "react-native";
-import ScreenLayout from "./ScreenLayout";
-import PlusButton from "./PlusButton";
-import NoContent from "./NoContent";
-import TripRenderItem from "./TripRenderItem";
+import CustomText from "./CustomText";
+import Header from "./Header";
 import ITrip from "./ITrip";
+import PlusButton from "./PlusButton";
+import ScreenLayout from "./ScreenLayout";
+import TripRenderItem from "./TripRenderItem";
 import useTripService from "./TripService";
-import Routes from "./Routes";
+import { DISABLED_COLOR } from "./colors.config";
+import { CENTER, SCREEN_HEIGHT } from "./constants.config";
+import useNavigate from "./useNavigate";
 
 const TripMain = () => {
 	const { fetchTrips } = useTripService();
-	const [trips, setTrips] = useState<null | ITrip[]>(null);
+	const [trips, setTrips] = useState<ITrip[]>([]);
 	useFocusEffect(useCallback(() => setTrips(fetchTrips()), []));
-	if (!trips || trips.length === 0) return <NoContent trips />;
+	const { navigateToTripAdd } = useNavigate();
 	return (
 		<ScreenLayout>
-			<FlatList
-				data={trips}
-				renderItem={({ item }) => <TripRenderItem item={item} />}
-			/>
-			<PlusButton to={Routes.Trip.Add} />
+			<Header title={"Trips"} navigateToAddScreen={navigateToTripAdd} />
+			{trips.length > 0 ? (
+				<FlatList
+					data={trips}
+					renderItem={({ item }) => <TripRenderItem item={item} />}
+				/>
+			) : (
+				<CustomText
+					text={"No Trip found"}
+					alignSelf={CENTER}
+					color={DISABLED_COLOR}
+					paddingTop={SCREEN_HEIGHT / 3}
+				/>
+			)}
+			<PlusButton to={"Trip.Add"} />
 		</ScreenLayout>
 	);
 };

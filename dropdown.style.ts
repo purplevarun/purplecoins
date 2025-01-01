@@ -1,5 +1,10 @@
 import { StyleSheet } from "react-native";
 import {
+	BACKGROUND_COLOR,
+	DISABLED_COLOR,
+	PRIMARY_COLOR,
+} from "./colors.config";
+import {
 	BORDER_RADIUS,
 	CENTER,
 	FONT_SIZE,
@@ -7,11 +12,6 @@ import {
 	PADDING,
 	PADDING_TOP_ADD_SCREEN,
 } from "./constants.config";
-import {
-	BACKGROUND_COLOR,
-	DISABLED_COLOR,
-	PRIMARY_COLOR,
-} from "./colors.config";
 
 const dropdownStyle = StyleSheet.create({
 	selected: { alignSelf: CENTER },

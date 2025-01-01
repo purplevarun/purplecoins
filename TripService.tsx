@@ -1,6 +1,9 @@
-import { generateUUID } from "./HelperFunctions";
-import { useSQLiteContext } from "expo-sqlite";
 import { useNavigation } from "@react-navigation/native";
+import { useSQLiteContext } from "expo-sqlite";
+import { generateUUID } from "./HelperFunctions";
+import ITransaction from "./ITransaction";
+import ITrip from "./ITrip";
+import useTripStore from "./TripStore";
 import {
 	delete_single_trip,
 	fetch_all_transactions_for_trip,
@@ -14,10 +17,6 @@ import {
 	update_trip_with_start_date,
 	update_trip_without_date,
 } from "./queries.config";
-import useTripStore from "./TripStore";
-import ITrip from "./ITrip";
-import ITransaction from "./ITransaction";
-import Routes from "./Routes";
 
 const useTripService = () => {
 	const db = useSQLiteContext();
@@ -79,7 +78,7 @@ const useTripService = () => {
 			}
 		}
 		clearStore();
-		navigate(Routes.Trip.Main);
+		navigate("Trip.Main");
 	};
 
 	const fetchTrips = () => {
@@ -122,12 +121,12 @@ const useTripService = () => {
 				setEndDate(new Date(trip.endDate));
 			}
 		}
-		navigate(Routes.Trip.Add, { tripId });
+		navigate("Trip.Add", { tripId });
 	};
 
 	const handleDelete = (tripId: string) => {
 		db.runSync(delete_single_trip, [tripId]);
-		navigate(Routes.Trip.Main);
+		navigate("Trip.Main");
 	};
 
 	const clearStore = () => {

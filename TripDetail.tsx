@@ -1,17 +1,14 @@
-import { formatDate } from "./HelperFunctions";
-import { useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
+import useAppStore from "./AppStore";
+import DataTab from "./DataTab";
+import { formatDate } from "./HelperFunctions";
+import LinkedTransactions from "./LinkedTransactions";
 import ScreenLayout from "./ScreenLayout";
 import useTripService from "./TripService";
-import DataTab from "./DataTab";
-import LinkedTransactions from "./LinkedTransactions";
-import useAppStore from "./AppStore";
 
-const TripDetail = ({
-	route: {
-		params: { tripId },
-	},
-}: any) => {
+const TripDetail = ({ route }: any) => {
+	const tripId = route.params?.tripId ?? null;
 	if (!tripId) return null;
 	const {
 		handleEdit,
