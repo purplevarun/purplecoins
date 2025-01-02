@@ -9,7 +9,7 @@ import Vertical from "./Vertical";
 import { DB_NAME, FONT_SIZE } from "./constants.config";
 import { delete_queries } from "./queries.config";
 
-const SyncScreen = () => {
+const SettingScreen = () => {
 	const db = useSQLiteContext();
 	const handleExport = async () => {
 		const dbPath = `${FileSystem.documentDirectory}SQLite/${DB_NAME}`;
@@ -53,4 +53,4 @@ const SyncScreen = () => {
 	);
 };
 
-export default SyncScreen;
+export default SettingScreen;

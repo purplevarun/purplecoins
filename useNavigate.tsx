@@ -5,24 +5,34 @@ const useNavigate = () => {
 
 	const navigateToTransactionMain = () => navigate("Transaction.Main");
 	const navigateToTransactionAdd = () => navigate("Transaction.Add");
-	const navigateToTransactionDetail = () => navigate("Transaction.Detail");
-	const navigateToTransactionEdit = () => navigate("Transaction.Edit");
+	const navigateToTransactionDetail = (transactionId: string) =>
+		navigate("Transaction.Detail", { transactionId });
+	const navigateToTransactionEdit = (transactionId: string) =>
+		navigate("Transaction.Edit", { transactionId });
 	const navigateToSourceMain = () => navigate("Source.Main");
 	const navigateToSourceAdd = () => navigate("Source.Add");
-	const navigateToSourceDetail = () => navigate("Source.Detail");
-	const navigateToSourceEdit = () => navigate("Source.Edit");
+	const navigateToSourceDetail = (sourceId: string) =>
+		navigate("Source.Detail", { sourceId });
+	const navigateToSourceEdit = (sourceId: string) =>
+		navigate("Source.Edit", { sourceId });
 	const navigateToInvestmentMain = () => navigate("Investment.Main");
 	const navigateToInvestmentAdd = () => navigate("Investment.Add");
-	const navigateToInvestmentDetail = () => navigate("Investment.Detail");
-	const navigateToInvestmentEdit = () => navigate("Investment.Edit");
+	const navigateToInvestmentDetail = (investmentId: string) =>
+		navigate("Investment.Detail", { investmentId });
+	const navigateToInvestmentEdit = (investmentId: string) =>
+		navigate("Investment.Edit", { investmentId });
 	const navigateToTripMain = () => navigate("Trip.Main");
 	const navigateToTripAdd = () => navigate("Trip.Add");
-	const navigateToTripDetail = () => navigate("Trip.Detail");
-	const navigateToTripEdit = () => navigate("Trip.Edit");
+	const navigateToTripDetail = (tripId: string) =>
+		navigate("Trip.Detail", { tripId });
+	const navigateToTripEdit = (tripId: string) =>
+		navigate("Trip.Edit", { tripId });
 	const navigateToCategoryMain = () => navigate("Category.Main");
 	const navigateToCategoryAdd = () => navigate("Category.Add");
-	const navigateToCategoryDetail = () => navigate("Category.Detail");
-	const navigateToCategoryEdit = () => navigate("Category.Edit");
+	const navigateToCategoryDetail = (categoryId: string) =>
+		navigate("Category.Detail", { categoryId });
+	const navigateToCategoryEdit = (categoryId: string) =>
+		navigate("Category.Edit", { categoryId });
 
 	return {
 		navigateToTransactionMain,

@@ -4,24 +4,22 @@ import { formatMoney } from "./HelperFunctions";
 import LinkedTransactions from "./LinkedTransactions";
 import ScreenLayout from "./ScreenLayout";
 import useSourceService from "./SourceService";
+import useNavigate from "./useNavigate";
 
 const SourceDetail = ({ route }: any) => {
-	const sourceId = route.params?.sourceId ?? null;
-	if (!sourceId) return null;
-	const {
-		fetchSource,
-		fetchTransactionsForSource,
-		handleEdit,
-		handleDelete,
-	} = useSourceService();
+	const { sourceId } = route.params;
+	const { fetchSource, fetchTransactionsForSource, handleDelete } =
+		useSourceService();
 	const source = fetchSource(sourceId);
 	const transactions = fetchTransactionsForSource(sourceId);
+	const { navigateToSourceEdit, navigateToSourceMain } = useNavigate();
 	return (
 		<ScreenLayout>
 			<Header
 				title={"Source Details"}
-				handleEdit={() => handleEdit(sourceId)}
+				handleEdit={() => navigateToSourceEdit(sourceId)}
 				handleDelete={() => handleDelete(sourceId)}
+				navigateToMainScreen={navigateToSourceMain}
 			/>
 			<DataTab name={"Name"} value={source.name} />
 			<DataTab

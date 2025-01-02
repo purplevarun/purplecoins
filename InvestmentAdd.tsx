@@ -1,9 +1,11 @@
 import CustomButton from "./CustomButton";
 import CustomInput from "./CustomInput";
+import Header from "./Header";
 import useInvestmentService from "./InvestmentService";
 import useInvestmentStore from "./InvestmentStore";
 import ScreenLayout from "./ScreenLayout";
 import { MINIMUM_LENGTH } from "./constants.config";
+import useNavigate from "./useNavigate";
 
 const InvestmentAdd = () => {
 	const {
@@ -15,9 +17,13 @@ const InvestmentAdd = () => {
 		setCurrentAmount,
 	} = useInvestmentStore();
 	const { addNewInvestment } = useInvestmentService();
-
+	const { navigateToInvestmentMain } = useNavigate();
 	return (
 		<ScreenLayout>
+			<Header
+				title={"Add Investment"}
+				navigateToAddScreen={navigateToInvestmentMain}
+			/>
 			<CustomInput name={"Name"} value={name} setValue={setName} />
 			<CustomInput
 				name={"Invested Amount"}

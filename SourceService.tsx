@@ -11,6 +11,7 @@ import {
 	insert_source,
 	select_all_sources,
 } from "./queries.config";
+import { sourceRoutes } from "./Routes";
 
 const useSourceService = () => {
 	const db = useSQLiteContext();
@@ -24,12 +25,6 @@ const useSourceService = () => {
 			console.log("ERROR FETCHING SOURCES");
 			return [];
 		}
-	};
-	const handleEdit = (sourceId: string) => {
-		const source = fetchSource(sourceId);
-		setName(source.name);
-		setInitialAmount(source.initialAmount.toString());
-		navigate("Source.Edit", { sourceId });
 	};
 	const handleDelete = (sourceId: string) => {
 		const { count } = db.getFirstSync<{ count: number }>(
@@ -55,9 +50,17 @@ const useSourceService = () => {
 			console.log("ERROR ADDING SOURCE");
 		}
 		clearStore();
-		navigate("Source.Main");
+		navigate(sourceRoutes.main);
+	};
+	const deleteSource = (sourceId: string) => {
+		db.runSync("DELETE FROM source WHERE id=?", [sourceId]);
+		navigate(sourceRoutes.main);
 	};
 
+	const updateSource = (sourceId:string)=>{
+		db.runSync("UPDATE source SET name=?,initialAmount=? WHERE id=?",[name,initialAmount,sourceId])
+		navigate(sourceRoutes.detail,{sourceId});
+	}
 	const clearStore = () => {
 		setName("");
 		setInitialAmount("");
@@ -81,8 +84,9 @@ const useSourceService = () => {
 		clearStore,
 		fetchSource,
 		fetchTransactionsForSource,
-		handleEdit,
 		handleDelete,
+		deleteSource
+		,updateSource
 	};
 };
 

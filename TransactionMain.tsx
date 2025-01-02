@@ -1,5 +1,5 @@
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import { useCallback, useState } from "react";
+import { useNavigation } from "@react-navigation/native";
+import { useState } from "react";
 import { SectionList, StyleSheet, View } from "react-native";
 import CustomText from "./CustomText";
 import Header from "./Header";
@@ -18,16 +18,13 @@ import {
 	SCREEN_HEIGHT,
 	SPACE_BETWEEN,
 } from "./constants.config";
-
-const useFocus = (fn: () => void, params: any[]) => {
-	useFocusEffect(useCallback(fn, params));
-};
+import useFocus from "./useFocus";
 
 const TransactionMain = () => {
 	const { fetchGroupedTransactions } = useTransactionService();
-	const [transactions, setTransactions] =
-		useState<null | IGroupedTransactions>(null);
-
+	const [transactions, setTransactions] = useState<IGroupedTransactions[]>(
+		[],
+	);
 	useFocus(() => setTransactions(fetchGroupedTransactions()), []);
 	const { navigate } = useNavigation<any>();
 	return (
@@ -36,7 +33,7 @@ const TransactionMain = () => {
 				title={"Transactions"}
 				navigateToAddScreen={() => navigate("Transaction.Add")}
 			/>
-			{transactions && transactions.length > 0 ? (
+			{transactions.length > 0 ? (
 				<SectionList
 					sections={transactions}
 					keyExtractor={KeyExtractor}

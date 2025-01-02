@@ -1,34 +1,28 @@
-import { useFocusEffect } from "@react-navigation/native";
-import { useCallback } from "react";
-import useAppStore from "./AppStore";
 import DataTab from "./DataTab";
+import Header from "./Header";
 import { formatDate } from "./HelperFunctions";
 import LinkedTransactions from "./LinkedTransactions";
 import ScreenLayout from "./ScreenLayout";
 import useTripService from "./TripService";
 
 const TripDetail = ({ route }: any) => {
-	const tripId = route.params?.tripId ?? null;
-	if (!tripId) return null;
+	const tripId = route.params.tripId;
 	const {
 		handleEdit,
 		handleDelete,
 		fetchCurrentTrip,
 		fetchTransactionsForCurrentTrip,
 	} = useTripService();
-	const { setOnDelete, setOnEdit } = useAppStore();
 	const transactions = fetchTransactionsForCurrentTrip(tripId);
 	const trip = fetchCurrentTrip(tripId);
-	useFocusEffect(
-		useCallback(() => {
-			setOnDelete(() => handleDelete(tripId));
-			setOnEdit(() => handleEdit(tripId));
-		}, [tripId]),
-	);
 
-	if (!trip) return null;
 	return (
 		<ScreenLayout>
+			<Header
+				title={"Trip Details"}
+				handleDelete={() => handleDelete(tripId)}
+				handleEdit={() => handleEdit(tripId)}
+			/>
 			<DataTab name={"Trip Name"} value={trip.name} />
 			<DataTab name={"Start Date"} value={formatDate(trip.startDate)} />
 			<DataTab name={"End Date"} value={formatDate(trip.endDate)} />

@@ -1,3 +1,4 @@
+import { NativeStackNavigationOptions } from "@react-navigation/native-stack";
 import { Dimensions } from "react-native";
 
 const FONT_SCALE = Dimensions.get("screen").fontScale;
@@ -36,3 +37,7 @@ export const FLEX_END = "flex-end";
 export const ABSOLUTE = "absolute";
 export const DB_NAME = "purplecoins.db";
 export const MINIMUM_LENGTH = 4;
+export const screenOptions: NativeStackNavigationOptions = {
+	headerShown: false,
+	animation: "fade",
+};

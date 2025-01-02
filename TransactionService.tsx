@@ -296,7 +296,7 @@ const useTransactionService = () => {
 
 	const fetchGroupedTransactions = () => {
 		const transactions = fetchTransactions();
-		const groupedTransactions: IGroupedTransactions = Object.entries(
+		const groupedTransactions: IGroupedTransactions[] = Object.entries(
 			transactions.reduce<Record<string, ITransaction[]>>(
 				(acc, transaction) => {
 					const normalizedDate = new Date(transaction.date);

@@ -1,4 +1,4 @@
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useState } from "react";
 import { FlatList } from "react-native";
 import CustomText from "./CustomText";
@@ -10,18 +10,19 @@ import useSourceService from "./SourceService";
 import SourceTotal from "./SourceTotal";
 import { DISABLED_COLOR } from "./colors.config";
 import { CENTER, SCREEN_HEIGHT } from "./constants.config";
+import useNavigate from "./useNavigate";
 
 const SourceMain = () => {
 	const { fetchSources } = useSourceService();
 	const [sources, setSources] = useState<ISource[]>([]);
-	const { navigate } = useNavigation<any>();
+	const { navigateToSourceAdd } = useNavigate();
 	useFocusEffect(useCallback(() => setSources(fetchSources()), []));
 
 	return (
 		<ScreenLayout>
 			<Header
 				title={"Sources"}
-				navigateToAddScreen={() => navigate("Source.Add")}
+				navigateToAddScreen={navigateToSourceAdd}
 			/>
 			{sources.length > 0 ? (
 				<>

@@ -36,40 +36,30 @@ const Header = ({
 			<CustomText
 				text={title}
 				alignSelf={CENTER}
-				fontSize={LARGE_FONT_SIZE * 1.2}
+				fontSize={
+					title.length > 15 ? LARGE_FONT_SIZE : LARGE_FONT_SIZE * 1.2
+				}
 			/>
-			{navigateToAddScreen && (
-				<TouchableOpacity
-					style={{ alignSelf: CENTER }}
-					onPress={navigateToAddScreen}
-				>
-					<FontAwesome
-						name="plus"
-						size={LARGE_FONT_SIZE * 1.6}
-						color={PRIMARY_COLOR}
-					/>
-				</TouchableOpacity>
-			)}
-			{navigateToMainScreen && (
-				<TouchableOpacity
-					style={{ alignSelf: CENTER }}
-					onPress={navigateToMainScreen}
-				>
-					<FontAwesome
-						name="close"
-						size={LARGE_FONT_SIZE * 1.6}
-						color={PRIMARY_COLOR}
-					/>
-				</TouchableOpacity>
-			)}
-			{handleEdit && handleDelete && (
-				<View
-					style={{
-						flexDirection: FLEX_ROW,
-						justifyContent: SPACE_BETWEEN,
-						gap: PADDING / 2,
-					}}
-				>
+			<View
+				style={{
+					flexDirection: FLEX_ROW,
+					justifyContent: SPACE_BETWEEN,
+					gap: PADDING / 2,
+				}}
+			>
+				{navigateToAddScreen && (
+					<TouchableOpacity
+						style={{ alignSelf: CENTER }}
+						onPress={navigateToAddScreen}
+					>
+						<FontAwesome
+							name="plus"
+							size={LARGE_FONT_SIZE * 1.6}
+							color={PRIMARY_COLOR}
+						/>
+					</TouchableOpacity>
+				)}
+				{handleEdit && (
 					<TouchableOpacity
 						style={{ alignSelf: CENTER }}
 						onPress={handleEdit}
@@ -80,9 +70,21 @@ const Header = ({
 							color={PRIMARY_COLOR}
 						/>
 					</TouchableOpacity>
-					<DeleteButton onDelete={handleDelete} />
-				</View>
-			)}
+				)}
+				<DeleteButton onDelete={handleDelete} />
+				{navigateToMainScreen && (
+					<TouchableOpacity
+						style={{ alignSelf: CENTER, bottom: 1 }}
+						onPress={navigateToMainScreen}
+					>
+						<FontAwesome
+							name="close"
+							size={LARGE_FONT_SIZE * 1.6}
+							color={PRIMARY_COLOR}
+						/>
+					</TouchableOpacity>
+				)}
+			</View>
 		</View>
 	);
 };

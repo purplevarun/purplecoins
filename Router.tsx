@@ -1,6 +1,6 @@
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import BottomRoutes from "./BottomRoutes";
 import TabBar from "./TabBar";
+import tabRoutes from "./TabRoutes";
 
 const Router = () => {
 	const TopTab = createMaterialTopTabNavigator();
@@ -9,7 +9,7 @@ const Router = () => {
 			tabBarPosition={"bottom"}
 			tabBar={(props) => <TabBar {...props} />}
 		>
-			{Object.entries(BottomRoutes).map(([name, { component }]) => (
+			{Object.entries(tabRoutes).map(([name, { component }]) => (
 				<TopTab.Screen name={name} component={component} key={name} />
 			))}
 		</TopTab.Navigator>

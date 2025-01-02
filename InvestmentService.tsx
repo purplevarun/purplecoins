@@ -22,6 +22,13 @@ const useInvestmentService = () => {
 
 	const { navigate } = useNavigation<any>();
 
+	const fetchInvestment = (investmentId: string) => {
+		return db.getFirstSync<IInvestment>(
+			"SELECT * FROM investment WHERE id=?",
+			[investmentId],
+		) as IInvestment;
+	};
+
 	const fetchInvestments = () => {
 		try {
 			const investments = db.getAllSync<IInvestment>(
@@ -76,6 +83,7 @@ const useInvestmentService = () => {
 		fetchInvestments,
 		clearStore,
 		investmentDropdownData,
+		fetchInvestment,
 	};
 };
 

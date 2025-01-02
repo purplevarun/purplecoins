@@ -3,7 +3,7 @@
 	"version": "1.0.0",
 	"main": "expo/AppEntry.js",
 	"scripts": {
-		"dev": "expo start -c -p 3004",
+		"dev": "expo start -c -p 3006",
 		"clean": "rm -rf node_modules yarn.lock .expo && yarn",
 		"doctor": "npx expo-doctor",
 		"format": "prettier --write .",
@@ -12,8 +12,6 @@
 	},
 	"dependencies": {
 		"@react-native-community/datetimepicker": "8.0.1",
-		"@react-navigation/bottom-tabs": "^6.6.1",
-		"@react-navigation/drawer": "^6.7.2",
 		"@react-navigation/material-top-tabs": "^6.6.14",
 		"@react-navigation/native": "^6.1.18",
 		"@react-navigation/native-stack": "^6.11.0",

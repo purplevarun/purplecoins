@@ -11,9 +11,11 @@ import {
 	PADDING,
 	SPACE_BETWEEN,
 } from "./constants.config";
+import useNavigate from "./useNavigate";
 
 const InvestmentRenderItem = ({ item }: { item: IInvestment }) => {
 	const { name, investedAmount, currentAmount } = item;
+	const { navigateToInvestmentDetail } = useNavigate();
 	return (
 		<TouchableOpacity
 			style={{
@@ -24,6 +26,7 @@ const InvestmentRenderItem = ({ item }: { item: IInvestment }) => {
 				flexDirection: FLEX_ROW,
 				justifyContent: SPACE_BETWEEN,
 			}}
+			onPress={() => navigateToInvestmentDetail(item.id)}
 		>
 			<CustomText text={name} alignSelf={CENTER} />
 			<View>

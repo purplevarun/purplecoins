@@ -19,6 +19,7 @@ import {
 	SPACE_BETWEEN,
 	USABLE_SCREEN_HEIGHT,
 } from "./constants.config";
+import useNavigate from "./useNavigate";
 
 const plank = 0.35;
 const UPPER_HALF_HEIGHT = USABLE_SCREEN_HEIGHT * plank;
@@ -35,6 +36,7 @@ const TransactionDetail = ({ route }: any) => {
 			setOnDelete(() => handleDelete(transactionId));
 		}, [transactionId]),
 	);
+	const { navigateToTransactionMain } = useNavigate();
 	const {
 		amount,
 		reason,
@@ -54,6 +56,7 @@ const TransactionDetail = ({ route }: any) => {
 		<ScreenLayout>
 			<Header
 				title={"Transaction Details"}
+				navigateToMainScreen={navigateToTransactionMain}
 				handleEdit={() => handleEdit(transactionId)}
 				handleDelete={() => handleDelete(transactionId)}
 			/>

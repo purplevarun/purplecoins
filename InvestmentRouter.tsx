@@ -1,28 +1,31 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import InvestmentAdd from "./InvestmentAdd";
+import InvestmentDetail from "./InvestmentDetail";
 import InvestmentMain from "./InvestmentMain";
+import { investmentRoutes } from "./Routes";
 import ScreenLayout from "./ScreenLayout";
+import { screenOptions } from "./constants.config";
 
-const InvestmentStack = () => {
+const InvestmentRouter = () => {
 	const Stack = createNativeStackNavigator();
 	return (
 		<ScreenLayout>
-			<Stack.Navigator screenOptions={{ headerShown: false }}>
+			<Stack.Navigator screenOptions={screenOptions}>
 				<Stack.Screen
-					name={"Investment.Main"}
+					name={investmentRoutes.main}
 					component={InvestmentMain}
 				/>
 				<Stack.Screen
-					name={"Investment.Add"}
+					name={investmentRoutes.add}
 					component={InvestmentAdd}
 				/>
 				<Stack.Screen
-					name={"Investment.Detail"}
-					component={InvestmentMain}
+					name={investmentRoutes.detail}
+					component={InvestmentDetail}
 				/>
 			</Stack.Navigator>
 		</ScreenLayout>
 	);
 };
 
-export default InvestmentStack;
+export default InvestmentRouter;
