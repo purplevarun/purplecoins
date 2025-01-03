@@ -1,47 +1,27 @@
-import { useFocusEffect } from "@react-navigation/native";
-import { useCallback, useState } from "react";
-import { FlatList } from "react-native";
-import CustomText from "./CustomText";
-import Header from "./Header";
+import { useRoute } from "@react-navigation/native";
+import { useState } from "react";
+import CustomList from "./CustomList";
 import ISource from "./ISource";
+import NewHeader from "./NewHeader";
+import NoContent from "./NoContent";
 import ScreenLayout from "./ScreenLayout";
-import SourceRenderItem from "./SourceRenderItem";
 import useSourceService from "./SourceService";
 import SourceTotal from "./SourceTotal";
-import { DISABLED_COLOR } from "./colors.config";
-import { CENTER, SCREEN_HEIGHT } from "./constants.config";
-import useNavigate from "./useNavigate";
+import useFocus from "./useFocus";
 
 const SourceMain = () => {
 	const { fetchSources } = useSourceService();
 	const [sources, setSources] = useState<ISource[]>([]);
-	const { navigateToSourceAdd } = useNavigate();
-	useFocusEffect(useCallback(() => setSources(fetchSources()), []));
+	const { name } = useRoute();
+	useFocus(() => setSources(fetchSources()));
+
+	if (sources.length === 0) return <NoContent />;
 
 	return (
 		<ScreenLayout>
-			<Header
-				title={"Sources"}
-				navigateToAddScreen={navigateToSourceAdd}
-			/>
-			{sources.length > 0 ? (
-				<>
-					<SourceTotal sources={sources} />
-					<FlatList
-						data={sources}
-						renderItem={({ item }) => (
-							<SourceRenderItem item={item} />
-						)}
-					/>
-				</>
-			) : (
-				<CustomText
-					text={"No Sources found"}
-					alignSelf={CENTER}
-					color={DISABLED_COLOR}
-					paddingTop={SCREEN_HEIGHT / 3}
-				/>
-			)}
+			<NewHeader screenName={name} />
+			<SourceTotal sources={sources} />
+			<CustomList data={sources} />
 		</ScreenLayout>
 	);
 };

@@ -37,6 +37,7 @@ const useSourceService = () => {
 		} else {
 			db.runSync("DELETE FROM source WHERE id=?", [sourceId]);
 		}
+
 	};
 
 	const addNewSource = () => {

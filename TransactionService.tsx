@@ -2,7 +2,7 @@ import { useNavigation } from "@react-navigation/native";
 import { useSQLiteContext } from "expo-sqlite";
 import { useMemo } from "react";
 import { formatDate, generateUUID, objectify } from "./HelperFunctions";
-import IGroupedTransactions from "./IGroupedTransactions";
+import IGroupedTransaction from "./IGroupedTransaction";
 import ITransaction from "./ITransaction";
 import useTransactionStore from "./TransactionStore";
 import TransactionType from "./TransactionType";
@@ -296,7 +296,7 @@ const useTransactionService = () => {
 
 	const fetchGroupedTransactions = () => {
 		const transactions = fetchTransactions();
-		const groupedTransactions: IGroupedTransactions[] = Object.entries(
+		const groupedTransactions: IGroupedTransaction[] = Object.entries(
 			transactions.reduce<Record<string, ITransaction[]>>(
 				(acc, transaction) => {
 					const normalizedDate = new Date(transaction.date);

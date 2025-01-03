@@ -3,7 +3,7 @@ import { useState } from "react";
 import { SectionList, StyleSheet, View } from "react-native";
 import CustomText from "./CustomText";
 import Header from "./Header";
-import IGroupedTransactions from "./IGroupedTransactions";
+import IGroupedTransaction from "./IGroupedTransaction";
 import ITransaction from "./ITransaction";
 import ScreenLayout from "./ScreenLayout";
 import TransactionRenderItem from "./TransactionRenderItem";
@@ -22,9 +22,7 @@ import useFocus from "./useFocus";
 
 const TransactionMain = () => {
 	const { fetchGroupedTransactions } = useTransactionService();
-	const [transactions, setTransactions] = useState<IGroupedTransactions[]>(
-		[],
-	);
+	const [transactions, setTransactions] = useState<IGroupedTransaction[]>([]);
 	useFocus(() => setTransactions(fetchGroupedTransactions()), []);
 	const { navigate } = useNavigation<any>();
 	return (
@@ -36,9 +34,25 @@ const TransactionMain = () => {
 			{transactions.length > 0 ? (
 				<SectionList
 					sections={transactions}
-					keyExtractor={KeyExtractor}
-					renderSectionHeader={SectionHeader}
-					renderItem={RenderItem}
+					keyExtractor={(item: ITransaction, index: number) =>
+						`${item.id}-${index}`
+					}
+					renderSectionHeader={({
+						section: { title },
+					}: {
+						section: { title: string };
+					}) => (
+						<View style={styles.header}>
+							<CustomText
+								text={title}
+								fontSize={LARGE_FONT_SIZE}
+								alignSelf={CENTER}
+							/>
+						</View>
+					)}
+					renderItem={({ item }: { item: ITransaction }) => (
+						<TransactionRenderItem item={item} />
+					)}
 				/>
 			) : (
 				<CustomText
@@ -51,27 +65,6 @@ const TransactionMain = () => {
 		</ScreenLayout>
 	);
 };
-
-const KeyExtractor = (item: ITransaction, index: number) =>
-	`${item.id}-${index}`;
-
-const RenderItem = ({ item }: { item: ITransaction }) => (
-	<TransactionRenderItem item={item} />
-);
-
-const SectionHeader = ({
-	section: { title },
-}: {
-	section: { title: string };
-}) => (
-	<View style={styles.header}>
-		<CustomText
-			text={title}
-			fontSize={LARGE_FONT_SIZE}
-			alignSelf={CENTER}
-		/>
-	</View>
-);
 
 const styles = StyleSheet.create({
 	header: {
