@@ -2,7 +2,6 @@ import { View } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import CustomText from "./CustomText";
 import IRenderItem from "./IRenderItem";
-import useSourceService from "./SourceService";
 import useTransactionStore from "./TransactionStore";
 import {
 	BACKGROUND_COLOR,
@@ -11,10 +10,11 @@ import {
 } from "./colors.config";
 import { PADDING } from "./constants.config";
 import dropdownStyle from "./dropdown.style";
+import useSource from "./source/useSource";
 
 const SourceSelector = () => {
 	const { sourceId, setSourceId } = useTransactionStore();
-	const { fetchSources } = useSourceService();
+	const { fetchSources } = useSource();
 
 	const sourceModels = fetchSources().map((s) => ({
 		label: s.name,

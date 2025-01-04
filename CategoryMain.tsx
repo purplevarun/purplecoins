@@ -18,10 +18,7 @@ const CategoryMain = () => {
 	const { navigateToCategoryAdd } = useNavigate();
 	return (
 		<ScreenLayout>
-			<Header
-				title={"Categories"}
-				navigateToAddScreen={navigateToCategoryAdd}
-			/>
+			<Header title={"Categories"} handlePlus={navigateToCategoryAdd} />
 			{categories.length > 0 ? (
 				<FlatList
 					data={categories}

@@ -2,7 +2,6 @@ import { View } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import CustomText from "./CustomText";
 import IRenderItem from "./IRenderItem";
-import useSourceService from "./SourceService";
 import useTransactionStore from "./TransactionStore";
 import TransactionType from "./TransactionType";
 import {
@@ -12,11 +11,12 @@ import {
 } from "./colors.config";
 import { PADDING } from "./constants.config";
 import dropdownStyle from "./dropdown.style";
+import useSource from "./source/useSource";
 
 const DestinationSelector = () => {
 	const { sourceId, destinationId, setDestinationId, type } =
 		useTransactionStore();
-	const { fetchSources } = useSourceService();
+	const { fetchSources } = useSource();
 
 	if (type !== TransactionType.TRANSFER) return null;
 

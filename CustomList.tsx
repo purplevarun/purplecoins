@@ -1,10 +1,8 @@
-import { useRoute } from "@react-navigation/native";
 import { FlatList, SectionList, View } from "react-native";
 import CustomText from "./CustomText";
 import IGroupedTransaction from "./IGroupedTransaction";
-import ISource from "./ISource";
 import ITransaction from "./ITransaction";
-import SourceRenderItem from "./SourceRenderItem";
+import service from "./Service";
 import TransactionRenderItem from "./TransactionRenderItem";
 import {
 	BORDER_RADIUS,
@@ -14,20 +12,20 @@ import {
 	PADDING,
 	SPACE_BETWEEN,
 } from "./constants.config";
+import ISource from "./source/ISource";
+import SourceRenderItem from "./source/SourceRenderItem";
+import useScreen from "./useScreen";
 
-const CustomList = ({ data }: { data: ISource[] | IGroupedTransaction[] }) => {
-	const { name: screenName } = useRoute();
-	const name = screenName.split(".")[0];
+type IData = { data: ISource[] | IGroupedTransaction[] };
+const CustomList = ({ data }: IData) => {
+	const { serviceName } = useScreen();
 
-	if (name === "Source") return <SourceFlatList data={data} />;
-	if (name === "Transaction") return <TransactionSectionList data={data} />;
+	if (serviceName === service.source) return <SourceFlatList data={data} />;
+	if (serviceName === service.transaction)
+		return <TransactionSectionList data={data} />;
 };
 
-const SourceFlatList = ({
-	data,
-}: {
-	data: ISource[] | IGroupedTransaction[];
-}) => {
+const SourceFlatList = ({ data }: IData) => {
 	return (
 		<FlatList
 			data={data as ISource[]}
@@ -36,11 +34,7 @@ const SourceFlatList = ({
 	);
 };
 
-const TransactionSectionList = ({
-	data,
-}: {
-	data: ISource[] | IGroupedTransaction[];
-}) => {
+const TransactionSectionList = ({ data }: IData) => {
 	return (
 		<SectionList
 			sections={data as IGroupedTransaction[]}

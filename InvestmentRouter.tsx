@@ -4,13 +4,13 @@ import InvestmentDetail from "./InvestmentDetail";
 import InvestmentMain from "./InvestmentMain";
 import { investmentRoutes } from "./Routes";
 import ScreenLayout from "./ScreenLayout";
-import { screenOptions } from "./constants.config";
+import { SCREEN_OPTIONS } from "./constants.config";
 
 const InvestmentRouter = () => {
 	const Stack = createNativeStackNavigator();
 	return (
 		<ScreenLayout>
-			<Stack.Navigator screenOptions={screenOptions}>
+			<Stack.Navigator screenOptions={SCREEN_OPTIONS}>
 				<Stack.Screen
 					name={investmentRoutes.main}
 					component={InvestmentMain}

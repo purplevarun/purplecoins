@@ -56,7 +56,7 @@ const TransactionDetail = ({ route }: any) => {
 		<ScreenLayout>
 			<Header
 				title={"Transaction Details"}
-				navigateToMainScreen={navigateToTransactionMain}
+				handleClose={navigateToTransactionMain}
 				handleEdit={() => handleEdit(transactionId)}
 				handleDelete={() => handleDelete(transactionId)}
 			/>

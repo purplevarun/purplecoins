@@ -1,8 +1,7 @@
 interface ISource {
 	id: string;
 	name: string;
-	initialAmount: number;
-	currentAmount: number;
+	amount: number;
 }
 
 export default ISource;

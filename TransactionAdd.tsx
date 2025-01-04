@@ -10,7 +10,6 @@ import Header from "./Header";
 import InvestmentSelector from "./InvestmentSelector";
 import ScreenLayout from "./ScreenLayout";
 import SourceSelector from "./SourceSelector";
-import useSourceService from "./SourceService";
 import TransactionDatePicker from "./TransactionDatePicker";
 import useTransactionService from "./TransactionService";
 import useTransactionStore from "./TransactionStore";
@@ -19,19 +18,20 @@ import TripSelector from "./TripSelector";
 import TypeSelector from "./TypeSelector";
 import { RED_COLOR } from "./colors.config";
 import { FLEX_START, PADDING, SMALL_FONT_SIZE } from "./constants.config";
+import useSource from "./source/useSource";
 
 const TransactionAdd = ({ route }: any) => {
 	const transactionId = route.params?.transactionId ?? null;
 	const { amount, reason, setReason, type, setAmount, setType, sourceId } =
 		useTransactionStore();
 	const { addNewTransaction, submitEnabled } = useTransactionService();
-	const { fetchSource } = useSourceService();
+	const { fetchOneSource } = useSource();
 	const [insufficientBalance, setInsufficientBalance] = useState(false);
 	const { navigate } = useNavigation<any>();
 	const onPress = () => {
-		const source = fetchSource(sourceId);
+		const source = fetchOneSource(sourceId);
 		if (
-			parseInt(amount) > source.currentAmount &&
+			parseInt(amount) > source.amount &&
 			type === TransactionType.EXPENSE
 		) {
 			setInsufficientBalance(true);
@@ -42,10 +42,7 @@ const TransactionAdd = ({ route }: any) => {
 	};
 	return (
 		<ScreenLayout>
-			<Header
-				title={"Add Transaction"}
-				navigateToMainScreen={() => navigate("Transaction.Main")}
-			/>
+			<Header handleClose={() => navigate("Transaction.Main")} />
 			<TypeSelector type={type} setType={setType} />
 			<CustomInput
 				name={"Amount"}

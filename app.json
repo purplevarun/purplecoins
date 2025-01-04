@@ -16,7 +16,7 @@
 			"package": "com.keyshoe.purplecoins",
 			"softwareKeyboardLayoutMode": "pan"
 		},
-		"plugins": [["expo-font"]],
+		"plugins": [["expo-font"], "expo-asset"],
 		"extra": {
 			"eas": {
 				"projectId": "f5e5d54b-0f71-4af6-9f3a-818d428cefbf"

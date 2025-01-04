@@ -28,7 +28,6 @@ import {
 import { DELETE_ICON } from "./icons.config";
 
 const DeleteButton: IDeleteButton = ({ onDelete }) => {
-	if (!onDelete) return null;
 	const [modal, setModal] = useState(false);
 	return (
 		<TouchableOpacity
@@ -61,6 +60,7 @@ const DeleteModal: IDeleteModal = ({ setModal, onDelete }) => {
 						<CustomButton
 							text={"Yes"}
 							width={MODAL_BUTTON_WIDTH}
+							color={RED_COLOR}
 							onPress={() => {
 								setModal(false);
 								onDelete();
@@ -68,7 +68,6 @@ const DeleteModal: IDeleteModal = ({ setModal, onDelete }) => {
 						/>
 						<CustomButton
 							text={"No"}
-							color={RED_COLOR}
 							width={MODAL_BUTTON_WIDTH}
 							onPress={() => setModal(false)}
 						/>
@@ -79,7 +78,7 @@ const DeleteModal: IDeleteModal = ({ setModal, onDelete }) => {
 	);
 };
 
-type IDeleteButton = FC<{ onDelete?: () => void }>;
+type IDeleteButton = FC<{ onDelete: () => void }>;
 type IDeleteModal = FC<{
 	setModal: (value: boolean) => void;
 	onDelete: () => void;

@@ -9,6 +9,7 @@ const CustomText = ({
 	alignSelf = FLEX_START,
 	paddingTop = 0,
 	right = 0,
+	paddingVertical = 0,
 	decoration = undefined,
 }: {
 	text: string | number;
@@ -17,6 +18,7 @@ const CustomText = ({
 	alignSelf?: FlexAlignType;
 	paddingTop?: number;
 	right?: number;
+	paddingVertical?: number;
 	decoration?:
 		| "none"
 		| "underline"
@@ -35,6 +37,7 @@ const CustomText = ({
 				paddingTop,
 				right,
 				textDecorationLine: decoration,
+				paddingVertical,
 			}}
 		>
 			{text}

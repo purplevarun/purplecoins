@@ -1,25 +1,22 @@
-import { useRoute } from "@react-navigation/native";
 import { useState } from "react";
-import CustomList from "./CustomList";
+import CustomList from "../CustomList";
+import Header from "../Header";
+import NoContent from "../NoContent";
+import ScreenLayout from "../ScreenLayout";
+import useFocus from "../useFocus";
 import ISource from "./ISource";
-import NewHeader from "./NewHeader";
-import NoContent from "./NoContent";
-import ScreenLayout from "./ScreenLayout";
-import useSourceService from "./SourceService";
 import SourceTotal from "./SourceTotal";
-import useFocus from "./useFocus";
+import useSource from "./useSource";
 
 const SourceMain = () => {
-	const { fetchSources } = useSourceService();
+	const { fetchSources, handlePlus } = useSource();
 	const [sources, setSources] = useState<ISource[]>([]);
-	const { name } = useRoute();
 	useFocus(() => setSources(fetchSources()));
 
 	if (sources.length === 0) return <NoContent />;
-
 	return (
 		<ScreenLayout>
-			<NewHeader screenName={name} />
+			<Header handlePlus={handlePlus} />
 			<SourceTotal sources={sources} />
 			<CustomList data={sources} />
 		</ScreenLayout>

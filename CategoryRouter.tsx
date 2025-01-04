@@ -4,13 +4,13 @@ import CategoryDetail from "./CategoryDetail";
 import CategoryMain from "./CategoryMain";
 import { categoryRoutes } from "./Routes";
 import ScreenLayout from "./ScreenLayout";
-import { screenOptions } from "./constants.config";
+import { SCREEN_OPTIONS } from "./constants.config";
 
 const CategoryRouter = () => {
 	const Stack = createNativeStackNavigator();
 	return (
 		<ScreenLayout>
-			<Stack.Navigator screenOptions={screenOptions}>
+			<Stack.Navigator screenOptions={SCREEN_OPTIONS}>
 				<Stack.Screen
 					name={categoryRoutes.main}
 					component={CategoryMain}

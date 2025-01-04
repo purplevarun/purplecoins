@@ -1,4 +1,5 @@
 import { NativeStackNavigationOptions } from "@react-navigation/native-stack";
+import * as FileSystem from "expo-file-system";
 import { Dimensions } from "react-native";
 
 const FONT_SCALE = Dimensions.get("screen").fontScale;
@@ -20,6 +21,7 @@ export const FLEX_ONE = 1;
 export const PADDING = FONT_SIZE * 0.5;
 export const MARGIN = FONT_SIZE * 0.25;
 export const BORDER_RADIUS = FONT_SIZE * 0.25;
+export const QUARTER = MARGIN / 2;
 export const BORDER_WIDTH = 2;
 export const CENTER = "center";
 export const FLEX_ROW = "row";
@@ -37,7 +39,9 @@ export const FLEX_END = "flex-end";
 export const ABSOLUTE = "absolute";
 export const DB_NAME = "purplecoins.db";
 export const MINIMUM_LENGTH = 4;
-export const screenOptions: NativeStackNavigationOptions = {
+export const SCREEN_OPTIONS: NativeStackNavigationOptions = {
 	headerShown: false,
 	animation: "fade",
 };
+export const DB_FILE_PATH = `${FileSystem.documentDirectory}SQLite/${DB_NAME}`;
+export const TAB_BAR_POSITION = "bottom";

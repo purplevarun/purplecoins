@@ -4,13 +4,13 @@ import ScreenLayout from "./ScreenLayout";
 import TransactionAdd from "./TransactionAdd";
 import TransactionDetail from "./TransactionDetail";
 import TransactionMain from "./TransactionMain";
-import { screenOptions } from "./constants.config";
+import { SCREEN_OPTIONS } from "./constants.config";
 
 const TransactionRouter = () => {
 	const Stack = createNativeStackNavigator();
 	return (
 		<ScreenLayout>
-			<Stack.Navigator screenOptions={screenOptions}>
+			<Stack.Navigator screenOptions={SCREEN_OPTIONS}>
 				<Stack.Screen
 					name={transactionRoutes.main}
 					component={TransactionMain}

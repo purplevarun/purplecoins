@@ -1,6 +1,6 @@
-import uuid from "react-native-uuid";
+import { randomUUID } from "expo-crypto";
 
-export const generateUUID = () => uuid.v4().toString();
+export const generateUUID = () => randomUUID();
 
 export const objectify = (data: any) => {
 	return JSON.stringify(data, null, 4);
@@ -40,8 +40,8 @@ export const formatDate = (date: Date | null | undefined, full = false) => {
 	return `${day}${suffix} ${months[parseInt(month) - 1]} ${year}`;
 };
 
-export const formatMoney = (money: number | null) => {
-	if (money === null) return "null";
+export const formatMoney = (money: number | null | undefined) => {
+	if (money === null || money === undefined) return "null";
 	return "₹" + money.toLocaleString("en-IN");
 };
 

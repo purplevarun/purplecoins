@@ -22,7 +22,7 @@ const InvestmentAdd = () => {
 		<ScreenLayout>
 			<Header
 				title={"Add Investment"}
-				navigateToAddScreen={navigateToInvestmentMain}
+				handlePlus={navigateToInvestmentMain}
 			/>
 			<CustomInput name={"Name"} value={name} setValue={setName} />
 			<CustomInput

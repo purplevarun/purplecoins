@@ -14,7 +14,7 @@ const CategoryAdd = () => {
 		<ScreenLayout>
 			<Header
 				title={"Add Category"}
-				navigateToMainScreen={navigateToCategoryMain}
+				handleClose={navigateToCategoryMain}
 			/>
 			<CustomInput
 				value={name}

@@ -21,7 +21,7 @@ const InvestmentMain = () => {
 		<ScreenLayout>
 			<Header
 				title={"Investments"}
-				navigateToAddScreen={navigateToInvestmentAdd}
+				handlePlus={navigateToInvestmentAdd}
 			/>
 			{investments.length > 0 ? (
 				<>

@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, View } from "react-native";
+import { FlatList, View } from "react-native";
 import CustomText from "./CustomText";
 import ITransaction from "./ITransaction";
 import TransactionRenderItem from "./TransactionRenderItem";
@@ -11,9 +11,9 @@ const LinkedTransactions = ({
 }: {
 	transactions: ITransaction[];
 }) => {
-	if (transactions && transactions.length > 0)
+	if (transactions.length > 0)
 		return (
-			<View style={styles.view}>
+			<View style={{ paddingTop: PADDING }}>
 				<CustomText
 					text={"Linked Transactions"}
 					fontSize={LARGE_FONT_SIZE}
@@ -28,7 +28,7 @@ const LinkedTransactions = ({
 			</View>
 		);
 	return (
-		<View style={styles.view}>
+		<View style={{ paddingTop: PADDING }}>
 			<CustomText
 				text={"No Linked Transactions"}
 				color={DISABLED_COLOR}
@@ -37,7 +37,5 @@ const LinkedTransactions = ({
 		</View>
 	);
 };
-
-const styles = StyleSheet.create({ view: { paddingTop: PADDING } });
 
 export default LinkedTransactions;

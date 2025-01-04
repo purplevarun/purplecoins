@@ -1,36 +1,42 @@
-import FontAwesome from "@expo/vector-icons/FontAwesome";
-import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import CategoryRouter from "./CategoryRouter";
+import {
+	BankIcon,
+	CategoryIcon,
+	InvestmentIcon,
+	SettingsIcon,
+	TransactionIcon,
+	TripIcon,
+} from "./Icons";
 import InvestmentRouter from "./InvestmentRouter";
 import SettingScreen from "./SettingScreen";
-import SourceRouter from "./SourceRouter";
+import SourceRouter from "./source/SourceRouter";
 import TransactionRouter from "./TransactionRouter";
 import TripRouter from "./TripRouter";
 
 const tabRoutes = {
-	transaction: {
-		component: TransactionRouter,
-		icon: { name: "money-bill-transfer", base: FontAwesome6 },
-	},
 	source: {
 		component: SourceRouter,
-		icon: { name: "bank", base: FontAwesome },
+		Icon: BankIcon,
 	},
 	category: {
 		component: CategoryRouter,
-		icon: { name: "list", base: FontAwesome6 },
+		Icon: CategoryIcon,
 	},
 	trip: {
 		component: TripRouter,
-		icon: { name: "plane-up", base: FontAwesome6 },
+		Icon: TripIcon,
 	},
 	investment: {
 		component: InvestmentRouter,
-		icon: { name: "chart-line", base: FontAwesome6 },
+		Icon: InvestmentIcon,
+	},
+	transaction: {
+		component: TransactionRouter,
+		Icon: TransactionIcon,
 	},
 	settings: {
 		component: SettingScreen,
-		icon: { name: "gear", base: FontAwesome6 },
+		Icon: SettingsIcon,
 	},
 };
 

@@ -1,17 +1,16 @@
-import ScreenLayout from "./ScreenLayout";
-import NewHeader from "./NewHeader";
-import { sourceRoutes } from "./Routes";
-import CustomText from "./CustomText";
-import { CENTER, SCREEN_HEIGHT } from "./constants.config";
-import { DISABLED_COLOR } from "./colors.config";
 import { useRoute } from "@react-navigation/native";
+import { Header } from "react-native/Libraries/NewAppScreen";
+import CustomText from "./CustomText";
+import ScreenLayout from "./ScreenLayout";
+import { DISABLED_COLOR } from "./colors.config";
+import { CENTER, SCREEN_HEIGHT } from "./constants.config";
 
 const NoContent = () => {
-	const {name:screenName} = useRoute()
+	const { name: screenName } = useRoute();
 	const [name] = screenName.split(".");
 	return (
 		<ScreenLayout>
-			<NewHeader screenName={sourceRoutes.main} />
+			<Header />
 			<CustomText
 				text={`No ${name}s found`}
 				alignSelf={CENTER}
@@ -22,4 +21,4 @@ const NoContent = () => {
 	);
 };
 
-export default NoContent
+export default NoContent;

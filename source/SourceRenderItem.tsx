@@ -1,18 +1,23 @@
 import { useNavigation } from "@react-navigation/native";
 import { TouchableOpacity } from "react-native";
-import CustomText from "./CustomText";
-import { formatMoney } from "./HelperFunctions";
-import ISource from "./ISource";
-import { SECONDARY_COLOR } from "./colors.config";
+import CustomText from "../CustomText";
+import { formatMoney } from "../HelperFunctions";
+import { sourceRoutes } from "../Routes";
+import { SECONDARY_COLOR } from "../colors.config";
 import {
 	BORDER_RADIUS,
 	FLEX_ROW,
 	MARGIN,
 	PADDING,
 	SPACE_BETWEEN,
-} from "./constants.config";
+} from "../constants.config";
+import ISource from "./ISource";
 
-const SourceRenderItem = ({ item }: { item: ISource }) => {
+const SourceRenderItem = ({
+	item: { id, name, amount },
+}: {
+	item: ISource;
+}) => {
 	const { navigate } = useNavigation<any>();
 	return (
 		<TouchableOpacity
@@ -24,10 +29,10 @@ const SourceRenderItem = ({ item }: { item: ISource }) => {
 				flexDirection: FLEX_ROW,
 				justifyContent: SPACE_BETWEEN,
 			}}
-			onPress={() => navigate("Source.Detail", { sourceId: item.id })}
+			onPress={() => navigate(sourceRoutes.detail, { id })}
 		>
-			<CustomText text={item.name} />
-			<CustomText text={formatMoney(item.currentAmount)} />
+			<CustomText text={name} />
+			<CustomText text={formatMoney(amount)} />
 		</TouchableOpacity>
 	);
 };

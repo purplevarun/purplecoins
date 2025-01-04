@@ -9,7 +9,11 @@ import {
 	SPACE_BETWEEN,
 } from "./constants.config";
 
-const TabBar = (props: MaterialTopTabBarProps) => {
+const TabBar = (props: MaterialTopTabBarProps) => (
+	<TabBarImplementation {...props} />
+);
+
+const TabBarImplementation = (props: MaterialTopTabBarProps) => {
 	const { index } = props.state;
 	const { navigate } = props.navigation;
 	return (
@@ -18,20 +22,16 @@ const TabBar = (props: MaterialTopTabBarProps) => {
 				flexDirection: FLEX_ROW,
 				justifyContent: SPACE_BETWEEN,
 				paddingTop: PADDING,
-				paddingHorizontal: PADDING * 2,
+				paddingHorizontal: FONT_SIZE,
 			}}
 		>
-			{Object.entries(tabRoutes).map(([key, { icon }], idx) => {
-				const color = idx === index ? PRIMARY_COLOR : DISABLED_COLOR;
+			{Object.entries(tabRoutes).map(([key, { Icon }], idx) => {
 				return (
-					<TouchableOpacity
-						onPress={() => navigate(key)}
-						key={icon.name}
-					>
-						<icon.base
-							name={icon.name}
-							size={FONT_SIZE * 2}
-							color={color}
+					<TouchableOpacity onPress={() => navigate(key)} key={key}>
+						<Icon
+							color={
+								idx === index ? PRIMARY_COLOR : DISABLED_COLOR
+							}
 						/>
 					</TouchableOpacity>
 				);

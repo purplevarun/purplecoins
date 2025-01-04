@@ -1,7 +1,9 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { useMemo } from "react";
 import { TouchableOpacity, View } from "react-native";
 import CustomText from "./CustomText";
 import DeleteButton from "./DeleteButton";
+import ScreenType from "./ScreenType";
 import { PRIMARY_COLOR } from "./colors.config";
 import {
 	CENTER,
@@ -11,20 +13,30 @@ import {
 	PADDING,
 	SPACE_BETWEEN,
 } from "./constants.config";
+import useScreen from "./useScreen";
 
 const Header = ({
-	title,
-	navigateToMainScreen,
-	navigateToAddScreen,
+	handleClose,
+	handlePlus,
 	handleEdit,
 	handleDelete,
+	canBeDeleted,
 }: {
-	title: string;
-	navigateToMainScreen?: () => void;
-	navigateToAddScreen?: () => void;
+	handleClose?: () => void;
+	handlePlus?: () => void;
 	handleEdit?: () => void;
 	handleDelete?: () => void;
+	canBeDeleted?: boolean;
 }) => {
+	const { serviceName, screenType } = useScreen();
+	const title = useMemo(() => {
+		if (screenType === ScreenType.main) return serviceName + "s";
+		else if (screenType === ScreenType.add) return "Add " + serviceName;
+		else if (screenType === ScreenType.edit) return "Edit " + serviceName;
+		else if (screenType === ScreenType.detail)
+			return serviceName + " Details";
+		else return "Settings";
+	}, [serviceName, screenType]);
 	return (
 		<View
 			style={{
@@ -47,10 +59,10 @@ const Header = ({
 					gap: PADDING / 2,
 				}}
 			>
-				{navigateToAddScreen && (
+				{handlePlus && (
 					<TouchableOpacity
 						style={{ alignSelf: CENTER }}
-						onPress={navigateToAddScreen}
+						onPress={handlePlus}
 					>
 						<FontAwesome
 							name="plus"
@@ -71,11 +83,13 @@ const Header = ({
 						/>
 					</TouchableOpacity>
 				)}
-				<DeleteButton onDelete={handleDelete} />
-				{navigateToMainScreen && (
+				{handleDelete && canBeDeleted && (
+					<DeleteButton onDelete={handleDelete} />
+				)}
+				{handleClose && (
 					<TouchableOpacity
 						style={{ alignSelf: CENTER, bottom: 1 }}
-						onPress={navigateToMainScreen}
+						onPress={handleClose}
 					>
 						<FontAwesome
 							name="close"

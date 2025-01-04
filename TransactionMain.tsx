@@ -29,7 +29,7 @@ const TransactionMain = () => {
 		<ScreenLayout>
 			<Header
 				title={"Transactions"}
-				navigateToAddScreen={() => navigate("Transaction.Add")}
+				handlePlus={() => navigate("Transaction.Add")}
 			/>
 			{transactions.length > 0 ? (
 				<SectionList
