@@ -1,10 +1,11 @@
 import { useState } from "react";
-import CustomList from "../CustomList";
+import { FlatList } from "react-native";
 import Header from "../Header";
 import NoContent from "../NoContent";
 import ScreenLayout from "../ScreenLayout";
 import useFocus from "../useFocus";
 import ISource from "./ISource";
+import SourceRenderItem from "./SourceRenderItem";
 import SourceTotal from "./SourceTotal";
 import useSource from "./useSource";
 
@@ -18,7 +19,10 @@ const SourceMain = () => {
 		<ScreenLayout>
 			<Header handlePlus={handlePlus} />
 			<SourceTotal sources={sources} />
-			<CustomList data={sources} />
+			<FlatList
+				data={sources}
+				renderItem={({ item }) => <SourceRenderItem item={item} />}
+			/>
 		</ScreenLayout>
 	);
 };

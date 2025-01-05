@@ -3,7 +3,8 @@ import { useMemo } from "react";
 import { TouchableOpacity, View } from "react-native";
 import CustomText from "./CustomText";
 import DeleteButton from "./DeleteButton";
-import ScreenType from "./ScreenType";
+import IScreenType from "./IScreenType";
+import IServiceName from "./IServiceName";
 import { PRIMARY_COLOR } from "./colors.config";
 import {
 	CENTER,
@@ -30,10 +31,13 @@ const Header = ({
 }) => {
 	const { serviceName, screenType } = useScreen();
 	const title = useMemo(() => {
-		if (screenType === ScreenType.main) return serviceName + "s";
-		else if (screenType === ScreenType.add) return "Add " + serviceName;
-		else if (screenType === ScreenType.edit) return "Edit " + serviceName;
-		else if (screenType === ScreenType.detail)
+		if (screenType === IScreenType.main)
+			return serviceName === IServiceName.category
+				? "Categories"
+				: serviceName + "s";
+		else if (screenType === IScreenType.add) return "Add " + serviceName;
+		else if (screenType === IScreenType.edit) return "Edit " + serviceName;
+		else if (screenType === IScreenType.detail)
 			return serviceName + " Details";
 		else return "Settings";
 	}, [serviceName, screenType]);

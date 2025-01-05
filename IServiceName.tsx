@@ -1,4 +1,4 @@
-enum Service {
+enum IServiceName {
 	transaction = "Transaction",
 	category = "Category",
 	source = "Source",
@@ -6,4 +6,4 @@ enum Service {
 	investment = "Investment",
 }
 
-export default Service;
+export default IServiceName;

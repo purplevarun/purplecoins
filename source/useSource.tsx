@@ -1,4 +1,3 @@
-import { useNavigation } from "@react-navigation/native";
 import { randomUUID } from "expo-crypto";
 import { useSQLiteContext } from "expo-sqlite";
 import { useMemo, useState } from "react";
@@ -12,11 +11,12 @@ import {
 	select_all_sources,
 	update_source,
 } from "../queries.config";
+import useScreen from "../useScreen";
 import ISource from "./ISource";
 
 const useSource = () => {
 	const db = useSQLiteContext();
-	const { navigate } = useNavigation<any>();
+	const { navigate } = useScreen();
 	const [name, setName] = useState("");
 	const [amount, setAmount] = useState("");
 	const disabled = useMemo(() => {
@@ -48,7 +48,7 @@ const useSource = () => {
 	};
 	const handlePlus = () => navigate(sourceRoutes.add);
 	const handleClose = () => navigate(sourceRoutes.main);
-	const handleEdit = (id: string) => navigate(sourceRoutes.edit, { id });
+	const handleEdit = (id: string) => navigate(sourceRoutes.edit, id);
 	return {
 		name,
 		setName,

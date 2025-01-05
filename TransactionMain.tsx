@@ -1,21 +1,16 @@
 import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
-import { SectionList, StyleSheet, View } from "react-native";
-import CustomText from "./CustomText";
+import { StyleSheet } from "react-native";
 import Header from "./Header";
 import IGroupedTransaction from "./IGroupedTransaction";
-import ITransaction from "./ITransaction";
+import NoContent from "./NoContent";
 import ScreenLayout from "./ScreenLayout";
-import TransactionRenderItem from "./TransactionRenderItem";
+import TransactionSectionList from "./TransactionSectionList";
 import useTransactionService from "./TransactionService";
-import { DISABLED_COLOR } from "./colors.config";
 import {
 	BORDER_RADIUS,
-	CENTER,
 	FLEX_ROW,
-	LARGE_FONT_SIZE,
 	PADDING,
-	SCREEN_HEIGHT,
 	SPACE_BETWEEN,
 } from "./constants.config";
 import useFocus from "./useFocus";
@@ -25,43 +20,11 @@ const TransactionMain = () => {
 	const [transactions, setTransactions] = useState<IGroupedTransaction[]>([]);
 	useFocus(() => setTransactions(fetchGroupedTransactions()), []);
 	const { navigate } = useNavigation<any>();
+	if (transactions.length === 0) return <NoContent />;
 	return (
 		<ScreenLayout>
-			<Header
-				title={"Transactions"}
-				handlePlus={() => navigate("Transaction.Add")}
-			/>
-			{transactions.length > 0 ? (
-				<SectionList
-					sections={transactions}
-					keyExtractor={(item: ITransaction, index: number) =>
-						`${item.id}-${index}`
-					}
-					renderSectionHeader={({
-						section: { title },
-					}: {
-						section: { title: string };
-					}) => (
-						<View style={styles.header}>
-							<CustomText
-								text={title}
-								fontSize={LARGE_FONT_SIZE}
-								alignSelf={CENTER}
-							/>
-						</View>
-					)}
-					renderItem={({ item }: { item: ITransaction }) => (
-						<TransactionRenderItem item={item} />
-					)}
-				/>
-			) : (
-				<CustomText
-					text={"No Transactions found"}
-					alignSelf={CENTER}
-					color={DISABLED_COLOR}
-					paddingTop={SCREEN_HEIGHT / 3}
-				/>
-			)}
+			<Header handlePlus={() => navigate("Transaction.Add")} />
+			<TransactionSectionList transactions={transactions} />
 		</ScreenLayout>
 	);
 };
