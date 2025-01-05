@@ -1,11 +1,10 @@
-import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useMemo } from "react";
-import { TouchableOpacity, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import CustomText from "./CustomText";
 import DeleteButton from "./DeleteButton";
 import IScreenType from "./IScreenType";
 import IServiceName from "./IServiceName";
-import { PRIMARY_COLOR } from "./colors.config";
+import { CloseIcon, EditIcon, PlusIcon } from "./Icons";
 import {
 	CENTER,
 	FLEX_ROW,
@@ -30,81 +29,55 @@ const Header = ({
 	canBeDeleted?: boolean;
 }) => {
 	const { serviceName, screenType } = useScreen();
+
 	const title = useMemo(() => {
-		if (screenType === IScreenType.main)
-			return serviceName === IServiceName.category
-				? "Categories"
-				: serviceName + "s";
-		else if (screenType === IScreenType.add) return "Add " + serviceName;
-		else if (screenType === IScreenType.edit) return "Edit " + serviceName;
-		else if (screenType === IScreenType.detail)
-			return serviceName + " Details";
-		else return "Settings";
+		switch (screenType) {
+			case IScreenType.main:
+				return serviceName === IServiceName.category
+					? "Categories"
+					: `${serviceName}s`;
+			case IScreenType.add:
+				return `Add ${serviceName}`;
+			case IScreenType.edit:
+				return `Edit ${serviceName}`;
+			case IScreenType.detail:
+				return `${serviceName} Details`;
+			default:
+				return "Settings";
+		}
 	}, [serviceName, screenType]);
+
 	return (
-		<View
-			style={{
-				height: HEADER_HEIGHT,
-				flexDirection: FLEX_ROW,
-				justifyContent: SPACE_BETWEEN,
-			}}
-		>
+		<View style={styles.headerContainer}>
 			<CustomText
 				text={title}
 				alignSelf={CENTER}
-				fontSize={
-					title.length > 15 ? LARGE_FONT_SIZE : LARGE_FONT_SIZE * 1.2
-				}
+				fontSize={LARGE_FONT_SIZE}
 			/>
-			<View
-				style={{
-					flexDirection: FLEX_ROW,
-					justifyContent: SPACE_BETWEEN,
-					gap: PADDING / 2,
-				}}
-			>
-				{handlePlus && (
-					<TouchableOpacity
-						style={{ alignSelf: CENTER }}
-						onPress={handlePlus}
-					>
-						<FontAwesome
-							name="plus"
-							size={LARGE_FONT_SIZE * 1.6}
-							color={PRIMARY_COLOR}
-						/>
-					</TouchableOpacity>
-				)}
-				{handleEdit && (
-					<TouchableOpacity
-						style={{ alignSelf: CENTER }}
-						onPress={handleEdit}
-					>
-						<FontAwesome
-							name="pencil-square"
-							size={LARGE_FONT_SIZE * 1.5}
-							color={PRIMARY_COLOR}
-						/>
-					</TouchableOpacity>
-				)}
-				{handleDelete && canBeDeleted && (
-					<DeleteButton onDelete={handleDelete} />
-				)}
-				{handleClose && (
-					<TouchableOpacity
-						style={{ alignSelf: CENTER, bottom: 1 }}
-						onPress={handleClose}
-					>
-						<FontAwesome
-							name="close"
-							size={LARGE_FONT_SIZE * 1.6}
-							color={PRIMARY_COLOR}
-						/>
-					</TouchableOpacity>
-				)}
+			<View style={styles.iconContainer}>
+				<PlusIcon handlePlus={handlePlus} />
+				<EditIcon handleEdit={handleEdit} />
+				<DeleteButton
+					onDelete={handleDelete}
+					canBeDeleted={canBeDeleted}
+				/>
+				<CloseIcon handleClose={handleClose} />
 			</View>
 		</View>
 	);
 };
+
+const styles = StyleSheet.create({
+	headerContainer: {
+		height: HEADER_HEIGHT,
+		flexDirection: FLEX_ROW,
+		justifyContent: SPACE_BETWEEN,
+	},
+	iconContainer: {
+		flexDirection: FLEX_ROW,
+		justifyContent: SPACE_BETWEEN,
+		gap: PADDING / 2,
+	},
+});
 
 export default Header;

@@ -19,7 +19,6 @@ const TripDetail = ({ route }: any) => {
 	return (
 		<ScreenLayout>
 			<Header
-				title={"Trip Details"}
 				handleDelete={() => handleDelete(tripId)}
 				handleEdit={() => handleEdit(tripId)}
 			/>

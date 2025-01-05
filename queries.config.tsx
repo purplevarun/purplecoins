@@ -3,42 +3,6 @@ export const fetch_all_trips = `
 	FROM trip t;
 `;
 
-export const select_all_sources = `
-	SELECT *
-	FROM source
-	ORDER BY amount DESC;
-`;
-
-export const update_source = `
-	UPDATE source
-	SET name = ?
-	WHERE id = ?;
-`;
-
-export const delete_one_source = `
-	DELETE FROM source
-	WHERE id = ?; 
-`;
-
-export const insert_source = `
-	INSERT
-	INTO source (id,name,amount)
-	VALUES (?,?,?);
-`;
-
-export const fetch_transactions_for_category = `
-	SELECT t.*
-	FROM "transaction" t
-	JOIN transaction_category tc ON t.id = tc.transactionId
-	WHERE tc.categoryId = ?;
-`;
-
-export const fetch_transactions_for_source = `
-	SELECT *
-	FROM "transaction"
-	WHERE sourceId = ?;
-`;
-
 export const insert_transaction = `
 	INSERT
 	INTO "transaction" (id, sourceId, amount, reason, type, date, destinationId, investmentId) 
@@ -73,23 +37,6 @@ export const insert_transaction_category = `
 	INSERT
 	INTO transaction_category (transactionId, categoryId) 
 	VALUES (?, ?);
-`;
-
-export const insert_category = `
-	INSERT
-	INTO category (id, name) 
-	VALUES (?, ?);
-`;
-
-export const fetch_single_category = `
-	SELECT *
-	FROM category
-	WHERE id=?;
-`;
-
-export const fetch_all_categories = `
-	SELECT *
-	FROM category;
 `;
 
 export const fetch_all_investments = `
@@ -213,12 +160,6 @@ export const fetch_all_detailed_transactions = `
 	LEFT JOIN investment i ON t.investmentId = i.id
 	GROUP BY t.id
 	ORDER BY t.date DESC;
-`;
-
-export const fetch_all_sources = `
-	SELECT *
-	FROM source
-	WHERE id=?;
 `;
 
 export const update_transaction = `

@@ -25,23 +25,34 @@ import {
 	MODAL_WIDTH,
 	SPACE_EVENLY,
 } from "./constants.config";
-import { DELETE_ICON } from "./icons.config";
 
-const DeleteButton: IDeleteButton = ({ onDelete }) => {
+const DeleteButton = ({
+	onDelete,
+	canBeDeleted,
+}: {
+	onDelete?: () => void;
+	canBeDeleted?: boolean;
+}) => {
 	const [modal, setModal] = useState(false);
 	return (
-		<TouchableOpacity
-			style={styles.deleteButton}
-			onPress={() => setModal(true)}
-		>
-			<FontAwesome
-				name={DELETE_ICON}
-				size={FONT_SIZE * 1.5}
-				color={BACKGROUND_COLOR}
-				alignSelf={CENTER}
-			/>
-			{modal && <DeleteModal setModal={setModal} onDelete={onDelete} />}
-		</TouchableOpacity>
+		onDelete &&
+		canBeDeleted && (
+			<TouchableOpacity
+				style={styles.deleteButton}
+				onPress={() => setModal(true)}
+			>
+				<FontAwesome
+					name={"trash"}
+					size={FONT_SIZE * 1.5}
+					color={BACKGROUND_COLOR}
+					alignSelf={CENTER}
+					testID={"delete_icon"}
+				/>
+				{modal && (
+					<DeleteModal setModal={setModal} onDelete={onDelete} />
+				)}
+			</TouchableOpacity>
+		)
 	);
 };
 
@@ -78,7 +89,6 @@ const DeleteModal: IDeleteModal = ({ setModal, onDelete }) => {
 	);
 };
 
-type IDeleteButton = FC<{ onDelete: () => void }>;
 type IDeleteModal = FC<{
 	setModal: (value: boolean) => void;
 	onDelete: () => void;

@@ -1,0 +1,83 @@
+appId: host.exp.exponent
+---
+- tapOn:
+      id: "source_icon"
+- assertVisible:
+      text: "Sources"
+- assertVisible:
+      text: "No Sources found"
+- tapOn:
+      id: "plus_icon"
+- assertVisible:
+      text: "Add Source"
+- tapOn:
+      id: "close_icon"
+- assertVisible:
+      text: "Sources"
+- assertVisible:
+      text: "No Sources found"
+- tapOn:
+      id: "plus_icon"
+- tapOn:
+      text: "Name"
+- inputText: "Source 1"
+- tapOn:
+      text: "Amount"
+- inputText: "1000"
+- tapOn:
+      text: "Submit"
+- assertNotVisible:
+      text: "No Sources found"
+- assertVisible:
+      text: "Source 1"
+- assertVisible:
+      text: "₹1,000"
+- assertVisible:
+      text: "Total Net Worth = ₹1,000"
+- tapOn:
+      id: "plus_icon"
+- tapOn:
+      text: "Name"
+- inputText: "Source 2"
+- tapOn:
+      text: "Submit"
+- assertVisible:
+      text: "Source 1"
+- assertVisible:
+      text: "₹1,000"
+- assertVisible:
+      text: "Source 2"
+- assertVisible:
+      text: "₹0"
+- assertVisible:
+      text: "Total Net Worth = ₹1,000"
+- tapOn:
+      text: "Source 2"
+- tapOn:
+      id: "edit_icon"
+- tapOn:
+      text: "Source 2"
+- eraseText
+- inputText: "Source 3"
+- tapOn:
+      text: "Submit"
+- assertNotVisible:
+      text: "Source 2"
+- assertVisible:
+      text: "Source 3"
+- assertVisible:
+      text: "Total Net Worth = ₹1,000"
+- tapOn:
+      text: "Source 3"
+- tapOn:
+      id: "delete_icon"
+- tapOn:
+      text: "Yes"
+- assertVisible:
+      text: "Total Net Worth = ₹1,000"
+- assertNotVisible:
+      text: "Source 3"
+- assertVisible:
+      text: "Source 1"
+- assertVisible:
+      text: "₹1,000"

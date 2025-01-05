@@ -19,7 +19,7 @@ const TripMain = () => {
 	const { navigateToTripAdd } = useNavigate();
 	return (
 		<ScreenLayout>
-			<Header title={"Trips"} handlePlus={navigateToTripAdd} />
+			<Header handlePlus={navigateToTripAdd} />
 			{trips.length > 0 ? (
 				<FlatList
 					data={trips}

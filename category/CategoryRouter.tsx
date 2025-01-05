@@ -1,10 +1,11 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { categoryRoutes } from "../Routes";
+import ScreenLayout from "../ScreenLayout";
+import { SCREEN_OPTIONS } from "../constants.config";
 import CategoryAdd from "./CategoryAdd";
 import CategoryDetail from "./CategoryDetail";
+import CategoryEdit from "./CategoryEdit";
 import CategoryMain from "./CategoryMain";
-import { categoryRoutes } from "./Routes";
-import ScreenLayout from "./ScreenLayout";
-import { SCREEN_OPTIONS } from "./constants.config";
 
 const CategoryRouter = () => {
 	const Stack = createNativeStackNavigator();
@@ -22,6 +23,10 @@ const CategoryRouter = () => {
 				<Stack.Screen
 					name={categoryRoutes.detail}
 					component={CategoryDetail}
+				/>
+				<Stack.Screen
+					name={categoryRoutes.edit}
+					component={CategoryEdit}
 				/>
 			</Stack.Navigator>
 		</ScreenLayout>

@@ -5,26 +5,25 @@ import ScreenLayout from "../ScreenLayout";
 import Vertical from "../Vertical";
 import { MARGIN } from "../constants.config";
 import useFocus from "../useFocus";
-import useSource from "./useSource";
+import useCategory from "./useCategory";
 
-const SourceEdit = ({ route }: any) => {
+const CategoryEdit = ({ route }: any) => {
 	const {
 		name,
 		setName,
 		disabled,
-		updateOneSource,
+		updateOneCategory,
 		handleClose,
 		handleEditFocus,
-	} = useSource(route.params.id);
+	} = useCategory(route.params.id);
 	useFocus(handleEditFocus);
 	return (
 		<ScreenLayout>
 			<Header handleClose={handleClose} />
 			<Vertical size={MARGIN} />
 			<CustomInput name={"Name"} value={name} setValue={setName} />
-			<CustomButton disabled={disabled} onPress={updateOneSource} />
+			<CustomButton disabled={disabled} onPress={updateOneCategory} />
 		</ScreenLayout>
 	);
 };
-
-export default SourceEdit;
+export default CategoryEdit;

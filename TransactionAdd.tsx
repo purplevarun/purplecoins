@@ -25,11 +25,11 @@ const TransactionAdd = ({ route }: any) => {
 	const { amount, reason, setReason, type, setAmount, setType, sourceId } =
 		useTransactionStore();
 	const { addNewTransaction, submitEnabled } = useTransactionService();
-	const { fetchOneSource } = useSource();
+	const { fetchOneSource } = useSource(sourceId);
 	const [insufficientBalance, setInsufficientBalance] = useState(false);
 	const { navigate } = useNavigation<any>();
 	const onPress = () => {
-		const source = fetchOneSource(sourceId);
+		const source = fetchOneSource();
 		if (
 			parseInt(amount) > source.amount &&
 			type === TransactionType.EXPENSE

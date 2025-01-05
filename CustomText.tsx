@@ -2,6 +2,13 @@ import { ColorValue, FlexAlignType, Text } from "react-native";
 import { PRIMARY_COLOR } from "./colors.config";
 import { FLEX_START, FONT_SIZE, UBUNTU_FONT } from "./constants.config";
 
+type ITextDecoration =
+	| "none"
+	| "underline"
+	| "line-through"
+	| "underline line-through"
+	| undefined;
+
 const CustomText = ({
 	text,
 	fontSize = FONT_SIZE,
@@ -19,12 +26,7 @@ const CustomText = ({
 	paddingTop?: number;
 	right?: number;
 	paddingVertical?: number;
-	decoration?:
-		| "none"
-		| "underline"
-		| "line-through"
-		| "underline line-through"
-		| undefined;
+	decoration?: ITextDecoration;
 }) => {
 	const fontFamily = UBUNTU_FONT;
 	return (

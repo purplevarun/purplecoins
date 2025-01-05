@@ -31,14 +31,17 @@ const SettingScreen = () => {
 	const handleClear = () => {
 		delete_queries.forEach((query) => db.runSync(query));
 	};
-
+	const show_clear_button =
+		process.env.EXPO_PUBLIC_SHOW_CLEAR_BUTTON ?? false;
 	return (
 		<ScreenLayout>
 			<Header />
 			<Vertical size={FONT_SIZE * 2} />
 			<CustomButton text={"Export Data"} onPress={handleExport} />
 			<CustomButton text={"Import Data"} onPress={handleImport} />
-			<CustomButton text={"Clear Data"} onPress={handleClear} />
+			{show_clear_button && (
+				<CustomButton text={"Clear Data"} onPress={handleClear} />
+			)}
 		</ScreenLayout>
 	);
 };

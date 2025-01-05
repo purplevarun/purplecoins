@@ -19,10 +19,7 @@ const InvestmentMain = () => {
 	const { navigateToInvestmentAdd } = useNavigate();
 	return (
 		<ScreenLayout>
-			<Header
-				title={"Investments"}
-				handlePlus={navigateToInvestmentAdd}
-			/>
+			<Header handlePlus={navigateToInvestmentAdd} />
 			{investments.length > 0 ? (
 				<>
 					<InvestmentAnalysis investments={investments} />

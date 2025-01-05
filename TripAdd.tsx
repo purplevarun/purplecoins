@@ -16,7 +16,7 @@ const TripAdd = ({ route }: any) => {
 	const { navigateToTripMain } = useNavigate();
 	return (
 		<ScreenLayout>
-			<Header title={"Add Trip"} handleClose={navigateToTripMain} />
+			<Header handleClose={navigateToTripMain} />
 			<Vertical size={FONT_SIZE / 2} />
 			<CustomInput name={"Trip Name"} value={name} setValue={setName} />
 			<TripDatePicker />

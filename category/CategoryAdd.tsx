@@ -4,33 +4,19 @@ import Header from "../Header";
 import ScreenLayout from "../ScreenLayout";
 import Vertical from "../Vertical";
 import { MARGIN, QUARTER } from "../constants.config";
-import useSource from "./useSource";
+import useCategory from "./useCategory";
 
-const SourceAdd = () => {
-	const {
-		name,
-		setName,
-		amount,
-		setAmount,
-		disabled,
-		addSource,
-		handleClose,
-	} = useSource();
+const CategoryAdd = () => {
+	const { handleClose, name, setName, disabled, addCategory } = useCategory();
 	return (
 		<ScreenLayout>
 			<Header handleClose={handleClose} />
 			<Vertical size={MARGIN} />
 			<CustomInput name={"Name"} value={name} setValue={setName} />
 			<Vertical size={QUARTER} />
-			<CustomInput
-				name={"Amount"}
-				value={amount}
-				setValue={setAmount}
-				numeric
-			/>
-			<CustomButton disabled={disabled} onPress={addSource} />
+			<CustomButton disabled={disabled} onPress={addCategory} />
 		</ScreenLayout>
 	);
 };
 
-export default SourceAdd;
+export default CategoryAdd;

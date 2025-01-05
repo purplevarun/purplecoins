@@ -7,7 +7,7 @@ import { DISABLED_COLOR } from "./colors.config";
 import { CENTER, SCREEN_HEIGHT } from "./constants.config";
 import useScreen from "./useScreen";
 
-const NoContent = () => {
+const NoContent = ({ handlePlus }: { handlePlus: () => void }) => {
 	const { serviceName } = useScreen();
 	const text = useMemo(() => {
 		if (serviceName === IServiceName.category) return `No Categories found`;
@@ -15,7 +15,7 @@ const NoContent = () => {
 	}, [serviceName]);
 	return (
 		<ScreenLayout>
-			<Header />
+			<Header handlePlus={handlePlus} />
 			<CustomText
 				text={text}
 				alignSelf={CENTER}

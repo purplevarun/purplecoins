@@ -1,8 +1,6 @@
-import { useNavigation } from "@react-navigation/native";
 import { TouchableOpacity } from "react-native";
 import CustomText from "../CustomText";
 import { formatMoney } from "../HelperFunctions";
-import { sourceRoutes } from "../Routes";
 import { SECONDARY_COLOR } from "../colors.config";
 import {
 	BORDER_RADIUS,
@@ -12,13 +10,14 @@ import {
 	SPACE_BETWEEN,
 } from "../constants.config";
 import ISource from "./ISource";
+import useSource from "./useSource";
 
-const SourceRenderItem = ({
-	item: { id, name, amount },
-}: {
-	item: ISource;
-}) => {
-	const { navigate } = useNavigation<any>();
+const SourceRenderItem = ({ item }: { item: ISource }) => (
+	<SourceRenderItemImplementation item={item} />
+);
+
+const SourceRenderItemImplementation = ({ item }: { item: ISource }) => {
+	const { handleDetail } = useSource(item.id);
 	return (
 		<TouchableOpacity
 			style={{
@@ -29,10 +28,10 @@ const SourceRenderItem = ({
 				flexDirection: FLEX_ROW,
 				justifyContent: SPACE_BETWEEN,
 			}}
-			onPress={() => navigate(sourceRoutes.detail, { id })}
+			onPress={handleDetail}
 		>
-			<CustomText text={name} />
-			<CustomText text={formatMoney(amount)} />
+			<CustomText text={item.name} />
+			<CustomText text={formatMoney(item.amount)} />
 		</TouchableOpacity>
 	);
 };

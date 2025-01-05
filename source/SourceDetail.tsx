@@ -6,23 +6,22 @@ import ScreenLayout from "../ScreenLayout";
 import useSource from "./useSource";
 
 const SourceDetail = ({ route }: any) => {
-	const { id } = route.params;
 	const {
 		fetchOneSource,
 		fetchTransactionForSource,
 		handleClose,
 		handleEdit,
 		deleteOneSource,
-	} = useSource();
-	const { name, amount } = fetchOneSource(id);
-	const transactions = fetchTransactionForSource(id);
+	} = useSource(route.params.id);
+	const { name, amount } = fetchOneSource();
+	const transactions = fetchTransactionForSource();
 	return (
 		<ScreenLayout>
 			<Header
 				handleClose={handleClose}
-				handleEdit={() => handleEdit(id)}
+				handleEdit={handleEdit}
 				canBeDeleted={transactions.length === 0}
-				handleDelete={() => deleteOneSource(id)}
+				handleDelete={deleteOneSource}
 			/>
 			<DataTab name={"Name"} value={name} />
 			<DataTab name={"Amount"} value={formatMoney(amount)} />

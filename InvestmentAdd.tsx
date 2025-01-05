@@ -20,10 +20,7 @@ const InvestmentAdd = () => {
 	const { navigateToInvestmentMain } = useNavigate();
 	return (
 		<ScreenLayout>
-			<Header
-				title={"Add Investment"}
-				handlePlus={navigateToInvestmentMain}
-			/>
+			<Header handlePlus={navigateToInvestmentMain} />
 			<CustomInput name={"Name"} value={name} setValue={setName} />
 			<CustomInput
 				name={"Invested Amount"}

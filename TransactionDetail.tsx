@@ -2,7 +2,6 @@ import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { useCallback } from "react";
 import { FlatList, TouchableOpacity, View } from "react-native";
 import useAppStore from "./AppStore";
-import CategoryRenderItem from "./CategoryRenderItem";
 import CustomText from "./CustomText";
 import DataTab from "./DataTab";
 import Header from "./Header";
@@ -11,6 +10,7 @@ import ScreenLayout from "./ScreenLayout";
 import useTransactionService from "./TransactionService";
 import TripRenderItem from "./TripRenderItem";
 import Vertical from "./Vertical";
+import CategoryRenderItem from "./category/CategoryRenderItem";
 import {
 	FLEX_ROW,
 	LARGE_FONT_SIZE,
@@ -55,7 +55,6 @@ const TransactionDetail = ({ route }: any) => {
 	return (
 		<ScreenLayout>
 			<Header
-				title={"Transaction Details"}
 				handleClose={navigateToTransactionMain}
 				handleEdit={() => handleEdit(transactionId)}
 				handleDelete={() => handleDelete(transactionId)}

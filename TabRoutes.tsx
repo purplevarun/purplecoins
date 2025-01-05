@@ -1,9 +1,9 @@
-import CategoryRouter from "./CategoryRouter";
+import CategoryRouter from "./category/CategoryRouter";
 import {
-	BankIcon,
 	CategoryIcon,
 	InvestmentIcon,
 	SettingsIcon,
+	SourceIcon,
 	TransactionIcon,
 	TripIcon,
 } from "./Icons";
@@ -16,7 +16,7 @@ import TripRouter from "./TripRouter";
 const tabRoutes = {
 	source: {
 		component: SourceRouter,
-		Icon: BankIcon,
+		Icon: SourceIcon,
 	},
 	category: {
 		component: CategoryRouter,
