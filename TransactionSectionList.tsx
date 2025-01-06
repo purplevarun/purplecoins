@@ -1,4 +1,4 @@
-import { SectionList, View } from "react-native";
+import { SectionList, StyleSheet, View } from "react-native";
 import CustomText from "./CustomText";
 import IGroupedTransaction from "./IGroupedTransaction";
 import ITransaction from "./ITransaction";
@@ -12,45 +12,45 @@ import {
 	SPACE_BETWEEN,
 } from "./constants.config";
 
-const TransactionSectionList = ({
-	transactions,
-}: {
-	transactions: IGroupedTransaction[];
-}) => {
-	const keyExtractor = (item: ITransaction, index: number) =>
-		`${item.id}-${index}`;
-	const renderSectionHeader = ({
-		section: { title },
-	}: {
-		section: { title: string };
-	}) => (
-		<View
-			style={{
-				paddingVertical: PADDING,
-				borderRadius: BORDER_RADIUS,
-				flexDirection: FLEX_ROW,
-				justifyContent: SPACE_BETWEEN,
-			}}
-		>
-			<CustomText
-				text={title}
-				fontSize={LARGE_FONT_SIZE}
-				alignSelf={CENTER}
-			/>
-		</View>
-	);
-	const renderItem = ({ item }: { item: ITransaction }) => (
-		<TransactionRenderItem item={item} />
-	);
-
+const TransactionSectionList = ({ transactions }: ITransactionSectionList) => {
 	return (
 		<SectionList
 			sections={transactions}
-			keyExtractor={keyExtractor}
-			renderSectionHeader={renderSectionHeader}
-			renderItem={renderItem}
+			keyExtractor={Key}
+			renderSectionHeader={SectionHeader}
+			renderItem={Item}
 		/>
 	);
 };
 
+type ITransactionSectionList = {
+	transactions: IGroupedTransaction[];
+};
+
+type ISectionHeader = { section: { title: string } };
+
+const Key = (item: ITransaction, index: number) => `${item.id}-${index}`;
+
+const SectionHeader = ({ section }: ISectionHeader) => (
+	<View style={styles.list}>
+		<CustomText
+			text={section.title}
+			fontSize={LARGE_FONT_SIZE}
+			alignSelf={CENTER}
+		/>
+	</View>
+);
+
+const Item = ({ item }: { item: ITransaction }) => (
+	<TransactionRenderItem item={item} />
+);
+
+const styles = StyleSheet.create({
+	list: {
+		paddingVertical: PADDING,
+		borderRadius: BORDER_RADIUS,
+		flexDirection: FLEX_ROW,
+		justifyContent: SPACE_BETWEEN,
+	},
+});
 export default TransactionSectionList;

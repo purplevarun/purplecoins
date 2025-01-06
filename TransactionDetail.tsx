@@ -1,14 +1,11 @@
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import { useCallback } from "react";
+import { useNavigation } from "@react-navigation/native";
 import { FlatList, TouchableOpacity, View } from "react-native";
-import useAppStore from "./AppStore";
 import CustomText from "./CustomText";
 import DataTab from "./DataTab";
 import Header from "./Header";
 import { formatDate, formatMoney } from "./HelperFunctions";
 import ScreenLayout from "./ScreenLayout";
 import useTransactionService from "./TransactionService";
-import TripRenderItem from "./TripRenderItem";
 import Vertical from "./Vertical";
 import CategoryRenderItem from "./category/CategoryRenderItem";
 import {
@@ -19,6 +16,7 @@ import {
 	SPACE_BETWEEN,
 	USABLE_SCREEN_HEIGHT,
 } from "./constants.config";
+import TripRenderItem from "./trip/TripRenderItem";
 import useNavigate from "./useNavigate";
 
 const plank = 0.35;
@@ -29,13 +27,6 @@ const TransactionDetail = ({ route }: any) => {
 	const transactionId = route.params?.transactionId ?? null;
 	const { handleEdit, handleDelete, fetchTransaction } =
 		useTransactionService();
-	const { setOnEdit, setOnDelete } = useAppStore();
-	useFocusEffect(
-		useCallback(() => {
-			setOnEdit(() => handleEdit(transactionId));
-			setOnDelete(() => handleDelete(transactionId));
-		}, [transactionId]),
-	);
 	const { navigateToTransactionMain } = useNavigate();
 	const {
 		amount,

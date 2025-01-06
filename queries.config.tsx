@@ -1,8 +1,3 @@
-export const fetch_all_trips = `
-	SELECT t.*
-	FROM trip t;
-`;
-
 export const insert_transaction = `
 	INSERT
 	INTO "transaction" (id, sourceId, amount, reason, type, date, destinationId, investmentId) 
@@ -48,68 +43,6 @@ export const insert_investment = `
 	INSERT
 	INTO investment (id, name, investedAmount, currentAmount)
 	VALUES (?, ?, ?, ?);
-`;
-
-export const fetch_single_trip = `
-	SELECT *
-	FROM trip
-	WHERE id = ?;
-`;
-
-export const delete_single_trip = `
-	DELETE
-	FROM trip
-	WHERE id = ?;
-`;
-
-export const fetch_total_for_trip = `
-	SELECT sum(t.amount) AS total
-	FROM "transaction" t
-	JOIN transaction_trip tt ON t.id = tt.transactionId
-	WHERE tt.tripId = ?;
-`;
-
-export const fetch_all_transactions_for_trip = `
-	SELECT t.*
-	FROM "transaction" t
-	JOIN transaction_trip tt ON t.id = tt.transactionId
-	WHERE tt.tripId = ?;
-`;
-
-export const insert_trip_with_start_and_end_date = `
-	INSERT
-	INTO trip (id, name, startDate, endDate)
-	VALUES (?, ?, ?, ?);
-`;
-
-export const insert_trip_with_start_date = `
-	INSERT
-	INTO trip (id, name, startDate)
-	VALUES (?, ?, ?);
-`;
-
-export const insert_trip_without_date = `
-	INSERT
-	INTO trip (id, name)
-	VALUES (?, ?);
-`;
-
-export const update_trip_with_start_and_end_date = `
-	UPDATE trip 
-	SET name = ?, startDate = ?, endDate = ?
-	WHERE id = ?;
-`;
-
-export const update_trip_with_start_date = `
-	UPDATE trip
-	SET name = ?, startDate = ?
-	WHERE id = ?;
-`;
-
-export const update_trip_without_date = `
-	UPDATE trip
-	SET name = ?
-	WHERE id = ?;
 `;
 
 export const fetch_single_detailed_transaction = `

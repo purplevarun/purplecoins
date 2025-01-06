@@ -16,9 +16,7 @@ const category = `
 const trip = `
 	CREATE TABLE IF NOT EXISTS "trip" (
 		id			TEXT PRIMARY KEY,
-		name 		TEXT NOT NULL,
-		startDate 	DATETIME,
-		endDate 	DATETIME
+		name 		TEXT NOT NULL
 	);
 `;
 

@@ -4,18 +4,10 @@ import Header from "../Header";
 import ScreenLayout from "../ScreenLayout";
 import Vertical from "../Vertical";
 import { MARGIN, QUARTER } from "../constants.config";
-import useSource from "./useSource";
+import useTrip from "./useTrip";
 
-const SourceAdd = () => {
-	const {
-		name,
-		setName,
-		amount,
-		setAmount,
-		disabled,
-		addSource,
-		handleClose,
-	} = useSource();
+const TripAdd = () => {
+	const { name, setName, handleClose, disabled, addTrip } = useTrip();
 
 	return (
 		<ScreenLayout>
@@ -23,15 +15,9 @@ const SourceAdd = () => {
 			<Vertical size={MARGIN} />
 			<CustomInput name={"Name"} value={name} setValue={setName} />
 			<Vertical size={QUARTER} />
-			<CustomInput
-				name={"Amount"}
-				value={amount}
-				setValue={setAmount}
-				numeric
-			/>
-			<CustomButton disabled={disabled} onPress={addSource} />
+			<CustomButton disabled={disabled} onPress={addTrip} />
 		</ScreenLayout>
 	);
 };
 
-export default SourceAdd;
+export default TripAdd;

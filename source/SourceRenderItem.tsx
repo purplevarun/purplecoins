@@ -12,11 +12,11 @@ import {
 import ISource from "./ISource";
 import useSource from "./useSource";
 
-const SourceRenderItem = ({ item }: { item: ISource }) => (
-	<SourceRenderItemImplementation item={item} />
-);
+const SourceRenderItem = ({ item }: { item: ISource }) => {
+	return <Implementation item={item} />;
+};
 
-const SourceRenderItemImplementation = ({ item }: { item: ISource }) => {
+const Implementation = ({ item }: { item: ISource }) => {
 	const { handleDetail } = useSource(item.id);
 	return (
 		<TouchableOpacity

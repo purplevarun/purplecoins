@@ -4,14 +4,14 @@ import CustomText from "./CustomText";
 import IRenderItem from "./IRenderItem";
 import useTransactionStore from "./TransactionStore";
 import TransactionType from "./TransactionType";
-import useTripService from "./TripService";
 import { DISABLED_COLOR, PRIMARY_COLOR } from "./colors.config";
 import { FONT_SIZE, PADDING } from "./constants.config";
 import dropdownStyle from "./dropdown.style";
+import useTrip from "./trip/useTrip";
 
 const TripSelector = () => {
 	const { type, tripIds, setTripIds } = useTransactionStore();
-	const { fetchTrips } = useTripService();
+	const { fetchTrips } = useTrip();
 	const tripList = fetchTrips().map(({ id, name }) => ({
 		label: name,
 		value: id,

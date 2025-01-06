@@ -8,6 +8,7 @@ import useCategory from "./useCategory";
 
 const CategoryAdd = () => {
 	const { handleClose, name, setName, disabled, addCategory } = useCategory();
+
 	return (
 		<ScreenLayout>
 			<Header handleClose={handleClose} />

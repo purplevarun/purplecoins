@@ -11,7 +11,7 @@ import InvestmentRouter from "./InvestmentRouter";
 import SettingScreen from "./SettingScreen";
 import SourceRouter from "./source/SourceRouter";
 import TransactionRouter from "./TransactionRouter";
-import TripRouter from "./TripRouter";
+import TripRouter from "./trip/TripRouter";
 
 const tabRoutes = {
 	source: {

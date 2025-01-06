@@ -1,10 +1,11 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { tripRoutes } from "./Routes";
-import ScreenLayout from "./ScreenLayout";
+import { tripRoutes } from "../Routes";
+import ScreenLayout from "../ScreenLayout";
+import { SCREEN_OPTIONS } from "../constants.config";
 import TripAdd from "./TripAdd";
 import TripDetail from "./TripDetail";
+import TripEdit from "./TripEdit";
 import TripMain from "./TripMain";
-import { SCREEN_OPTIONS } from "./constants.config";
 
 const TripRouter = () => {
 	const Stack = createNativeStackNavigator();
@@ -14,6 +15,7 @@ const TripRouter = () => {
 				<Stack.Screen name={tripRoutes.main} component={TripMain} />
 				<Stack.Screen name={tripRoutes.add} component={TripAdd} />
 				<Stack.Screen name={tripRoutes.detail} component={TripDetail} />
+				<Stack.Screen name={tripRoutes.edit} component={TripEdit} />
 			</Stack.Navigator>
 		</ScreenLayout>
 	);

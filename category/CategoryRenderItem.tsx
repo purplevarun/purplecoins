@@ -5,11 +5,11 @@ import { BORDER_RADIUS, MARGIN, PADDING } from "../constants.config";
 import ICategory from "./ICategory";
 import useCategory from "./useCategory";
 
-const CategoryRenderItem = ({ item }: { item: ICategory }) => (
-	<CategoryRenderItemImplementation item={item} />
-);
+const CategoryRenderItem = ({ item }: { item: ICategory }) => {
+	return <Implementation item={item} />;
+};
 
-const CategoryRenderItemImplementation = ({ item }: { item: ICategory }) => {
+const Implementation = ({ item }: { item: ICategory }) => {
 	const { handleDetail } = useCategory(item.id);
 	return (
 		<TouchableOpacity style={styles.btn} onPress={handleDetail}>

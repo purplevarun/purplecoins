@@ -4,18 +4,20 @@ import Header from "../Header";
 import ScreenLayout from "../ScreenLayout";
 import Vertical from "../Vertical";
 import { MARGIN, QUARTER } from "../constants.config";
-import useSource from "./useSource";
+import useFocus from "../useFocus";
+import useTrip from "./useTrip";
 
-const SourceAdd = () => {
+const TripEdit = ({ route }: any) => {
 	const {
 		name,
 		setName,
-		amount,
-		setAmount,
-		disabled,
-		addSource,
 		handleClose,
-	} = useSource();
+		disabled,
+		updateTrip,
+		handleEditFocus,
+	} = useTrip(route.params.id);
+
+	useFocus(handleEditFocus);
 
 	return (
 		<ScreenLayout>
@@ -23,15 +25,9 @@ const SourceAdd = () => {
 			<Vertical size={MARGIN} />
 			<CustomInput name={"Name"} value={name} setValue={setName} />
 			<Vertical size={QUARTER} />
-			<CustomInput
-				name={"Amount"}
-				value={amount}
-				setValue={setAmount}
-				numeric
-			/>
-			<CustomButton disabled={disabled} onPress={addSource} />
+			<CustomButton disabled={disabled} onPress={updateTrip} />
 		</ScreenLayout>
 	);
 };
 
-export default SourceAdd;
+export default TripEdit;
