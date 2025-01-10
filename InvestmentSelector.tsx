@@ -17,11 +17,11 @@ import {
 	PADDING,
 	PADDING_TOP_ADD_SCREEN,
 } from "./constants.config";
-import useInvestment from "./main/domains/investment/useInvestment";
+import useInvestment from "./src/main/domains/investment/useInvestment";
 
 const InvestmentSelector = () => {
 	const { investmentId, setInvestmentId, type } = useTransactionStore();
-	const { fetchInvestments } = useInvestment()
+	const { fetchInvestments } = useInvestment();
 	const investmentModels = fetchInvestments().map((investment) => ({
 		label: investment.name,
 		value: investment.id,

@@ -7,7 +7,6 @@ import { formatDate, formatMoney } from "./HelperFunctions";
 import ScreenLayout from "./ScreenLayout";
 import useTransactionService from "./TransactionService";
 import Vertical from "./Vertical";
-import CategoryRenderItem from "./main/domains/category/CategoryRenderItem";
 import {
 	FLEX_ROW,
 	LARGE_FONT_SIZE,
@@ -16,7 +15,8 @@ import {
 	SPACE_BETWEEN,
 	USABLE_SCREEN_HEIGHT,
 } from "./constants.config";
-import TripRenderItem from "./main/domains/trip/TripRenderItem";
+import CategoryRenderItem from "./src/main/domains/category/CategoryRenderItem";
+import TripRenderItem from "./src/main/domains/trip/TripRenderItem";
 import useNavigate from "./useNavigate";
 
 const plank = 0.35;

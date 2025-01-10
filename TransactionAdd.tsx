@@ -18,7 +18,7 @@ import TripSelector from "./TripSelector";
 import TypeSelector from "./TypeSelector";
 import { RED_COLOR } from "./colors.config";
 import { FLEX_START, PADDING, SMALL_FONT_SIZE } from "./constants.config";
-import useSource from "./main/domains/source/useSource";
+import useSource from "./src/main/domains/source/useSource";
 
 const TransactionAdd = ({ route }: any) => {
 	const transactionId = route.params?.transactionId ?? null;
