@@ -4,7 +4,7 @@ import CustomText from "./CustomText";
 import IRenderItem from "./IRenderItem";
 import useTransactionStore from "./TransactionStore";
 import TransactionType from "./TransactionType";
-import useCategory from "./category/useCategory";
+import useCategory from "./main/domains/category/useCategory";
 import { DISABLED_COLOR, PRIMARY_COLOR } from "./colors.config";
 import { FONT_SIZE, PADDING } from "./constants.config";
 import dropdownStyle from "./dropdown.style";

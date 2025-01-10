@@ -1,4 +1,4 @@
-import CategoryRouter from "./category/CategoryRouter";
+import CategoryRouter from "./main/domains/category/CategoryRouter";
 import {
 	CategoryIcon,
 	InvestmentIcon,
@@ -7,11 +7,11 @@ import {
 	TransactionIcon,
 	TripIcon,
 } from "./Icons";
-import InvestmentRouter from "./InvestmentRouter";
+import InvestmentRouter from "./main/domains/investment/InvestmentRouter";
 import SettingScreen from "./SettingScreen";
-import SourceRouter from "./source/SourceRouter";
+import SourceRouter from "./main/domains/source/SourceRouter";
 import TransactionRouter from "./TransactionRouter";
-import TripRouter from "./trip/TripRouter";
+import TripRouter from "./main/domains/trip/TripRouter";
 
 const tabRoutes = {
 	source: {

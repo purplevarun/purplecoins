@@ -7,7 +7,7 @@ import TransactionType from "./TransactionType";
 import { DISABLED_COLOR, PRIMARY_COLOR } from "./colors.config";
 import { FONT_SIZE, PADDING } from "./constants.config";
 import dropdownStyle from "./dropdown.style";
-import useTrip from "./trip/useTrip";
+import useTrip from "./main/domains/trip/useTrip";
 
 const TripSelector = () => {
 	const { type, tripIds, setTripIds } = useTransactionStore();

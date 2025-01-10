@@ -34,17 +34,6 @@ export const insert_transaction_category = `
 	VALUES (?, ?);
 `;
 
-export const fetch_all_investments = `
-	SELECT *
-	FROM investment;
-`;
-
-export const insert_investment = `
-	INSERT
-	INTO investment (id, name, investedAmount, currentAmount)
-	VALUES (?, ?, ?, ?);
-`;
-
 export const fetch_single_detailed_transaction = `
 	SELECT
 	t.id,

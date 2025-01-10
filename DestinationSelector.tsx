@@ -11,7 +11,7 @@ import {
 } from "./colors.config";
 import { PADDING } from "./constants.config";
 import dropdownStyle from "./dropdown.style";
-import useSource from "./source/useSource";
+import useSource from "./main/domains/source/useSource";
 
 const DestinationSelector = () => {
 	const { sourceId, destinationId, setDestinationId, type } =

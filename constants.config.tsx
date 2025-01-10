@@ -32,12 +32,10 @@ export const PADDING_TOP_ADD_SCREEN = FONT_SIZE * 0.35;
 export const NINETY_P = "90%";
 export const SEVENTY_P = "70%";
 export const HUNDRED_P = "100%";
-export const FORTY_EIGHT_P = "48%";
 export const UBUNTU_FONT = "Ubuntu";
 export const FLEX_START = "flex-start";
 export const ABSOLUTE = "absolute";
 export const DB_NAME = "purplecoins.db";
-export const MINIMUM_LENGTH = 4;
 export const SCREEN_OPTIONS: NativeStackNavigationOptions = {
 	headerShown: false,
 	animation: "fade",

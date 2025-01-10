@@ -13,7 +13,7 @@ const DataTab: IDataTab = ({ name, value }) => {
 		return (
 			<View style={styles.tab}>
 				<CustomText text={name} />
-				<CustomText text={value} />
+				<CustomText text={value === "null" ? "Not specified" : value} />
 			</View>
 		);
 };

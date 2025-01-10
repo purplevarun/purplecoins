@@ -15,8 +15,8 @@ const category = `
 
 const trip = `
 	CREATE TABLE IF NOT EXISTS "trip" (
-		id			TEXT PRIMARY KEY,
-		name 		TEXT NOT NULL
+		id		TEXT PRIMARY KEY,
+		name 	TEXT NOT NULL
 	);
 `;
 
@@ -24,7 +24,7 @@ const investment = `
 	CREATE TABLE IF NOT EXISTS "investment" (
 		id 				TEXT PRIMARY KEY,
 		name 			TEXT NOT NULL,
-		investedAmount 	INTEGER NOT NULL,
+		investedAmount	INTEGER,
 		currentAmount 	INTEGER
 	);
 `;

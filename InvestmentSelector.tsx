@@ -2,7 +2,6 @@ import { StyleSheet, View } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import CustomText from "./CustomText";
 import IRenderItem from "./IRenderItem";
-import useInvestmentService from "./InvestmentService";
 import useTransactionStore from "./TransactionStore";
 import TransactionType from "./TransactionType";
 import {
@@ -18,10 +17,11 @@ import {
 	PADDING,
 	PADDING_TOP_ADD_SCREEN,
 } from "./constants.config";
+import useInvestment from "./main/domains/investment/useInvestment";
 
 const InvestmentSelector = () => {
 	const { investmentId, setInvestmentId, type } = useTransactionStore();
-	const { fetchInvestments } = useInvestmentService();
+	const { fetchInvestments } = useInvestment()
 	const investmentModels = fetchInvestments().map((investment) => ({
 		label: investment.name,
 		value: investment.id,
