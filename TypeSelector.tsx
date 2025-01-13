@@ -1,21 +1,21 @@
-import RadioButtonGroup from "./RadioButtonGroup";
-import TransactionType from "./TransactionType";
 import { BLUE_COLOR, GREEN_COLOR, YELLOW_COLOR } from "./colors.config";
+import RadioButtons from "./src/main/components/buttons/add_screen/RadioButtons";
+import Type from "./src/main/constants/enums/Type";
 
 interface ITypeSelector {
-	type: TransactionType;
-	setType: (val: TransactionType) => void;
+	type: Type;
+	setType: (val: Type) => void;
 }
 
 const ExpenseData = {
-	[TransactionType.GENERAL]: { name: "General", color: GREEN_COLOR },
-	[TransactionType.TRANSFER]: { name: "Transfer", color: BLUE_COLOR },
-	[TransactionType.INVESTMENT]: { name: "Investment", color: YELLOW_COLOR },
+	[Type.GENERAL]: { name: "General", color: GREEN_COLOR },
+	[Type.TRANSFER]: { name: "Transfer", color: BLUE_COLOR },
+	[Type.INVESTMENT]: { name: "Investment", color: YELLOW_COLOR },
 };
 
 const TypeSelector = ({ type, setType }: ITypeSelector) => {
-	const radioButtons = Object.keys(TransactionType).map((key, index) => {
-		const type = TransactionType[key as keyof typeof TransactionType];
+	const radioButtonData = Object.keys(Type).map((key, index) => {
+		const type = Type[key as keyof typeof Type];
 		const { name, color } = ExpenseData[type];
 		return {
 			id: index.toString(),
@@ -26,15 +26,15 @@ const TypeSelector = ({ type, setType }: ITypeSelector) => {
 	});
 
 	const handlePress = (id: string) => {
-		const selectedButton = radioButtons.find((btn) => btn.id === id);
+		const selectedButton = radioButtonData.find((btn) => btn.id === id);
 		if (selectedButton) setType(selectedButton.value);
 	};
 
 	return (
-		<RadioButtonGroup
-			radioButtons={radioButtons}
+		<RadioButtons
+			data={radioButtonData}
 			onPress={handlePress}
-			selectedId={radioButtons.find((btn) => btn.value === type)?.id}
+			selectedId={radioButtonData.find((btn) => btn.value === type)?.id}
 		/>
 	);
 };

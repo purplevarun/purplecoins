@@ -13,11 +13,11 @@ const useSource = (id: string = "") => {
 	const [amount, setAmount] = useState("");
 	const [sources, setSources] = useState<ISource[]>([]);
 
-	const disabled = useMemo(() => {
-		if (name.length === 0) return true;
-		if (amount === "") return false;
+	const enabled = useMemo(() => {
+		if (name === "") return false;
+		if (amount === "") return true;
 		const parsedAmount = Number(amount);
-		return isNaN(parsedAmount);
+		return !isNaN(parsedAmount);
 	}, [name, amount]);
 
 	const iAmount = useMemo(() => {
@@ -97,7 +97,7 @@ const useSource = (id: string = "") => {
 		amount,
 		setAmount,
 		sources,
-		disabled,
+		enabled,
 		iAmount,
 		sourceModels,
 		destinationModels,

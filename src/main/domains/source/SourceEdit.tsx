@@ -1,9 +1,6 @@
-import CustomButton from "../../../../CustomButton";
 import CustomInput from "../../../../CustomInput";
 import Header from "../../../../Header";
 import ScreenLayout from "../../../../ScreenLayout";
-import Vertical from "../../../../Vertical";
-import { MARGIN } from "../../../../constants.config";
 import useFocus from "../../../../useFocus";
 import useSource from "./useSource";
 
@@ -11,7 +8,7 @@ const SourceEdit = ({ route }: any) => {
 	const {
 		name,
 		setName,
-		disabled,
+		enabled,
 		updateOneSource,
 		handleClose,
 		handleEditFocus,
@@ -19,10 +16,12 @@ const SourceEdit = ({ route }: any) => {
 	useFocus(handleEditFocus);
 	return (
 		<ScreenLayout>
-			<Header handleClose={handleClose} />
-			<Vertical size={MARGIN} />
+			<Header
+				handleClose={handleClose}
+				handleSubmit={updateOneSource}
+				canBeSubmitted={enabled}
+			/>
 			<CustomInput name={"Name"} value={name} setValue={setName} />
-			<CustomButton disabled={disabled} onPress={updateOneSource} />
 		</ScreenLayout>
 	);
 };

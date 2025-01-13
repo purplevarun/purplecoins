@@ -1,25 +1,15 @@
-import { DimensionValue, TouchableOpacity, View } from "react-native";
-import Action from "./Action";
-import CategorySelector from "./CategorySelector";
+import CommonMultiSelector from "./CommonMultiSelector";
 import CustomInput from "./CustomInput";
-import CustomText from "./CustomText";
 import DestinationSelector from "./DestinationSelector";
 import Header from "./Header";
 import InvestmentSelector from "./InvestmentSelector";
+import PaddedRow from "./PaddedRow";
 import ScreenLayout from "./ScreenLayout";
 import SourceSelector from "./SourceSelector";
-import TransactionType from "./TransactionType";
-import TripSelector from "./TripSelector";
 import TypeSelector from "./TypeSelector";
-import { GREEN_COLOR, PRIMARY_COLOR, RED_COLOR } from "./colors.config";
-import {
-	BORDER_RADIUS,
-	CENTER,
-	FLEX_ROW,
-	FONT_SIZE,
-	NINETY_P,
-	SPACE_BETWEEN,
-} from "./constants.config";
+import ActionButton from "./src/main/components/buttons/add_screen/ActionButton";
+import useCategory from "./src/main/domains/category/useCategory";
+import useTrip from "./src/main/domains/trip/useTrip";
 import useTransaction from "./useTransaction";
 
 const TransactionAdd = ({ route }: any) => {
@@ -34,7 +24,7 @@ const TransactionAdd = ({ route }: any) => {
 		trips,
 		categories,
 		investment,
-		disabled,
+		enabled,
 		setAmount,
 		setReason,
 		setDate,
@@ -47,24 +37,22 @@ const TransactionAdd = ({ route }: any) => {
 		setDestination,
 		addTransaction,
 		handleClose,
+		isGeneral,
+		isInvestment,
+		isTransfer,
 	} = useTransaction(route.params.id);
-
-	const isGeneral = type === TransactionType.GENERAL;
-	const isInvestment = type === TransactionType.INVESTMENT;
-	const isTransfer = type === TransactionType.TRANSFER;
+	const { categoryModels } = useCategory();
+	const { tripModels } = useTrip();
 
 	return (
 		<ScreenLayout>
-			<Header handleClose={handleClose} handleSubmit={addTransaction} />
+			<Header
+				handleClose={handleClose}
+				handleSubmit={addTransaction}
+				canBeSubmitted={enabled}
+			/>
 			<TypeSelector type={type} setType={setType} />
-			<View
-				style={{
-					flexDirection: FLEX_ROW,
-					width: NINETY_P,
-					alignSelf: CENTER,
-					justifyContent: SPACE_BETWEEN,
-				}}
-			>
+			<PaddedRow>
 				<CustomInput
 					name={"Amount"}
 					value={amount}
@@ -77,15 +65,8 @@ const TransactionAdd = ({ route }: any) => {
 					setAction={setAction}
 					width={"32%"}
 				/>
-			</View>
-			<View
-				style={{
-					flexDirection: FLEX_ROW,
-					width: NINETY_P,
-					alignSelf: CENTER,
-					justifyContent: SPACE_BETWEEN,
-				}}
-			>
+			</PaddedRow>
+			<PaddedRow>
 				<CustomInput
 					name={"Reason"}
 					value={reason}
@@ -98,89 +79,60 @@ const TransactionAdd = ({ route }: any) => {
 					setValue={setDate}
 					width={"32%"}
 				/>
-			</View>
+			</PaddedRow>
 			{isGeneral && (
-				<View
-					style={{
-						flexDirection: FLEX_ROW,
-						width: NINETY_P,
-						alignSelf: CENTER,
-						justifyContent: SPACE_BETWEEN,
-					}}
-				>
-					<View
-						style={{
-							flexDirection: FLEX_ROW,
-							width: "65%",
-							alignSelf: CENTER,
-							justifyContent: SPACE_BETWEEN,
-						}}
-					>
-						<SourceSelector
-							source={source}
-							setSource={setSource}
-							width={"48%"}
-						/>
-						<CategorySelector
-							categories={categories}
-							setCategories={setCategories}
-							width={"48%"}
-						/>
-					</View>
-					<TripSelector
-						trips={trips}
-						setTrips={setTrips}
+				<PaddedRow>
+					<SourceSelector
+						source={source}
+						setSource={setSource}
+						width={"27%"}
+					/>
+					<CommonMultiSelector
+						name={"Categories"}
+						data={categoryModels}
+						value={categories}
+						onChange={setCategories}
+						width={"36%"}
+					/>
+					<CommonMultiSelector
+						name={"Trips"}
+						data={tripModels}
+						value={trips}
+						onChange={setTrips}
 						width={"32%"}
 					/>
-				</View>
+				</PaddedRow>
 			)}
 			{isTransfer && (
-				<DestinationSelector
-					source={source}
-					destination={destination}
-					setDestination={setDestination}
-				/>
+				<PaddedRow>
+					<SourceSelector
+						source={source}
+						setSource={setSource}
+						width={"48.5%"}
+					/>
+					<DestinationSelector
+						source={source}
+						destination={destination}
+						setDestination={setDestination}
+						width={"48.5%"}
+					/>
+				</PaddedRow>
 			)}
 			{isInvestment && (
-				<InvestmentSelector
-					investment={investment}
-					setInvestment={setInvestment}
-				/>
+				<PaddedRow>
+					<SourceSelector
+						source={source}
+						setSource={setSource}
+						width={"48.5%"}
+					/>
+					<InvestmentSelector
+						investment={investment}
+						setInvestment={setInvestment}
+						width={"48.5%"}
+					/>
+				</PaddedRow>
 			)}
 		</ScreenLayout>
-	);
-};
-
-const ActionButton = ({
-	action,
-	setAction,
-	width,
-}: {
-	action: Action;
-	setAction: (val: Action) => void;
-	width: DimensionValue;
-}) => {
-	return (
-		<TouchableOpacity
-			style={{
-				backgroundColor:
-					action === Action.DEBIT ? RED_COLOR : GREEN_COLOR,
-				width,
-				borderRadius: BORDER_RADIUS,
-				height: FONT_SIZE * 2.5,
-				alignSelf: "flex-end",
-				justifyContent: CENTER,
-				borderWidth: 2,
-				borderColor: PRIMARY_COLOR,
-			}}
-			onPress={() =>
-				setAction(
-					action === Action.DEBIT ? Action.CREDIT : Action.DEBIT,
-				)
-			}
-		>
-			<CustomText text={action} alignSelf={CENTER} />
-		</TouchableOpacity>
 	);
 };
 

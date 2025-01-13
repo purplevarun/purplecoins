@@ -1,7 +1,6 @@
-import { View } from "react-native";
+import { DimensionValue, View } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import CustomText from "./CustomText";
-import HideSelector from "./HideSelector";
 import IRenderItem from "./IRenderItem";
 import {
 	BACKGROUND_COLOR,
@@ -16,18 +15,16 @@ interface Props {
 	source: string;
 	destination: string | null;
 	setDestination: (val: string) => void;
+	width: DimensionValue;
 }
 
 const DestinationSelector = ({
 	source,
 	destination,
 	setDestination,
+	width,
 }: Props) => {
-	const { destinationModels, sourceModels } = useSource(source);
-
-	if (destinationModels.length === 0 || sourceModels.length === 1) {
-		return <HideSelector destination />;
-	}
+	const { destinationModels } = useSource(source);
 
 	const item = (item: IRenderItem) => {
 		const backgroundColor =
@@ -45,9 +42,9 @@ const DestinationSelector = ({
 	};
 
 	return (
-		<View style={dropdownStyle.wrapper}>
+		<View style={[dropdownStyle.wrapper, { width }]}>
 			<Dropdown
-				placeholder={"Select Destination"}
+				placeholder={"Destination"}
 				labelField={"label"}
 				valueField={"value"}
 				data={destinationModels}
@@ -60,6 +57,7 @@ const DestinationSelector = ({
 				itemContainerStyle={dropdownStyle.itemContainer}
 				containerStyle={dropdownStyle.container}
 				itemTextStyle={dropdownStyle.itemText}
+				renderRightIcon={() => null}
 			/>
 		</View>
 	);

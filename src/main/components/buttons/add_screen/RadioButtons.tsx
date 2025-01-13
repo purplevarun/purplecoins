@@ -1,5 +1,5 @@
 import { StyleSheet, TouchableOpacity, View } from "react-native";
-import CustomText from "./CustomText";
+import CustomText from "../../../../../CustomText";
 import {
 	BORDER_WIDTH,
 	CENTER,
@@ -9,11 +9,11 @@ import {
 	PADDING,
 	SMALL_FONT_SIZE,
 	SPACE_EVENLY,
-} from "./constants.config";
+} from "../../../../../constants.config";
 
 interface IRadioGroup {
 	onPress: (selectedId: string) => void;
-	radioButtons: {
+	data: {
 		id: string;
 		label: string;
 		color: string;
@@ -35,13 +35,9 @@ interface IRadioIcon {
 	selected?: boolean;
 }
 
-const RadioButtonGroup = ({
-	onPress,
-	radioButtons,
-	selectedId,
-}: IRadioGroup) => (
+const RadioButtons = ({ onPress, data, selectedId }: IRadioGroup) => (
 	<View style={styles.container}>
-		{radioButtons.map(({ color, id, label }) => (
+		{data.map(({ color, id, label }) => (
 			<RadioButton
 				key={id}
 				color={color}
@@ -105,4 +101,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default RadioButtonGroup;
+export default RadioButtons;

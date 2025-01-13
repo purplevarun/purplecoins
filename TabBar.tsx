@@ -1,7 +1,6 @@
 import { MaterialTopTabBarProps } from "@react-navigation/material-top-tabs";
-import { TouchableOpacity, View } from "react-native";
+import { View } from "react-native";
 import tabRoutes from "./TabRoutes";
-import { DISABLED_COLOR, PRIMARY_COLOR } from "./colors.config";
 import {
 	FLEX_ROW,
 	FONT_SIZE,
@@ -25,17 +24,9 @@ const TabBarImplementation = (props: MaterialTopTabBarProps) => {
 				paddingHorizontal: FONT_SIZE,
 			}}
 		>
-			{Object.entries(tabRoutes).map(([key, { Icon }], idx) => {
-				return (
-					<TouchableOpacity onPress={() => navigate(key)} key={key}>
-						<Icon
-							color={
-								idx === index ? PRIMARY_COLOR : DISABLED_COLOR
-							}
-						/>
-					</TouchableOpacity>
-				);
-			})}
+			{Object.values(tabRoutes).map(({ Icon }, idx) => (
+				<Icon active={idx === index} navigate={navigate} key={idx} />
+			))}
 		</View>
 	);
 };

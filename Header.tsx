@@ -1,10 +1,6 @@
 import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import CustomText from "./CustomText";
-import DeleteButton from "./DeleteButton";
-import IScreenType from "./IScreenType";
-import IServiceName from "./IServiceName";
-import { CheckIcon, CloseIcon, EditIcon, PlusIcon } from "./Icons";
 import {
 	CENTER,
 	FLEX_ROW,
@@ -13,6 +9,13 @@ import {
 	PADDING,
 	SPACE_BETWEEN,
 } from "./constants.config";
+import CheckButton from "./src/main/components/buttons/header/CheckButton";
+import CloseButton from "./src/main/components/buttons/header/CloseButton";
+import DeleteButton from "./src/main/components/buttons/header/DeleteButton";
+import EditButton from "./src/main/components/buttons/header/EditButton";
+import PlusButton from "./src/main/components/buttons/header/PlusButton";
+import ScreenType from "./src/main/constants/enums/ScreenType";
+import Service from "./src/main/constants/enums/Service";
 import useScreen from "./useScreen";
 
 const Header = ({
@@ -36,15 +39,15 @@ const Header = ({
 
 	const title = useMemo(() => {
 		switch (screenType) {
-			case IScreenType.main:
-				return serviceName === IServiceName.category
+			case ScreenType.MAIN:
+				return serviceName === Service.CATEGORY
 					? "Categories"
 					: `${serviceName}s`;
-			case IScreenType.add:
+			case ScreenType.ADD:
 				return `Add ${serviceName}`;
-			case IScreenType.edit:
+			case ScreenType.EDIT:
 				return `Edit ${serviceName}`;
-			case IScreenType.detail:
+			case ScreenType.DETAIL:
 				return `${serviceName} Details`;
 			default:
 				return "Settings";
@@ -59,17 +62,17 @@ const Header = ({
 				fontSize={LARGE_FONT_SIZE}
 			/>
 			<View style={styles.iconContainer}>
-				<CheckIcon
+				<CheckButton
 					handleCheck={handleSubmit}
 					enabled={canBeSubmitted}
 				/>
-				<PlusIcon handlePlus={handlePlus} />
-				<EditIcon handleEdit={handleEdit} />
+				<PlusButton handlePlus={handlePlus} />
+				<EditButton handleEdit={handleEdit} />
 				<DeleteButton
 					onDelete={handleDelete}
 					canBeDeleted={canBeDeleted}
 				/>
-				<CloseIcon handleClose={handleClose} />
+				<CloseButton handleClose={handleClose} />
 			</View>
 		</View>
 	);

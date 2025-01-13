@@ -1,12 +1,12 @@
 import { randomUUID } from "expo-crypto";
 import { useSQLiteContext } from "expo-sqlite";
 import { useMemo, useState } from "react";
-import Action from "./Action";
 import { formatDate } from "./HelperFunctions";
 import IGroupedTransaction from "./IGroupedTransaction";
 import ITransaction from "./ITransaction";
 import { transactionRoutes } from "./Routes";
-import TransactionType from "./TransactionType";
+import Action from "./src/main/constants/enums/Action";
+import Type from "./src/main/constants/enums/Type";
 import useScreen from "./useScreen";
 
 const useTransaction = (id: string = "") => {
@@ -16,7 +16,7 @@ const useTransaction = (id: string = "") => {
 	const [reason, setReason] = useState("");
 	const [date, setDate] = useState(formatDate(new Date()));
 	const [source, setSource] = useState("");
-	const [type, setType] = useState(TransactionType.GENERAL);
+	const [type, setType] = useState(Type.GENERAL);
 	const [action, setAction] = useState(Action.DEBIT);
 	const [investment, setInvestment] = useState<null | string>(null);
 	const [destination, setDestination] = useState<null | string>(null);
@@ -31,20 +31,19 @@ const useTransaction = (id: string = "") => {
 		return parseInt(amount);
 	}, [amount]);
 
-	const disabled = useMemo(() => {
-		if (iAmount === 0) return true;
-		if (reason.length === 0) return true;
-		if (!(date.length === 10 || date.length === 8)) return true;
+	const enabled = useMemo(() => {
+		if (iAmount === 0) return false;
+		if (reason.length === 0) return false;
+		if (date.length !== 10 && date.length !== 8) return false;
 		const [d, m, y] = date.split("/");
 		if (
-			!(
-				d.length === 2 &&
-				m.length === 2 &&
-				(y.length === 2 || y.length === 4)
-			)
-		)
-			return true;
-		return source.length === 0;
+			d?.length !== 2 || // Day must have 2 characters
+			m?.length !== 2 || // Month must have 2 characters
+			(y?.length !== 2 && y?.length !== 4) // Year must be either 2 or 4 characters
+		) {
+			return false;
+		}
+		return source.length > 0;
 	}, [reason, iAmount, date, source]);
 
 	const fetchTransactions = () => {
@@ -125,14 +124,21 @@ const useTransaction = (id: string = "") => {
 		);
 		const tAmount = action === Action.DEBIT ? -iAmount : iAmount;
 		db.runSync(update_source_amount, [tAmount, source]);
-		if (type === TransactionType.INVESTMENT)
+		if (type === Type.INVESTMENT)
 			db.runSync(update_investment_amount, [-tAmount, investment]);
-		if (type === TransactionType.TRANSFER)
+		if (type === Type.TRANSFER)
 			db.runSync(update_source_amount, [-tAmount, destination]);
 		navigate(transactionRoutes.main);
 	};
 
+	const isGeneral = type === Type.GENERAL;
+	const isInvestment = type === Type.INVESTMENT;
+	const isTransfer = type === Type.TRANSFER;
+
 	return {
+		isGeneral,
+		isInvestment,
+		isTransfer,
 		amount,
 		setAmount,
 		reason,
@@ -148,7 +154,7 @@ const useTransaction = (id: string = "") => {
 		setInvestment,
 		destination,
 		setDestination,
-		disabled,
+		enabled,
 		trips,
 		setTrips,
 		setDate,

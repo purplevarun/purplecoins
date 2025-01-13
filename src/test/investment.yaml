@@ -22,7 +22,7 @@ appId: host.exp.exponent
       text: "Name"
 - inputText: "Investment 1"
 - tapOn:
-      text: "Submit"
+      id: "check_icon"
 - assertNotVisible:
       text: "No Investments found"
 - assertVisible:
@@ -44,7 +44,7 @@ appId: host.exp.exponent
       text: "Invested Amount"
 - inputText: "1000"
 - tapOn:
-      text: "Submit"
+      id: "check_icon"
 - assertVisible:
       text: "Investment 1"
 - assertVisible:
@@ -71,7 +71,7 @@ appId: host.exp.exponent
       text: "Current Amount"
 - inputText: "1500"
 - tapOn:
-      text: "Submit"
+      id: "check_icon"
 - assertNotVisible:
       text: "Investment 2"
 - assertVisible:

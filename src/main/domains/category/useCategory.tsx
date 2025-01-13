@@ -1,6 +1,6 @@
 import { randomUUID } from "expo-crypto";
 import { useSQLiteContext } from "expo-sqlite";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import ITransaction from "../../../../ITransaction";
 import { categoryRoutes } from "../../../../Routes";
 import useScreen from "../../../../useScreen";
@@ -11,10 +11,6 @@ const useCategory = (id: string = "") => {
 	const [categories, setCategories] = useState<ICategory[]>([]);
 	const db = useSQLiteContext();
 	const { navigate } = useScreen();
-
-	const disabled = useMemo(() => {
-		return name.length === 0;
-	}, [name]);
 
 	const handlePlus = () => {
 		navigate(categoryRoutes.add);
@@ -78,7 +74,6 @@ const useCategory = (id: string = "") => {
 		name,
 		setName,
 		categories,
-		disabled,
 		categoryModels,
 		handlePlus,
 		handleClose,

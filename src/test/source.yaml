@@ -25,7 +25,7 @@ appId: host.exp.exponent
       text: "Amount"
 - inputText: "1000"
 - tapOn:
-      text: "Submit"
+      id: "check_icon"
 - assertNotVisible:
       text: "No Sources found"
 - assertVisible:
@@ -40,7 +40,7 @@ appId: host.exp.exponent
       text: "Name"
 - inputText: "Source 2"
 - tapOn:
-      text: "Submit"
+      id: "check_icon"
 - assertVisible:
       text: "Source 1"
 - assertVisible:
@@ -60,7 +60,7 @@ appId: host.exp.exponent
 - eraseText
 - inputText: "Source 3"
 - tapOn:
-      text: "Submit"
+      id: "check_icon"
 - assertNotVisible:
       text: "Source 2"
 - assertVisible:

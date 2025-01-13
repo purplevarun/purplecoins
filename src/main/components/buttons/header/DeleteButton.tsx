@@ -1,16 +1,15 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { FC, useState } from "react";
 import { Modal, StyleSheet, TouchableOpacity, View } from "react-native";
-import CustomButton from "./CustomButton";
-import CustomText from "./CustomText";
-import Vertical from "./Vertical";
+import CustomText from "../../../../../CustomText";
+import Vertical from "../../../../../Vertical";
 import {
 	BACKGROUND_COLOR,
 	PRIMARY_COLOR,
 	RED_COLOR,
 	SECONDARY_COLOR,
 	SHADOW_COLOR,
-} from "./colors.config";
+} from "../../../../../colors.config";
 import {
 	BORDER_WIDTH,
 	CENTER,
@@ -24,7 +23,8 @@ import {
 	MODAL_HEIGHT,
 	MODAL_WIDTH,
 	SPACE_EVENLY,
-} from "./constants.config";
+} from "../../../../../constants.config";
+import CustomButton from "../CustomButton";
 
 const DeleteButton = ({
 	onDelete,

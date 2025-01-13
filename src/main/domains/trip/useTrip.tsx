@@ -1,6 +1,6 @@
 import { randomUUID } from "expo-crypto";
 import { useSQLiteContext } from "expo-sqlite";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import ITransaction from "../../../../ITransaction";
 import { tripRoutes } from "../../../../Routes";
 import useScreen from "../../../../useScreen";
@@ -28,11 +28,6 @@ const useTrip = (id: string = "") => {
 	const handleClose = () => {
 		navigate(tripRoutes.main);
 	};
-
-	const disabled = useMemo(() => {
-		return name.length == 0;
-	}, [name]);
-
 	const addTrip = () => {
 		db.runSync(insert_trip, [randomUUID(), name]);
 		navigate(tripRoutes.main);
@@ -87,7 +82,6 @@ const useTrip = (id: string = "") => {
 	return {
 		name,
 		setName,
-		disabled,
 		trips,
 		tripModels,
 		handleMainFocus,

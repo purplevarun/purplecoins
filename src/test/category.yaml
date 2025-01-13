@@ -22,7 +22,7 @@ appId: host.exp.exponent
       text: "Name"
 - inputText: "Category 1"
 - tapOn:
-      text: "Submit"
+      id: "check_icon"
 - assertNotVisible:
       text: "No Categories found"
 - assertVisible:
@@ -33,7 +33,7 @@ appId: host.exp.exponent
       text: "Name"
 - inputText: "Category 2"
 - tapOn:
-      text: "Submit"
+      id: "check_icon"
 - assertVisible:
       text: "Category 1"
 - assertVisible:
@@ -47,7 +47,7 @@ appId: host.exp.exponent
 - eraseText
 - inputText: "Category 3"
 - tapOn:
-      text: "Submit"
+      id: "check_icon"
 - assertNotVisible:
       text: "Category 2"
 - assertVisible:

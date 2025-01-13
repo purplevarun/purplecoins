@@ -1,5 +1,5 @@
-import Action from "./Action";
-import TransactionType from "./TransactionType";
+import Action from "./src/main/constants/enums/Action";
+import Type from "./src/main/constants/enums/Type";
 
 interface ITransaction {
 	id: string;
@@ -7,7 +7,7 @@ interface ITransaction {
 	reason: string;
 	date: string;
 	sourceId: string;
-	type: TransactionType;
+	type: Type;
 	action: Action;
 	destinationId?: string;
 	investmentId?: string;

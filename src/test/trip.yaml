@@ -22,7 +22,7 @@ appId: host.exp.exponent
       text: "Name"
 - inputText: "Trip 1"
 - tapOn:
-      text: "Submit"
+      id: "check_icon"
 - assertNotVisible:
       text: "No Trips found"
 - assertVisible:
@@ -33,7 +33,7 @@ appId: host.exp.exponent
       text: "Name"
 - inputText: "Trip 2"
 - tapOn:
-      text: "Submit"
+      id: "check_icon"
 - assertVisible:
       text: "Trip 1"
 - assertVisible:
@@ -47,7 +47,7 @@ appId: host.exp.exponent
 - eraseText
 - inputText: "Trip 3"
 - tapOn:
-      text: "Submit"
+      id: "check_icon"
 - assertNotVisible:
       text: "Trip 2"
 - assertVisible:

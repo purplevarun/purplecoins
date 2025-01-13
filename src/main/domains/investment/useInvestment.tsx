@@ -14,10 +14,6 @@ const useInvestment = (id: string = "") => {
 	const [currentAmount, setCurrentAmount] = useState("");
 	const [investments, setInvestments] = useState<IInvestment[]>([]);
 
-	const disabled = useMemo(() => {
-		return name.length === 0;
-	}, [name]);
-
 	const fetchInvestments = () => {
 		return db.getAllSync<IInvestment>(select_investments);
 	};
@@ -98,7 +94,6 @@ const useInvestment = (id: string = "") => {
 		currentAmount,
 		setCurrentAmount,
 		investments,
-		disabled,
 		fetchInvestments,
 		fetchOneInvestment,
 		addInvestment,

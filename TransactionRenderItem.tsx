@@ -1,9 +1,7 @@
 import { StyleSheet, TouchableOpacity } from "react-native";
-import Action from "./Action";
 import CustomText from "./CustomText";
 import { formatMoney } from "./HelperFunctions";
 import ITransaction from "./ITransaction";
-import TransactionType from "./TransactionType";
 import {
 	BLUE_COLOR,
 	GREEN_COLOR,
@@ -19,12 +17,14 @@ import {
 	SEVENTY_P,
 	SPACE_BETWEEN,
 } from "./constants.config";
+import Action from "./src/main/constants/enums/Action";
+import Type from "./src/main/constants/enums/Type";
 import useTransaction from "./useTransaction";
 
 const TransactionRenderItem = ({ item }: { item: ITransaction }) => {
 	const { handleDetail } = useTransaction(item.id);
 	const color =
-		item.type === TransactionType.TRANSFER
+		item.type === Type.TRANSFER
 			? BLUE_COLOR
 			: item.action === Action.DEBIT
 				? RED_COLOR

@@ -77,8 +77,6 @@ const CustomInput = ({
 				ref={inputRef}
 				value={value}
 				onChangeText={setValue}
-				// placeholder={name}
-				// placeholderTextColor={DISABLED_COLOR}
 				onFocus={() => setIsFocused(true)}
 				onBlur={() => setIsFocused(false)}
 				autoComplete={"off"}

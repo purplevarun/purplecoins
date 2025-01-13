@@ -1,0 +1,21 @@
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { TouchableOpacity } from "react-native";
+import { PRIMARY_COLOR } from "../../../../../colors.config";
+import { CENTER, LARGE_FONT_SIZE } from "../../../../../constants.config";
+
+const PlusButton = ({ handlePlus }: { handlePlus?: () => void }) =>
+	handlePlus && (
+		<TouchableOpacity
+			style={{ alignSelf: CENTER }}
+			onPress={handlePlus}
+			testID={"plus_icon"}
+		>
+			<FontAwesome
+				name="plus"
+				size={LARGE_FONT_SIZE * 1.6}
+				color={PRIMARY_COLOR}
+			/>
+		</TouchableOpacity>
+	);
+
+export default PlusButton;

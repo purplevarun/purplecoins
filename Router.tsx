@@ -7,7 +7,7 @@ const Router = () => {
 	const TopTab = createMaterialTopTabNavigator();
 	return (
 		<TopTab.Navigator tabBarPosition={TAB_BAR_POSITION} tabBar={TabBar}>
-			{Object.entries(tabRoutes).map(([name, { component }]) => (
+			{Object.values(tabRoutes).map(({ name, component }) => (
 				<TopTab.Screen name={name} component={component} key={name} />
 			))}
 		</TopTab.Navigator>
