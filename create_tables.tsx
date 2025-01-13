@@ -1,22 +1,25 @@
 const source = `
 	CREATE TABLE IF NOT EXISTS "source" (
-		id     	TEXT PRIMARY KEY,
-		name   	TEXT    NOT NULL,
-		amount 	INTEGER NOT NULL
+		id 			TEXT PRIMARY KEY,
+		name 		TEXT NOT NULL,
+		amount 		INTEGER NOT NULL,
+		created_at 	TIMESTAMP DEFAULT (datetime('now', '+5 hours 30 minutes'))
 	);
 `;
 
 const category = `
 	CREATE TABLE IF NOT EXISTS "category" (
-		id   	TEXT PRIMARY KEY,
-		name 	TEXT NOT NULL
+		id   		TEXT PRIMARY KEY,
+		name 		TEXT NOT NULL,
+		created_at 	TIMESTAMP DEFAULT (datetime('now', '+5 hours 30 minutes'))
 	);
 `;
 
 const trip = `
 	CREATE TABLE IF NOT EXISTS "trip" (
-		id		TEXT PRIMARY KEY,
-		name 	TEXT NOT NULL
+		id			TEXT PRIMARY KEY,
+		name 		TEXT NOT NULL,
+		created_at 	TIMESTAMP DEFAULT (datetime('now', '+5 hours 30 minutes'))
 	);
 `;
 
@@ -25,20 +28,27 @@ const investment = `
 		id 				TEXT PRIMARY KEY,
 		name 			TEXT NOT NULL,
 		investedAmount	INTEGER,
-		currentAmount 	INTEGER
+		currentAmount 	INTEGER,
+		created_at 		TIMESTAMP DEFAULT (datetime('now', '+5 hours 30 minutes'))
 	);
 `;
 
 const transaction = `
 	CREATE TABLE IF NOT EXISTS "transaction" (
-		id 				TEXT PRIMARY KEY,
-		sourceId 		TEXT NOT NULL,
-		destinationId 	TEXT,
-		investmentId 	TEXT,
-		amount 			INTEGER NOT NULL,
-		reason 			TEXT NOT NULL,
-		type 			TEXT NOT NULL,
-		date 			DATETIME NOT NULL,
+		id              TEXT PRIMARY KEY,
+		amount          INTEGER NOT NULL,
+		reason          TEXT NOT NULL,
+		type            TEXT NOT NULL CHECK (type IN ('GENERAL', 'TRANSFER', 'INVESTMENT')),
+		action          TEXT NOT NULL CHECK (action IN ('DEBIT', 'CREDIT')),
+		date            TEXT NOT NULL CHECK (
+							LENGTH(date) = 10 AND
+							SUBSTR(date, 3, 1) = '/' AND
+							SUBSTR(date, 6, 1) = '/'
+						),
+		sourceId        TEXT NOT NULL,
+		destinationId   TEXT,
+		investmentId    TEXT,
+		created_at 		TIMESTAMP DEFAULT (datetime('now', '+5 hours 30 minutes')),
 		FOREIGN KEY (sourceId) REFERENCES "source" (id),
 		FOREIGN KEY (destinationId) REFERENCES "source" (id),
 		FOREIGN KEY (investmentId) REFERENCES "investment" (id)
@@ -49,6 +59,7 @@ const transaction_trip = `
 	CREATE TABLE IF NOT EXISTS "transaction_trip" (
 		transactionId 	TEXT NOT NULL,
 		tripId 			TEXT NOT NULL,
+		created_at 		TIMESTAMP DEFAULT (datetime('now', '+5 hours 30 minutes')),
 		PRIMARY KEY (transactionId, tripId),
 		FOREIGN KEY (transactionId) REFERENCES "transaction" (id),
 		FOREIGN KEY (tripId) REFERENCES "trip" (id)
@@ -59,6 +70,7 @@ const transaction_category = `
 	CREATE TABLE IF NOT EXISTS "transaction_category" (
 		transactionId 	TEXT NOT NULL,
 		categoryId 		TEXT NOT NULL,
+		created_at 		TIMESTAMP DEFAULT (datetime('now', '+5 hours 30 minutes')),
 		PRIMARY KEY (transactionId, categoryId),
 		FOREIGN KEY (transactionId) REFERENCES "transaction" (id),
 		FOREIGN KEY (categoryId) REFERENCES "category" (id)

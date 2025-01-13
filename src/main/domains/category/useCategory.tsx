@@ -69,11 +69,17 @@ const useCategory = (id: string = "") => {
 		setCategories(fetchCategories());
 	};
 
+	const categoryModels = fetchCategories().map((category) => ({
+		label: category.name,
+		value: category.id,
+	}));
+
 	return {
 		name,
 		setName,
 		categories,
 		disabled,
+		categoryModels,
 		handlePlus,
 		handleClose,
 		fetchCategories,

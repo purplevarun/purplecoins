@@ -3,7 +3,6 @@ import CustomText from "./CustomText";
 import {
 	BORDER_WIDTH,
 	CENTER,
-	FLEX_COLUMN,
 	FLEX_ROW,
 	FONT_SIZE,
 	HUNDRED_P,
@@ -78,7 +77,7 @@ const RadioIcon = ({ color, selected }: IRadioIcon) => (
 
 const styles = StyleSheet.create({
 	container: {
-		paddingVertical: PADDING,
+		paddingVertical: PADDING / 2,
 		alignSelf: CENTER,
 		justifyContent: SPACE_EVENLY,
 		width: HUNDRED_P,
@@ -88,9 +87,8 @@ const styles = StyleSheet.create({
 	button: {
 		alignItems: CENTER,
 		marginHorizontal: FONT_SIZE / 2,
-		marginVertical: FONT_SIZE / 3,
 		gap: FONT_SIZE / 3,
-		flexDirection: FLEX_COLUMN,
+		flexDirection: FLEX_ROW,
 	},
 	icon: {
 		justifyContent: CENTER,

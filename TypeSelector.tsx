@@ -1,10 +1,17 @@
 import RadioButtonGroup from "./RadioButtonGroup";
-import TransactionType, { ExpenseData } from "./TransactionType";
+import TransactionType from "./TransactionType";
+import { BLUE_COLOR, GREEN_COLOR, YELLOW_COLOR } from "./colors.config";
 
 interface ITypeSelector {
 	type: TransactionType;
 	setType: (val: TransactionType) => void;
 }
+
+const ExpenseData = {
+	[TransactionType.GENERAL]: { name: "General", color: GREEN_COLOR },
+	[TransactionType.TRANSFER]: { name: "Transfer", color: BLUE_COLOR },
+	[TransactionType.INVESTMENT]: { name: "Investment", color: YELLOW_COLOR },
+};
 
 const TypeSelector = ({ type, setType }: ITypeSelector) => {
 	const radioButtons = Object.keys(TransactionType).map((key, index) => {

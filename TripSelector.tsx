@@ -1,42 +1,25 @@
-import { View } from "react-native";
+import { DimensionValue, View } from "react-native";
 import { MultiSelect } from "react-native-element-dropdown";
 import CustomText from "./CustomText";
+import HideSelector from "./HideSelector";
 import IRenderItem from "./IRenderItem";
-import useTransactionStore from "./TransactionStore";
-import TransactionType from "./TransactionType";
-import { DISABLED_COLOR, PRIMARY_COLOR } from "./colors.config";
-import { FONT_SIZE, PADDING } from "./constants.config";
+import { PRIMARY_COLOR } from "./colors.config";
+import { FONT_SIZE } from "./constants.config";
 import dropdownStyle from "./dropdown.style";
 import useTrip from "./src/main/domains/trip/useTrip";
 
-const TripSelector = () => {
-	const { type, tripIds, setTripIds } = useTransactionStore();
-	const { fetchTrips } = useTrip();
-	const tripList = fetchTrips().map(({ id, name }) => ({
-		label: name,
-		value: id,
-	}));
+interface Props {
+	trips: string[];
+	setTrips: (val: string[]) => void;
+	width: DimensionValue;
+}
 
-	if (
-		type === TransactionType.TRANSFER ||
-		type === TransactionType.INVESTMENT
-	)
-		return null;
+const TripSelector = ({ trips, setTrips, width }: Props) => {
+	const { tripModels } = useTrip();
 
-	if (tripList.length === 0)
-		return (
-			<View
-				style={{
-					paddingLeft: PADDING * 2,
-					paddingVertical: PADDING,
-				}}
-			>
-				<CustomText
-					text={"No trips available"}
-					color={DISABLED_COLOR}
-				/>
-			</View>
-		);
+	if (tripModels.length === 0) {
+		return <HideSelector trip />;
+	}
 
 	const selectedItem = (item: IRenderItem) => (
 		<View style={dropdownStyle.renderSelected}>
@@ -48,8 +31,7 @@ const TripSelector = () => {
 		<View
 			style={[
 				dropdownStyle.renderItem,
-				tripIds.includes(item.value) &&
-					dropdownStyle.renderItemSelected,
+				trips.includes(item.value) && dropdownStyle.renderItemSelected,
 			]}
 		>
 			<CustomText text={item.label} color={PRIMARY_COLOR} />
@@ -57,14 +39,14 @@ const TripSelector = () => {
 	);
 
 	return (
-		<View style={dropdownStyle.wrapper}>
+		<View style={[dropdownStyle.wrapper, { width }]}>
 			<MultiSelect
-				placeholder={"Select Trips"}
+				placeholder={"Trip"}
 				labelField={"label"}
 				valueField={"value"}
-				data={tripList}
-				value={tripIds}
-				onChange={setTripIds}
+				data={tripModels}
+				value={trips}
+				onChange={setTrips}
 				renderItem={item}
 				renderSelectedItem={selectedItem}
 				style={dropdownStyle.dropdown}
@@ -74,6 +56,7 @@ const TripSelector = () => {
 				containerStyle={dropdownStyle.container}
 				itemTextStyle={dropdownStyle.itemText}
 				selectedStyle={dropdownStyle.selected}
+				renderRightIcon={() => null}
 			/>
 		</View>
 	);

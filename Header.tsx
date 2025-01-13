@@ -4,7 +4,7 @@ import CustomText from "./CustomText";
 import DeleteButton from "./DeleteButton";
 import IScreenType from "./IScreenType";
 import IServiceName from "./IServiceName";
-import { CloseIcon, EditIcon, PlusIcon } from "./Icons";
+import { CheckIcon, CloseIcon, EditIcon, PlusIcon } from "./Icons";
 import {
 	CENTER,
 	FLEX_ROW,
@@ -21,12 +21,16 @@ const Header = ({
 	handleEdit,
 	handleDelete,
 	canBeDeleted,
+	handleSubmit,
+	canBeSubmitted,
 }: {
 	handleClose?: () => void;
 	handlePlus?: () => void;
 	handleEdit?: () => void;
 	handleDelete?: () => void;
+	handleSubmit?: () => void;
 	canBeDeleted?: boolean;
+	canBeSubmitted?: boolean;
 }) => {
 	const { serviceName, screenType } = useScreen();
 
@@ -55,6 +59,10 @@ const Header = ({
 				fontSize={LARGE_FONT_SIZE}
 			/>
 			<View style={styles.iconContainer}>
+				<CheckIcon
+					handleCheck={handleSubmit}
+					enabled={canBeSubmitted}
+				/>
 				<PlusIcon handlePlus={handlePlus} />
 				<EditIcon handleEdit={handleEdit} />
 				<DeleteButton

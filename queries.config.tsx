@@ -22,18 +22,6 @@ export const update_investment_amount = `
 	WHERE id=?;
 `;
 
-export const insert_transaction_trip = `
-	INSERT
-	INTO transaction_trip (transactionId, tripId)
-	VALUES (?, ?);
-`;
-
-export const insert_transaction_category = `
-	INSERT
-	INTO transaction_category (transactionId, categoryId) 
-	VALUES (?, ?);
-`;
-
 export const fetch_single_detailed_transaction = `
 	SELECT
 	t.id,

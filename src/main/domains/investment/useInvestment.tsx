@@ -84,7 +84,13 @@ const useInvestment = (id: string = "") => {
 		navigate(investmentRoutes.main);
 	};
 
+	const investmentModels = fetchInvestments().map((investment) => ({
+		label: investment.name,
+		value: investment.id,
+	}));
+
 	return {
+		investmentModels,
 		name,
 		setName,
 		investedAmount,

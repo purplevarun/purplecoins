@@ -2,7 +2,7 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { FC } from "react";
 import { TouchableOpacity } from "react-native";
-import { PRIMARY_COLOR } from "./colors.config";
+import { DISABLED_COLOR, PRIMARY_COLOR } from "./colors.config";
 import { CENTER, FONT_SIZE, LARGE_FONT_SIZE } from "./constants.config";
 
 type ITabIcon = FC<{ color: string }>;
@@ -70,6 +70,24 @@ export const EditIcon = ({ handleEdit }: { handleEdit?: () => void }) =>
 				size={LARGE_FONT_SIZE * 1.5}
 				color={PRIMARY_COLOR}
 				testID={"edit_icon"}
+			/>
+		</TouchableOpacity>
+	);
+
+export const CheckIcon = ({
+	handleCheck,
+	enabled,
+}: {
+	handleCheck?: () => void;
+	enabled?: boolean;
+}) =>
+	handleCheck && (
+		<TouchableOpacity style={{ alignSelf: CENTER }} onPress={handleCheck}>
+			<FontAwesome
+				name="check"
+				size={LARGE_FONT_SIZE * 1.6}
+				color={enabled ? PRIMARY_COLOR : DISABLED_COLOR}
+				testID={"check_icon"}
 			/>
 		</TouchableOpacity>
 	);

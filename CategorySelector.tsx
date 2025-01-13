@@ -1,43 +1,25 @@
-import { View } from "react-native";
+import { DimensionValue, View } from "react-native";
 import { MultiSelect } from "react-native-element-dropdown";
 import CustomText from "./CustomText";
+import HideSelector from "./HideSelector";
 import IRenderItem from "./IRenderItem";
-import useTransactionStore from "./TransactionStore";
-import TransactionType from "./TransactionType";
-import { DISABLED_COLOR, PRIMARY_COLOR } from "./colors.config";
-import { FONT_SIZE, PADDING } from "./constants.config";
+import { PRIMARY_COLOR } from "./colors.config";
+import { FONT_SIZE } from "./constants.config";
 import dropdownStyle from "./dropdown.style";
 import useCategory from "./src/main/domains/category/useCategory";
 
-const CategorySelector = () => {
-	const { type, categoryIds, setCategoryIds } = useTransactionStore();
-	const { fetchCategories } = useCategory();
+interface Props {
+	categories: string[];
+	setCategories: (val: string[]) => void;
+	width: DimensionValue;
+}
 
-	const categoryList = fetchCategories().map((category) => ({
-		label: category.name,
-		value: category.id,
-	}));
+const CategorySelector = ({ categories, setCategories, width }: Props) => {
+	const { categoryModels } = useCategory();
 
-	if (
-		type === TransactionType.TRANSFER ||
-		type === TransactionType.INVESTMENT
-	)
-		return null;
-
-	if (categoryList.length === 0)
-		return (
-			<View
-				style={{
-					paddingLeft: PADDING * 2,
-					paddingVertical: PADDING,
-				}}
-			>
-				<CustomText
-					text={"No categories available"}
-					color={DISABLED_COLOR}
-				/>
-			</View>
-		);
+	if (categoryModels.length === 0) {
+		return <HideSelector category />;
+	}
 
 	const selectedItem = (item: IRenderItem) => (
 		<View style={dropdownStyle.renderSelected}>
@@ -49,7 +31,7 @@ const CategorySelector = () => {
 		<View
 			style={[
 				dropdownStyle.renderItem,
-				categoryIds.includes(item.value) &&
+				categories.includes(item.value) &&
 					dropdownStyle.renderItemSelected,
 			]}
 		>
@@ -58,14 +40,14 @@ const CategorySelector = () => {
 	);
 
 	return (
-		<View style={dropdownStyle.wrapper}>
+		<View style={[dropdownStyle.wrapper, { width }]}>
 			<MultiSelect
-				placeholder={"Select Categories"}
+				placeholder={"Category"}
 				labelField={"label"}
 				valueField={"value"}
-				data={categoryList}
-				value={categoryIds}
-				onChange={setCategoryIds}
+				data={categoryModels}
+				value={categories}
+				onChange={setCategories}
 				renderItem={item}
 				renderSelectedItem={selectedItem}
 				style={dropdownStyle.dropdown}
@@ -75,6 +57,7 @@ const CategorySelector = () => {
 				containerStyle={dropdownStyle.container}
 				itemTextStyle={dropdownStyle.itemText}
 				selectedStyle={dropdownStyle.selected}
+				renderRightIcon={() => null}
 			/>
 		</View>
 	);

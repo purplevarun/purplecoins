@@ -1,8 +1,6 @@
-import { useNavigation } from "@react-navigation/native";
-import { useState } from "react";
-import { View } from "react-native";
+import { DimensionValue, TouchableOpacity, View } from "react-native";
+import Action from "./Action";
 import CategorySelector from "./CategorySelector";
-import CustomButton from "./CustomButton";
 import CustomInput from "./CustomInput";
 import CustomText from "./CustomText";
 import DestinationSelector from "./DestinationSelector";
@@ -10,81 +8,180 @@ import Header from "./Header";
 import InvestmentSelector from "./InvestmentSelector";
 import ScreenLayout from "./ScreenLayout";
 import SourceSelector from "./SourceSelector";
-import TransactionDatePicker from "./TransactionDatePicker";
-import useTransactionService from "./TransactionService";
-import useTransactionStore from "./TransactionStore";
 import TransactionType from "./TransactionType";
 import TripSelector from "./TripSelector";
 import TypeSelector from "./TypeSelector";
-import { RED_COLOR } from "./colors.config";
-import { FLEX_START, PADDING, SMALL_FONT_SIZE } from "./constants.config";
-import useSource from "./src/main/domains/source/useSource";
+import { GREEN_COLOR, PRIMARY_COLOR, RED_COLOR } from "./colors.config";
+import {
+	BORDER_RADIUS,
+	CENTER,
+	FLEX_ROW,
+	FONT_SIZE,
+	NINETY_P,
+	SPACE_BETWEEN,
+} from "./constants.config";
+import useTransaction from "./useTransaction";
 
 const TransactionAdd = ({ route }: any) => {
-	const transactionId = route.params?.transactionId ?? null;
-	const { amount, reason, setReason, type, setAmount, setType, sourceId } =
-		useTransactionStore();
-	const { addNewTransaction, submitEnabled } = useTransactionService();
-	const { fetchOneSource } = useSource(sourceId);
-	const [insufficientBalance, setInsufficientBalance] = useState(false);
-	const { navigate } = useNavigation<any>();
-	const onPress = () => {
-		const source = fetchOneSource();
-		if (
-			parseInt(amount) > source.amount &&
-			type === TransactionType.EXPENSE
-		) {
-			setInsufficientBalance(true);
-		} else {
-			addNewTransaction(transactionId);
-			setInsufficientBalance(false);
-		}
-	};
+	const {
+		amount,
+		reason,
+		date,
+		type,
+		source,
+		action,
+		destination,
+		trips,
+		categories,
+		investment,
+		disabled,
+		setAmount,
+		setReason,
+		setDate,
+		setType,
+		setSource,
+		setAction,
+		setInvestment,
+		setTrips,
+		setCategories,
+		setDestination,
+		addTransaction,
+		handleClose,
+	} = useTransaction(route.params.id);
+
+	const isGeneral = type === TransactionType.GENERAL;
+	const isInvestment = type === TransactionType.INVESTMENT;
+	const isTransfer = type === TransactionType.TRANSFER;
+
 	return (
 		<ScreenLayout>
-			<Header handleClose={() => navigate("Transaction.Main")} />
+			<Header handleClose={handleClose} handleSubmit={addTransaction} />
 			<TypeSelector type={type} setType={setType} />
-			<CustomInput
-				name={"Amount"}
-				value={amount}
-				setValue={setAmount}
-				numeric
-			/>
-			<CustomInput name={"Reason"} value={reason} setValue={setReason} />
-			<TransactionDatePicker />
-			<InsufficientBalance insufficientBalance={insufficientBalance} />
-			<SourceSelector />
-			<DestinationSelector />
-			<CategorySelector />
-			<InvestmentSelector />
-			<TripSelector />
-			<CustomButton disabled={!submitEnabled} onPress={onPress} />
+			<View
+				style={{
+					flexDirection: FLEX_ROW,
+					width: NINETY_P,
+					alignSelf: CENTER,
+					justifyContent: SPACE_BETWEEN,
+				}}
+			>
+				<CustomInput
+					name={"Amount"}
+					value={amount}
+					setValue={setAmount}
+					width={"65%"}
+					numeric
+				/>
+				<ActionButton
+					action={action}
+					setAction={setAction}
+					width={"32%"}
+				/>
+			</View>
+			<View
+				style={{
+					flexDirection: FLEX_ROW,
+					width: NINETY_P,
+					alignSelf: CENTER,
+					justifyContent: SPACE_BETWEEN,
+				}}
+			>
+				<CustomInput
+					name={"Reason"}
+					value={reason}
+					setValue={setReason}
+					width={"65%"}
+				/>
+				<CustomInput
+					name={"Date"}
+					value={date}
+					setValue={setDate}
+					width={"32%"}
+				/>
+			</View>
+			{isGeneral && (
+				<View
+					style={{
+						flexDirection: FLEX_ROW,
+						width: NINETY_P,
+						alignSelf: CENTER,
+						justifyContent: SPACE_BETWEEN,
+					}}
+				>
+					<View
+						style={{
+							flexDirection: FLEX_ROW,
+							width: "65%",
+							alignSelf: CENTER,
+							justifyContent: SPACE_BETWEEN,
+						}}
+					>
+						<SourceSelector
+							source={source}
+							setSource={setSource}
+							width={"48%"}
+						/>
+						<CategorySelector
+							categories={categories}
+							setCategories={setCategories}
+							width={"48%"}
+						/>
+					</View>
+					<TripSelector
+						trips={trips}
+						setTrips={setTrips}
+						width={"32%"}
+					/>
+				</View>
+			)}
+			{isTransfer && (
+				<DestinationSelector
+					source={source}
+					destination={destination}
+					setDestination={setDestination}
+				/>
+			)}
+			{isInvestment && (
+				<InvestmentSelector
+					investment={investment}
+					setInvestment={setInvestment}
+				/>
+			)}
 		</ScreenLayout>
 	);
 };
 
-const InsufficientBalance = ({
-	insufficientBalance,
+const ActionButton = ({
+	action,
+	setAction,
+	width,
 }: {
-	insufficientBalance: boolean;
+	action: Action;
+	setAction: (val: Action) => void;
+	width: DimensionValue;
 }) => {
-	if (insufficientBalance)
-		return (
-			<View
-				style={{
-					padding: PADDING / 2,
-					paddingBottom: 0,
-					paddingLeft: PADDING * 2,
-				}}
-			>
-				<CustomText
-					text={"Insufficient Balance"}
-					color={RED_COLOR}
-					alignSelf={FLEX_START}
-					fontSize={SMALL_FONT_SIZE}
-				/>
-			</View>
-		);
+	return (
+		<TouchableOpacity
+			style={{
+				backgroundColor:
+					action === Action.DEBIT ? RED_COLOR : GREEN_COLOR,
+				width,
+				borderRadius: BORDER_RADIUS,
+				height: FONT_SIZE * 2.5,
+				alignSelf: "flex-end",
+				justifyContent: CENTER,
+				borderWidth: 2,
+				borderColor: PRIMARY_COLOR,
+			}}
+			onPress={() =>
+				setAction(
+					action === Action.DEBIT ? Action.CREDIT : Action.DEBIT,
+				)
+			}
+		>
+			<CustomText text={action} alignSelf={CENTER} />
+		</TouchableOpacity>
+	);
 };
 
 export default TransactionAdd;

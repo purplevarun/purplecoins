@@ -14,6 +14,10 @@ import SourceRouter from "./src/main/domains/source/SourceRouter";
 import TripRouter from "./src/main/domains/trip/TripRouter";
 
 const tabRoutes = {
+	transaction: {
+		component: TransactionRouter,
+		Icon: TransactionIcon,
+	},
 	source: {
 		component: SourceRouter,
 		Icon: SourceIcon,
@@ -29,10 +33,6 @@ const tabRoutes = {
 	investment: {
 		component: InvestmentRouter,
 		Icon: InvestmentIcon,
-	},
-	transaction: {
-		component: TransactionRouter,
-		Icon: TransactionIcon,
 	},
 	settings: {
 		component: SettingScreen,

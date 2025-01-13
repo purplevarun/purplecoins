@@ -79,11 +79,17 @@ const useTrip = (id: string = "") => {
 		navigate(tripRoutes.main);
 	};
 
+	const tripModels = fetchTrips().map(({ id, name }) => ({
+		label: name,
+		value: id,
+	}));
+
 	return {
 		name,
 		setName,
 		disabled,
 		trips,
+		tripModels,
 		handleMainFocus,
 		fetchTrips,
 		handlePlus,

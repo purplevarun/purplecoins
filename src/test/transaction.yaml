@@ -1,0 +1,16 @@
+appId: host.exp.exponent
+---
+- tapOn:
+      id: "transaction_icon"
+- assertVisible:
+      text: "Transactions"
+- assertVisible:
+      text: "No Transactions found"
+- assertVisible:
+      text: "Add Transaction"
+- assertVisible:
+      text: "General"
+- assertVisible:
+      text: "Transfer"
+- assertVisible:
+      text: "Investment"

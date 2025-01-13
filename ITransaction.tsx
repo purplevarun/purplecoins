@@ -1,19 +1,16 @@
+import Action from "./Action";
 import TransactionType from "./TransactionType";
 
 interface ITransaction {
 	id: string;
 	amount: number;
 	reason: string;
-	date: Date;
-	source: string;
+	date: string;
 	sourceId: string;
 	type: TransactionType;
-	destination?: string;
+	action: Action;
 	destinationId?: string;
-	investment?: string;
 	investmentId?: string;
-	categories?: string;
-	trips?: string;
 }
 
 export default ITransaction;

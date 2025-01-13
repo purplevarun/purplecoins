@@ -1,9 +1,8 @@
 import { StyleSheet, View } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import CustomText from "./CustomText";
+import HideSelector from "./HideSelector";
 import IRenderItem from "./IRenderItem";
-import useTransactionStore from "./TransactionStore";
-import TransactionType from "./TransactionType";
 import {
 	BACKGROUND_COLOR,
 	DISABLED_COLOR,
@@ -19,19 +18,21 @@ import {
 } from "./constants.config";
 import useInvestment from "./src/main/domains/investment/useInvestment";
 
-const InvestmentSelector = () => {
-	const { investmentId, setInvestmentId, type } = useTransactionStore();
-	const { fetchInvestments } = useInvestment();
-	const investmentModels = fetchInvestments().map((investment) => ({
-		label: investment.name,
-		value: investment.id,
-	}));
+interface Props {
+	investment: string | null;
+	setInvestment: (val: string) => void;
+}
 
-	if (type !== TransactionType.INVESTMENT) return null;
+const InvestmentSelector = ({ investment, setInvestment }: Props) => {
+	const { investmentModels } = useInvestment();
+
+	if (investmentModels.length === 0) {
+		return <HideSelector investment />;
+	}
 
 	const item = (item: IRenderItem) => {
 		const backgroundColor =
-			investmentId === item.value ? DISABLED_COLOR : BACKGROUND_COLOR;
+			investment === item.value ? DISABLED_COLOR : BACKGROUND_COLOR;
 		return (
 			<View
 				style={{
@@ -47,12 +48,12 @@ const InvestmentSelector = () => {
 	return (
 		<View style={styles.wrapper}>
 			<Dropdown
-				placeholder={"Select Investment *"}
+				placeholder={"Select Investment"}
 				labelField={"label"}
 				valueField={"value"}
 				data={investmentModels}
-				value={investmentId}
-				onChange={(item) => setInvestmentId(item.value)}
+				value={investment}
+				onChange={(item) => setInvestment(item.value)}
 				renderItem={item}
 				style={styles.dropdown}
 				placeholderStyle={styles.placeholder}

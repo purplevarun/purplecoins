@@ -1,11 +1,3 @@
-import { randomUUID } from "expo-crypto";
-
-export const generateUUID = () => randomUUID();
-
-export const objectify = (data: any) => {
-	return JSON.stringify(data, null, 4);
-};
-
 export const formatDate = (date: Date | null | undefined, full = false) => {
 	if (date === null || date === undefined) return "Not specified";
 	date = new Date(date);

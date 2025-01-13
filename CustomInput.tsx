@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import { Animated, Easing, TextInput, View } from "react-native";
 import {
-	BACKGROUND_COLOR,
-	DISABLED_COLOR,
-	PRIMARY_COLOR,
-} from "./colors.config";
+	Animated,
+	DimensionValue,
+	Easing,
+	Text,
+	TextInput,
+	View,
+} from "react-native";
+import { DISABLED_COLOR, PRIMARY_COLOR } from "./colors.config";
 import {
 	ABSOLUTE,
 	BORDER_RADIUS,
@@ -23,6 +26,7 @@ const CustomInput = ({
 	numeric = false,
 	password = false,
 	disabled = false,
+	width = NINETY_P,
 }: {
 	value: string;
 	setValue?: (_: string) => void;
@@ -31,6 +35,7 @@ const CustomInput = ({
 	password?: boolean;
 	disabled?: boolean;
 	required?: boolean;
+	width?: DimensionValue;
 }) => {
 	const [isFocused, setIsFocused] = useState(false);
 	const animatedValue = useRef(new Animated.Value(value ? 1 : 0)).current;
@@ -50,40 +55,30 @@ const CustomInput = ({
 		<View
 			style={{
 				paddingTop: PADDING_TOP_ADD_SCREEN,
-				width: NINETY_P,
+				width,
 				alignSelf: CENTER,
 			}}
 		>
-			<Animated.Text
-				style={{
-					position: ABSOLUTE,
-					left: PADDING,
-					top: animatedValue.interpolate({
-						inputRange: [0, 1],
-						outputRange: [FONT_SIZE, -2],
-					}),
-					fontSize: animatedValue.interpolate({
-						inputRange: [0, 1],
-						outputRange: [FONT_SIZE, FONT_SIZE / 1.5],
-					}),
-					color: DISABLED_COLOR,
-					backgroundColor: BACKGROUND_COLOR,
-					zIndex: 1,
-					fontFamily: UBUNTU_FONT,
-					paddingHorizontal: animatedValue.interpolate({
-						inputRange: [0, 1],
-						outputRange: [0, 3],
-					}),
-				}}
-				onPress={() => inputRef.current?.focus()}
-			>
-				{name}
-			</Animated.Text>
-
+			{value.length === 0 && (
+				<Text
+					style={{
+						color: DISABLED_COLOR,
+						fontFamily: UBUNTU_FONT,
+						position: ABSOLUTE,
+						left: PADDING,
+						top: FONT_SIZE,
+						fontSize: FONT_SIZE,
+					}}
+				>
+					{name}
+				</Text>
+			)}
 			<TextInput
 				ref={inputRef}
 				value={value}
 				onChangeText={setValue}
+				// placeholder={name}
+				// placeholderTextColor={DISABLED_COLOR}
 				onFocus={() => setIsFocused(true)}
 				onBlur={() => setIsFocused(false)}
 				autoComplete={"off"}

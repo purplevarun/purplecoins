@@ -8,7 +8,6 @@ import {
 	BORDER_RADIUS,
 	CENTER,
 	FONT_SIZE,
-	NINETY_P,
 	PADDING,
 	PADDING_TOP_ADD_SCREEN,
 } from "./constants.config";
@@ -26,7 +25,7 @@ const dropdownStyle = StyleSheet.create({
 	},
 	dropdown: {
 		alignSelf: CENTER,
-		width: NINETY_P,
+		width: "100%",
 		height: FONT_SIZE * 2.5,
 		borderWidth: 2,
 		borderRadius: BORDER_RADIUS,

@@ -79,6 +79,18 @@ const useSource = (id: string = "") => {
 		setSources(fetchSources());
 	};
 
+	const sourceModels = fetchSources().map((s) => ({
+		label: s.name,
+		value: s.id,
+	}));
+
+	const destinationModels = fetchSources()
+		.filter((destination) => destination.id !== id)
+		.map((source) => ({
+			label: source.name,
+			value: source.id,
+		}));
+
 	return {
 		name,
 		setName,
@@ -87,6 +99,8 @@ const useSource = (id: string = "") => {
 		sources,
 		disabled,
 		iAmount,
+		sourceModels,
+		destinationModels,
 		fetchSources,
 		fetchOneSource,
 		fetchTransactionForSource,

@@ -1,9 +1,8 @@
 import { View } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import CustomText from "./CustomText";
+import HideSelector from "./HideSelector";
 import IRenderItem from "./IRenderItem";
-import useTransactionStore from "./TransactionStore";
-import TransactionType from "./TransactionType";
 import {
 	BACKGROUND_COLOR,
 	DISABLED_COLOR,
@@ -13,38 +12,26 @@ import { PADDING } from "./constants.config";
 import dropdownStyle from "./dropdown.style";
 import useSource from "./src/main/domains/source/useSource";
 
-const DestinationSelector = () => {
-	const { sourceId, destinationId, setDestinationId, type } =
-		useTransactionStore();
-	const { fetchSources } = useSource();
+interface Props {
+	source: string;
+	destination: string | null;
+	setDestination: (val: string) => void;
+}
 
-	if (type !== TransactionType.TRANSFER) return null;
+const DestinationSelector = ({
+	source,
+	destination,
+	setDestination,
+}: Props) => {
+	const { destinationModels, sourceModels } = useSource(source);
 
-	const destinationDropdownData = fetchSources()
-		.filter((destination) => destination.id !== sourceId)
-		.map((source) => ({
-			label: source.name,
-			value: source.id,
-		}));
-
-	if (destinationDropdownData.length === 0)
-		return (
-			<View
-				style={{
-					paddingLeft: PADDING * 2,
-					paddingVertical: PADDING,
-				}}
-			>
-				<CustomText
-					text={"No destinations available"}
-					color={DISABLED_COLOR}
-				/>
-			</View>
-		);
+	if (destinationModels.length === 0 || sourceModels.length === 1) {
+		return <HideSelector destination />;
+	}
 
 	const item = (item: IRenderItem) => {
 		const backgroundColor =
-			destinationId === item.value ? DISABLED_COLOR : BACKGROUND_COLOR;
+			destination === item.value ? DISABLED_COLOR : BACKGROUND_COLOR;
 		return (
 			<View
 				style={{
@@ -63,9 +50,9 @@ const DestinationSelector = () => {
 				placeholder={"Select Destination"}
 				labelField={"label"}
 				valueField={"value"}
-				data={destinationDropdownData}
-				value={destinationId}
-				onChange={(item) => setDestinationId(item.value)}
+				data={destinationModels}
+				value={destination}
+				onChange={(item) => setDestination(item.value)}
 				renderItem={item}
 				style={dropdownStyle.dropdown}
 				placeholderStyle={dropdownStyle.placeholder}
