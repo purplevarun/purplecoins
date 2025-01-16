@@ -1,6 +1,5 @@
-import CommonMultiSelector from "./CommonMultiSelector";
-import CommonSelector from "./CommonSelector";
 import CustomInput from "./CustomInput";
+import DropdownSelector from "./DropdownSelector";
 import Header from "./Header";
 import PaddedRow from "./PaddedRow";
 import ScreenLayout from "./ScreenLayout";
@@ -85,27 +84,25 @@ const TransactionEdit = ({ route }: any) => {
 				/>
 			</PaddedRow>
 			{isGeneral && (
+				<DropdownSelector
+					name={"Source"}
+					data={sourceModels}
+					single={{ value: source, setValue: setSource }}
+				/>
+			)}
+			{isGeneral && (
 				<PaddedRow>
-					<CommonSelector
-						name={"Source"}
-						data={sourceModels}
-						value={source}
-						setValue={setSource}
-						width={"27%"}
-					/>
-					<CommonMultiSelector
+					<DropdownSelector
 						name={"Categories"}
 						data={categoryModels}
-						value={categories}
-						setValue={setCategories}
-						width={"36%"}
+						multi={{ value: categories, setValue: setCategories }}
+						width={"49%"}
 					/>
-					<CommonMultiSelector
+					<DropdownSelector
 						name={"Trips"}
 						data={tripModels}
-						value={trips}
-						setValue={setTrips}
-						width={"32%"}
+						multi={{ value: trips, setValue: setTrips }}
+						width={"49%"}
 					/>
 				</PaddedRow>
 			)}

@@ -1,6 +1,5 @@
-import CommonMultiSelector from "./CommonMultiSelector";
-import CommonSelector from "./CommonSelector";
 import CustomInput from "./CustomInput";
+import DropdownSelector from "./DropdownSelector";
 import Header from "./Header";
 import PaddedRow from "./PaddedRow";
 import ScreenLayout from "./ScreenLayout";
@@ -59,7 +58,7 @@ const TransactionAdd = ({ route }: any) => {
 					name={"Amount"}
 					value={amount}
 					setValue={setAmount}
-					width={isTransfer ? "100%" : "65%"}
+					width={isTransfer ? "100%" : "66%"}
 					numeric
 				/>
 				{!isTransfer && (
@@ -75,7 +74,7 @@ const TransactionAdd = ({ route }: any) => {
 					name={"Reason"}
 					value={reason}
 					setValue={setReason}
-					width={"65%"}
+					width={"66%"}
 				/>
 				<CustomInput
 					name={"Date"}
@@ -85,63 +84,60 @@ const TransactionAdd = ({ route }: any) => {
 				/>
 			</PaddedRow>
 			{isGeneral && (
+				<DropdownSelector
+					name={"Source"}
+					data={sourceModels}
+					single={{ value: source, setValue: setSource }}
+				/>
+			)}
+			{isGeneral && (
 				<PaddedRow>
-					<CommonSelector
-						name={"Source"}
-						data={sourceModels}
-						value={source}
-						setValue={setSource}
-						width={"27%"}
-					/>
-					<CommonMultiSelector
+					<DropdownSelector
 						name={"Categories"}
 						data={categoryModels}
-						value={categories}
-						setValue={setCategories}
-						width={"36%"}
+						multi={{ value: categories, setValue: setCategories }}
+						width={"49%"}
 					/>
-					<CommonMultiSelector
+					<DropdownSelector
 						name={"Trips"}
 						data={tripModels}
-						value={trips}
-						setValue={setTrips}
-						width={"32%"}
+						multi={{ value: trips, setValue: setTrips }}
+						width={"49%"}
 					/>
 				</PaddedRow>
 			)}
 			{isTransfer && (
 				<PaddedRow>
-					<CommonSelector
+					<DropdownSelector
 						name={"Source"}
 						data={sourceModels}
-						value={source}
-						setValue={setSource}
-						width={"48.5%"}
+						single={{ value: source, setValue: setSource }}
+						width={"49%"}
 					/>
-					<CommonSelector
+					<DropdownSelector
 						name={"Destination"}
 						data={destinationModels}
-						value={destination}
-						setValue={setDestination}
-						width={"48.5%"}
+						single={{
+							value: destination,
+							setValue: setDestination,
+						}}
+						width={"49%"}
 					/>
 				</PaddedRow>
 			)}
 			{isInvestment && (
 				<PaddedRow>
-					<CommonSelector
+					<DropdownSelector
 						name={"Source"}
 						data={sourceModels}
-						value={source}
-						setValue={setSource}
-						width={"48.5%"}
+						single={{ value: source, setValue: setSource }}
+						width={"49%"}
 					/>
-					<CommonSelector
+					<DropdownSelector
 						name={"Investment"}
 						data={investmentModels}
-						value={investment}
-						setValue={setInvestment}
-						width={"48.5%"}
+						single={{ value: investment, setValue: setInvestment }}
+						width={"49%"}
 					/>
 				</PaddedRow>
 			)}

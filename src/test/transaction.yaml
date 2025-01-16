@@ -1,45 +1,32 @@
 appId: host.exp.exponent
 ---
 - runScript: output.js
-- tapOn:
-    id: "transaction_icon"
-- assertVisible:
-    text: "Transactions"
-- assertVisible:
-    text: "No Transactions found"
-- tapOn:
-    id: "plus_icon"
-- assertVisible:
-    text: "Add Transaction"
-- assertVisible:
-    text: "General"
-- assertVisible:
-    text: "Transfer"
-- assertVisible:
-    text: "Investment"
-- assertVisible:
-    text: "${output.data.date}"
-- assertVisible:
-    text: "DEBIT"
-- tapOn:
-    id: "close_icon"
-- tapOn:
-    id: "plus_icon"
-- tapOn:
-    text: "Amount"
+- tapOn: { id: "transaction_icon" }
+- assertVisible: { below: "Transactions", text: "No Transactions found" }
+- tapOn: { id: "plus_icon" }
+- assertVisible: "Add Transaction"
+- assertVisible: "General"
+- assertVisible: "Transfer"
+- assertVisible: "Investment"
+- assertVisible: "${output.data.date}"
+- assertVisible: "DEBIT"
+- tapOn: { id: "close_icon" }
+- tapOn: { id: "plus_icon" }
+- tapOn: "Amount"
 - inputText: "10"
-- tapOn:
-    text: "Reason"
+- tapOn: "Reason"
 - inputText: "Reason 1"
-- tapOn:
-    text: "Source"
-- tapOn:
-    text: "Source 1"
-- tapOn:
-    id: "check_icon"
+- tapOn: "Source"
+- tapOn: "Source 1"
+- tapOn: "Categories"
+- tapOn: "Category 1"
+- tapOn: { point: "50%, 75%" }
+- tapOn: "Trips"
+- tapOn: "Trip 1"
+- tapOn: { point: "50%, 75%" }
+- tapOn: { id: "check_icon" }
+- assertVisible: { below: "${output.data.fullDate}", text: "Reason 1" }
+- assertVisible: { leftOf: "₹10", text: "Reason 1" }
+- tapOn: { id: "source_icon" }
 - assertVisible:
-    text: "₹10"
-- assertVisible:
-    text: "Reason 1"
-- assertVisible:
-    text: "${output.data.fullDate}"
+      { below: "Total Net Worth = ₹990", rightOf: "Source 1", text: "₹990" }
