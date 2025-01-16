@@ -1,14 +1,14 @@
 import CommonMultiSelector from "./CommonMultiSelector";
+import CommonSelector from "./CommonSelector";
 import CustomInput from "./CustomInput";
-import DestinationSelector from "./DestinationSelector";
 import Header from "./Header";
-import InvestmentSelector from "./InvestmentSelector";
 import PaddedRow from "./PaddedRow";
 import ScreenLayout from "./ScreenLayout";
-import SourceSelector from "./SourceSelector";
 import TypeSelector from "./TypeSelector";
 import ActionButton from "./src/main/components/buttons/add_screen/ActionButton";
 import useCategory from "./src/main/domains/category/useCategory";
+import useInvestment from "./src/main/domains/investment/useInvestment";
+import useSource from "./src/main/domains/source/useSource";
 import useTrip from "./src/main/domains/trip/useTrip";
 import useTransaction from "./useTransaction";
 
@@ -43,6 +43,8 @@ const TransactionAdd = ({ route }: any) => {
 	} = useTransaction(route.params.id);
 	const { categoryModels } = useCategory();
 	const { tripModels } = useTrip();
+	const { investmentModels } = useInvestment();
+	const { sourceModels, destinationModels } = useSource();
 
 	return (
 		<ScreenLayout>
@@ -57,14 +59,16 @@ const TransactionAdd = ({ route }: any) => {
 					name={"Amount"}
 					value={amount}
 					setValue={setAmount}
-					width={"65%"}
+					width={isTransfer ? "100%" : "65%"}
 					numeric
 				/>
-				<ActionButton
-					action={action}
-					setAction={setAction}
-					width={"32%"}
-				/>
+				{!isTransfer && (
+					<ActionButton
+						action={action}
+						setAction={setAction}
+						width={"32%"}
+					/>
+				)}
 			</PaddedRow>
 			<PaddedRow>
 				<CustomInput
@@ -82,52 +86,61 @@ const TransactionAdd = ({ route }: any) => {
 			</PaddedRow>
 			{isGeneral && (
 				<PaddedRow>
-					<SourceSelector
-						source={source}
-						setSource={setSource}
+					<CommonSelector
+						name={"Source"}
+						data={sourceModels}
+						value={source}
+						setValue={setSource}
 						width={"27%"}
 					/>
 					<CommonMultiSelector
 						name={"Categories"}
 						data={categoryModels}
 						value={categories}
-						onChange={setCategories}
+						setValue={setCategories}
 						width={"36%"}
 					/>
 					<CommonMultiSelector
 						name={"Trips"}
 						data={tripModels}
 						value={trips}
-						onChange={setTrips}
+						setValue={setTrips}
 						width={"32%"}
 					/>
 				</PaddedRow>
 			)}
 			{isTransfer && (
 				<PaddedRow>
-					<SourceSelector
-						source={source}
-						setSource={setSource}
+					<CommonSelector
+						name={"Source"}
+						data={sourceModels}
+						value={source}
+						setValue={setSource}
 						width={"48.5%"}
 					/>
-					<DestinationSelector
-						source={source}
-						destination={destination}
-						setDestination={setDestination}
+					<CommonSelector
+						name={"Destination"}
+						data={destinationModels}
+						value={destination}
+						setValue={setDestination}
 						width={"48.5%"}
 					/>
 				</PaddedRow>
 			)}
 			{isInvestment && (
 				<PaddedRow>
-					<SourceSelector
-						source={source}
-						setSource={setSource}
+					<CommonSelector
+						name={"Source"}
+						data={sourceModels}
+						value={source}
+						setValue={setSource}
 						width={"48.5%"}
 					/>
-					<InvestmentSelector
-						investment={investment}
-						setInvestment={setInvestment}
+					<CommonSelector
+						name={"Investment"}
+						data={investmentModels}
+						value={investment}
+						setValue={setInvestment}
 						width={"48.5%"}
 					/>
 				</PaddedRow>

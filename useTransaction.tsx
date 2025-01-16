@@ -7,6 +7,8 @@ import ITransaction from "./ITransaction";
 import { transactionRoutes } from "./Routes";
 import Action from "./src/main/constants/enums/Action";
 import Type from "./src/main/constants/enums/Type";
+import ICategory from "./src/main/domains/category/ICategory";
+import ITrip from "./src/main/domains/trip/ITrip";
 import useScreen from "./useScreen";
 
 const useTransaction = (id: string = "") => {
@@ -83,6 +85,29 @@ const useTransaction = (id: string = "") => {
 		setGroupedTransactions(fetchGroupedTransactions());
 	};
 
+	const handleEditFocus = () => {
+		const {
+			amount,
+			reason,
+			date,
+			action,
+			sourceId,
+			investmentId,
+			destinationId,
+		} = fetchTransaction();
+		setAmount(amount.toString());
+		setReason(reason);
+		setDate(date.slice(0, 6) + date.slice(-2));
+		setAction(action);
+		setSource(sourceId);
+		investmentId && setInvestment(investmentId);
+		destinationId && setDestination(destinationId);
+		const trips = fetchTrips();
+		const categories = fetchCategories();
+		setTrips(trips.map((t) => t.id));
+		setCategories(categories.map((c) => c.id));
+	};
+
 	const handlePlus = () => {
 		navigate(transactionRoutes.add);
 	};
@@ -103,9 +128,25 @@ const useTransaction = (id: string = "") => {
 		db.runSync(delete_transaction, [id]);
 	};
 
-	const addTransaction = () => {
+	const getTAmount = (action: Action, iAmount: number) => {
+		return action === Action.DEBIT ? -iAmount : iAmount;
+	};
+
+	const extractDate = () => {
 		const [d, m, y] = date.split("/");
-		const fullDate = date.length === 10 ? date : `${d}/${m}/20${y}`;
+		if (date.length === 10) return date;
+		const currentCentury = Math.floor(new Date().getFullYear() / 100);
+		return `${d}/${m}/${currentCentury}${y}`;
+	};
+
+	const fetchTransaction = () => {
+		return db.getFirstSync<ITransaction>(select_transaction, [
+			id,
+		]) as ITransaction;
+	};
+
+	const addTransaction = () => {
+		const fullDate = extractDate();
 		const newId = randomUUID();
 		db.runSync(insert_into_transaction, [
 			newId,
@@ -122,12 +163,88 @@ const useTransaction = (id: string = "") => {
 		categories.forEach((category) =>
 			createTransactionCategory(newId, category),
 		);
-		const tAmount = action === Action.DEBIT ? -iAmount : iAmount;
+		const tAmount = getTAmount(action, iAmount);
 		db.runSync(update_source_amount, [tAmount, source]);
 		if (type === Type.INVESTMENT)
 			db.runSync(update_investment_amount, [-tAmount, investment]);
 		if (type === Type.TRANSFER)
 			db.runSync(update_source_amount, [-tAmount, destination]);
+		navigate(transactionRoutes.main);
+	};
+
+	const fetchCategories = () => {
+		return db.getAllSync<ICategory>(select_categories_for_transaction, [
+			id,
+		]);
+	};
+
+	const fetchTrips = () => {
+		return db.getAllSync<ITrip>(select_trips_for_transaction, [id]);
+	};
+
+	const updateTransaction = () => {
+		const tAmount = getTAmount(action, iAmount);
+		const fullDate = extractDate();
+		const oldTransaction = fetchTransaction();
+		if (oldTransaction.type === Type.GENERAL) {
+			db.runSync(update_transaction, [
+				iAmount,
+				action,
+				source,
+				reason,
+				fullDate,
+				id,
+			]);
+			const oldTAmount = getTAmount(
+				oldTransaction.action,
+				oldTransaction.amount,
+			);
+			// source
+			if (source === oldTransaction.sourceId) {
+				db.runSync(update_source_amount, [
+					tAmount - oldTAmount,
+					source,
+				]);
+			} else {
+				db.runSync(update_source_amount, [
+					-oldTAmount,
+					oldTransaction.sourceId,
+				]);
+				db.runSync(update_source_amount, [tAmount, source]);
+			}
+			// Trips
+			const oldTrips = fetchTrips();
+			if (
+				oldTrips.length !== trips.length ||
+				!oldTrips.every(({ id }, index) => id === trips[index])
+			) {
+				oldTrips.forEach(({ id: oldTripId }) =>
+					db.runSync(delete_transaction_trip, [id, oldTripId]),
+				);
+				trips.forEach((trip) =>
+					db.runSync(insert_transaction_trip, [id, trip]),
+				);
+			}
+
+			// Categories
+			const oldCategories = fetchCategories();
+			if (
+				oldCategories.length !== categories.length ||
+				!oldCategories.every(
+					({ id }, index) => id === categories[index],
+				)
+			) {
+				oldCategories.forEach(({ id: oldCategoryId }) =>
+					db.runSync(delete_transaction_category, [
+						id,
+						oldCategoryId,
+					]),
+				);
+				categories.forEach((category) =>
+					db.runSync(insert_transaction_category, [id, category]),
+				);
+			}
+		}
 		navigate(transactionRoutes.main);
 	};
 
@@ -163,23 +280,54 @@ const useTransaction = (id: string = "") => {
 		fetchTransactions,
 		addTransaction,
 		handleMainFocus,
+		handleEditFocus,
 		handlePlus,
 		handleClose,
 		handleDetail,
 		handleEdit,
 		handleDelete,
+		updateTransaction,
 		groupedTransactions,
+		fetchTransaction,
+		fetchCategories,
+		fetchTrips,
 	};
 };
 
+const select_trips_for_transaction = `
+	SELECT t.* 
+	FROM "trip" t
+	JOIN "transaction_trip" tt ON t.id = tt.tripId
+	WHERE tt.transactionId = ?;
+`;
+
+const select_categories_for_transaction = `
+	SELECT c.* 
+	FROM "category" c
+	JOIN "transaction_category" tc ON c.id = tc.categoryId
+	WHERE tc.transactionId = ?;
+`;
+
+const select_transaction = `
+	SELECT *
+	FROM "transaction"
+	WHERE id = ?;
+`;
+
+const update_transaction = `
+	UPDATE "transaction"
+	SET amount = ?, action = ?, sourceId = ?, reason = ?, date = ?
+	WHERE id = ?;
+`;
+
 const update_investment_amount = `
-	UPDATE investment
+	UPDATE "investment"
 	SET investedAmount = investedAmount + ? 
 	WHERE id = ?;
 `;
 
 const update_source_amount = `
-	UPDATE source
+	UPDATE "source"
 	SET amount = amount + ? 
 	WHERE id = ?;
 `;
@@ -201,15 +349,27 @@ const select_all_transactions = `
 	FROM "transaction";
 `;
 
+const delete_transaction_trip = `
+	DELETE
+	FROM "transaction_trip"
+	WHERE transactionId = ? AND tripId = ?;
+`;
+
+const delete_transaction_category = `
+	DELETE
+	FROM "transaction_category"
+	WHERE transactionId = ? AND categoryId = ?;
+`;
+
 const insert_transaction_trip = `
 	INSERT
-	INTO transaction_trip (transactionId, tripId)
+	INTO "transaction_trip" (transactionId, tripId)
 	VALUES (?, ?);
 `;
 
 const insert_transaction_category = `
 	INSERT
-	INTO transaction_category (transactionId, categoryId) 
+	INTO "transaction_category" (transactionId, categoryId) 
 	VALUES (?, ?);
 `;
 

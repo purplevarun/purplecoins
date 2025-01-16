@@ -38,7 +38,9 @@ const useCategory = (id: string = "") => {
 	};
 
 	const fetchTransactionsForCategory = () => {
-		return db.getAllSync<ITransaction>(select_transactions_for_category);
+		return db.getAllSync<ITransaction>(select_transactions_for_category, [
+			id,
+		]);
 	};
 
 	const handleEdit = () => {

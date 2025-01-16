@@ -1,180 +1,147 @@
-import { useNavigation } from "@react-navigation/native";
-import { FlatList, TouchableOpacity, View } from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import CustomText from "./CustomText";
-import Vertical from "./Vertical";
-import {
-	FLEX_ROW,
-	LARGE_FONT_SIZE,
-	MARGIN,
-	PADDING,
-	SPACE_BETWEEN,
-	USABLE_SCREEN_HEIGHT,
-} from "./constants.config";
-import CategoryRenderItem from "./src/main/domains/category/CategoryRenderItem";
-import TripRenderItem from "./src/main/domains/trip/TripRenderItem";
-
-const plank = 0.35;
-const UPPER_HALF_HEIGHT = USABLE_SCREEN_HEIGHT * plank;
-const LIST_HEIGHT = (USABLE_SCREEN_HEIGHT - UPPER_HALF_HEIGHT) / (plank * 8);
+import DataTab from "./DataTab";
+import DataTabWrapper from "./DataTabWrapper";
+import Header from "./Header";
+import { formatMoney } from "./HelperFunctions";
+import { categoryRoutes, tripRoutes } from "./Routes";
+import ScreenLayout from "./ScreenLayout";
+import { FLEX_ROW, PADDING } from "./constants.config";
+import useInvestment from "./src/main/domains/investment/useInvestment";
+import useSource from "./src/main/domains/source/useSource";
+import useScreen from "./useScreen";
+import useTransaction from "./useTransaction";
 
 const TransactionDetail = ({ route }: any) => {
-	return <></>;
-	// const { handleEdit, handleDelete } =
-	// 	useTransaction(route.params.id)
-	// const { navigateToTransactionMain } = useNavigate();
-	// const {
-	// 	amount,
-	// 	reason,
-	// 	type,
-	// 	date,
-	// 	sourceId,
-	// 	source,
-	// 	destinationId,
-	// 	destination,
-	// 	investmentId,
-	// 	investment,
-	// 	categories,
-	// 	trips,
-	// } = fetchTransaction(transactionId);
-	//
-	// return (
-	// 	<ScreenLayout>
-	// 		<Header
-	// 			handleClose={navigateToTransactionMain}
-	// 			handleEdit={() => handleEdit(transactionId)}
-	// 			handleDelete={() => handleDelete(transactionId)}
-	// 		/>
-	// 		<View style={{ height: UPPER_HALF_HEIGHT }}>
-	// 			<DataTab name={"Amount"} value={formatMoney(amount)} />
-	// 			<DataTab name={"Reason"} value={reason} />
-	// 			<DataTab name={"Type"} value={type} />
-	// 			<DataTab name={"Date"} value={formatDate(date)} />
-	// 			<Source source={source} sourceId={sourceId} />
-	// 			<Destination
-	// 				destination={destination}
-	// 				destinationId={destinationId}
-	// 			/>
-	// 			<Investment
-	// 				investment={investment}
-	// 				investmentId={investmentId}
-	// 			/>
-	// 		</View>
-	// 		<Categories categories={categories} />
-	// 		<Trips trips={trips} />
-	// 	</ScreenLayout>
-	// );
-};
+	const transactionId = route.params.id;
+	const { handleClose, handleEdit, handleDelete, fetchTransaction } =
+		useTransaction(transactionId);
+	const {
+		amount,
+		reason,
+		type,
+		date,
+		action,
+		sourceId,
+		destinationId,
+		investmentId,
+	} = fetchTransaction();
 
-const Investment = ({
-	investment,
-	investmentId,
-}: {
-	investment: string | undefined;
-	investmentId: string | undefined;
-}) => {
-	const { navigate } = useNavigation<any>();
-	if (investment)
-		return (
-			<View
-				style={{
-					justifyContent: SPACE_BETWEEN,
-					flexDirection: FLEX_ROW,
-					margin: MARGIN,
-				}}
-			>
-				<CustomText text={"Investment"} />
-				<TouchableOpacity
-					onPress={() =>
-						navigate("Investment.Detail", { investmentId })
-					}
-				>
-					<CustomText text={investment} decoration={"underline"} />
-				</TouchableOpacity>
-			</View>
-		);
-};
-
-const Destination = ({
-	destination,
-	destinationId,
-}: {
-	destination: string | undefined;
-	destinationId: string | undefined;
-}) => {
-	const { navigate } = useNavigation<any>();
-	if (destination)
-		return (
-			<View
-				style={{
-					justifyContent: SPACE_BETWEEN,
-					flexDirection: FLEX_ROW,
-					margin: MARGIN,
-				}}
-			>
-				<CustomText text={"Destination"} />
-				<TouchableOpacity
-					onPress={() =>
-						navigate("Source.Detail", {
-							sourceId: destinationId,
-						})
-					}
-				>
-					<CustomText text={destination} decoration={"underline"} />
-				</TouchableOpacity>
-			</View>
-		);
-};
-
-const Source = ({ source, sourceId }: { source: string; sourceId: string }) => {
-	const { navigate } = useNavigation<any>();
 	return (
-		<View
-			style={{
-				justifyContent: SPACE_BETWEEN,
-				flexDirection: FLEX_ROW,
-				margin: MARGIN,
-			}}
-		>
-			<CustomText text={"Source"} />
-			<TouchableOpacity
-				onPress={() => navigate("Source.Detail", { sourceId })}
-			>
-				<CustomText text={source} decoration={"underline"} />
-			</TouchableOpacity>
-		</View>
+		<ScreenLayout>
+			<Header
+				handleClose={handleClose}
+				handleEdit={handleEdit}
+				handleDelete={handleDelete}
+			/>
+			<DataTab name={"Amount"} value={formatMoney(amount)} />
+			<DataTab name={"Reason"} value={reason} />
+			<DataTab name={"Type"} value={type} />
+			<DataTab name={"Action"} value={action} />
+			<DataTab name={"Date"} value={date} />
+			<Source sourceId={sourceId} />
+			<Source sourceId={destinationId} destination />
+			<Investment investmentId={investmentId} />
+			<Categories transactionId={transactionId} />
+			<Trips transactionId={transactionId} />
+		</ScreenLayout>
 	);
 };
 
-const Trips = ({ trips }: { trips: string | undefined }) => {
-	if (trips)
-		return (
-			<View style={{ paddingTop: PADDING }}>
-				<CustomText text={"Trips"} fontSize={LARGE_FONT_SIZE} />
-				<Vertical />
-				<FlatList
-					style={{ maxHeight: LIST_HEIGHT }}
-					data={JSON.parse(trips)}
-					renderItem={({ item }) => <TripRenderItem item={item} />}
-				/>
+const Trips = ({ transactionId }: { transactionId: string }) => {
+	const { fetchTrips } = useTransaction(transactionId);
+	const { navigate } = useScreen();
+	const trips = fetchTrips();
+	if (trips.length === 0) return null;
+	return (
+		<DataTabWrapper>
+			<CustomText text={"Trips"} />
+			<View style={styles.multiData}>
+				{trips.map((trip) => {
+					const onPress = () => navigate(tripRoutes.detail, trip.id);
+					return (
+						<TouchableOpacity onPress={onPress} key={trip.id}>
+							<CustomText
+								text={trip.name}
+								decoration={"underline"}
+							/>
+						</TouchableOpacity>
+					);
+				})}
 			</View>
-		);
+		</DataTabWrapper>
+	);
 };
 
-const Categories = ({ categories }: { categories: string | undefined }) => {
-	if (categories)
-		return (
-			<View>
-				<CustomText text={"Categories"} fontSize={LARGE_FONT_SIZE} />
-				<Vertical />
-				<FlatList
-					style={{ maxHeight: LIST_HEIGHT }}
-					data={JSON.parse(categories)}
-					renderItem={({ item }) => (
-						<CategoryRenderItem item={item} />
-					)}
-				/>
+const Categories = ({ transactionId }: { transactionId: string }) => {
+	const { fetchCategories } = useTransaction(transactionId);
+	const { navigate } = useScreen();
+	const categories = fetchCategories();
+	if (categories.length === 0) return null;
+
+	return (
+		<DataTabWrapper>
+			<CustomText text={"Categories"} />
+			<View style={styles.multiData}>
+				{categories.map((category) => {
+					const onPress = () =>
+						navigate(categoryRoutes.detail, category.id);
+					return (
+						<TouchableOpacity onPress={onPress} key={category.id}>
+							<CustomText
+								text={category.name}
+								decoration={"underline"}
+							/>
+						</TouchableOpacity>
+					);
+				})}
 			</View>
-		);
+		</DataTabWrapper>
+	);
+};
+
+const styles = StyleSheet.create({
+	multiData: {
+		flexDirection: FLEX_ROW,
+		gap: PADDING,
+		justifyContent: "flex-end",
+		maxWidth: "50%",
+		flexWrap: "wrap",
+	},
+});
+
+const Source = ({
+	sourceId,
+	destination = false,
+}: {
+	sourceId?: string;
+	destination?: boolean;
+}) => {
+	if (!sourceId) return;
+	const { handleDetail, fetchOneSource } = useSource(sourceId);
+	const { name } = fetchOneSource();
+	return (
+		<DataTabWrapper>
+			<CustomText text={destination ? "Destination" : "Source"} />
+			<TouchableOpacity onPress={handleDetail}>
+				<CustomText text={name} decoration={"underline"} />
+			</TouchableOpacity>
+		</DataTabWrapper>
+	);
+};
+
+const Investment = ({ investmentId }: { investmentId?: string }) => {
+	if (!investmentId) return;
+	const { handleDetail, fetchOneInvestment } = useInvestment(investmentId);
+	const { name } = fetchOneInvestment();
+	return (
+		<DataTabWrapper>
+			<CustomText text={"Investment"} />
+			<TouchableOpacity onPress={handleDetail}>
+				<CustomText text={name} decoration={"underline"} />
+			</TouchableOpacity>
+		</DataTabWrapper>
+	);
 };
 
 export default TransactionDetail;

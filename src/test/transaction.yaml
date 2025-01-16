@@ -1,16 +1,45 @@
 appId: host.exp.exponent
 ---
+- runScript: output.js
 - tapOn:
-      id: "transaction_icon"
+    id: "transaction_icon"
 - assertVisible:
-      text: "Transactions"
+    text: "Transactions"
 - assertVisible:
-      text: "No Transactions found"
+    text: "No Transactions found"
+- tapOn:
+    id: "plus_icon"
 - assertVisible:
-      text: "Add Transaction"
+    text: "Add Transaction"
 - assertVisible:
-      text: "General"
+    text: "General"
 - assertVisible:
-      text: "Transfer"
+    text: "Transfer"
 - assertVisible:
-      text: "Investment"
+    text: "Investment"
+- assertVisible:
+    text: "${output.data.date}"
+- assertVisible:
+    text: "DEBIT"
+- tapOn:
+    id: "close_icon"
+- tapOn:
+    id: "plus_icon"
+- tapOn:
+    text: "Amount"
+- inputText: "10"
+- tapOn:
+    text: "Reason"
+- inputText: "Reason 1"
+- tapOn:
+    text: "Source"
+- tapOn:
+    text: "Source 1"
+- tapOn:
+    id: "check_icon"
+- assertVisible:
+    text: "₹10"
+- assertVisible:
+    text: "Reason 1"
+- assertVisible:
+    text: "${output.data.fullDate}"

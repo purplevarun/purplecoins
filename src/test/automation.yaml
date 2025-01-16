@@ -4,7 +4,8 @@ appId: host.exp.exponent
       id: "setting_icon"
 - tapOn:
       text: "Clear Data"
-- runFlow: source.yaml
-- runFlow: category.yaml
-- runFlow: trip.yaml
-- runFlow: investment.yaml
+- runFlow: ./source.yaml
+- runFlow: ./category.yaml
+- runFlow: ./trip.yaml
+- runFlow: ./investment.yaml
+- runFlow: ./transaction.yaml

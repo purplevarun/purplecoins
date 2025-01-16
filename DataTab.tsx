@@ -1,7 +1,6 @@
 import { FC } from "react";
-import { StyleSheet, View } from "react-native";
 import CustomText from "./CustomText";
-import { FLEX_ROW, MARGIN, SPACE_BETWEEN } from "./constants.config";
+import DataTabWrapper from "./DataTabWrapper";
 
 type IDataTab = FC<{
 	name: string;
@@ -11,19 +10,11 @@ type IDataTab = FC<{
 const DataTab: IDataTab = ({ name, value }) => {
 	if (value)
 		return (
-			<View style={styles.tab}>
+			<DataTabWrapper>
 				<CustomText text={name} />
 				<CustomText text={value === "null" ? "Not specified" : value} />
-			</View>
+			</DataTabWrapper>
 		);
 };
-
-const styles = StyleSheet.create({
-	tab: {
-		justifyContent: SPACE_BETWEEN,
-		flexDirection: FLEX_ROW,
-		margin: MARGIN,
-	},
-});
 
 export default DataTab;

@@ -8,7 +8,7 @@
 		"doctor": "npx expo-doctor",
 		"format": "prettier --write .",
 		"build": "eas build --profile production --platform android",
-		"test": "cd src/test && maestro test automation.yaml"
+		"test": "maestro test src/test/automation.yaml"
 	},
 	"dependencies": {
 		"@react-navigation/material-top-tabs": "^6.6.14",

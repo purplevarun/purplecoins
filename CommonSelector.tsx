@@ -1,7 +1,6 @@
 import { DimensionValue, View } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import CustomText from "./CustomText";
-import HideSelector from "./HideSelector";
 import IRenderItem from "./IRenderItem";
 import {
 	BACKGROUND_COLOR,
@@ -10,24 +9,23 @@ import {
 } from "./colors.config";
 import { PADDING } from "./constants.config";
 import dropdownStyle from "./dropdown.style";
-import useInvestment from "./src/main/domains/investment/useInvestment";
 
-interface Props {
-	investment: string | null;
-	setInvestment: (val: string) => void;
+const CommonSelector = ({
+	name,
+	data,
+	value,
+	setValue,
+	width,
+}: {
+	name: string;
+	data: IRenderItem[];
+	value: string | null;
+	setValue: (value: string) => void;
 	width: DimensionValue;
-}
-
-const InvestmentSelector = ({ investment, setInvestment, width }: Props) => {
-	const { investmentModels } = useInvestment();
-
-	if (investmentModels.length === 0) {
-		return <HideSelector investment />;
-	}
-
+}) => {
 	const item = (item: IRenderItem) => {
 		const backgroundColor =
-			investment === item.value ? DISABLED_COLOR : BACKGROUND_COLOR;
+			value === item.value ? DISABLED_COLOR : BACKGROUND_COLOR;
 		return (
 			<View
 				style={{
@@ -43,12 +41,12 @@ const InvestmentSelector = ({ investment, setInvestment, width }: Props) => {
 	return (
 		<View style={[dropdownStyle.wrapper, { width }]}>
 			<Dropdown
-				placeholder={"Investment"}
+				placeholder={name}
 				labelField={"label"}
 				valueField={"value"}
-				data={investmentModels}
-				value={investment}
-				onChange={(item) => setInvestment(item.value)}
+				data={data}
+				value={value}
+				onChange={(item) => setValue(item.value)}
 				renderItem={item}
 				style={dropdownStyle.dropdown}
 				placeholderStyle={dropdownStyle.placeholder}
@@ -62,4 +60,4 @@ const InvestmentSelector = ({ investment, setInvestment, width }: Props) => {
 	);
 };
 
-export default InvestmentSelector;
+export default CommonSelector;

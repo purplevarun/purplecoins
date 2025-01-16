@@ -10,21 +10,15 @@ const CommonMultiSelector = ({
 	name,
 	data,
 	value,
-	onChange,
+	setValue,
 	width,
 }: {
 	name: string;
 	data: IRenderItem[];
 	value: string[];
-	onChange: (val: string[]) => void;
+	setValue: (val: string[]) => void;
 	width: DimensionValue;
 }) => {
-	const selectedItem = (item: IRenderItem) => (
-		<View style={dropdownStyle.renderSelected}>
-			<CustomText text={item.label} fontSize={FONT_SIZE / 2} />
-		</View>
-	);
-
 	const item = (item: IRenderItem) => (
 		<View
 			style={[
@@ -48,9 +42,9 @@ const CommonMultiSelector = ({
 				valueField={"value"}
 				data={data}
 				value={value}
-				onChange={onChange}
+				onChange={setValue}
 				renderItem={item}
-				renderSelectedItem={selectedItem}
+				visibleSelectedItem={false}
 				style={dropdownStyle.dropdown}
 				placeholderStyle={dropdownStyle.placeholder}
 				selectedTextStyle={dropdownStyle.selectedText}
