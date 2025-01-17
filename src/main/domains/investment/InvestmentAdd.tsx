@@ -1,6 +1,6 @@
-import CustomInput from "../../../../CustomInput";
-import Header from "../../../../Header";
-import ScreenLayout from "../../../../ScreenLayout";
+import CustomInput from "../../components/CustomInput";
+import Header from "../../components/Header";
+import ScreenLayout from "../../components/ScreenLayout";
 import useInvestment from "./useInvestment";
 
 const InvestmentAdd = () => {

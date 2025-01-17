@@ -1,35 +1,45 @@
 appId: host.exp.exponent
 ---
-- tapOn: { id: "category_icon" }
+- tapOn:
+      id: "category_icon"
 - assertVisible: "Categories"
 - assertVisible: "No Categories found"
-- tapOn: { id: "plus_icon" }
+- tapOn:
+      id: "plus_icon"
 - assertVisible: "Add Category"
-- tapOn: { id: "close_icon" }
+- tapOn:
+      id: "close_icon"
 - assertVisible: "Categories"
 - assertVisible: "No Categories found"
-- tapOn: { id: "plus_icon" }
+- tapOn:
+      id: "plus_icon"
 - tapOn: "Name"
 - inputText: "Category 1"
-- tapOn: { id: "check_icon" }
+- tapOn:
+      id: "check_icon"
 - assertNotVisible: "No Categories found"
 - assertVisible: "Category 1"
-- tapOn: { id: "plus_icon" }
+- tapOn:
+      id: "plus_icon"
 - tapOn: "Name"
 - inputText: "Category 2"
-- tapOn: { id: "check_icon" }
+- tapOn:
+      id: "check_icon"
 - assertVisible: "Category 1"
 - assertVisible: "Category 2"
 - tapOn: "Category 2"
-- tapOn: { id: "edit_icon" }
+- tapOn:
+      id: "edit_icon"
 - tapOn: "Category 2"
 - eraseText
 - inputText: "Category 3"
-- tapOn: { id: "check_icon" }
+- tapOn:
+      id: "check_icon"
 - assertNotVisible: "Category 2"
 - assertVisible: "Category 3"
 - tapOn: "Category 3"
-- tapOn: { id: "delete_icon" }
+- tapOn:
+      id: "delete_icon"
 - tapOn: "Yes"
 - assertNotVisible: "Category 3"
 - assertVisible: "Category 1"

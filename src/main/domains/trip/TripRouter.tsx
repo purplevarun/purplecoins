@@ -1,7 +1,7 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { tripRoutes } from "../../../../Routes";
-import ScreenLayout from "../../../../ScreenLayout";
-import { SCREEN_OPTIONS } from "../../../../constants.config";
+import { tripRoutes } from "../../app/router/Routes";
+import ScreenLayout from "../../components/ScreenLayout";
+import { SCREEN_OPTIONS } from "../../constants/constants.config";
 import TripAdd from "./TripAdd";
 import TripDetail from "./TripDetail";
 import TripEdit from "./TripEdit";

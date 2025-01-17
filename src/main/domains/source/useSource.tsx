@@ -1,9 +1,9 @@
 import { randomUUID } from "expo-crypto";
 import { useSQLiteContext } from "expo-sqlite";
 import { useMemo, useState } from "react";
-import ITransaction from "../../../../ITransaction";
-import { sourceRoutes } from "../../../../Routes";
-import useScreen from "../../../../useScreen";
+import { sourceRoutes } from "../../app/router/Routes";
+import useScreen from "../../hooks/useScreen";
+import ITransaction from "../transaction/ITransaction";
 import ISource from "./ISource";
 
 const useSource = (id: string = "") => {

@@ -1,7 +1,7 @@
-import CustomInput from "../../../../CustomInput";
-import Header from "../../../../Header";
-import ScreenLayout from "../../../../ScreenLayout";
-import useFocus from "../../../../useFocus";
+import CustomInput from "../../components/CustomInput";
+import Header from "../../components/Header";
+import ScreenLayout from "../../components/ScreenLayout";
+import useFocus from "../../hooks/useFocus";
 import useSource from "./useSource";
 
 const SourceEdit = ({ route }: any) => {

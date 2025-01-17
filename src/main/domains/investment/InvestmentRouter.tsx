@@ -1,7 +1,7 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { investmentRoutes } from "../../../../Routes";
-import ScreenLayout from "../../../../ScreenLayout";
-import { SCREEN_OPTIONS } from "../../../../constants.config";
+import { investmentRoutes } from "../../app/router/Routes";
+import ScreenLayout from "../../components/ScreenLayout";
+import { SCREEN_OPTIONS } from "../../constants/constants.config";
 import InvestmentAdd from "./InvestmentAdd";
 import InvestmentDetail from "./InvestmentDetail";
 import InvestmentEdit from "./InvestmentEdit";

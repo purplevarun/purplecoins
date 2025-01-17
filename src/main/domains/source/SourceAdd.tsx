@@ -1,7 +1,7 @@
-import CustomInput from "../../../../CustomInput";
-import Header from "../../../../Header";
-import PaddedRow from "../../../../PaddedRow";
-import ScreenLayout from "../../../../ScreenLayout";
+import CustomInput from "../../components/CustomInput";
+import Header from "../../components/Header";
+import PaddedRow from "../../components/PaddedRow";
+import ScreenLayout from "../../components/ScreenLayout";
 import useSource from "./useSource";
 
 const SourceAdd = () => {

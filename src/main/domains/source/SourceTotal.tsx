@@ -1,6 +1,6 @@
-import CustomText from "../../../../CustomText";
 import { formatMoney } from "../../../../HelperFunctions";
-import { CENTER, FONT_SIZE } from "../../../../constants.config";
+import CustomText from "../../components/CustomText";
+import { CENTER, FONT_SIZE } from "../../constants/constants.config";
 import ISource from "./ISource";
 
 const SourceTotal = ({ sources }: { sources: ISource[] }) => {

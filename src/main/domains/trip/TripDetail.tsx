@@ -1,7 +1,7 @@
-import DataTab from "../../../../DataTab";
-import Header from "../../../../Header";
-import LinkedTransactions from "../../../../LinkedTransactions";
-import ScreenLayout from "../../../../ScreenLayout";
+import DataTab from "../../components/DataTab";
+import Header from "../../components/Header";
+import ScreenLayout from "../../components/ScreenLayout";
+import LinkedTransactions from "../transaction/LinkedTransactions";
 import useTrip from "./useTrip";
 
 const TripDetail = ({ route }: any) => {

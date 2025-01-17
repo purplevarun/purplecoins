@@ -1,7 +1,7 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { sourceRoutes } from "../../../../Routes";
-import ScreenLayout from "../../../../ScreenLayout";
-import { SCREEN_OPTIONS } from "../../../../constants.config";
+import { sourceRoutes } from "../../app/router/Routes";
+import ScreenLayout from "../../components/ScreenLayout";
+import { SCREEN_OPTIONS } from "../../constants/constants.config";
 import SourceAdd from "./SourceAdd";
 import SourceDetail from "./SourceDetail";
 import SourceEdit from "./SourceEdit";

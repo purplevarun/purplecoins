@@ -1,7 +1,7 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { categoryRoutes } from "../../../../Routes";
-import ScreenLayout from "../../../../ScreenLayout";
-import { SCREEN_OPTIONS } from "../../../../constants.config";
+import { categoryRoutes } from "../../app/router/Routes";
+import ScreenLayout from "../../components/ScreenLayout";
+import { SCREEN_OPTIONS } from "../../constants/constants.config";
 import CategoryAdd from "./CategoryAdd";
 import CategoryDetail from "./CategoryDetail";
 import CategoryEdit from "./CategoryEdit";

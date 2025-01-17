@@ -1,29 +1,3 @@
-export const formatDate = (date: Date | null | undefined, full = false) => {
-	if (date === null || date === undefined) return "Not specified";
-	date = new Date(date);
-	const day = String(date.getDate()).padStart(2, "0");
-	const month = String(date.getMonth() + 1).padStart(2, "0");
-	const year = date.getFullYear();
-	if (!full) return `${day}/${month}/${year % 100}`;
-	const months = [
-		"January",
-		"February",
-		"March",
-		"April",
-		"May",
-		"June",
-		"July",
-		"August",
-		"September",
-		"October",
-		"November",
-		"December",
-	];
-	const suffix =
-		day === "01" ? "st" : day === "02" ? "nd" : day === "03" ? "rd" : "th";
-	return `${day}${suffix} ${months[parseInt(month) - 1]} ${year}`;
-};
-
 export const formatMoney = (money: number | null | undefined) => {
 	if (money === null || money === undefined) return "null";
 	return "₹" + money.toLocaleString("en-IN");

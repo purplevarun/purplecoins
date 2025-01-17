@@ -1,7 +1,7 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { TouchableOpacity } from "react-native";
-import { PRIMARY_COLOR } from "../../../../../colors.config";
-import { CENTER, LARGE_FONT_SIZE } from "../../../../../constants.config";
+import { PRIMARY_COLOR } from "../../../constants/colors.config";
+import { CENTER, LARGE_FONT_SIZE } from "../../../constants/constants.config";
 
 const CloseButton = ({ handleClose }: { handleClose?: () => void }) =>
 	handleClose && (

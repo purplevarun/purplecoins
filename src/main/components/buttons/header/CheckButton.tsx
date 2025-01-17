@@ -1,7 +1,10 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { TouchableOpacity } from "react-native";
-import { DISABLED_COLOR, PRIMARY_COLOR } from "../../../../../colors.config";
-import { CENTER, LARGE_FONT_SIZE } from "../../../../../constants.config";
+import {
+	DISABLED_COLOR,
+	PRIMARY_COLOR,
+} from "../../../constants/colors.config";
+import { CENTER, LARGE_FONT_SIZE } from "../../../constants/constants.config";
 
 const CheckButton = ({
 	handleCheck,

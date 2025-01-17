@@ -1,14 +1,14 @@
 import { TouchableOpacity } from "react-native";
-import CustomText from "../../../../CustomText";
 import { formatMoney } from "../../../../HelperFunctions";
-import { SECONDARY_COLOR } from "../../../../colors.config";
+import CustomText from "../../components/CustomText";
+import { SECONDARY_COLOR } from "../../constants/colors.config";
 import {
 	BORDER_RADIUS,
 	FLEX_ROW,
 	MARGIN,
 	PADDING,
 	SPACE_BETWEEN,
-} from "../../../../constants.config";
+} from "../../constants/constants.config";
 import ISource from "./ISource";
 import useSource from "./useSource";
 

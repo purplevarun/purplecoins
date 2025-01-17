@@ -1,6 +1,6 @@
 import { TouchableOpacity } from "react-native";
-import CustomText from "../../../../CustomText";
-import { SECONDARY_COLOR } from "../../../../colors.config";
+import CustomText from "../../components/CustomText";
+import { SECONDARY_COLOR } from "../../constants/colors.config";
 import {
 	BORDER_RADIUS,
 	CENTER,
@@ -8,7 +8,7 @@ import {
 	MARGIN,
 	PADDING,
 	SPACE_BETWEEN,
-} from "../../../../constants.config";
+} from "../../constants/constants.config";
 import IInvestment from "./IInvestment";
 import useInvestment from "./useInvestment";
 

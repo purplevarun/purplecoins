@@ -1,16 +1,16 @@
 import { DimensionValue, TouchableOpacity } from "react-native";
-import CustomText from "../../../../../CustomText";
 import {
 	GREEN_COLOR,
 	PRIMARY_COLOR,
 	RED_COLOR,
-} from "../../../../../colors.config";
+} from "../../../constants/colors.config";
 import {
 	BORDER_RADIUS,
 	CENTER,
 	FONT_SIZE,
-} from "../../../../../constants.config";
+} from "../../../constants/constants.config";
 import Action from "../../../constants/enums/Action";
+import CustomText from "../../CustomText";
 
 const ActionButton = ({
 	action,

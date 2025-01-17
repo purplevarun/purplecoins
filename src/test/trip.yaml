@@ -1,35 +1,45 @@
 appId: host.exp.exponent
 ---
-- tapOn: { id: "trip_icon" }
+- tapOn:
+      id: "trip_icon"
 - assertVisible: "Trips"
 - assertVisible: "No Trips found"
-- tapOn: { id: "plus_icon" }
+- tapOn:
+      id: "plus_icon"
 - assertVisible: "Add Trip"
-- tapOn: { id: "close_icon" }
+- tapOn:
+      id: "close_icon"
 - assertVisible: "Trips"
 - assertVisible: "No Trips found"
-- tapOn: { id: "plus_icon" }
+- tapOn:
+      id: "plus_icon"
 - tapOn: "Name"
 - inputText: "Trip 1"
-- tapOn: { id: "check_icon" }
+- tapOn:
+      id: "check_icon"
 - assertNotVisible: "No Trips found"
 - assertVisible: "Trip 1"
-- tapOn: { id: "plus_icon" }
+- tapOn:
+      id: "plus_icon"
 - tapOn: "Name"
 - inputText: "Trip 2"
-- tapOn: { id: "check_icon" }
+- tapOn:
+      id: "check_icon"
 - assertVisible: "Trip 1"
 - assertVisible: "Trip 2"
 - tapOn: "Trip 2"
-- tapOn: { id: "edit_icon" }
+- tapOn:
+      id: "edit_icon"
 - tapOn: "Trip 2"
 - eraseText
 - inputText: "Trip 3"
-- tapOn: { id: "check_icon" }
+- tapOn:
+      id: "check_icon"
 - assertNotVisible: "Trip 2"
 - assertVisible: "Trip 3"
 - tapOn: "Trip 3"
-- tapOn: { id: "delete_icon" }
+- tapOn:
+      id: "delete_icon"
 - tapOn: "Yes"
 - assertNotVisible: "Trip 3"
 - assertVisible: "Trip 1"

@@ -1,9 +1,9 @@
 import { randomUUID } from "expo-crypto";
 import { useSQLiteContext } from "expo-sqlite";
 import { useState } from "react";
-import ITransaction from "../../../../ITransaction";
-import { tripRoutes } from "../../../../Routes";
-import useScreen from "../../../../useScreen";
+import { tripRoutes } from "../../app/router/Routes";
+import useScreen from "../../hooks/useScreen";
+import ITransaction from "../transaction/ITransaction";
 import ITrip from "./ITrip";
 
 type ITotal = { total: number };

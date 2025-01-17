@@ -1,8 +1,8 @@
 import { FlatList } from "react-native";
-import Header from "../../../../Header";
-import NoContent from "../../../../NoContent";
-import ScreenLayout from "../../../../ScreenLayout";
-import useFocus from "../../../../useFocus";
+import Header from "../../components/Header";
+import NoContent from "../../components/NoContent";
+import ScreenLayout from "../../components/ScreenLayout";
+import useFocus from "../../hooks/useFocus";
 import SourceRenderItem from "./SourceRenderItem";
 import SourceTotal from "./SourceTotal";
 import useSource from "./useSource";

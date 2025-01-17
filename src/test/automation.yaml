@@ -1,6 +1,7 @@
 appId: host.exp.exponent
 ---
-- tapOn: { id: "setting_icon" }
+- tapOn:
+      id: "setting_icon"
 - tapOn: "Clear Data"
 - runFlow: ./source.yaml
 - runFlow: ./category.yaml

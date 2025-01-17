@@ -1,7 +1,11 @@
 import { StyleSheet, TouchableOpacity } from "react-native";
-import CustomText from "../../../../CustomText";
-import { SECONDARY_COLOR } from "../../../../colors.config";
-import { BORDER_RADIUS, MARGIN, PADDING } from "../../../../constants.config";
+import CustomText from "../../components/CustomText";
+import { SECONDARY_COLOR } from "../../constants/colors.config";
+import {
+	BORDER_RADIUS,
+	MARGIN,
+	PADDING,
+} from "../../constants/constants.config";
 import ICategory from "./ICategory";
 import useCategory from "./useCategory";
 

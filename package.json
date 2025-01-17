@@ -1,7 +1,7 @@
 {
 	"name": "pupercoins",
 	"version": "1.1.0",
-	"main": "src/main/App.tsx",
+	"main": "src/main/app/entry/App.tsx",
 	"scripts": {
 		"dev": "expo start -c -p 3006",
 		"clean": "rm -rf node_modules yarn.lock .expo && yarn",

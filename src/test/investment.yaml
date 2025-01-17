@@ -1,29 +1,36 @@
 appId: host.exp.exponent
 ---
-- tapOn: { id: "investment_icon" }
+- tapOn:
+      id: "investment_icon"
 - assertVisible: "Investments"
 - assertVisible: "No Investments found"
-- tapOn: { id: "plus_icon" }
+- tapOn:
+      id: "plus_icon"
 - assertVisible: "Add Investment"
-- tapOn: { id: "close_icon" }
+- tapOn:
+      id: "close_icon"
 - assertVisible: "Investments"
 - assertVisible: "No Investments found"
-- tapOn: { id: "plus_icon" }
+- tapOn:
+      id: "plus_icon"
 - tapOn: "Name"
 - inputText: "Investment 1"
-- tapOn: { id: "check_icon" }
+- tapOn:
+      id: "check_icon"
 - assertNotVisible: "No Investments found"
 - assertVisible: "Investment 1"
 - assertVisible: "0%"
 - assertVisible: "Total Investments = ₹0"
 - assertVisible: "Total Returns = ₹0"
 - assertVisible: "Profit = 0%"
-- tapOn: { id: "plus_icon" }
+- tapOn:
+      id: "plus_icon"
 - tapOn: "Name"
 - inputText: "Investment 2"
 - tapOn: "Invested Amount"
 - inputText: "1000"
-- tapOn: { id: "check_icon" }
+- tapOn:
+      id: "check_icon"
 - assertVisible: "Investment 1"
 - assertVisible: "0%"
 - assertVisible: "Investment 2"
@@ -32,7 +39,8 @@ appId: host.exp.exponent
 - assertVisible: "Total Returns = ₹0"
 - assertVisible: "Profit = -100%"
 - tapOn: "Investment 2"
-- tapOn: { id: "edit_icon" }
+- tapOn:
+      id: "edit_icon"
 - tapOn: "Investment 2"
 - eraseText
 - inputText: "Investment 3"
@@ -46,7 +54,8 @@ appId: host.exp.exponent
 - assertVisible: "Total Returns = ₹1,500"
 - assertVisible: "Profit = 50%"
 - tapOn: "Investment 1"
-- tapOn: { id: "delete_icon" }
+- tapOn:
+      id: "delete_icon"
 - tapOn: "Yes"
 - assertNotVisible: "Investment 1"
 - assertVisible: "Investment 3"

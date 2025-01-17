@@ -1,5 +1,4 @@
 import { StyleSheet, TouchableOpacity, View } from "react-native";
-import CustomText from "../../../../../CustomText";
 import {
 	BORDER_WIDTH,
 	CENTER,
@@ -9,7 +8,8 @@ import {
 	PADDING,
 	SMALL_FONT_SIZE,
 	SPACE_EVENLY,
-} from "../../../../../constants.config";
+} from "../../../constants/constants.config";
+import CustomText from "../../CustomText";
 
 interface IRadioGroup {
 	onPress: (selectedId: string) => void;
