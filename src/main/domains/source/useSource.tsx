@@ -30,7 +30,7 @@ const useSource = (id: string = "") => {
 	};
 
 	const addSource = () => {
-		db.runSync(insert_source, [randomUUID(), name, iAmount]);
+		db.runSync(insert_source, [randomUUID(), name.trim(), iAmount]);
 		navigate(sourceRoutes.main);
 	};
 
@@ -139,7 +139,7 @@ const delete_source = `
 	WHERE id = ?; 
 `;
 
-const insert_source = `
+export const insert_source = `
 	INSERT
 	INTO "source" (id, name, amount)
 	VALUES (?, ?, ?);

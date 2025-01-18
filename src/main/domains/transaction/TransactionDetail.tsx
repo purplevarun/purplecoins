@@ -1,5 +1,4 @@
 import { StyleSheet, TouchableOpacity, View } from "react-native";
-import { formatMoney } from "../../../../HelperFunctions";
 import { categoryRoutes, tripRoutes } from "../../app/router/Routes";
 import CustomText from "../../components/CustomText";
 import DataTab from "../../components/DataTab";
@@ -8,6 +7,7 @@ import Header from "../../components/Header";
 import ScreenLayout from "../../components/ScreenLayout";
 import { FLEX_ROW, PADDING } from "../../constants/constants.config";
 import useScreen from "../../hooks/useScreen";
+import { formatMoney } from "../../util/HelperFunctions";
 import useInvestment from "../investment/useInvestment";
 import useSource from "../source/useSource";
 import useTransaction from "./useTransaction";

@@ -8,22 +8,16 @@ import useScreen from "../../hooks/useScreen";
 import ICategory from "../category/ICategory";
 import ITrip from "../trip/ITrip";
 import IGroupedTransaction from "./IGroupedTransaction";
-import ITransaction from "./ITransaction";
 
-const todayDate = () => {
-	const date = new Date();
-	const day = String(date.getDate()).padStart(2, "0");
-	const month = String(date.getMonth() + 1).padStart(2, "0");
-	const year = date.getFullYear();
-	return `${day}/${month}/${year % 100}`;
-};
+import usePersistedStore from "../../components/PersistedStore";
+import ITransaction from "./ITransaction";
 
 const useTransaction = (id: string = "") => {
 	const db = useSQLiteContext();
 	const { navigate } = useScreen();
+	const { date, setDate } = usePersistedStore();
 	const [amount, setAmount] = useState("");
 	const [reason, setReason] = useState("");
-	const [date, setDate] = useState(todayDate());
 	const [source, setSource] = useState("");
 	const [type, setType] = useState(Type.GENERAL);
 	const [action, setAction] = useState(Action.DEBIT);
@@ -40,11 +34,21 @@ const useTransaction = (id: string = "") => {
 		return parseInt(amount);
 	}, [amount]);
 
+	const getDMY = () => {
+		let d, m, y;
+		if (date.includes(".")) {
+			[d, m, y] = date.split(".");
+		} else {
+			[d, m, y] = date.split("/");
+		}
+		return { d, m, y };
+	};
+
 	const enabled = useMemo(() => {
 		if (iAmount === 0) return false;
 		if (reason.length === 0) return false;
 		if (date.length !== 10 && date.length !== 8) return false;
-		const [d, m, y] = date.split("/");
+		let { d, m, y } = getDMY();
 		if (
 			d?.length !== 2 ||
 			m?.length !== 2 ||
@@ -134,10 +138,17 @@ const useTransaction = (id: string = "") => {
 	const handleDelete = () => {
 		const oldTransaction = fetchTransaction();
 		db.runSync(delete_transaction, [id]);
-		db.runSync(update_source_amount, [
-			oldTransaction.amount,
-			oldTransaction.sourceId,
-		]);
+		if (oldTransaction.action === Action.DEBIT) {
+			db.runSync(add_source_amount, [
+				oldTransaction.amount,
+				oldTransaction.sourceId,
+			]);
+		} else {
+			db.runSync(reduce_source_amount, [
+				oldTransaction.amount,
+				oldTransaction.sourceId,
+			]);
+		}
 		if (oldTransaction.type === Type.GENERAL) {
 			db.runSync(delete_trips_and_categories, [
 				oldTransaction.id,
@@ -148,7 +159,7 @@ const useTransaction = (id: string = "") => {
 			oldTransaction.type === Type.TRANSFER &&
 			oldTransaction.destinationId
 		) {
-			db.runSync(update_source_amount, [
+			db.runSync(reduce_source_amount, [
 				-oldTransaction.amount,
 				oldTransaction.destinationId,
 			]);
@@ -157,8 +168,8 @@ const useTransaction = (id: string = "") => {
 			oldTransaction.type === Type.INVESTMENT &&
 			oldTransaction.investmentId
 		) {
-			db.runSync(update_investment_amount, [
-				-oldTransaction.amount,
+			db.runSync(reduce_investment_amount, [
+				oldTransaction.amount,
 				oldTransaction.investmentId,
 			]);
 		}
@@ -166,7 +177,7 @@ const useTransaction = (id: string = "") => {
 	};
 
 	const extractDate = () => {
-		const [d, m, y] = date.split("/");
+		const { d, m, y } = getDMY();
 		if (date.length === 10) return date;
 		const currentCentury = Math.floor(new Date().getFullYear() / 100);
 		return `${d}/${m}/${currentCentury}${y}`;
@@ -184,7 +195,7 @@ const useTransaction = (id: string = "") => {
 		db.runSync(insert_into_transaction, [
 			newId,
 			iAmount,
-			reason,
+			reason.trim(),
 			type,
 			action,
 			fullDate,
@@ -196,12 +207,17 @@ const useTransaction = (id: string = "") => {
 		categories.forEach((category) =>
 			createTransactionCategory(newId, category),
 		);
-		const tAmount = action === Action.DEBIT ? -iAmount : iAmount;
-		db.runSync(update_source_amount, [tAmount, source]);
-		if (type === Type.INVESTMENT)
-			db.runSync(update_investment_amount, [-tAmount, investment]);
-		if (type === Type.TRANSFER)
-			db.runSync(update_source_amount, [-tAmount, destination]);
+		if (action === Action.DEBIT) {
+			db.runSync(reduce_source_amount, [iAmount, source]);
+			if (type === Type.INVESTMENT)
+				db.runSync(add_investment_amount, [iAmount, investment]);
+			if (type === Type.TRANSFER)
+				db.runSync(add_source_amount, [iAmount, destination]);
+		} else {
+			db.runSync(add_source_amount, [iAmount, source]);
+			if (type === Type.INVESTMENT)
+				db.runSync(reduce_investment_amount, [iAmount, investment]);
+		}
 		navigate(transactionRoutes.main);
 	};
 
@@ -230,11 +246,22 @@ const useTransaction = (id: string = "") => {
 				null,
 				id,
 			]);
-			db.runSync(update_source_amount, [
-				oldTransaction.amount,
-				oldTransaction.sourceId,
-			]);
-			db.runSync(update_source_amount, [iAmount, source]);
+			if (oldTransaction.action === Action.DEBIT) {
+				db.runSync(add_source_amount, [
+					oldTransaction.amount,
+					oldTransaction.sourceId,
+				]);
+			} else {
+				db.runSync(reduce_source_amount, [
+					oldTransaction.amount,
+					oldTransaction.sourceId,
+				]);
+			}
+			if (action === Action.DEBIT) {
+				db.runSync(reduce_source_amount, [iAmount, source]);
+			} else {
+				db.runSync(add_source_amount, [iAmount, source]);
+			}
 			const oldTrips = fetchTrips();
 			if (
 				oldTrips.length !== trips.length ||
@@ -276,16 +303,16 @@ const useTransaction = (id: string = "") => {
 				null,
 				id,
 			]);
-			db.runSync(update_source_amount, [
+			db.runSync(reduce_source_amount, [
 				oldTransaction.amount,
 				oldTransaction.sourceId,
 			]);
-			db.runSync(update_source_amount, [
+			db.runSync(reduce_source_amount, [
 				-oldTransaction.amount,
 				oldTransaction.destinationId as string,
 			]);
-			db.runSync(update_source_amount, [-iAmount, source]);
-			db.runSync(update_source_amount, [iAmount, destination]);
+			db.runSync(reduce_source_amount, [-iAmount, source]);
+			db.runSync(reduce_source_amount, [iAmount, destination]);
 		}
 		if (type === Type.INVESTMENT) {
 			db.runSync(update_transaction, [
@@ -298,16 +325,16 @@ const useTransaction = (id: string = "") => {
 				investment,
 				id,
 			]);
-			db.runSync(update_source_amount, [
+			db.runSync(reduce_source_amount, [
 				oldTransaction.amount,
 				oldTransaction.sourceId,
 			]);
-			db.runSync(update_investment_amount, [
+			db.runSync(add_investment_amount, [
 				-oldTransaction.amount,
 				oldTransaction.investmentId as string,
 			]);
-			db.runSync(update_source_amount, [-iAmount, source]);
-			db.runSync(update_investment_amount, [iAmount, investment]);
+			db.runSync(reduce_source_amount, [-iAmount, source]);
+			db.runSync(add_investment_amount, [iAmount, investment]);
 		}
 		navigate(transactionRoutes.main);
 	};
@@ -382,13 +409,25 @@ const update_transaction = `
 	WHERE id = ?;
 `;
 
-const update_investment_amount = `
+const add_investment_amount = `
 	UPDATE "investment"
 	SET investedAmount = investedAmount + ? 
 	WHERE id = ?;
 `;
 
-const update_source_amount = `
+const reduce_investment_amount = `
+	UPDATE "investment"
+	SET investedAmount = investedAmount - ? 
+	WHERE id = ?;
+`;
+
+const reduce_source_amount = `
+	UPDATE "source"
+	SET amount = amount - ? 
+	WHERE id = ?;
+`;
+
+const add_source_amount = `
 	UPDATE "source"
 	SET amount = amount + ? 
 	WHERE id = ?;

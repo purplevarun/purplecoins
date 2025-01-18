@@ -29,7 +29,7 @@ const useTrip = (id: string = "") => {
 		navigate(tripRoutes.main);
 	};
 	const addTrip = () => {
-		db.runSync(insert_trip, [randomUUID(), name]);
+		db.runSync(insert_trip, [randomUUID(), name.trim()]);
 		navigate(tripRoutes.main);
 	};
 
@@ -124,7 +124,7 @@ const select_one_trip = `
 	WHERE id=?;
 `;
 
-const insert_trip = `
+export const insert_trip = `
 	INSERT
 	INTO "trip" (id, name)
 	VALUES (?, ?);

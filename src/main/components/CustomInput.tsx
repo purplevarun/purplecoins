@@ -1,16 +1,10 @@
-import { useEffect, useRef, useState } from "react";
-import {
-	Animated,
-	DimensionValue,
-	Easing,
-	Text,
-	TextInput,
-	View,
-} from "react-native";
+import { useRef } from "react";
+import { DimensionValue, Text, TextInput, View } from "react-native";
 import { DISABLED_COLOR, PRIMARY_COLOR } from "../constants/colors.config";
 import {
 	ABSOLUTE,
 	BORDER_RADIUS,
+	BORDER_WIDTH,
 	CENTER,
 	FONT_SIZE,
 	NINETY_P,
@@ -37,18 +31,6 @@ const CustomInput = ({
 	required?: boolean;
 	width?: DimensionValue;
 }) => {
-	const [isFocused, setIsFocused] = useState(false);
-	const animatedValue = useRef(new Animated.Value(value ? 1 : 0)).current;
-
-	useEffect(() => {
-		Animated.timing(animatedValue, {
-			toValue: isFocused || value ? 1 : 0,
-			duration: 200,
-			easing: Easing.linear,
-			useNativeDriver: false,
-		}).start();
-	}, [isFocused, value]);
-
 	const inputRef = useRef<TextInput>(null);
 
 	return (
@@ -77,13 +59,11 @@ const CustomInput = ({
 				ref={inputRef}
 				value={value}
 				onChangeText={setValue}
-				onFocus={() => setIsFocused(true)}
-				onBlur={() => setIsFocused(false)}
 				autoComplete={"off"}
 				autoCorrect={false}
 				style={{
 					height: FONT_SIZE * 2.5,
-					borderWidth: 2,
+					borderWidth: BORDER_WIDTH,
 					borderRadius: BORDER_RADIUS,
 					padding: PADDING,
 					borderColor: PRIMARY_COLOR,

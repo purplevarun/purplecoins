@@ -25,7 +25,7 @@ const useCategory = (id: string = "") => {
 	};
 
 	const addCategory = () => {
-		db.runSync(insert_category, [randomUUID(), name]);
+		db.runSync(insert_category, [randomUUID(), name.trim()]);
 		navigate(categoryRoutes.main);
 	};
 
@@ -103,7 +103,7 @@ const select_all_categories = `
 	FROM "category";
 `;
 
-const insert_category = `
+export const insert_category = `
 	INSERT
 	INTO "category" (id, name)
 	VALUES (?, ?);

@@ -1,5 +1,4 @@
 import { StyleSheet, TouchableOpacity } from "react-native";
-import { formatMoney } from "../../../../HelperFunctions";
 import CustomText from "../../components/CustomText";
 import { SECONDARY_COLOR } from "../../constants/colors.config";
 import {
@@ -9,6 +8,7 @@ import {
 	PADDING,
 	SPACE_BETWEEN,
 } from "../../constants/constants.config";
+import { formatMoney } from "../../util/HelperFunctions";
 import ITrip from "./ITrip";
 import useTrip from "./useTrip";
 

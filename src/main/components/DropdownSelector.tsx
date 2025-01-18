@@ -7,8 +7,10 @@ import {
 } from "../constants/colors.config";
 import {
 	BORDER_RADIUS,
+	BORDER_WIDTH,
 	CENTER,
 	FONT_SIZE,
+	MARGIN,
 	PADDING,
 	PADDING_TOP_ADD_SCREEN,
 } from "../constants/constants.config";
@@ -70,11 +72,14 @@ const DropdownSelector = ({
 		selectedStyle: style.selected,
 		search: true,
 		renderRightIcon,
-		inputSearchStyle: {
-			color: PRIMARY_COLOR,
-			borderRadius: BORDER_RADIUS,
-		},
+		inputSearchStyle: style.inputSearch,
 	};
+
+	const renderSelectedItem = (item: IRenderItem) => (
+		<View style={style.renderSelected}>
+			<CustomText text={item.label} fontSize={FONT_SIZE / 2} />
+		</View>
+	);
 
 	if (single)
 		return (
@@ -87,17 +92,18 @@ const DropdownSelector = ({
 			</View>
 		);
 
-	if (multi)
+	if (multi) {
 		return (
 			<View style={[style.wrapper, { width }]}>
 				<MultiSelect
 					value={multi.value}
 					onChange={multi.setValue}
-					visibleSelectedItem={false}
+					renderSelectedItem={renderSelectedItem}
 					{...props}
 				/>
 			</View>
 		);
+	}
 };
 
 const style = StyleSheet.create({
@@ -116,7 +122,7 @@ const style = StyleSheet.create({
 		alignSelf: CENTER,
 		width: "100%",
 		height: FONT_SIZE * 2.5,
-		borderWidth: 2,
+		borderWidth: BORDER_WIDTH,
 		borderRadius: BORDER_RADIUS,
 		padding: PADDING,
 		borderColor: PRIMARY_COLOR,
@@ -143,13 +149,16 @@ const style = StyleSheet.create({
 		color: DISABLED_COLOR,
 	},
 	renderSelected: {
-		borderWidth: 2,
+		marginRight: MARGIN,
+		marginTop: MARGIN,
+		padding: MARGIN,
+		borderWidth: BORDER_WIDTH,
 		borderColor: DISABLED_COLOR,
-		padding: PADDING / 2,
-		marginHorizontal: PADDING / 3,
-		marginTop: PADDING / 2,
-		left: FONT_SIZE / 1.4,
-		borderRadius: BORDER_RADIUS / 1.5,
+		borderRadius: BORDER_RADIUS,
+	},
+	inputSearch: {
+		color: PRIMARY_COLOR,
+		borderRadius: BORDER_RADIUS,
 	},
 });
 

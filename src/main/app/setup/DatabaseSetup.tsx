@@ -55,7 +55,7 @@ const investment = `
 const transaction = `
 	CREATE TABLE IF NOT EXISTS "transaction" (
 		id              TEXT PRIMARY KEY,
-		amount          INTEGER NOT NULL,
+	 	amount 			INTEGER NOT NULL CHECK (amount > 0),
 		reason          TEXT NOT NULL,
 		type            TEXT NOT NULL CHECK (type IN ('GENERAL', 'TRANSFER', 'INVESTMENT')),
 		action          TEXT NOT NULL CHECK (action IN ('DEBIT', 'CREDIT')),

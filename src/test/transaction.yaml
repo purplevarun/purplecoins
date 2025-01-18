@@ -42,6 +42,6 @@ appId: host.exp.exponent
 - tapOn:
       id: "source_icon"
 - assertVisible:
-      below: "Total Net Worth = ₹990"
+      below: "Total Balance = ₹990"
       rightOf: "Source 1"
       text: "₹990"

@@ -1,7 +1,7 @@
-import { formatMoney } from "../../../../HelperFunctions";
 import DataTab from "../../components/DataTab";
 import Header from "../../components/Header";
 import ScreenLayout from "../../components/ScreenLayout";
+import { formatMoney } from "../../util/HelperFunctions";
 import LinkedTransactions from "../transaction/LinkedTransactions";
 import useInvestment from "./useInvestment";
 

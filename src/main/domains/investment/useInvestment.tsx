@@ -35,7 +35,11 @@ const useInvestment = (id: string = "") => {
 	}, [currentAmount]);
 
 	const addInvestment = () => {
-		db.runSync(insert_investment, [randomUUID(), name, iInvestedAmount]);
+		db.runSync(insert_investment, [
+			randomUUID(),
+			name.trim(),
+			iInvestedAmount,
+		]);
 		navigate(investmentRoutes.main);
 	};
 
@@ -126,7 +130,7 @@ const select_one_investment = `
 	WHERE id = ?;
 `;
 
-const insert_investment = `
+export const insert_investment = `
 	INSERT
 	INTO "investment" (id, name, investedAmount)
 	VALUES (?,?,?);

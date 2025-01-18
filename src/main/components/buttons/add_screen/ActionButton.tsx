@@ -6,6 +6,7 @@ import {
 } from "../../../constants/colors.config";
 import {
 	BORDER_RADIUS,
+	BORDER_WIDTH,
 	CENTER,
 	FONT_SIZE,
 } from "../../../constants/constants.config";
@@ -31,7 +32,7 @@ const ActionButton = ({
 				height: FONT_SIZE * 2.5,
 				alignSelf: "flex-end",
 				justifyContent: CENTER,
-				borderWidth: 2,
+				borderWidth: BORDER_WIDTH,
 				borderColor: PRIMARY_COLOR,
 			}}
 			onPress={() =>
