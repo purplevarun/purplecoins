@@ -1,9 +1,11 @@
 import CustomInput from "../../components/CustomInput";
 import DropdownSelector from "../../components/DropdownSelector";
+import DropdownType from "../../components/DropdownType";
 import Header from "../../components/Header";
 import PaddedRow from "../../components/PaddedRow";
 import ScreenLayout from "../../components/ScreenLayout";
 import ActionButton from "../../components/buttons/add_screen/ActionButton";
+import Action from "../../constants/enums/Action";
 import Type from "../../constants/enums/Type";
 import useCategory from "../category/useCategory";
 import useInvestment from "../investment/useInvestment";
@@ -87,41 +89,69 @@ const TransactionAdd = ({ route }: any) => {
 					width={"32%"}
 				/>
 			</PaddedRow>
-			<DropdownSelector
-				name={"Source"}
-				data={sourceModels}
-				single={{ value: source, setValue: setSource }}
-			/>
 			{isGeneral && (
-				<DropdownSelector
-					name={"Categories"}
-					data={categoryModels}
-					multi={{ value: categories, setValue: setCategories }}
-				/>
-			)}
-			{isGeneral && (
-				<DropdownSelector
-					name={"Trips"}
-					data={tripModels}
-					multi={{ value: trips, setValue: setTrips }}
-				/>
+				<PaddedRow>
+					<DropdownSelector
+						name={
+							action === Action.DEBIT
+								? DropdownType.SOURCE
+								: DropdownType.DESTINATION
+						}
+						data={sourceModels}
+						single={{ value: source, setValue: setSource }}
+						width={"30%"}
+					/>
+					<DropdownSelector
+						name={DropdownType.CATEGORY}
+						data={categoryModels}
+						multi={{
+							value: categories,
+							setValue: setCategories,
+						}}
+						width={"34%"}
+					/>
+					<DropdownSelector
+						name={DropdownType.TRIP}
+						data={tripModels}
+						multi={{ value: trips, setValue: setTrips }}
+						width={"32%"}
+					/>
+				</PaddedRow>
 			)}
 			{isTransfer && (
-				<DropdownSelector
-					name={"Destination"}
-					data={destinationModels}
-					single={{
-						value: destination,
-						setValue: setDestination,
-					}}
-				/>
+				<PaddedRow>
+					<DropdownSelector
+						name={DropdownType.SOURCE}
+						data={sourceModels}
+						single={{ value: source, setValue: setSource }}
+						width={"49%"}
+					/>
+					<DropdownSelector
+						name={DropdownType.DESTINATION}
+						data={destinationModels}
+						single={{
+							value: destination,
+							setValue: setDestination,
+						}}
+						width={"49%"}
+					/>
+				</PaddedRow>
 			)}
 			{isInvestment && (
-				<DropdownSelector
-					name={"Investment"}
-					data={investmentModels}
-					single={{ value: investment, setValue: setInvestment }}
-				/>
+				<PaddedRow>
+					<DropdownSelector
+						name={DropdownType.SOURCE}
+						data={sourceModels}
+						single={{ value: source, setValue: setSource }}
+						width={"49%"}
+					/>
+					<DropdownSelector
+						name={DropdownType.INVESTMENT}
+						data={investmentModels}
+						single={{ value: investment, setValue: setInvestment }}
+						width={"49%"}
+					/>
+				</PaddedRow>
 			)}
 		</ScreenLayout>
 	);

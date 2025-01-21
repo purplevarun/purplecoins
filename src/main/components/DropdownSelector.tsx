@@ -9,6 +9,7 @@ import {
 	BORDER_RADIUS,
 	BORDER_WIDTH,
 	CENTER,
+	FLEX_START,
 	FONT_SIZE,
 	MARGIN,
 	PADDING,
@@ -16,6 +17,7 @@ import {
 } from "../constants/constants.config";
 import IRenderItem from "../types/IRenderItem";
 import CustomText from "./CustomText";
+import DropdownType from "./DropdownType";
 
 const DropdownSelector = ({
 	name,
@@ -24,7 +26,7 @@ const DropdownSelector = ({
 	single,
 	multi,
 }: {
-	name: string;
+	name: DropdownType;
 	data: IRenderItem[];
 	width?: DimensionValue;
 	single?: {
@@ -55,7 +57,6 @@ const DropdownSelector = ({
 			</View>
 		);
 	};
-
 	const renderRightIcon = () => null;
 	const props = {
 		placeholder: name,
@@ -71,8 +72,8 @@ const DropdownSelector = ({
 		itemTextStyle: style.itemText,
 		selectedStyle: style.selected,
 		search: true,
-		renderRightIcon,
 		inputSearchStyle: style.inputSearch,
+		renderRightIcon,
 	};
 
 	const renderSelectedItem = (item: IRenderItem) => (
@@ -110,7 +111,7 @@ const style = StyleSheet.create({
 	selected: { alignSelf: CENTER },
 	wrapper: {
 		paddingTop: PADDING_TOP_ADD_SCREEN,
-		alignSelf: CENTER,
+		alignSelf: FLEX_START,
 	},
 	renderItem: {
 		padding: PADDING,
@@ -141,11 +142,11 @@ const style = StyleSheet.create({
 		backgroundColor: BACKGROUND_COLOR,
 	},
 	selectedText: {
-		fontSize: FONT_SIZE,
+		fontSize: FONT_SIZE * 0.75,
 		color: PRIMARY_COLOR,
 	},
 	placeholder: {
-		fontSize: FONT_SIZE,
+		fontSize: FONT_SIZE * 0.9,
 		color: DISABLED_COLOR,
 	},
 	renderSelected: {

@@ -13,7 +13,7 @@ const LinkedTransactions = ({
 }) => {
 	if (transactions.length > 0)
 		return (
-			<View style={{ paddingTop: PADDING }}>
+			<View style={{ paddingTop: PADDING, height: "80%" }}>
 				<CustomText
 					text={"Linked Transactions"}
 					fontSize={LARGE_FONT_SIZE}
@@ -27,6 +27,7 @@ const LinkedTransactions = ({
 				/>
 			</View>
 		);
+
 	return (
 		<View style={{ paddingTop: PADDING }}>
 			<CustomText

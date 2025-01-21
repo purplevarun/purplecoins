@@ -3,7 +3,7 @@
 		"name": "Purplecoins",
 		"slug": "purplecoins",
 		"owner": "purplevarun",
-		"version": "2.0.1",
+		"version": "2.2.0",
 		"orientation": "portrait",
 		"icon": "./assets/images/icon.png",
 		"userInterfaceStyle": "dark",
@@ -17,6 +17,11 @@
 			"softwareKeyboardLayoutMode": "pan",
 			"versionCode": 1
 		},
-		"plugins": [["expo-font"], "expo-asset"]
+		"plugins": [["expo-font"], "expo-asset"],
+		"extra": {
+			"eas": {
+				"projectId": "03357a05-94c2-4a7c-a923-0c7fe4b571ab"
+			}
+		}
 	}
 }
