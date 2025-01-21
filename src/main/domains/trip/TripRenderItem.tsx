@@ -1,6 +1,10 @@
-import { StyleSheet, TouchableOpacity } from "react-native";
+import { TouchableOpacity } from "react-native";
 import CustomText from "../../components/CustomText";
-import { SECONDARY_COLOR } from "../../constants/colors.config";
+import {
+	GREEN_COLOR,
+	RED_COLOR,
+	SECONDARY_COLOR,
+} from "../../constants/colors.config";
 import {
 	BORDER_RADIUS,
 	FLEX_ROW,
@@ -8,6 +12,7 @@ import {
 	PADDING,
 	SPACE_BETWEEN,
 } from "../../constants/constants.config";
+import Action from "../../constants/enums/Action";
 import { formatMoney } from "../../util/HelperFunctions";
 import ITrip from "./ITrip";
 import useTrip from "./useTrip";
@@ -17,24 +22,30 @@ const TripRenderItem = ({ item }: { item: ITrip }) => {
 };
 
 const Implementation = ({ item }: { item: ITrip }) => {
-	const { handleDetail, fetchTotalForCurrentTrip } = useTrip(item.id);
-	const total = fetchTotalForCurrentTrip();
+	const { handleDetail, fetchTransactionsForTrip } = useTrip(item.id);
+	const total = fetchTransactionsForTrip().reduce(
+		(total, { action, amount }) =>
+			action === Action.DEBIT ? total - amount : total + amount,
+		0,
+	);
 	return (
-		<TouchableOpacity style={styles.button} onPress={handleDetail}>
+		<TouchableOpacity
+			style={{
+				backgroundColor: SECONDARY_COLOR,
+				borderRadius: BORDER_RADIUS,
+				padding: PADDING,
+				margin: MARGIN,
+				borderWidth: total == 0 ? 0 : 2,
+				borderColor: total < 0 ? RED_COLOR : GREEN_COLOR,
+				flexDirection: FLEX_ROW,
+				justifyContent: SPACE_BETWEEN,
+			}}
+			onPress={handleDetail}
+		>
 			<CustomText text={item.name} />
-			<CustomText text={formatMoney(total)} />
+			<CustomText text={formatMoney(Math.abs(total))} />
 		</TouchableOpacity>
 	);
 };
 
-const styles = StyleSheet.create({
-	button: {
-		borderRadius: BORDER_RADIUS,
-		padding: PADDING,
-		margin: MARGIN,
-		flexDirection: FLEX_ROW,
-		justifyContent: SPACE_BETWEEN,
-		backgroundColor: SECONDARY_COLOR,
-	},
-});
 export default TripRenderItem;

@@ -7,10 +7,13 @@ import {
 } from "../../constants/colors.config";
 import {
 	BORDER_RADIUS,
+	FLEX_ROW,
 	MARGIN,
 	PADDING,
+	SPACE_BETWEEN,
 } from "../../constants/constants.config";
 import Action from "../../constants/enums/Action";
+import { formatMoney } from "../../util/HelperFunctions";
 import ICategory from "./ICategory";
 import useCategory from "./useCategory";
 
@@ -34,10 +37,13 @@ const Implementation = ({ item }: { item: ICategory }) => {
 				margin: MARGIN,
 				borderWidth: total == 0 ? 0 : 2,
 				borderColor: total < 0 ? RED_COLOR : GREEN_COLOR,
+				flexDirection: FLEX_ROW,
+				justifyContent: SPACE_BETWEEN,
 			}}
 			onPress={handleDetail}
 		>
 			<CustomText text={item.name} />
+			<CustomText text={formatMoney(Math.abs(total))} />
 		</TouchableOpacity>
 	);
 };

@@ -6,7 +6,6 @@ import useScreen from "../../hooks/useScreen";
 import ITransaction from "../transaction/ITransaction";
 import ITrip from "./ITrip";
 
-type ITotal = { total: number };
 const useTrip = (id: string = "") => {
 	const db = useSQLiteContext();
 	const { navigate } = useScreen();
@@ -39,13 +38,6 @@ const useTrip = (id: string = "") => {
 
 	const handleDetail = () => {
 		navigate(tripRoutes.detail, id);
-	};
-
-	const fetchTotalForCurrentTrip = () => {
-		const result = db.getFirstSync<ITotal>(fetch_total_for_trip, [
-			id,
-		]) as ITotal;
-		return result.total;
 	};
 
 	const deleteTrip = () => {
@@ -91,7 +83,6 @@ const useTrip = (id: string = "") => {
 		handleEdit,
 		handleClose,
 		addTrip,
-		fetchTotalForCurrentTrip,
 		deleteTrip,
 		fetchTransactionsForTrip,
 		fetchOneTrip,
@@ -133,13 +124,6 @@ export const insert_trip = `
 const fetch_all_trips = `
 	SELECT *
 	FROM "trip";
-`;
-
-const fetch_total_for_trip = `
-	SELECT COALESCE(SUM(t.amount), 0) AS total
-	FROM "transaction" t
-	JOIN "transaction_trip" tt ON t.id = tt.transactionId
-	WHERE tt.tripId = ?;
 `;
 
 const fetch_all_transactions_for_trip = `
