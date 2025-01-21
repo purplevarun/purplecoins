@@ -130,6 +130,8 @@ const style = StyleSheet.create({
 		backgroundColor: BACKGROUND_COLOR,
 	},
 	container: {
+		width: "85%",
+		left: "7.5%",
 		backgroundColor: BACKGROUND_COLOR,
 		borderWidth: 1,
 		borderTopRightRadius: 3,
