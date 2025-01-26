@@ -1,42 +1,28 @@
+import { sourceRoutes } from "../../app/router/Routes";
 import CustomInput from "../../components/CustomInput";
 import Header from "../../components/Header";
-import PaddedRow from "../../components/PaddedRow";
 import ScreenLayout from "../../components/ScreenLayout";
-import useSource from "./useSource";
+import useDatabase from "../../hooks/useDatabase";
+import useScreen from "../../hooks/useScreen";
+import useValues from "../../hooks/useValues";
 
 const SourceAdd = () => {
-	const {
-		name,
-		setName,
-		amount,
-		setAmount,
-		enabled,
-		addSource,
-		handleClose,
-	} = useSource();
+	const { sourceName, setSourceName } = useValues();
+	const { navigate } = useScreen();
+	const { addSource } = useDatabase();
 
 	return (
 		<ScreenLayout>
 			<Header
-				handleClose={handleClose}
+				handleClose={() => navigate(sourceRoutes.main)}
 				handleSubmit={addSource}
-				canBeSubmitted={enabled}
+				canBeSubmitted={sourceName !== ""}
 			/>
-			<PaddedRow>
-				<CustomInput
-					name={"Name"}
-					value={name}
-					setValue={setName}
-					width={"65%"}
-				/>
-				<CustomInput
-					name={"Amount"}
-					value={amount}
-					setValue={setAmount}
-					numeric
-					width={"32%"}
-				/>
-			</PaddedRow>
+			<CustomInput
+				name={"Source Name"}
+				value={sourceName}
+				setValue={setSourceName}
+			/>
 		</ScreenLayout>
 	);
 };

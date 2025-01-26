@@ -1,48 +1,50 @@
+import { useSQLiteContext } from "expo-sqlite";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
-import { categoryRoutes, tripRoutes } from "../../app/router/Routes";
+import {
+	categoryRoutes,
+	investmentRoutes,
+	sourceRoutes,
+	transactionRoutes,
+	tripRoutes,
+} from "../../app/router/Routes";
 import CustomText from "../../components/CustomText";
 import DataTab from "../../components/DataTab";
 import DataTabWrapper from "../../components/DataTabWrapper";
 import Header from "../../components/Header";
 import ScreenLayout from "../../components/ScreenLayout";
 import { FLEX_ROW, PADDING } from "../../constants/constants.config";
+import useDatabase from "../../hooks/useDatabase";
 import useScreen from "../../hooks/useScreen";
-import { formatMoney } from "../../util/HelperFunctions";
-import useInvestment from "../investment/useInvestment";
-import useSource from "../source/useSource";
-import useTransaction from "./useTransaction";
+import { convertDateToString, formatMoney } from "../../util/HelperFunctions";
+import ICategory from "../category/ICategory";
+import ITrip from "../trip/ITrip";
 
-const TransactionDetail = ({ route }: any) => {
+const TransactionDetail = ({ route }: { route: any }) => {
 	const transactionId = route.params.id;
-	const { handleClose, handleEdit, handleDelete, fetchTransaction } =
-		useTransaction(transactionId);
-	const {
-		amount,
-		reason,
-		type,
-		date,
-		action,
-		sourceId,
-		destinationId,
-		investmentId,
-	} = fetchTransaction();
-
+	const { navigate } = useScreen();
+	const { fetchTransaction, deleteTransaction } = useDatabase();
+	const transaction = fetchTransaction(transactionId);
 	return (
 		<ScreenLayout>
 			<Header
-				handleClose={handleClose}
-				handleEdit={handleEdit}
-				handleDelete={handleDelete}
+				handleClose={() => navigate(transactionRoutes.main)}
+				handleEdit={() =>
+					navigate(transactionRoutes.edit, transactionId)
+				}
+				handleDelete={() => deleteTransaction(transactionId)}
 				canBeDeleted={true}
 			/>
-			<DataTab name={"Amount"} value={formatMoney(amount)} />
-			<DataTab name={"Reason"} value={reason} />
-			<DataTab name={"Type"} value={type} />
-			<DataTab name={"Action"} value={action} />
-			<DataTab name={"Date"} value={date} />
-			<Source sourceId={sourceId} />
-			<Source sourceId={destinationId} destination />
-			<Investment investmentId={investmentId} />
+			<DataTab name={"Amount"} value={formatMoney(transaction.amount)} />
+			<DataTab name={"Reason"} value={transaction.reason} />
+			<DataTab name={"Type"} value={transaction.type} />
+			<DataTab name={"Action"} value={transaction.action} />
+			<DataTab
+				name={"Date"}
+				value={convertDateToString(transaction.date)}
+			/>
+			<Source sourceId={transaction.sourceId} />
+			<Source sourceId={transaction.destinationId} destination />
+			<Investment investmentId={transaction.investmentId} />
 			<Categories transactionId={transactionId} />
 			<Trips transactionId={transactionId} />
 		</ScreenLayout>
@@ -50,9 +52,12 @@ const TransactionDetail = ({ route }: any) => {
 };
 
 const Trips = ({ transactionId }: { transactionId: string }) => {
-	const { fetchTrips } = useTransaction(transactionId);
 	const { navigate } = useScreen();
-	const trips = fetchTrips();
+	const db = useSQLiteContext();
+	const trips = db.getAllSync<ITrip>(select_trips_for_transaction, [
+		transactionId,
+	]);
+
 	if (trips.length === 0) return null;
 	return (
 		<DataTabWrapper>
@@ -75,9 +80,13 @@ const Trips = ({ transactionId }: { transactionId: string }) => {
 };
 
 const Categories = ({ transactionId }: { transactionId: string }) => {
-	const { fetchCategories } = useTransaction(transactionId);
 	const { navigate } = useScreen();
-	const categories = fetchCategories();
+	const db = useSQLiteContext();
+	const categories = db.getAllSync<ICategory>(
+		select_categories_for_transaction,
+		[transactionId],
+	);
+
 	if (categories.length === 0) return null;
 	return (
 		<DataTabWrapper>
@@ -118,13 +127,14 @@ const Source = ({
 	destination?: boolean;
 }) => {
 	if (!sourceId) return;
-	const { handleDetail, fetchOneSource } = useSource(sourceId);
-	const { name } = fetchOneSource();
+	const { navigate } = useScreen();
+	const { fetchSource } = useDatabase();
+	const source = fetchSource(sourceId);
 	return (
 		<DataTabWrapper>
 			<CustomText text={destination ? "Destination" : "Source"} />
-			<TouchableOpacity onPress={handleDetail}>
-				<CustomText text={name} decoration={"underline"} />
+			<TouchableOpacity onPress={() => navigate(sourceRoutes.detail)}>
+				<CustomText text={source.name} decoration={"underline"} />
 			</TouchableOpacity>
 		</DataTabWrapper>
 	);
@@ -132,16 +142,31 @@ const Source = ({
 
 const Investment = ({ investmentId }: { investmentId?: string }) => {
 	if (!investmentId) return;
-	const { handleDetail, fetchOneInvestment } = useInvestment(investmentId);
-	const { name } = fetchOneInvestment();
+	const { navigate } = useScreen();
+	const { fetchInvestment } = useDatabase();
+	const investment = fetchInvestment(investmentId);
 	return (
 		<DataTabWrapper>
 			<CustomText text={"Investment"} />
-			<TouchableOpacity onPress={handleDetail}>
-				<CustomText text={name} decoration={"underline"} />
+			<TouchableOpacity onPress={() => navigate(investmentRoutes.detail)}>
+				<CustomText text={investment.name} decoration={"underline"} />
 			</TouchableOpacity>
 		</DataTabWrapper>
 	);
 };
+
+const select_categories_for_transaction = `
+	SELECT c.* 
+	FROM "category" c
+	JOIN "transaction_category" tc ON c.id = tc.categoryId
+	WHERE tc.transactionId = ?;
+`;
+
+const select_trips_for_transaction = `
+	SELECT t.* 
+	FROM "trip" t
+	JOIN "transaction_trip" tt ON t.id = tt.tripId
+	WHERE tt.transactionId = ?;
+`;
 
 export default TransactionDetail;

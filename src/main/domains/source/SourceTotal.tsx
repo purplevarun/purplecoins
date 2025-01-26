@@ -1,10 +1,11 @@
 import CustomText from "../../components/CustomText";
 import { CENTER, FONT_SIZE } from "../../constants/constants.config";
+import useDatabase from "../../hooks/useDatabase";
 import { formatMoney } from "../../util/HelperFunctions";
-import ISource from "./ISource";
 
-const SourceTotal = ({ sources }: { sources: ISource[] }) => {
-	const total = sources.reduce((sum, source) => sum + source.amount, 0);
+const SourceTotal = () => {
+	const { fetchTotalForAll } = useDatabase();
+	const total = fetchTotalForAll();
 	return (
 		<CustomText
 			text={`Total Balance = ${formatMoney(total)}`}

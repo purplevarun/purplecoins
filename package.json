@@ -3,7 +3,7 @@
 	"version": "2.2.0",
 	"main": "src/main/app/entry/App.tsx",
 	"scripts": {
-		"dev": "expo start -c -p 3007",
+		"dev": "expo start -c -p 3008",
 		"clean": "rm -rf node_modules yarn.lock .expo && yarn",
 		"doctor": "npx expo-doctor",
 		"format": "prettier --write .",
@@ -14,6 +14,7 @@
 		"@react-navigation/material-top-tabs": "^6.6.14",
 		"@react-navigation/native": "^6.1.18",
 		"@react-navigation/native-stack": "^6.11.0",
+		"@shopify/flash-list": "1.6.4",
 		"axios": "^1.7.7",
 		"expo": "~51.0.39",
 		"expo-asset": "~10.0.10",

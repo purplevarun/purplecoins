@@ -4,7 +4,6 @@ enum DropdownType {
 	TRIP = "Trips",
 	CATEGORY = "Categories",
 	INVESTMENT = "Investments",
-	NONE = "NONE",
 }
 
 export default DropdownType;

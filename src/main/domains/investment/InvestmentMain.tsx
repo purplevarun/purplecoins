@@ -1,25 +1,30 @@
-import { FlatList } from "react-native";
+import { FlashList } from "@shopify/flash-list";
+import { useState } from "react";
+import { investmentRoutes } from "../../app/router/Routes";
 import Header from "../../components/Header";
 import NoContent from "../../components/NoContent";
 import ScreenLayout from "../../components/ScreenLayout";
+import useDatabase from "../../hooks/useDatabase";
 import useFocus from "../../hooks/useFocus";
-import InvestmentAnalysis from "./InvestementAnalysis";
+import useScreen from "../../hooks/useScreen";
+import IInvestment from "./IInvestment";
 import InvestmentRenderItem from "./InvestmentRenderItem";
-import useInvestment from "./useInvestment";
 
 const InvestmentMain = () => {
-	const { investments, handleMainFocus, handlePlus } = useInvestment();
-	useFocus(handleMainFocus);
+	const [investments, setInvestments] = useState<IInvestment[]>([]);
+	const { navigate } = useScreen();
+	const { fetchAllInvestments } = useDatabase();
+	const handlePlus = () => navigate(investmentRoutes.add);
+	useFocus(() => setInvestments(fetchAllInvestments()));
 
 	if (investments.length === 0) return <NoContent handlePlus={handlePlus} />;
-
 	return (
 		<ScreenLayout>
 			<Header handlePlus={handlePlus} />
-			<InvestmentAnalysis investments={investments} />
-			<FlatList
+			<FlashList
 				data={investments}
-				renderItem={({ item }) => <InvestmentRenderItem item={item} />}
+				renderItem={InvestmentRenderItem}
+				estimatedItemSize={5}
 			/>
 		</ScreenLayout>
 	);

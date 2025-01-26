@@ -1,22 +1,32 @@
 import { TouchableOpacity } from "react-native";
+import { investmentRoutes } from "../../app/router/Routes";
 import CustomText from "../../components/CustomText";
-import { SECONDARY_COLOR } from "../../constants/colors.config";
+import {
+	GREEN_COLOR,
+	RED_COLOR,
+	SECONDARY_COLOR,
+} from "../../constants/colors.config";
 import {
 	BORDER_RADIUS,
-	CENTER,
 	FLEX_ROW,
 	MARGIN,
 	PADDING,
 	SPACE_BETWEEN,
 } from "../../constants/constants.config";
+import useDatabase from "../../hooks/useDatabase";
+import useScreen from "../../hooks/useScreen";
+import { formatMoney } from "../../util/HelperFunctions";
 import IInvestment from "./IInvestment";
-import useInvestment from "./useInvestment";
 
 const InvestmentRenderItem = ({ item }: { item: IInvestment }) => {
-	const { handleDetail } = useInvestment(item.id);
-	const percentage =
-		Math.floor((item.currentAmount / item.investedAmount - 1) * 1000) / 10;
-	const percentageText = isNaN(percentage) ? 0 : percentage;
+	return <Implementation item={item} />;
+};
+
+const Implementation = ({ item }: { item: IInvestment }) => {
+	const { fetchTotalForInvestment } = useDatabase();
+	const { navigate } = useScreen();
+	const total = fetchTotalForInvestment(item.id);
+
 	return (
 		<TouchableOpacity
 			style={{
@@ -24,13 +34,15 @@ const InvestmentRenderItem = ({ item }: { item: IInvestment }) => {
 				borderRadius: BORDER_RADIUS,
 				padding: PADDING,
 				margin: MARGIN,
+				borderWidth: total == 0 ? 0 : 2,
+				borderColor: total < 0 ? RED_COLOR : GREEN_COLOR,
 				flexDirection: FLEX_ROW,
 				justifyContent: SPACE_BETWEEN,
 			}}
-			onPress={handleDetail}
+			onPress={() => navigate(investmentRoutes.detail, item.id)}
 		>
-			<CustomText text={item.name} alignSelf={CENTER} />
-			<CustomText text={percentageText + "%"} />
+			<CustomText text={item.name} />
+			<CustomText text={formatMoney(Math.abs(total))} />
 		</TouchableOpacity>
 	);
 };

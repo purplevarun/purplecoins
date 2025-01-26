@@ -1,33 +1,34 @@
+import { investmentRoutes } from "../../app/router/Routes";
 import CustomInput from "../../components/CustomInput";
 import Header from "../../components/Header";
 import ScreenLayout from "../../components/ScreenLayout";
+import useDatabase from "../../hooks/useDatabase";
 import useFocus from "../../hooks/useFocus";
-import useInvestment from "./useInvestment";
+import useScreen from "../../hooks/useScreen";
+import useValues from "../../hooks/useValues";
 
-const InvestmentEdit = ({ route }: any) => {
-	const {
-		name,
-		setName,
-		currentAmount,
-		setCurrentAmount,
-		updateOneInvestment,
-		handleClose,
-		handleEditFocus,
-	} = useInvestment(route.params.id);
-	useFocus(handleEditFocus);
+const InvestmentEdit = ({ route }: { route: any }) => {
+	const id = route.params.id;
+	const { investmentName, setInvestmentName } = useValues();
+	const { navigate } = useScreen();
+	const { fetchInvestment, updateInvestment } = useDatabase();
+
+	useFocus(() => {
+		const investment = fetchInvestment(id);
+		setInvestmentName(investment.name);
+	});
+
 	return (
 		<ScreenLayout>
 			<Header
-				handleClose={handleClose}
-				handleSubmit={updateOneInvestment}
-				canBeSubmitted={name !== ""}
+				handleClose={() => navigate(investmentRoutes.main)}
+				handleSubmit={() => updateInvestment(id)}
+				canBeSubmitted={investmentName !== ""}
 			/>
-			<CustomInput name={"Name"} value={name} setValue={setName} />
 			<CustomInput
-				name={"Current Amount"}
-				value={currentAmount}
-				setValue={setCurrentAmount}
-				numeric
+				name={"Investment Name"}
+				value={investmentName}
+				setValue={setInvestmentName}
 			/>
 		</ScreenLayout>
 	);

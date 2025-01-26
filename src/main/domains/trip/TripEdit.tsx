@@ -1,24 +1,35 @@
+import { sourceRoutes } from "../../app/router/Routes";
 import CustomInput from "../../components/CustomInput";
 import Header from "../../components/Header";
 import ScreenLayout from "../../components/ScreenLayout";
+import useDatabase from "../../hooks/useDatabase";
 import useFocus from "../../hooks/useFocus";
-import useTrip from "./useTrip";
+import useScreen from "../../hooks/useScreen";
+import useValues from "../../hooks/useValues";
 
-const TripEdit = ({ route }: any) => {
-	const { name, setName, handleClose, updateTrip, handleEditFocus } = useTrip(
-		route.params.id,
-	);
+const TripEdit = ({ route }: { route: any }) => {
+	const id = route.params.id;
+	const { tripName, setTripName } = useValues();
+	const { navigate } = useScreen();
+	const { fetchTrip, updateTrip } = useDatabase();
 
-	useFocus(handleEditFocus);
+	useFocus(() => {
+		const trip = fetchTrip(id);
+		setTripName(trip.name);
+	});
 
 	return (
 		<ScreenLayout>
 			<Header
-				handleClose={handleClose}
-				handleSubmit={updateTrip}
-				canBeSubmitted={name !== ""}
+				handleClose={() => navigate(sourceRoutes.main)}
+				handleSubmit={() => updateTrip(id)}
+				canBeSubmitted={tripName !== ""}
 			/>
-			<CustomInput name={"Name"} value={name} setValue={setName} />
+			<CustomInput
+				name={"Name"}
+				value={tripName}
+				setValue={setTripName}
+			/>
 		</ScreenLayout>
 	);
 };

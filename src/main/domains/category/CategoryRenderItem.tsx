@@ -1,4 +1,5 @@
 import { TouchableOpacity } from "react-native";
+import { categoryRoutes } from "../../app/router/Routes";
 import CustomText from "../../components/CustomText";
 import {
 	GREEN_COLOR,
@@ -12,22 +13,20 @@ import {
 	PADDING,
 	SPACE_BETWEEN,
 } from "../../constants/constants.config";
-import Action from "../../constants/enums/Action";
+import useDatabase from "../../hooks/useDatabase";
+import useScreen from "../../hooks/useScreen";
 import { formatMoney } from "../../util/HelperFunctions";
 import ICategory from "./ICategory";
-import useCategory from "./useCategory";
 
 const CategoryRenderItem = ({ item }: { item: ICategory }) => {
 	return <Implementation item={item} />;
 };
 
 const Implementation = ({ item }: { item: ICategory }) => {
-	const { handleDetail, fetchTransactionsForCategory } = useCategory(item.id);
-	const total = fetchTransactionsForCategory().reduce(
-		(total, { action, amount }) =>
-			action === Action.DEBIT ? total - amount : total + amount,
-		0,
-	);
+	const { fetchTotalForCategory } = useDatabase();
+	const { navigate } = useScreen();
+	const total = fetchTotalForCategory(item.id);
+
 	return (
 		<TouchableOpacity
 			style={{
@@ -40,7 +39,7 @@ const Implementation = ({ item }: { item: ICategory }) => {
 				flexDirection: FLEX_ROW,
 				justifyContent: SPACE_BETWEEN,
 			}}
-			onPress={handleDetail}
+			onPress={() => navigate(categoryRoutes.detail, item.id)}
 		>
 			<CustomText text={item.name} />
 			<CustomText text={formatMoney(Math.abs(total))} />

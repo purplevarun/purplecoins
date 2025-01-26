@@ -14,7 +14,6 @@ import {
 	FLEX_ONE,
 	FLEX_ROW,
 	FONT_SIZE,
-	HUNDRED_P,
 	LARGE_FONT_SIZE,
 	MARGIN,
 	MODAL_BUTTON_WIDTH,
@@ -122,7 +121,7 @@ const styles = StyleSheet.create({
 	buttonContainer: {
 		flexDirection: FLEX_ROW,
 		justifyContent: SPACE_EVENLY,
-		width: HUNDRED_P,
+		width: "100%",
 	},
 });
 

@@ -5,7 +5,7 @@ interface ITransaction {
 	id: string;
 	amount: number;
 	reason: string;
-	date: string;
+	date: Date;
 	sourceId: string;
 	type: Type;
 	action: Action;

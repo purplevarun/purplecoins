@@ -13,27 +13,20 @@ appId: host.exp.exponent
 - assertVisible: "No Sources found"
 - tapOn:
       id: "plus_icon"
-- tapOn: "Name"
+- tapOn: "Source Name"
 - inputText: "Source 1"
-- tapOn: "Amount"
-- inputText: "1000"
 - tapOn:
       id: "check_icon"
 - assertNotVisible: "No Sources found"
 - assertVisible: "Source 1"
-- assertVisible: "₹1,000"
-- assertVisible: "Total Balance = ₹1,000"
 - tapOn:
       id: "plus_icon"
-- tapOn: "Name"
+- tapOn: "Source Name"
 - inputText: "Source 2"
 - tapOn:
       id: "check_icon"
 - assertVisible: "Source 1"
-- assertVisible: "₹1,000"
 - assertVisible: "Source 2"
-- assertVisible: "₹0"
-- assertVisible: "Total Balance = ₹1,000"
 - tapOn: "Source 2"
 - tapOn:
       id: "edit_icon"
@@ -44,12 +37,10 @@ appId: host.exp.exponent
       id: "check_icon"
 - assertNotVisible: "Source 2"
 - assertVisible: "Source 3"
-- assertVisible: "Total Balance = ₹1,000"
 - tapOn: "Source 3"
 - tapOn:
       id: "delete_icon"
 - tapOn: "Yes"
-- assertVisible: "Total Balance = ₹1,000"
+- assertNotVisible: "Source 2"
 - assertNotVisible: "Source 3"
 - assertVisible: "Source 1"
-- assertVisible: "₹1,000"

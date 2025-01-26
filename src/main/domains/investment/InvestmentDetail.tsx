@@ -1,40 +1,37 @@
+import { investmentRoutes } from "../../app/router/Routes";
 import DataTab from "../../components/DataTab";
 import Header from "../../components/Header";
 import ScreenLayout from "../../components/ScreenLayout";
+import useDatabase from "../../hooks/useDatabase";
+import useScreen from "../../hooks/useScreen";
 import { formatMoney } from "../../util/HelperFunctions";
 import LinkedTransactions from "../transaction/LinkedTransactions";
-import useInvestment from "./useInvestment";
 
-const InvestmentDetail = ({ route }: any) => {
+const InvestmentDetail = ({ route }: { route: any }) => {
+	const id = route.params.id;
+	const { navigate } = useScreen();
 	const {
-		fetchOneInvestment,
-		handleClose,
-		handleEdit,
-		handleDelete,
-		fetchLinkedTransactions,
-	} = useInvestment(route.params.id);
-	const { name, investedAmount, currentAmount } = fetchOneInvestment();
-	const transactions = fetchLinkedTransactions();
+		fetchInvestment,
+		deleteInvestment,
+		fetchTransactionsForInvestment,
+		fetchTotalForInvestment,
+	} = useDatabase();
+	const investment = fetchInvestment(id);
+	const transactions = fetchTransactionsForInvestment(id);
+	const total = fetchTotalForInvestment(id);
+
 	return (
 		<ScreenLayout>
 			<Header
-				handleClose={handleClose}
-				handleEdit={handleEdit}
-				handleDelete={handleDelete}
-				canBeDeleted={investedAmount === 0}
+				handleClose={() => navigate(investmentRoutes.main)}
+				handleEdit={() => navigate(investmentRoutes.edit, id)}
+				canBeDeleted={transactions.length === 0}
+				handleDelete={() => deleteInvestment(id)}
 			/>
-			<DataTab name={"Name"} value={name} />
-			<DataTab
-				name={"Invested Amount"}
-				value={formatMoney(investedAmount)}
-			/>
-			<DataTab
-				name={"Current Amount"}
-				value={formatMoney(currentAmount)}
-			/>
+			<DataTab name={"Name"} value={investment.name} />
+			<DataTab name={"Amount"} value={formatMoney(total)} />
 			<LinkedTransactions transactions={transactions} />
 		</ScreenLayout>
 	);
 };
-
 export default InvestmentDetail;

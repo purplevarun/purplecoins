@@ -1,23 +1,33 @@
-import { FlatList } from "react-native";
+import { FlashList } from "@shopify/flash-list";
+import { useState } from "react";
+import { sourceRoutes } from "../../app/router/Routes";
 import Header from "../../components/Header";
 import NoContent from "../../components/NoContent";
 import ScreenLayout from "../../components/ScreenLayout";
+import useDatabase from "../../hooks/useDatabase";
 import useFocus from "../../hooks/useFocus";
+import useScreen from "../../hooks/useScreen";
+import ISource from "./ISource";
 import SourceRenderItem from "./SourceRenderItem";
 import SourceTotal from "./SourceTotal";
-import useSource from "./useSource";
 
 const SourceMain = () => {
-	const { handlePlus, handleMainFocus, sources } = useSource();
-	useFocus(handleMainFocus);
+	const [sources, setSources] = useState<ISource[]>([]);
+	const { navigate } = useScreen();
+	const { fetchAllSources } = useDatabase();
+	const handlePlus = () => navigate(sourceRoutes.add);
+	useFocus(() => setSources(fetchAllSources()));
 
 	if (sources.length === 0) return <NoContent handlePlus={handlePlus} />;
-
 	return (
 		<ScreenLayout>
 			<Header handlePlus={handlePlus} />
-			<SourceTotal sources={sources} />
-			<FlatList data={sources} renderItem={SourceRenderItem} />
+			<SourceTotal />
+			<FlashList
+				data={sources}
+				renderItem={SourceRenderItem}
+				estimatedItemSize={3}
+			/>
 		</ScreenLayout>
 	);
 };

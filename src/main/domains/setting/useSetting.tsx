@@ -4,10 +4,6 @@ import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import { useSQLiteContext } from "expo-sqlite";
 import { DB_FILE_PATH } from "../../constants/constants.config";
-import { insert_category } from "../category/useCategory";
-import { insert_investment } from "../investment/useInvestment";
-import { insert_source } from "../source/useSource";
-import { insert_trip } from "../trip/useTrip";
 
 const useSetting = () => {
 	const db = useSQLiteContext();
@@ -35,15 +31,28 @@ const useSetting = () => {
 	const addSampleData = () => {
 		handleClear();
 		sampleCategories.forEach((item) => {
-			db.runSync(insert_category, [randomUUID(), item]);
+			db.runSync(`INSERT INTO "category" (id,name) VALUES (?,?)`, [
+				randomUUID(),
+				item,
+			]);
 		});
 		sampleInvestments.forEach((item) => {
-			db.runSync(insert_investment, [randomUUID(), item, 0]);
+			db.runSync(`INSERT INTO "investment" (id,name) VALUES (?,?)`, [
+				randomUUID(),
+				item,
+			]);
 		});
-		db.runSync(insert_source, [randomUUID(), "Axis Bank", 0]);
-		db.runSync(insert_source, [randomUUID(), "State Bank", 7130]);
 		sampleTrips.forEach((item) =>
-			db.runSync(insert_trip, [randomUUID(), item]),
+			db.runSync(`INSERT INTO "trip" (id,name) VALUES (?,?)`, [
+				randomUUID(),
+				item,
+			]),
+		);
+		sampleSources.forEach((item) =>
+			db.runSync(`INSERT INTO "source" (id,name) VALUES (?,?)`, [
+				randomUUID(),
+				item,
+			]),
 		);
 	};
 
@@ -85,6 +94,8 @@ const sampleInvestments = [
 	"US Stocks",
 	"12% Club",
 ];
+
+const sampleSources = ["Axis Bank", "State Bank"];
 
 const sampleCategories = [
 	"Salary",

@@ -1,4 +1,5 @@
 import { TouchableOpacity } from "react-native";
+import { tripRoutes } from "../../app/router/Routes";
 import CustomText from "../../components/CustomText";
 import {
 	GREEN_COLOR,
@@ -12,22 +13,20 @@ import {
 	PADDING,
 	SPACE_BETWEEN,
 } from "../../constants/constants.config";
-import Action from "../../constants/enums/Action";
+import useDatabase from "../../hooks/useDatabase";
+import useScreen from "../../hooks/useScreen";
 import { formatMoney } from "../../util/HelperFunctions";
 import ITrip from "./ITrip";
-import useTrip from "./useTrip";
 
 const TripRenderItem = ({ item }: { item: ITrip }) => {
 	return <Implementation item={item} />;
 };
 
 const Implementation = ({ item }: { item: ITrip }) => {
-	const { handleDetail, fetchTransactionsForTrip } = useTrip(item.id);
-	const total = fetchTransactionsForTrip().reduce(
-		(total, { action, amount }) =>
-			action === Action.DEBIT ? total - amount : total + amount,
-		0,
-	);
+	const { navigate } = useScreen();
+	const { fetchTotalForTrip } = useDatabase();
+	const total = fetchTotalForTrip(item.id);
+
 	return (
 		<TouchableOpacity
 			style={{
@@ -40,7 +39,7 @@ const Implementation = ({ item }: { item: ITrip }) => {
 				flexDirection: FLEX_ROW,
 				justifyContent: SPACE_BETWEEN,
 			}}
-			onPress={handleDetail}
+			onPress={() => navigate(tripRoutes.detail, item.id)}
 		>
 			<CustomText text={item.name} />
 			<CustomText text={formatMoney(Math.abs(total))} />

@@ -1,6 +1,11 @@
 import { TouchableOpacity } from "react-native";
+import { sourceRoutes } from "../../app/router/Routes";
 import CustomText from "../../components/CustomText";
-import { SECONDARY_COLOR } from "../../constants/colors.config";
+import {
+	GREEN_COLOR,
+	RED_COLOR,
+	SECONDARY_COLOR,
+} from "../../constants/colors.config";
 import {
 	BORDER_RADIUS,
 	FLEX_ROW,
@@ -8,16 +13,20 @@ import {
 	PADDING,
 	SPACE_BETWEEN,
 } from "../../constants/constants.config";
+import useDatabase from "../../hooks/useDatabase";
+import useScreen from "../../hooks/useScreen";
 import { formatMoney } from "../../util/HelperFunctions";
 import ISource from "./ISource";
-import useSource from "./useSource";
 
 const SourceRenderItem = ({ item }: { item: ISource }) => {
 	return <Implementation item={item} />;
 };
 
 const Implementation = ({ item }: { item: ISource }) => {
-	const { handleDetail } = useSource(item.id);
+	const { fetchTotalForSource } = useDatabase();
+	const { navigate } = useScreen();
+	const total = fetchTotalForSource(item.id);
+
 	return (
 		<TouchableOpacity
 			style={{
@@ -25,13 +34,15 @@ const Implementation = ({ item }: { item: ISource }) => {
 				borderRadius: BORDER_RADIUS,
 				padding: PADDING,
 				margin: MARGIN,
+				borderWidth: total == 0 ? 0 : 2,
+				borderColor: total < 0 ? RED_COLOR : GREEN_COLOR,
 				flexDirection: FLEX_ROW,
 				justifyContent: SPACE_BETWEEN,
 			}}
-			onPress={handleDetail}
+			onPress={() => navigate(sourceRoutes.detail, item.id)}
 		>
 			<CustomText text={item.name} />
-			<CustomText text={formatMoney(item.amount)} />
+			<CustomText text={formatMoney(Math.abs(total))} />
 		</TouchableOpacity>
 	);
 };

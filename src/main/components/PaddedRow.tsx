@@ -1,10 +1,5 @@
 import { View } from "react-native";
-import {
-	CENTER,
-	FLEX_ROW,
-	NINETY_P,
-	SPACE_BETWEEN,
-} from "../constants/constants.config";
+import { CENTER, FLEX_ROW, SPACE_BETWEEN } from "../constants/constants.config";
 import IProvider from "../types/IProvider";
 
 const PaddedRow: IProvider = ({ children }) => {
@@ -12,7 +7,7 @@ const PaddedRow: IProvider = ({ children }) => {
 		<View
 			style={{
 				flexDirection: FLEX_ROW,
-				width: NINETY_P,
+				width: "90%",
 				alignSelf: CENTER,
 				justifyContent: SPACE_BETWEEN,
 			}}

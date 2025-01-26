@@ -1,19 +1,28 @@
+import { tripRoutes } from "../../app/router/Routes";
 import CustomInput from "../../components/CustomInput";
 import Header from "../../components/Header";
 import ScreenLayout from "../../components/ScreenLayout";
-import useTrip from "./useTrip";
+import useDatabase from "../../hooks/useDatabase";
+import useScreen from "../../hooks/useScreen";
+import useValues from "../../hooks/useValues";
 
 const TripAdd = () => {
-	const { name, setName, handleClose, addTrip } = useTrip();
+	const { tripName, setTripName } = useValues();
+	const { navigate } = useScreen();
+	const { addTrip } = useDatabase();
 
 	return (
 		<ScreenLayout>
 			<Header
-				handleClose={handleClose}
-				canBeSubmitted={name !== ""}
+				handleClose={() => navigate(tripRoutes.main)}
 				handleSubmit={addTrip}
+				canBeSubmitted={tripName !== ""}
 			/>
-			<CustomInput name={"Name"} value={name} setValue={setName} />
+			<CustomInput
+				name={"Trip Name"}
+				value={tripName}
+				setValue={setTripName}
+			/>
 		</ScreenLayout>
 	);
 };

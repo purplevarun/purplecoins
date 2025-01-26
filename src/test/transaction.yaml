@@ -1,47 +1,70 @@
 appId: host.exp.exponent
 ---
-- runScript: output.js
+- runScript: ./output.js
 - tapOn:
       id: "transaction_icon"
 - assertVisible:
       below: "Transactions"
       text: "No Transactions found"
-- tapOn: { id: "plus_icon" }
+- tapOn:
+      id: "plus_icon"
 - assertVisible: "Add Transaction"
 - assertVisible: "General"
 - assertVisible: "Transfer"
 - assertVisible: "Investment"
 - assertVisible: "${output.data.date}"
 - assertVisible: "DEBIT"
+- tapOn: "DEBIT"
+- assertVisible: "CREDIT"
 - tapOn:
       id: "close_icon"
+- assertVisible:
+      below: "Transactions"
+      text: "No Transactions found"
 - tapOn:
       id: "plus_icon"
 - tapOn: "Amount"
-- inputText: "10"
+- inputText: "1000"
 - tapOn: "Reason"
-- inputText: "Reason 1"
+- inputText: "Salary 1"
+- tapOn: "Destination"
+- tapOn: "Source 1"
+- tapOn:
+      id: "check_icon"
+- assertVisible:
+      below: "${output.data.date}"
+      text: "Salary 1"
+- assertVisible:
+      leftOf: "₹1,000"
+      text: "Salary 1"
+- tapOn:
+      id: "source_icon"
+- assertVisible:
+      below: "Total Balance = ₹1,000"
+      rightOf: "Source 1"
+      text: "₹1,000"
+- tapOn:
+      id: "transaction_icon"
+- tapOn:
+      id: "plus_icon"
+- tapOn: "General"
+- tapOn: "Amount"
+- inputText: "100"
+- assertVisible: "DEBIT"
+- tapOn: "Reason"
+- inputText: "Gen Txn 1"
+- tapOn: "${output.data.date}"
+- eraseText
+- inputText: "01/01/2025"
 - tapOn: "Source"
 - tapOn: "Source 1"
 - tapOn: "Categories"
 - tapOn: "Category 1"
 - tapOn:
-      point: "50%, 75%"
+      point: "50%,50%"
 - tapOn: "Trips"
 - tapOn: "Trip 1"
 - tapOn:
-      point: "50%, 75%"
+      point: "50%,50%"
 - tapOn:
       id: "check_icon"
-- assertVisible:
-      below: "${output.data.fullDate}"
-      text: "Reason 1"
-- assertVisible:
-      leftOf: "₹10"
-      text: "Reason 1"
-- tapOn:
-      id: "source_icon"
-- assertVisible:
-      below: "Total Balance = ₹990"
-      rightOf: "Source 1"
-      text: "₹990"

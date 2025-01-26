@@ -1,21 +1,29 @@
+import { categoryRoutes } from "../../app/router/Routes";
 import CustomInput from "../../components/CustomInput";
 import Header from "../../components/Header";
 import ScreenLayout from "../../components/ScreenLayout";
-import useCategory from "./useCategory";
+import useDatabase from "../../hooks/useDatabase";
+import useScreen from "../../hooks/useScreen";
+import useValues from "../../hooks/useValues";
 
 const CategoryAdd = () => {
-	const { handleClose, name, setName, addCategory } = useCategory();
+	const { categoryName, setCategoryName } = useValues();
+	const { navigate } = useScreen();
+	const { addCategory } = useDatabase();
 
 	return (
 		<ScreenLayout>
 			<Header
-				handleClose={handleClose}
+				handleClose={() => navigate(categoryRoutes.main)}
 				handleSubmit={addCategory}
-				canBeSubmitted={name !== ""}
+				canBeSubmitted={categoryName !== ""}
 			/>
-			<CustomInput name={"Name"} value={name} setValue={setName} />
+			<CustomInput
+				name={"Category Name"}
+				value={categoryName}
+				setValue={setCategoryName}
+			/>
 		</ScreenLayout>
 	);
 };
-
 export default CategoryAdd;

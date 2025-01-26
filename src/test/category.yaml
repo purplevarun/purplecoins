@@ -13,7 +13,7 @@ appId: host.exp.exponent
 - assertVisible: "No Categories found"
 - tapOn:
       id: "plus_icon"
-- tapOn: "Name"
+- tapOn: "Category Name"
 - inputText: "Category 1"
 - tapOn:
       id: "check_icon"
@@ -21,7 +21,7 @@ appId: host.exp.exponent
 - assertVisible: "Category 1"
 - tapOn:
       id: "plus_icon"
-- tapOn: "Name"
+- tapOn: "Category Name"
 - inputText: "Category 2"
 - tapOn:
       id: "check_icon"
@@ -41,5 +41,6 @@ appId: host.exp.exponent
 - tapOn:
       id: "delete_icon"
 - tapOn: "Yes"
+- assertNotVisible: "Category 2"
 - assertNotVisible: "Category 3"
 - assertVisible: "Category 1"

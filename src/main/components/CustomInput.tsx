@@ -7,7 +7,6 @@ import {
 	BORDER_WIDTH,
 	CENTER,
 	FONT_SIZE,
-	NINETY_P,
 	PADDING,
 	PADDING_TOP_ADD_SCREEN,
 	UBUNTU_FONT,
@@ -20,7 +19,7 @@ const CustomInput = ({
 	numeric = false,
 	password = false,
 	disabled = false,
-	width = NINETY_P,
+	width = "90%",
 }: {
 	value: string;
 	setValue?: (_: string) => void;

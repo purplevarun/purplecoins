@@ -1,4 +1,5 @@
-import { FlatList, View } from "react-native";
+import { FlashList } from "@shopify/flash-list";
+import { View } from "react-native";
 import CustomText from "../../components/CustomText";
 import Vertical from "../../components/Vertical";
 import { DISABLED_COLOR } from "../../constants/colors.config";
@@ -19,7 +20,8 @@ const LinkedTransactions = ({
 					fontSize={LARGE_FONT_SIZE}
 				/>
 				<Vertical />
-				<FlatList
+				<FlashList
+					estimatedItemSize={100}
 					data={transactions}
 					renderItem={({ item }) => (
 						<TransactionRenderItem item={item} />
