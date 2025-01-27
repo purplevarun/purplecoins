@@ -160,6 +160,7 @@ const useDatabase = () => {
 
 	const addTransaction = () => {
 		const newTransactionId = randomUUID();
+		const convertedDate = convertStringToDate(values.date);
 		if (values.type === Type.GENERAL) {
 			db.runSync(query.add_transaction, [
 				newTransactionId,
@@ -167,7 +168,7 @@ const useDatabase = () => {
 				values.reason,
 				Type.GENERAL,
 				values.action,
-				convertStringToDate(values.date),
+				convertedDate,
 				values.source,
 				null,
 				null,
@@ -185,7 +186,7 @@ const useDatabase = () => {
 				values.reason,
 				Type.TRANSFER,
 				values.action,
-				date.getTime(),
+				convertedDate,
 				values.source,
 				values.destination,
 				null,
@@ -197,7 +198,7 @@ const useDatabase = () => {
 				values.reason,
 				Type.INVESTMENT,
 				values.action,
-				date.getTime(),
+				convertedDate,
 				values.source,
 				null,
 				values.investment,
