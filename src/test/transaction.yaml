@@ -26,17 +26,17 @@ appId: host.exp.exponent
 - tapOn: "Amount"
 - inputText: "1000"
 - tapOn: "Reason"
-- inputText: "Salary 1"
+- inputText: "Salary"
 - tapOn: "Destination"
 - tapOn: "Source 1"
 - tapOn:
       id: "check_icon"
 - assertVisible:
       below: "${output.data.date}"
-      text: "Salary 1"
+      text: "Salary"
 - assertVisible:
       leftOf: "₹1,000"
-      text: "Salary 1"
+      text: "Salary"
 - tapOn:
       id: "source_icon"
 - assertVisible:
@@ -52,7 +52,7 @@ appId: host.exp.exponent
 - inputText: "100"
 - assertVisible: "DEBIT"
 - tapOn: "Reason"
-- inputText: "Gen Txn 1"
+- inputText: "Gen Txn"
 - tapOn: "${output.data.date}"
 - eraseText
 - inputText: "01/01/2025"
@@ -68,3 +68,77 @@ appId: host.exp.exponent
       point: "50%,50%"
 - tapOn:
       id: "check_icon"
+- tapOn:
+      id: "source_icon"
+- assertVisible:
+      below: "Total Balance = ₹900"
+      rightOf: "Source 1"
+      text: "₹900"
+- tapOn:
+      id: "plus_icon"
+- tapOn: "Source Name"
+- inputText: "Source 2"
+- tapOn:
+      id: "check_icon"
+- tapOn:
+      id: "transaction_icon"
+- tapOn:
+      id: "plus_icon"
+- tapOn: "Transfer"
+- tapOn: "Amount"
+- inputText: "100"
+- tapOn: "Reason"
+- inputText: "Transfer Txn"
+- tapOn: "01/01/2025"
+- eraseText
+- inputText: "31/12/2024"
+- tapOn: "Source"
+- tapOn: "Source 1"
+- tapOn: "Destination"
+- tapOn: "Source 2"
+- tapOn:
+      id: "check_icon"
+- tapOn:
+      id: "source_icon"
+- assertVisible:
+      below: "Total Balance = ₹900"
+      rightOf: "Source 1"
+      text: "₹800"
+- assertVisible:
+      rightOf: "Source 2"
+      text: "₹100"
+- tapOn:
+      id: "transaction_icon"
+- tapOn:
+      id: "plus_icon"
+- tapOn: "Investment"
+- tapOn: "Amount"
+- inputText: "150"
+- tapOn: "Reason"
+- inputText: "Ivt Txn"
+- tapOn: "Source"
+- tapOn: "Source 1"
+- tapOn:
+      below: "DEBIT"
+      text: "Investment"
+- tapOn: "Investment 1"
+- tapOn:
+      id: "check_icon"
+- assertVisible:
+      below: "31/12/2024"
+      rightOf: "Ivt Txn"
+      text: "₹150"
+- tapOn:
+      id: "source_icon"
+- assertVisible:
+      below: "Total Balance = ₹750"
+      rightOf: "Source 1"
+      text: "₹650"
+- assertVisible:
+      rightOf: "Source 2"
+      text: "₹100"
+- tapOn:
+      id: "investment_icon"
+- assertVisible:
+      rightOf: "Investment 1"
+      text: "₹150"

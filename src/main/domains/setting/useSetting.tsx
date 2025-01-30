@@ -75,6 +75,8 @@ const delete_tables = [
 ];
 
 const sampleTrips = [
+	"2211 Kerela",
+	"2212 Kolkata",
 	"2301 Bangalore",
 	"2302 Rajgir",
 	"2303 Goa",
@@ -93,6 +95,7 @@ const sampleInvestments = [
 	"Indian Stocks",
 	"US Stocks",
 	"12% Club",
+	"Fixed Deposit",
 ];
 
 const sampleSources = ["Axis Bank", "State Bank"];

@@ -7,7 +7,7 @@ import useFocus from "../../hooks/useFocus";
 import useScreen from "../../hooks/useScreen";
 import useValues from "../../hooks/useValues";
 
-const InvestmentEdit = ({ route }: { route: any }) => {
+const InvestmentEdit = ({ route }: any) => {
 	const id = route.params.id;
 	const { investmentName, setInvestmentName } = useValues();
 	const { navigate } = useScreen();

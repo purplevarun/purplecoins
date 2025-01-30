@@ -7,7 +7,7 @@ import useScreen from "../../hooks/useScreen";
 import { formatMoney } from "../../util/HelperFunctions";
 import LinkedTransactions from "../transaction/LinkedTransactions";
 
-const SourceDetail = ({ route }: { route: any }) => {
+const SourceDetail = ({ route }: any) => {
 	const id = route.params.id;
 	const { navigate } = useScreen();
 	const {
@@ -29,7 +29,11 @@ const SourceDetail = ({ route }: { route: any }) => {
 				handleDelete={() => deleteSource(id)}
 			/>
 			<DataTab name={"Name"} value={source.name} />
-			<DataTab name={"Amount"} value={formatMoney(total)} />
+			<DataTab
+				name={"Amount"}
+				value={formatMoney(Math.abs(total))}
+				debit={total < 0}
+			/>
 			<LinkedTransactions transactions={transactions} />
 		</ScreenLayout>
 	);

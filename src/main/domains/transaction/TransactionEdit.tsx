@@ -6,7 +6,7 @@ import useFocus from "../../hooks/useFocus";
 import useScreen from "../../hooks/useScreen";
 import TransactionInputs from "./TransactionInputs";
 
-const TransactionEdit = ({ route }: { route: any }) => {
+const TransactionEdit = ({ route }: any) => {
 	const { navigate } = useScreen();
 	const { updateTransaction, transactionEditScreenFocus } = useDatabase();
 

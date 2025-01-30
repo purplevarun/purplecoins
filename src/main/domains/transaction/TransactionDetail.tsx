@@ -19,7 +19,7 @@ import { convertDateToString, formatMoney } from "../../util/HelperFunctions";
 import ICategory from "../category/ICategory";
 import ITrip from "../trip/ITrip";
 
-const TransactionDetail = ({ route }: { route: any }) => {
+const TransactionDetail = ({ route }: any) => {
 	const transactionId = route.params.id;
 	const { navigate } = useScreen();
 	const { fetchTransaction, deleteTransaction } = useDatabase();

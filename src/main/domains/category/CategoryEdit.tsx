@@ -7,7 +7,7 @@ import useFocus from "../../hooks/useFocus";
 import useScreen from "../../hooks/useScreen";
 import useValues from "../../hooks/useValues";
 
-const CategoryEdit = ({ route }: { route: any }) => {
+const CategoryEdit = ({ route }: any) => {
 	const id = route.params.id;
 	const { categoryName, setCategoryName } = useValues();
 	const { navigate } = useScreen();

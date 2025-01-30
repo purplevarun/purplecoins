@@ -183,13 +183,21 @@ WHERE
 ;`;
 
 export const fetch_total_for_source = `
-SELECT
-    SUM(CASE WHEN "transaction".action = 'CREDIT' THEN "transaction".amount ELSE -"transaction".amount END) as total
-FROM
-    "transaction"
-WHERE
-    sourceId = ?
-;`;
+WITH params(id) AS (SELECT ?)
+SELECT COALESCE(
+   SUM(
+	   CASE
+		   WHEN t.type = 'TRANSFER' AND t.sourceId = p.id THEN -t.amount
+		   WHEN t.type = 'TRANSFER' AND t.destinationId = p.id THEN t.amount
+		   WHEN t.action = 'CREDIT' THEN t.amount
+		   WHEN t.action = 'DEBIT' THEN -t.amount
+		   ELSE 0
+		   END
+   ), 0
+) AS total
+FROM "transaction" t, params p
+WHERE t.sourceId = p.id OR t.destinationId = p.id;
+`;
 
 export const fetch_total_for_investment = `
 SELECT
@@ -231,6 +239,8 @@ SELECT
     SUM(CASE WHEN "transaction".action = 'CREDIT' THEN "transaction".amount ELSE -"transaction".amount END) as total
 FROM
     "transaction"
+WHERE
+	"transaction".type != 'TRANSFER'
 ;`;
 
 export const fetch_trips_for_transaction = `

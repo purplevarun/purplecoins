@@ -7,7 +7,7 @@ import useFocus from "../../hooks/useFocus";
 import useScreen from "../../hooks/useScreen";
 import useValues from "../../hooks/useValues";
 
-const TripEdit = ({ route }: { route: any }) => {
+const TripEdit = ({ route }: any) => {
 	const id = route.params.id;
 	const { tripName, setTripName } = useValues();
 	const { navigate } = useScreen();

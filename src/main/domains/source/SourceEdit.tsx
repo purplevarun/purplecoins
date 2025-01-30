@@ -7,7 +7,7 @@ import useFocus from "../../hooks/useFocus";
 import useScreen from "../../hooks/useScreen";
 import useValues from "../../hooks/useValues";
 
-const SourceEdit = ({ route }: { route: any }) => {
+const SourceEdit = ({ route }: any) => {
 	const id = route.params.id;
 	const { sourceName, setSourceName } = useValues();
 	const { navigate } = useScreen();

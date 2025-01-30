@@ -261,6 +261,9 @@ const useDatabase = () => {
 			(
 				db.getFirstSync<ITotal>(query.fetch_total_for_source, [
 					sourceId,
+					sourceId,
+					sourceId,
+					sourceId,
 				]) as ITotal
 			).total ?? 0
 		);

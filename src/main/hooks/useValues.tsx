@@ -2,7 +2,7 @@ import { create } from "zustand";
 import Action from "../constants/enums/Action";
 import Type from "../constants/enums/Type";
 import IGroupedTransaction from "../domains/transaction/IGroupedTransaction";
-import { getCurrentDateString } from "../util/HelperFunctions";
+import { convertDateToString } from "../util/HelperFunctions";
 
 interface Values {
 	amount: string;
@@ -52,7 +52,7 @@ const useValues = create<Values>((set) => ({
 	categoryName: "",
 	investmentName: "",
 	tripName: "",
-	date: getCurrentDateString(),
+	date: convertDateToString(),
 	setAmount: (amount) => set({ amount }),
 	setReason: (reason) => set({ reason }),
 	setSource: (source) => set({ source }),
