@@ -4,15 +4,16 @@ import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import { useSQLiteContext } from "expo-sqlite";
 import { DB_FILE_PATH } from "../../constants/constants.config";
+import query from "../../constants/query";
 
 const useSetting = () => {
 	const db = useSQLiteContext();
+	const encoding = FileSystem.EncodingType.Base64;
 	const handleExport = async () => {
 		await Sharing.shareAsync(DB_FILE_PATH);
 	};
 
 	const handleImport = async () => {
-		const encoding = FileSystem.EncodingType.Base64;
 		const result = await DocumentPicker.getDocumentAsync();
 		if (!result.assets) return;
 		const [{ uri }] = result.assets;
@@ -24,35 +25,24 @@ const useSetting = () => {
 		});
 	};
 
-	const handleClear = () => {
-		delete_tables.forEach((query) => db.runSync(query));
+	const handleClear = async () => {
+		query.drop_tables.forEach((cmd) => db.runSync(cmd));
+		query.create_tables.forEach((cmd) => db.runSync(cmd));
 	};
 
-	const addSampleData = () => {
-		handleClear();
+	const addSampleData = async () => {
+		await handleClear();
 		sampleCategories.forEach((item) => {
-			db.runSync(`INSERT INTO "category" (id,name) VALUES (?,?)`, [
-				randomUUID(),
-				item,
-			]);
+			db.runSync(query.add_category, [randomUUID(), item]);
 		});
 		sampleInvestments.forEach((item) => {
-			db.runSync(`INSERT INTO "investment" (id,name) VALUES (?,?)`, [
-				randomUUID(),
-				item,
-			]);
+			db.runSync(query.add_investment, [randomUUID(), item]);
 		});
 		sampleTrips.forEach((item) =>
-			db.runSync(`INSERT INTO "trip" (id,name) VALUES (?,?)`, [
-				randomUUID(),
-				item,
-			]),
+			db.runSync(query.add_trip, [randomUUID(), item]),
 		);
 		sampleSources.forEach((item) =>
-			db.runSync(`INSERT INTO "source" (id,name) VALUES (?,?)`, [
-				randomUUID(),
-				item,
-			]),
+			db.runSync(query.add_source, [randomUUID(), item]),
 		);
 	};
 
@@ -63,16 +53,6 @@ const useSetting = () => {
 		handleClear,
 	};
 };
-
-const delete_tables = [
-	`DELETE FROM "transaction"`,
-	`DELETE FROM "category"`,
-	`DELETE FROM "trip"`,
-	`DELETE FROM "investment"`,
-	`DELETE FROM "source"`,
-	`DELETE FROM "transaction_trip"`,
-	`DELETE FROM "transaction_category"`,
-];
 
 const sampleTrips = [
 	"2211 Kerela",

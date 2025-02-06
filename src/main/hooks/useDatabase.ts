@@ -9,7 +9,7 @@ import {
 } from "../app/router/Routes";
 import Action from "../constants/enums/Action";
 import Type from "../constants/enums/Type";
-import * as query from "../constants/query";
+import query from "../constants/query";
 import ICategory from "../domains/category/ICategory";
 import IInvestment from "../domains/investment/IInvestment";
 import ISource from "../domains/source/ISource";

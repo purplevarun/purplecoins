@@ -1,84 +1,95 @@
-export const fetch_all_sources = `
+const fetch_all_sources = `
 SELECT * FROM "source"
 `;
 
-export const fetch_source = `
+const fetch_source = `
 SELECT * FROM "source" WHERE id = ?
 ;`;
 
-export const add_source = `
+const add_source = `
 INSERT INTO "source" (id, name) VALUES (?,?)
 ;`;
 
-export const update_source = `
+const update_source = `
 UPDATE "source" SET name=? WHERE id = ?
 ;`;
 
-export const delete_source = `
+const delete_source = `
 DELETE FROM "source" WHERE id = ?
 ;`;
 
-export const fetch_all_trips = `
+const fetch_all_trips = `
 SELECT * FROM "trip"
 ;`;
 
-export const fetch_trip = `
+const fetch_trip = `
 SELECT * FROM "trip" WHERE id = ?
 ;`;
 
-export const add_trip = `
+const add_trip = `
 INSERT INTO "trip" (id, name) VALUES (?,?)
 ;`;
 
-export const update_trip = `
+const update_trip = `
 UPDATE "trip" SET name=? WHERE id = ?
 ;`;
 
-export const delete_trip = `
+const delete_trip = `
 DELETE FROM "trip" WHERE id = ?
 ;`;
 
-export const fetch_all_categories = `
-SELECT * FROM "category"
+const fetch_all_categories = `
+SELECT 
+    c.id, 
+    c.name, 
+    COUNT(tc.transactionId) AS transaction_count
+FROM 
+    "category" c
+LEFT JOIN 
+    "transaction_category" tc ON c.id = tc.categoryId
+GROUP BY 
+    c.id, c.name
+ORDER BY 
+    transaction_count DESC;
 ;`;
 
-export const fetch_category = `
+const fetch_category = `
 SELECT * FROM "category" WHERE id = ?
 ;`;
 
-export const add_category = `
+const add_category = `
 INSERT INTO "category" (id, name) VALUES (?,?)
 ;`;
 
-export const update_category = `
+const update_category = `
 UPDATE "category" SET name=? WHERE id = ?
 ;`;
 
-export const delete_category = `
+const delete_category = `
 DELETE FROM "category" WHERE id = ?
 ;`;
 
-export const fetch_all_investments = `
+const fetch_all_investments = `
 SELECT * FROM "investment"
 ;`;
 
-export const fetch_investment = `
+const fetch_investment = `
 SELECT * FROM "investment" WHERE id = ?
 ;`;
 
-export const add_investment = `
+const add_investment = `
 INSERT INTO "investment" (id, name) VALUES (?,?)
 ;`;
 
-export const update_investment = `
+const update_investment = `
 UPDATE "investment" SET name=? WHERE id = ?
 ;`;
 
-export const delete_investment = `
+const delete_investment = `
 DELETE FROM "investment" WHERE id = ?
 ;`;
 
-export const fetch_all_transactions = `
+const fetch_all_transactions = `
 SELECT
 	*
 FROM
@@ -87,7 +98,7 @@ ORDER BY
 	date DESC
 ;`;
 
-export const fetch_transaction = `
+const fetch_transaction = `
 SELECT
 	*
 FROM
@@ -96,49 +107,49 @@ WHERE
 	id = ?
 ;`;
 
-export const add_transaction = `
+const add_transaction = `
 INSERT INTO
 	"transaction" (id, amount, reason, type, action, date, sourceId, destinationId, investmentId) 
 VALUES
 	(?,?,?,?,?,?,?,?,?)
 ;`;
 
-export const delete_transaction = `
+const delete_transaction = `
 DELETE FROM
 	"transaction"
 WHERE
 	id = ?
 ;`;
 
-export const delete_transaction_trip = `
+const delete_transaction_trip = `
 DELETE FROM
 	"transaction_trip"
 WHERE
 	transactionId = ?
 ;`;
 
-export const delete_transaction_category = `
+const delete_transaction_category = `
 DELETE FROM
 	"transaction_category"
 WHERE
 	transactionId = ?
 ;`;
 
-export const add_transaction_trip = `
+const add_transaction_trip = `
 INSERT INTO
 	"transaction_trip" (transactionId, tripId)
 VALUES
 	(?, ?)
 ;`;
 
-export const add_transaction_category = `
+const add_transaction_category = `
 INSERT INTO
 	"transaction_category" (transactionId, categoryId) 
 VALUES
 	(?, ?)
 ;`;
 
-export const fetch_transactions_for_source = `
+const fetch_transactions_for_source = `
 SELECT
 	*
 FROM
@@ -147,7 +158,7 @@ WHERE
 	sourceId = ?
 ;`;
 
-export const fetch_transactions_for_investment = `
+const fetch_transactions_for_investment = `
 SELECT
 	*
 FROM
@@ -156,7 +167,7 @@ WHERE
 	investmentId = ?
 ;`;
 
-export const fetch_transactions_for_category = `
+const fetch_transactions_for_category = `
 SELECT
 	*
 FROM
@@ -169,7 +180,7 @@ WHERE
 	"transaction_category".categoryId = ?
 ;`;
 
-export const fetch_transactions_for_trip = `
+const fetch_transactions_for_trip = `
 SELECT
 	*
 FROM
@@ -182,7 +193,7 @@ WHERE
 	"transaction_trip".tripId = ?
 ;`;
 
-export const fetch_total_for_source = `
+const fetch_total_for_source = `
 WITH params(id) AS (SELECT ?)
 SELECT COALESCE(
    SUM(
@@ -199,7 +210,7 @@ FROM "transaction" t, params p
 WHERE t.sourceId = p.id OR t.destinationId = p.id;
 `;
 
-export const fetch_total_for_investment = `
+const fetch_total_for_investment = `
 SELECT
     SUM(CASE WHEN "transaction".action = 'CREDIT' THEN "transaction".amount ELSE -"transaction".amount END) as total
 FROM
@@ -208,7 +219,7 @@ WHERE
     investmentId = ?
 ;`;
 
-export const fetch_total_for_category = `
+const fetch_total_for_category = `
 SELECT
     SUM(CASE WHEN "transaction".action = 'CREDIT' THEN "transaction".amount ELSE -"transaction".amount END) as total
 FROM
@@ -221,7 +232,7 @@ WHERE
     "transaction_category".categoryId = ?
 ;`;
 
-export const fetch_total_for_trip = `
+const fetch_total_for_trip = `
 SELECT
     SUM(CASE WHEN "transaction".action = 'CREDIT' THEN "transaction".amount ELSE -"transaction".amount END) as total
 FROM
@@ -234,7 +245,7 @@ WHERE
     "transaction_trip".tripId = ?
 ;`;
 
-export const fetch_total_for_all = `
+const fetch_total_for_all = `
 SELECT
     SUM(CASE WHEN "transaction".action = 'CREDIT' THEN "transaction".amount ELSE -"transaction".amount END) as total
 FROM
@@ -243,10 +254,134 @@ WHERE
 	"transaction".type != 'TRANSFER'
 ;`;
 
-export const fetch_trips_for_transaction = `
+const fetch_trips_for_transaction = `
 SELECT tripId FROM "transaction_trip" WHERE transactionId = ?
 `;
 
-export const fetch_categories_for_transaction = `
+const fetch_categories_for_transaction = `
 SELECT categoryId FROM "transaction_category" WHERE transactionId = ?
 `;
+
+const drop_tables = [
+	`DROP TABLE IF EXISTS "transaction";`,
+	`DROP TABLE IF EXISTS "category";`,
+	`DROP TABLE IF EXISTS "trip";`,
+	`DROP TABLE IF EXISTS "investment";`,
+	`DROP TABLE IF EXISTS "source";`,
+	`DROP TABLE IF EXISTS "transaction_trip";`,
+	`DROP TABLE IF EXISTS "transaction_category";`,
+];
+
+const create_source = `
+CREATE TABLE IF NOT EXISTS "source" (
+	id 			TEXT PRIMARY KEY,
+	name 		TEXT NOT NULL
+);`;
+
+const create_category = `
+CREATE TABLE IF NOT EXISTS "category" (
+	id   		TEXT PRIMARY KEY,
+	name 		TEXT NOT NULL
+);`;
+
+const create_trip = `
+CREATE TABLE IF NOT EXISTS "trip" (
+	id			TEXT PRIMARY KEY,
+	name 		TEXT NOT NULL
+);`;
+
+const create_investment = `
+CREATE TABLE IF NOT EXISTS "investment" (
+	id 			TEXT PRIMARY KEY,
+	name 		TEXT NOT NULL
+);`;
+
+const create_transaction = `
+CREATE TABLE IF NOT EXISTS "transaction" (
+	id              TEXT PRIMARY KEY,
+	amount 			INTEGER NOT NULL CHECK (amount > 0),
+	reason          TEXT NOT NULL,
+	type            TEXT NOT NULL CHECK (type IN ('GENERAL', 'TRANSFER', 'INVESTMENT')),
+	action          TEXT NOT NULL CHECK (action IN ('DEBIT', 'CREDIT')),
+	date            DATE NOT NULL,
+	sourceId        TEXT NOT NULL,
+	destinationId   TEXT,
+	investmentId    TEXT,
+	FOREIGN KEY (sourceId) REFERENCES "source" (id),
+	FOREIGN KEY (destinationId) REFERENCES "source" (id),
+	FOREIGN KEY (investmentId) REFERENCES "investment" (id)
+);`;
+
+const create_transaction_trip = `
+CREATE TABLE IF NOT EXISTS "transaction_trip" (
+	transactionId 	TEXT NOT NULL,
+	tripId 			TEXT NOT NULL,
+	PRIMARY KEY (transactionId, tripId),
+	FOREIGN KEY (transactionId) REFERENCES "transaction" (id),
+	FOREIGN KEY (tripId) REFERENCES "trip" (id)
+);`;
+
+const create_transaction_category = `
+CREATE TABLE IF NOT EXISTS "transaction_category" (
+	transactionId 	TEXT NOT NULL,
+	categoryId 		TEXT NOT NULL,
+	PRIMARY KEY (transactionId, categoryId),
+	FOREIGN KEY (transactionId) REFERENCES "transaction" (id),
+	FOREIGN KEY (categoryId) REFERENCES "category" (id)
+);`;
+
+const create_tables = [
+	create_source,
+	create_category,
+	create_trip,
+	create_investment,
+	create_transaction,
+	create_transaction_trip,
+	create_transaction_category,
+];
+
+const query = {
+	create_tables,
+	drop_tables,
+	fetch_all_sources,
+	fetch_source,
+	add_source,
+	update_source,
+	delete_source,
+	fetch_all_trips,
+	fetch_trip,
+	add_trip,
+	update_trip,
+	delete_trip,
+	fetch_all_categories,
+	fetch_category,
+	add_category,
+	update_category,
+	delete_category,
+	fetch_all_investments,
+	fetch_investment,
+	add_investment,
+	update_investment,
+	delete_investment,
+	fetch_all_transactions,
+	fetch_transaction,
+	add_transaction,
+	delete_transaction,
+	delete_transaction_trip,
+	delete_transaction_category,
+	add_transaction_trip,
+	add_transaction_category,
+	fetch_transactions_for_source,
+	fetch_transactions_for_investment,
+	fetch_transactions_for_category,
+	fetch_transactions_for_trip,
+	fetch_total_for_source,
+	fetch_total_for_investment,
+	fetch_total_for_category,
+	fetch_total_for_trip,
+	fetch_total_for_all,
+	fetch_trips_for_transaction,
+	fetch_categories_for_transaction,
+};
+
+export default query;
