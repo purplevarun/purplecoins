@@ -15,13 +15,11 @@ const SettingScreen = () => {
 			<Vertical size={FONT_SIZE} />
 			<CustomButton text={"Export Data"} onPress={handleExport} />
 			<CustomButton text={"Import Data"} onPress={handleImport} />
-			{__DEV__ && (
-				<CustomButton
-					text={"Clear Data"}
-					onPress={handleClear}
-					color={RED_COLOR}
-				/>
-			)}
+			<CustomButton
+				text={"Clear Data"}
+				onPress={handleClear}
+				color={RED_COLOR}
+			/>
 			<CustomButton text={"Add Sample Data"} onPress={addSampleData} />
 		</ScreenLayout>
 	);
