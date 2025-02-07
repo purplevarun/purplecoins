@@ -156,6 +156,8 @@ FROM
 	"transaction"
 WHERE
 	sourceId = ?
+OR
+	destinationId = ?
 ;`;
 
 const fetch_transactions_for_investment = `
@@ -262,87 +264,21 @@ const fetch_categories_for_transaction = `
 SELECT categoryId FROM "transaction_category" WHERE transactionId = ?
 `;
 
-const drop_tables = [
-	`DROP TABLE IF EXISTS "transaction";`,
-	`DROP TABLE IF EXISTS "category";`,
-	`DROP TABLE IF EXISTS "trip";`,
-	`DROP TABLE IF EXISTS "investment";`,
-	`DROP TABLE IF EXISTS "source";`,
-	`DROP TABLE IF EXISTS "transaction_trip";`,
-	`DROP TABLE IF EXISTS "transaction_category";`,
-];
+const fetch_category_data_for_transaction_detail = `
+SELECT c.* 
+FROM "category" c
+JOIN "transaction_category" tc ON c.id = tc.categoryId
+WHERE tc.transactionId = ?
+;`;
 
-const create_source = `
-CREATE TABLE IF NOT EXISTS "source" (
-	id 			TEXT PRIMARY KEY,
-	name 		TEXT NOT NULL
-);`;
+const fetch_trip_data_for_transaction_detail = `
+SELECT t.* 
+FROM "trip" t
+JOIN "transaction_trip" tt ON t.id = tt.tripId
+WHERE tt.transactionId = ?
+;`;
 
-const create_category = `
-CREATE TABLE IF NOT EXISTS "category" (
-	id   		TEXT PRIMARY KEY,
-	name 		TEXT NOT NULL
-);`;
-
-const create_trip = `
-CREATE TABLE IF NOT EXISTS "trip" (
-	id			TEXT PRIMARY KEY,
-	name 		TEXT NOT NULL
-);`;
-
-const create_investment = `
-CREATE TABLE IF NOT EXISTS "investment" (
-	id 			TEXT PRIMARY KEY,
-	name 		TEXT NOT NULL
-);`;
-
-const create_transaction = `
-CREATE TABLE IF NOT EXISTS "transaction" (
-	id              TEXT PRIMARY KEY,
-	amount 			INTEGER NOT NULL CHECK (amount > 0),
-	reason          TEXT NOT NULL,
-	type            TEXT NOT NULL CHECK (type IN ('GENERAL', 'TRANSFER', 'INVESTMENT')),
-	action          TEXT NOT NULL CHECK (action IN ('DEBIT', 'CREDIT')),
-	date            DATE NOT NULL,
-	sourceId        TEXT NOT NULL,
-	destinationId   TEXT,
-	investmentId    TEXT,
-	FOREIGN KEY (sourceId) REFERENCES "source" (id),
-	FOREIGN KEY (destinationId) REFERENCES "source" (id),
-	FOREIGN KEY (investmentId) REFERENCES "investment" (id)
-);`;
-
-const create_transaction_trip = `
-CREATE TABLE IF NOT EXISTS "transaction_trip" (
-	transactionId 	TEXT NOT NULL,
-	tripId 			TEXT NOT NULL,
-	PRIMARY KEY (transactionId, tripId),
-	FOREIGN KEY (transactionId) REFERENCES "transaction" (id),
-	FOREIGN KEY (tripId) REFERENCES "trip" (id)
-);`;
-
-const create_transaction_category = `
-CREATE TABLE IF NOT EXISTS "transaction_category" (
-	transactionId 	TEXT NOT NULL,
-	categoryId 		TEXT NOT NULL,
-	PRIMARY KEY (transactionId, categoryId),
-	FOREIGN KEY (transactionId) REFERENCES "transaction" (id),
-	FOREIGN KEY (categoryId) REFERENCES "category" (id)
-);`;
-
-const create_tables = [
-	create_source,
-	create_category,
-	create_trip,
-	create_investment,
-	create_transaction,
-	create_transaction_trip,
-	create_transaction_category,
-];
-
-const query = {
-	create_tables,
-	drop_tables,
+const queries = {
 	fetch_all_sources,
 	fetch_source,
 	add_source,
@@ -382,6 +318,8 @@ const query = {
 	fetch_total_for_all,
 	fetch_trips_for_transaction,
 	fetch_categories_for_transaction,
+	fetch_category_data_for_transaction_detail,
+	fetch_trip_data_for_transaction_detail,
 };
 
-export default query;
+export default queries;

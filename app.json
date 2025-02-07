@@ -3,7 +3,7 @@
 		"name": "Purplecoins",
 		"slug": "purplecoins",
 		"owner": "purplevarun",
-		"version": "2.3.0",
+		"version": "2.4.0",
 		"orientation": "portrait",
 		"icon": "./assets/images/icon.png",
 		"userInterfaceStyle": "dark",
@@ -15,7 +15,7 @@
 		"android": {
 			"package": "purplevarun.purplecoins",
 			"softwareKeyboardLayoutMode": "pan",
-			"versionCode": 3
+			"versionCode": 4
 		},
 		"plugins": [["expo-font"], "expo-asset"],
 		"extra": {

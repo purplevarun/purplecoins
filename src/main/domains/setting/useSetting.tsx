@@ -4,7 +4,9 @@ import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import { useSQLiteContext } from "expo-sqlite";
 import { DB_FILE_PATH } from "../../constants/constants.config";
-import query from "../../constants/query";
+import create_tables from "../../constants/queries/create_tables";
+import drop_tables from "../../constants/queries/drop_tables";
+import queries from "../../constants/queries/queries";
 
 const useSetting = () => {
 	const db = useSQLiteContext();
@@ -25,24 +27,24 @@ const useSetting = () => {
 		});
 	};
 
-	const handleClear = async () => {
-		query.drop_tables.forEach((cmd) => db.runSync(cmd));
-		query.create_tables.forEach((cmd) => db.runSync(cmd));
+	const handleClear = () => {
+		drop_tables.forEach((cmd) => db.runSync(cmd));
+		create_tables.forEach((cmd) => db.runSync(cmd));
 	};
 
-	const addSampleData = async () => {
-		await handleClear();
+	const addSampleData = () => {
+		handleClear();
 		sampleCategories.forEach((item) => {
-			db.runSync(query.add_category, [randomUUID(), item]);
+			db.runSync(queries.add_category, [randomUUID(), item]);
 		});
 		sampleInvestments.forEach((item) => {
-			db.runSync(query.add_investment, [randomUUID(), item]);
+			db.runSync(queries.add_investment, [randomUUID(), item]);
 		});
 		sampleTrips.forEach((item) =>
-			db.runSync(query.add_trip, [randomUUID(), item]),
+			db.runSync(queries.add_trip, [randomUUID(), item]),
 		);
 		sampleSources.forEach((item) =>
-			db.runSync(query.add_source, [randomUUID(), item]),
+			db.runSync(queries.add_source, [randomUUID(), item]),
 		);
 	};
 

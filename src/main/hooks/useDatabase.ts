@@ -9,7 +9,7 @@ import {
 } from "../app/router/Routes";
 import Action from "../constants/enums/Action";
 import Type from "../constants/enums/Type";
-import query from "../constants/query";
+import queries from "../constants/queries/queries";
 import ICategory from "../domains/category/ICategory";
 import IInvestment from "../domains/investment/IInvestment";
 import ISource from "../domains/source/ISource";
@@ -28,103 +28,106 @@ const useDatabase = () => {
 	const { navigate } = useScreen();
 	const values = useValues();
 	const fetchAllSources = () => {
-		return db.getAllSync<ISource>(query.fetch_all_sources);
+		return db.getAllSync<ISource>(queries.fetch_all_sources);
 	};
 
 	const fetchSource = (sourceId: string) => {
-		return db.getFirstSync<ISource>(query.fetch_source, [
+		return db.getFirstSync<ISource>(queries.fetch_source, [
 			sourceId,
 		]) as ISource;
 	};
 
 	const addSource = () => {
-		db.runSync(query.add_source, [randomUUID(), values.sourceName]);
+		db.runSync(queries.add_source, [randomUUID(), values.sourceName]);
 		values.setSourceName("");
 		navigate(sourceRoutes.main);
 	};
 
 	const updateSource = (sourceId: string) => {
-		db.runSync(query.update_source, [values.sourceName, sourceId]);
+		db.runSync(queries.update_source, [values.sourceName, sourceId]);
 		values.setSourceName("");
 		navigate(sourceRoutes.main);
 	};
 
 	const deleteSource = (sourceId: string) => {
-		db.runSync(query.delete_source, [sourceId]);
+		db.runSync(queries.delete_source, [sourceId]);
 		navigate(sourceRoutes.main);
 	};
 
 	const fetchAllTrips = () => {
-		return db.getAllSync<ITrip>(query.fetch_all_trips);
+		return db.getAllSync<ITrip>(queries.fetch_all_trips);
 	};
 
 	const fetchTrip = (tripId: string) => {
-		return db.getFirstSync<ITrip>(query.fetch_trip, [tripId]) as ITrip;
+		return db.getFirstSync<ITrip>(queries.fetch_trip, [tripId]) as ITrip;
 	};
 
 	const addTrip = () => {
-		db.runSync(query.add_trip, [randomUUID(), values.tripName]);
+		db.runSync(queries.add_trip, [randomUUID(), values.tripName]);
 		values.setTripName("");
 		navigate(tripRoutes.main);
 	};
 
 	const updateTrip = (tripId: string) => {
-		db.runSync(query.update_trip, [values.tripName, tripId]);
+		db.runSync(queries.update_trip, [values.tripName, tripId]);
 		values.setTripName("");
 		navigate(tripRoutes.main);
 	};
 
 	const deleteTrip = (tripId: string) => {
-		db.runSync(query.delete_trip, [tripId]);
+		db.runSync(queries.delete_trip, [tripId]);
 		navigate(tripRoutes.main);
 	};
 
 	const fetchAllCategories = () => {
-		return db.getAllSync<ICategory>(query.fetch_all_categories);
+		return db.getAllSync<ICategory>(queries.fetch_all_categories);
 	};
 
 	const fetchCategory = (categoryId: string) => {
 		return db.getFirstSync<ICategory>(
-			query.fetch_category,
+			queries.fetch_category,
 			categoryId,
 		) as ICategory;
 	};
 
 	const addCategory = () => {
-		db.runSync(query.add_category, [randomUUID(), values.categoryName]);
+		db.runSync(queries.add_category, [randomUUID(), values.categoryName]);
 		values.setCategoryName("");
 		navigate(categoryRoutes.main);
 	};
 
 	const updateCategory = (categoryId: string) => {
-		db.runSync(query.update_category, [values.categoryName, categoryId]);
+		db.runSync(queries.update_category, [values.categoryName, categoryId]);
 		values.setCategoryName("");
 		navigate(categoryRoutes.main);
 	};
 
 	const deleteCategory = (categoryId: string) => {
-		db.runSync(query.delete_category, [categoryId]);
+		db.runSync(queries.delete_category, [categoryId]);
 		navigate(categoryRoutes.main);
 	};
 
 	const fetchAllInvestments = () => {
-		return db.getAllSync<IInvestment>(query.fetch_all_investments);
+		return db.getAllSync<IInvestment>(queries.fetch_all_investments);
 	};
 
 	const fetchInvestment = (investmentId: string) => {
-		return db.getFirstSync<IInvestment>(query.fetch_investment, [
+		return db.getFirstSync<IInvestment>(queries.fetch_investment, [
 			investmentId,
 		]) as IInvestment;
 	};
 
 	const addInvestment = () => {
-		db.runSync(query.add_investment, [randomUUID(), values.investmentName]);
+		db.runSync(queries.add_investment, [
+			randomUUID(),
+			values.investmentName,
+		]);
 		values.setInvestmentName("");
 		navigate(investmentRoutes.main);
 	};
 
 	const updateInvestment = (investmentId: string) => {
-		db.runSync(query.update_investment, [
+		db.runSync(queries.update_investment, [
 			values.investmentName,
 			investmentId,
 		]);
@@ -133,36 +136,39 @@ const useDatabase = () => {
 	};
 
 	const deleteInvestment = (investmentId: string) => {
-		db.runSync(query.delete_investment, [investmentId]);
+		db.runSync(queries.delete_investment, [investmentId]);
 		navigate(investmentRoutes.main);
 	};
 
 	const fetchAllTransactions = () => {
-		return db.getAllSync<ITransaction>(query.fetch_all_transactions);
+		return db.getAllSync<ITransaction>(queries.fetch_all_transactions);
 	};
 
 	const fetchTransaction = (transactionId: string) => {
-		return db.getFirstSync<ITransaction>(query.fetch_transaction, [
+		return db.getFirstSync<ITransaction>(queries.fetch_transaction, [
 			transactionId,
 		]) as ITransaction;
 	};
 
 	const addTransactionTrip = (transactionId: string, tripId: string) => {
-		db.runSync(query.add_transaction_trip, [transactionId, tripId]);
+		db.runSync(queries.add_transaction_trip, [transactionId, tripId]);
 	};
 
 	const addTransactionCategory = (
 		transactionId: string,
 		categoryId: string,
 	) => {
-		db.runSync(query.add_transaction_category, [transactionId, categoryId]);
+		db.runSync(queries.add_transaction_category, [
+			transactionId,
+			categoryId,
+		]);
 	};
 
 	const addTransaction = () => {
 		const newTransactionId = randomUUID();
 		const convertedDate = convertStringToDate(values.date);
 		if (values.type === Type.GENERAL) {
-			db.runSync(query.add_transaction, [
+			db.runSync(queries.add_transaction, [
 				newTransactionId,
 				parseInt(values.amount),
 				values.reason,
@@ -180,7 +186,7 @@ const useDatabase = () => {
 				addTransactionCategory(newTransactionId, categoryId),
 			);
 		} else if (values.type === Type.TRANSFER) {
-			db.runSync(query.add_transaction, [
+			db.runSync(queries.add_transaction, [
 				newTransactionId,
 				parseInt(values.amount),
 				values.reason,
@@ -192,7 +198,7 @@ const useDatabase = () => {
 				null,
 			]);
 		} else {
-			db.runSync(query.add_transaction, [
+			db.runSync(queries.add_transaction, [
 				newTransactionId,
 				parseInt(values.amount),
 				values.reason,
@@ -217,9 +223,9 @@ const useDatabase = () => {
 	};
 
 	const deleteTransaction = (transactionId: string) => {
-		db.runSync(query.delete_transaction, [transactionId]);
-		db.runSync(query.delete_transaction_category, [transactionId]);
-		db.runSync(query.delete_transaction_trip, [transactionId]);
+		db.runSync(queries.delete_transaction, [transactionId]);
+		db.runSync(queries.delete_transaction_category, [transactionId]);
+		db.runSync(queries.delete_transaction_trip, [transactionId]);
 		navigate(transactionRoutes.main);
 	};
 
@@ -231,27 +237,28 @@ const useDatabase = () => {
 
 	const fetchTransactionsForSource = (sourceId: string) => {
 		return db.getAllSync<ITransaction>(
-			query.fetch_transactions_for_source,
-			[sourceId],
+			queries.fetch_transactions_for_source,
+			[sourceId, sourceId],
 		);
 	};
 
 	const fetchTransactionsForCategory = (categoryId: string) => {
 		return db.getAllSync<ITransaction>(
-			query.fetch_transactions_for_category,
+			queries.fetch_transactions_for_category,
 			[categoryId],
 		);
 	};
 
 	const fetchTransactionsForTrip = (tripId: string) => {
-		return db.getAllSync<ITransaction>(query.fetch_transactions_for_trip, [
-			tripId,
-		]);
+		return db.getAllSync<ITransaction>(
+			queries.fetch_transactions_for_trip,
+			[tripId],
+		);
 	};
 
 	const fetchTransactionsForInvestment = (investmentId: string) => {
 		return db.getAllSync<ITransaction>(
-			query.fetch_transactions_for_investment,
+			queries.fetch_transactions_for_investment,
 			[investmentId],
 		);
 	};
@@ -259,7 +266,7 @@ const useDatabase = () => {
 	const fetchTotalForSource = (sourceId: string) => {
 		return (
 			(
-				db.getFirstSync<ITotal>(query.fetch_total_for_source, [
+				db.getFirstSync<ITotal>(queries.fetch_total_for_source, [
 					sourceId,
 					sourceId,
 					sourceId,
@@ -272,7 +279,7 @@ const useDatabase = () => {
 	const fetchTotalForTrip = (sourceId: string) => {
 		return (
 			(
-				db.getFirstSync<ITotal>(query.fetch_total_for_trip, [
+				db.getFirstSync<ITotal>(queries.fetch_total_for_trip, [
 					sourceId,
 				]) as ITotal
 			).total ?? 0
@@ -282,7 +289,7 @@ const useDatabase = () => {
 	const fetchTotalForInvestment = (sourceId: string) => {
 		return (
 			(
-				db.getFirstSync<ITotal>(query.fetch_total_for_investment, [
+				db.getFirstSync<ITotal>(queries.fetch_total_for_investment, [
 					sourceId,
 				]) as ITotal
 			).total ?? 0
@@ -292,7 +299,7 @@ const useDatabase = () => {
 	const fetchTotalForCategory = (sourceId: string) => {
 		return (
 			(
-				db.getFirstSync<ITotal>(query.fetch_total_for_category, [
+				db.getFirstSync<ITotal>(queries.fetch_total_for_category, [
 					sourceId,
 				]) as ITotal
 			).total ?? 0
@@ -301,7 +308,7 @@ const useDatabase = () => {
 
 	const fetchTotalForAll = () => {
 		return (
-			(db.getFirstSync<ITotal>(query.fetch_total_for_all) as ITotal)
+			(db.getFirstSync<ITotal>(queries.fetch_total_for_all) as ITotal)
 				.total ?? 0
 		);
 	};
@@ -310,7 +317,7 @@ const useDatabase = () => {
 		return db
 			.getAllSync<{
 				tripId: string;
-			}>(query.fetch_trips_for_transaction, [transactionId])
+			}>(queries.fetch_trips_for_transaction, [transactionId])
 			.map((trip) => trip.tripId);
 	};
 
@@ -318,7 +325,7 @@ const useDatabase = () => {
 		return db
 			.getAllSync<{
 				categoryId: string;
-			}>(query.fetch_categories_for_transaction, [transactionId])
+			}>(queries.fetch_categories_for_transaction, [transactionId])
 			.map((category) => category.categoryId);
 	};
 

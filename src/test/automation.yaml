@@ -3,6 +3,7 @@ appId: host.exp.exponent
 - tapOn:
       id: "setting_icon"
 - tapOn: "Clear Data"
+- tapOn: "Yes"
 - runFlow: ./source.yaml
 - runFlow: ./category.yaml
 - runFlow: ./trip.yaml

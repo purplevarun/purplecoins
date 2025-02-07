@@ -12,6 +12,7 @@ import CustomText from "../CustomText";
 const CustomButton = ({
 	text = "Submit",
 	onPress = () => {},
+	onHold = () => {},
 	width = SCREEN_WIDTH / 2,
 	disabled = false,
 	color = GREEN_COLOR,
@@ -19,6 +20,7 @@ const CustomButton = ({
 }: {
 	text?: string;
 	onPress?: VoidFunction;
+	onHold?: VoidFunction;
 	width?: DimensionValue;
 	disabled?: boolean;
 	color?: string;
@@ -38,6 +40,7 @@ const CustomButton = ({
 				alignSelf: CENTER,
 			}}
 			onPress={onPress}
+			onLongPress={onHold}
 			disabled={disabled}
 		>
 			<CustomText text={text} alignSelf={CENTER} />

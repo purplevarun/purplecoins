@@ -13,6 +13,7 @@ import DataTabWrapper from "../../components/DataTabWrapper";
 import Header from "../../components/Header";
 import ScreenLayout from "../../components/ScreenLayout";
 import { FLEX_ROW, PADDING } from "../../constants/constants.config";
+import queries from "../../constants/queries/queries";
 import useDatabase from "../../hooks/useDatabase";
 import useScreen from "../../hooks/useScreen";
 import { convertDateToString, formatMoney } from "../../util/HelperFunctions";
@@ -54,9 +55,10 @@ const TransactionDetail = ({ route }: any) => {
 const Trips = ({ transactionId }: { transactionId: string }) => {
 	const { navigate } = useScreen();
 	const db = useSQLiteContext();
-	const trips = db.getAllSync<ITrip>(select_trips_for_transaction, [
-		transactionId,
-	]);
+	const trips = db.getAllSync<ITrip>(
+		queries.fetch_trip_data_for_transaction_detail,
+		[transactionId],
+	);
 
 	if (trips.length === 0) return null;
 	return (
@@ -83,7 +85,7 @@ const Categories = ({ transactionId }: { transactionId: string }) => {
 	const { navigate } = useScreen();
 	const db = useSQLiteContext();
 	const categories = db.getAllSync<ICategory>(
-		select_categories_for_transaction,
+		queries.fetch_category_data_for_transaction_detail,
 		[transactionId],
 	);
 
@@ -133,7 +135,9 @@ const Source = ({
 	return (
 		<DataTabWrapper>
 			<CustomText text={destination ? "Destination" : "Source"} />
-			<TouchableOpacity onPress={() => navigate(sourceRoutes.detail)}>
+			<TouchableOpacity
+				onPress={() => navigate(sourceRoutes.detail, sourceId)}
+			>
 				<CustomText text={source.name} decoration={"underline"} />
 			</TouchableOpacity>
 		</DataTabWrapper>
@@ -154,19 +158,5 @@ const Investment = ({ investmentId }: { investmentId?: string }) => {
 		</DataTabWrapper>
 	);
 };
-
-const select_categories_for_transaction = `
-	SELECT c.* 
-	FROM "category" c
-	JOIN "transaction_category" tc ON c.id = tc.categoryId
-	WHERE tc.transactionId = ?;
-`;
-
-const select_trips_for_transaction = `
-	SELECT t.* 
-	FROM "trip" t
-	JOIN "transaction_trip" tt ON t.id = tt.tripId
-	WHERE tt.transactionId = ?;
-`;
 
 export default TransactionDetail;
