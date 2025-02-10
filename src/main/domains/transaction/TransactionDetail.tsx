@@ -1,4 +1,3 @@
-import { useSQLiteContext } from "expo-sqlite";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import {
 	categoryRoutes,
@@ -13,26 +12,32 @@ import DataTabWrapper from "../../components/DataTabWrapper";
 import Header from "../../components/Header";
 import ScreenLayout from "../../components/ScreenLayout";
 import { FLEX_ROW, PADDING } from "../../constants/constants.config";
-import queries from "../../constants/queries/queries";
 import useDatabase from "../../hooks/useDatabase";
 import useScreen from "../../hooks/useScreen";
+import RelationForTxn from "../../models/RelationForTxn";
 import { convertDateToString, formatMoney } from "../../util/HelperFunctions";
-import ICategory from "../category/ICategory";
-import ITrip from "../trip/ITrip";
 
 const TransactionDetail = ({ route }: any) => {
 	const transactionId = route.params.id;
-	const { navigate } = useScreen();
-	const { fetchTransaction, deleteTransaction } = useDatabase();
+	const navigate = useScreen();
+	const {
+		fetchTransaction,
+		deleteTransaction,
+		fetchRelationsForTransaction,
+	} = useDatabase();
 	const transaction = fetchTransaction(transactionId);
+	const relations = fetchRelationsForTransaction(transactionId);
 	return (
 		<ScreenLayout>
 			<Header
 				handleClose={() => navigate(transactionRoutes.main)}
 				handleEdit={() =>
-					navigate(transactionRoutes.edit, transactionId)
+					navigate(transactionRoutes.edit, { id: transactionId })
 				}
-				handleDelete={() => deleteTransaction(transactionId)}
+				handleDelete={() => {
+					deleteTransaction(transactionId);
+					navigate(sourceRoutes.main);
+				}}
 				canBeDeleted={true}
 			/>
 			<DataTab name={"Amount"} value={formatMoney(transaction.amount)} />
@@ -43,30 +48,35 @@ const TransactionDetail = ({ route }: any) => {
 				name={"Date"}
 				value={convertDateToString(transaction.date)}
 			/>
-			<Source sourceId={transaction.sourceId} />
-			<Source sourceId={transaction.destinationId} destination />
-			<Investment investmentId={transaction.investmentId} />
-			<Categories transactionId={transactionId} />
-			<Trips transactionId={transactionId} />
+			<Source source={relations.TRANSACTION_SOURCE[0]} />
+			{relations.TRANSACTION_DESTINATION && (
+				<Destination
+					destination={relations.TRANSACTION_DESTINATION[0]}
+				/>
+			)}
+			{relations.TRANSACTION_INVESTMENT && (
+				<Investment investment={relations.TRANSACTION_INVESTMENT[0]} />
+			)}
+			{relations.TRANSACTION_CATEGORY && (
+				<Categories relations={relations.TRANSACTION_CATEGORY} />
+			)}
+			{relations.TRANSACTION_TRIP && (
+				<Trips relations={relations.TRANSACTION_TRIP} />
+			)}
 		</ScreenLayout>
 	);
 };
 
-const Trips = ({ transactionId }: { transactionId: string }) => {
-	const { navigate } = useScreen();
-	const db = useSQLiteContext();
-	const trips = db.getAllSync<ITrip>(
-		queries.fetch_trip_data_for_transaction_detail,
-		[transactionId],
-	);
-
-	if (trips.length === 0) return null;
+const Trips = ({ relations }: { relations: RelationForTxn[] }) => {
+	const navigate = useScreen();
+	if (relations.length === 0) return null;
 	return (
 		<DataTabWrapper>
 			<CustomText text={"Trips"} />
 			<View style={styles.multiData}>
-				{trips.map((trip) => {
-					const onPress = () => navigate(tripRoutes.detail, trip.id);
+				{relations.map((trip) => {
+					const onPress = () =>
+						navigate(tripRoutes.detail, { id: trip.id });
 					return (
 						<TouchableOpacity onPress={onPress} key={trip.id}>
 							<CustomText
@@ -81,22 +91,16 @@ const Trips = ({ transactionId }: { transactionId: string }) => {
 	);
 };
 
-const Categories = ({ transactionId }: { transactionId: string }) => {
-	const { navigate } = useScreen();
-	const db = useSQLiteContext();
-	const categories = db.getAllSync<ICategory>(
-		queries.fetch_category_data_for_transaction_detail,
-		[transactionId],
-	);
-
-	if (categories.length === 0) return null;
+const Categories = ({ relations }: { relations: RelationForTxn[] }) => {
+	const navigate = useScreen();
+	if (relations.length === 0) return null;
 	return (
 		<DataTabWrapper>
 			<CustomText text={"Categories"} />
 			<View style={styles.multiData}>
-				{categories.map((category) => {
+				{relations.map((category) => {
 					const onPress = () =>
-						navigate(categoryRoutes.detail, category.id);
+						navigate(categoryRoutes.detail, { id: category.id });
 					return (
 						<TouchableOpacity onPress={onPress} key={category.id}>
 							<CustomText
@@ -121,39 +125,51 @@ const styles = StyleSheet.create({
 	},
 });
 
-const Source = ({
-	sourceId,
-	destination = false,
-}: {
-	sourceId?: string;
-	destination?: boolean;
-}) => {
-	if (!sourceId) return;
-	const { navigate } = useScreen();
-	const { fetchSource } = useDatabase();
-	const source = fetchSource(sourceId);
+const Source = ({ source: { id, name } }: { source: RelationForTxn }) => {
+	const navigate = useScreen();
 	return (
 		<DataTabWrapper>
-			<CustomText text={destination ? "Destination" : "Source"} />
+			<CustomText text={"Source"} />
 			<TouchableOpacity
-				onPress={() => navigate(sourceRoutes.detail, sourceId)}
+				onPress={() => navigate(sourceRoutes.detail, { id })}
 			>
-				<CustomText text={source.name} decoration={"underline"} />
+				<CustomText text={name} decoration={"underline"} />
 			</TouchableOpacity>
 		</DataTabWrapper>
 	);
 };
 
-const Investment = ({ investmentId }: { investmentId?: string }) => {
-	if (!investmentId) return;
-	const { navigate } = useScreen();
-	const { fetchInvestment } = useDatabase();
-	const investment = fetchInvestment(investmentId);
+const Destination = ({
+	destination: { id, name },
+}: {
+	destination: RelationForTxn;
+}) => {
+	const navigate = useScreen();
+	return (
+		<DataTabWrapper>
+			<CustomText text={"Destination"} />
+			<TouchableOpacity
+				onPress={() => navigate(sourceRoutes.detail, { id })}
+			>
+				<CustomText text={name} decoration={"underline"} />
+			</TouchableOpacity>
+		</DataTabWrapper>
+	);
+};
+
+const Investment = ({
+	investment: { id, name },
+}: {
+	investment: RelationForTxn;
+}) => {
+	const navigate = useScreen();
 	return (
 		<DataTabWrapper>
 			<CustomText text={"Investment"} />
-			<TouchableOpacity onPress={() => navigate(investmentRoutes.detail)}>
-				<CustomText text={investment.name} decoration={"underline"} />
+			<TouchableOpacity
+				onPress={() => navigate(investmentRoutes.detail, { id })}
+			>
+				<CustomText text={name} decoration={"underline"} />
 			</TouchableOpacity>
 		</DataTabWrapper>
 	);

@@ -15,17 +15,18 @@ import {
 } from "../../constants/constants.config";
 import useDatabase from "../../hooks/useDatabase";
 import useScreen from "../../hooks/useScreen";
-import { formatMoney } from "../../util/HelperFunctions";
-import ITrip from "./ITrip";
+import Relation from "../../models/Relation";
+import { calculateTotal, formatMoney } from "../../util/HelperFunctions";
 
-const TripRenderItem = ({ item }: { item: ITrip }) => {
+const TripRenderItem = ({ item }: { item: Relation }) => {
 	return <Implementation item={item} />;
 };
 
-const Implementation = ({ item }: { item: ITrip }) => {
-	const { navigate } = useScreen();
-	const { fetchTotalForTrip } = useDatabase();
-	const total = fetchTotalForTrip(item.id);
+const Implementation = ({ item: { id, name } }: { item: Relation }) => {
+	const { fetchTransactionsForRelation } = useDatabase();
+	const navigate = useScreen();
+	const transactions = fetchTransactionsForRelation(id);
+	const total = calculateTotal(transactions);
 
 	return (
 		<TouchableOpacity
@@ -39,9 +40,15 @@ const Implementation = ({ item }: { item: ITrip }) => {
 				flexDirection: FLEX_ROW,
 				justifyContent: SPACE_BETWEEN,
 			}}
-			onPress={() => navigate(tripRoutes.detail, item.id)}
+			onPress={() =>
+				navigate(tripRoutes.detail, {
+					id,
+					transactions,
+					total,
+				})
+			}
 		>
-			<CustomText text={item.name} />
+			<CustomText text={name} />
 			<CustomText text={formatMoney(Math.abs(total))} />
 		</TouchableOpacity>
 	);

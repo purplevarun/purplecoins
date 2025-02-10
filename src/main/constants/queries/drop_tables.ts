@@ -1,11 +1,8 @@
 const tableNames = [
 	"transaction",
-	"category",
-	"trip",
-	"investment",
-	"source",
-	"transaction_trip",
-	"transaction_category",
+	"transaction",
+	"relation",
+	"transaction_relation",
 ];
 
 const drop_tables = tableNames.map(

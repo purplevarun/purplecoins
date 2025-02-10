@@ -1,20 +1,18 @@
 import { create } from "zustand";
-import Action from "../constants/enums/Action";
-import Type from "../constants/enums/Type";
-import IGroupedTransaction from "../domains/transaction/IGroupedTransaction";
+import TransactionAction from "../constants/enums/TransactionAction";
+import TransactionType from "../constants/enums/TransactionType";
 import { convertDateToString } from "../util/HelperFunctions";
 
 interface Values {
 	amount: string;
 	reason: string;
 	source: string;
-	type: Type;
-	action: Action;
+	type: TransactionType;
+	action: TransactionAction;
 	investment: string | null;
 	destination: string | null;
 	trips: string[];
 	categories: string[];
-	groupedTransactions: IGroupedTransaction[];
 	sourceName: string;
 	categoryName: string;
 	investmentName: string;
@@ -23,26 +21,26 @@ interface Values {
 	setAmount: (amount: string) => void;
 	setReason: (reason: string) => void;
 	setSource: (source: string) => void;
-	setType: (type: Type) => void;
-	setAction: (action: Action) => void;
+	setType: (type: TransactionType) => void;
+	setAction: (action: TransactionAction) => void;
 	setInvestment: (investment: string | null) => void;
 	setDestination: (destination: string | null) => void;
 	setTrips: (trips: string[]) => void;
 	setCategories: (categories: string[]) => void;
-	setGroupedTransactions: (transactions: IGroupedTransaction[]) => void;
 	setSourceName: (sourceName: string) => void;
 	setCategoryName: (categoryName: string) => void;
 	setInvestmentName: (investmentName: string) => void;
 	setTripName: (tripName: string) => void;
 	setDate: (date: string) => void;
+	clear: () => void;
 }
 
 const useValues = create<Values>((set) => ({
 	amount: "",
 	reason: "",
 	source: "",
-	type: Type.GENERAL,
-	action: Action.DEBIT,
+	type: TransactionType.GENERAL,
+	action: TransactionAction.DEBIT,
 	investment: null,
 	destination: null,
 	trips: [],
@@ -62,13 +60,28 @@ const useValues = create<Values>((set) => ({
 	setDestination: (destination) => set({ destination }),
 	setTrips: (trips) => set({ trips }),
 	setCategories: (categories) => set({ categories }),
-	setGroupedTransactions: (groupedTransactions) =>
-		set({ groupedTransactions }),
 	setSourceName: (sourceName) => set({ sourceName }),
 	setCategoryName: (categoryName) => set({ categoryName }),
 	setInvestmentName: (investmentName) => set({ investmentName }),
 	setTripName: (tripName) => set({ tripName }),
 	setDate: (date) => set({ date }),
+	clear: () =>
+		set((state) => ({
+			amount: "",
+			reason: "",
+			source: "",
+			type: TransactionType.GENERAL,
+			action: TransactionAction.DEBIT,
+			investment: null,
+			destination: null,
+			trips: [],
+			categories: [],
+			sourceName: "",
+			categoryName: "",
+			investmentName: "",
+			tripName: "",
+			date: state.date,
+		})),
 }));
 
 export default useValues;

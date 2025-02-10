@@ -1,7 +1,7 @@
-enum Type {
+enum TransactionType {
 	GENERAL = "GENERAL",
 	TRANSFER = "TRANSFER",
 	INVESTMENT = "INVESTMENT",
 }
 
-export default Type;
+export default TransactionType;

@@ -4,23 +4,29 @@ import { investmentRoutes } from "../../app/router/Routes";
 import Header from "../../components/Header";
 import NoContent from "../../components/NoContent";
 import ScreenLayout from "../../components/ScreenLayout";
+import RelationType from "../../constants/enums/RelationType";
 import useDatabase from "../../hooks/useDatabase";
 import useFocus from "../../hooks/useFocus";
 import useScreen from "../../hooks/useScreen";
-import IInvestment from "./IInvestment";
+import Relation from "../../models/Relation";
 import InvestmentRenderItem from "./InvestmentRenderItem";
 
 const InvestmentMain = () => {
-	const [investments, setInvestments] = useState<IInvestment[]>([]);
-	const { navigate } = useScreen();
-	const { fetchAllInvestments } = useDatabase();
-	const handlePlus = () => navigate(investmentRoutes.add);
-	useFocus(() => setInvestments(fetchAllInvestments()));
+	const [investments, setInvestments] = useState<Relation[]>([]);
+	const navigate = useScreen();
+	const { fetchAllRelations } = useDatabase();
+	useFocus(() => setInvestments(fetchAllRelations(RelationType.INVESTMENT)));
 
-	if (investments.length === 0) return <NoContent handlePlus={handlePlus} />;
+	if (investments.length === 0)
+		return (
+			<NoContent
+				handlePlus={() => navigate(investmentRoutes.add)}
+				text={"Investments"}
+			/>
+		);
 	return (
 		<ScreenLayout>
-			<Header handlePlus={handlePlus} />
+			<Header handlePlus={() => navigate(investmentRoutes.add)} />
 			<FlashList
 				data={investments}
 				renderItem={InvestmentRenderItem}

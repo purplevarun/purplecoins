@@ -1,14 +1,15 @@
-import { randomUUID } from "expo-crypto";
 import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import { useSQLiteContext } from "expo-sqlite";
 import { DB_FILE_PATH } from "../../constants/constants.config";
+import RelationType from "../../constants/enums/RelationType";
 import create_tables from "../../constants/queries/create_tables";
 import drop_tables from "../../constants/queries/drop_tables";
-import queries from "../../constants/queries/queries";
+import useDatabase from "../../hooks/useDatabase";
 
 const useSetting = () => {
+	const { addRelation } = useDatabase();
 	const db = useSQLiteContext();
 	const encoding = FileSystem.EncodingType.Base64;
 	const handleExport = async () => {
@@ -34,18 +35,18 @@ const useSetting = () => {
 
 	const addSampleData = () => {
 		handleClear();
+		sampleSources.forEach((item) => {
+			addRelation(item, RelationType.SOURCE);
+		});
 		sampleCategories.forEach((item) => {
-			db.runSync(queries.add_category, [randomUUID(), item]);
+			addRelation(item, RelationType.CATEGORY);
+		});
+		sampleTrips.forEach((item) => {
+			addRelation(item, RelationType.TRIP);
 		});
 		sampleInvestments.forEach((item) => {
-			db.runSync(queries.add_investment, [randomUUID(), item]);
+			addRelation(item, RelationType.INVESTMENT);
 		});
-		sampleTrips.forEach((item) =>
-			db.runSync(queries.add_trip, [randomUUID(), item]),
-		);
-		sampleSources.forEach((item) =>
-			db.runSync(queries.add_source, [randomUUID(), item]),
-		);
 	};
 
 	return {

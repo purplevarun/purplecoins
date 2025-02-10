@@ -4,13 +4,13 @@ import CustomText from "../../components/CustomText";
 import Vertical from "../../components/Vertical";
 import { DISABLED_COLOR } from "../../constants/colors.config";
 import { LARGE_FONT_SIZE, PADDING } from "../../constants/constants.config";
-import ITransaction from "./ITransaction";
+import Transaction from "../../models/Transaction";
 import TransactionRenderItem from "./TransactionRenderItem";
 
 const LinkedTransactions = ({
 	transactions,
 }: {
-	transactions: ITransaction[];
+	transactions: Transaction[];
 }) => {
 	if (transactions.length > 0)
 		return (

@@ -1,0 +1,19 @@
+appId: host.exp.exponent
+---
+- runScript: ./output.js
+- tapOn:
+      id: "transaction_icon"
+- assertVisible:
+      above: "Transfer Txn"
+      text: "Gen Txn"
+- tapOn: "Transfer Txn"
+- tapOn:
+      id: "edit_icon"
+- tapOn: "31/12/2024"
+- eraseText
+- inputText: "${output.data.date}"
+- tapOn:
+    id: "check_icon"
+- assertVisible:
+      above: "Gen Txn"
+      text: "Transfer Txn"

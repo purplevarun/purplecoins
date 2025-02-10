@@ -1,384 +1,140 @@
 import { randomUUID } from "expo-crypto";
 import { useSQLiteContext } from "expo-sqlite";
-import {
-	categoryRoutes,
-	investmentRoutes,
-	sourceRoutes,
-	transactionRoutes,
-	tripRoutes,
-} from "../app/router/Routes";
-import Action from "../constants/enums/Action";
-import Type from "../constants/enums/Type";
-import queries from "../constants/queries/queries";
-import ICategory from "../domains/category/ICategory";
-import IInvestment from "../domains/investment/IInvestment";
-import ISource from "../domains/source/ISource";
-import ITransaction from "../domains/transaction/ITransaction";
-import ITrip from "../domains/trip/ITrip";
-import ITotal from "../types/ITotal";
-import {
-	convertDateToString,
-	convertStringToDate,
-} from "../util/HelperFunctions";
-import useScreen from "./useScreen";
-import useValues from "./useValues";
+import RelationType from "../constants/enums/RelationType";
+import TransactionAction from "../constants/enums/TransactionAction";
+import TransactionRelationType from "../constants/enums/TransactionRelationType";
+import TransactionType from "../constants/enums/TransactionType";
+import Relation from "../models/Relation";
+import RelationForTxn from "../models/RelationForTxn";
+import Transaction from "../models/Transaction";
 
 const useDatabase = () => {
 	const db = useSQLiteContext();
-	const { navigate } = useScreen();
-	const values = useValues();
-	const fetchAllSources = () => {
-		return db.getAllSync<ISource>(queries.fetch_all_sources);
+
+	const fetchAllRelations = (relationType: RelationType) => {
+		const query = `SELECT * FROM "relation" WHERE type = ?`;
+		return db.getAllSync<Relation>(query, [relationType]);
 	};
 
-	const fetchSource = (sourceId: string) => {
-		return db.getFirstSync<ISource>(queries.fetch_source, [
-			sourceId,
-		]) as ISource;
+	const fetchRelation = (relationId: string) => {
+		const query = `SELECT * FROM "relation" WHERE id = ?`;
+		return db.getFirstSync<Relation>(query, [relationId])!;
 	};
 
-	const addSource = () => {
-		db.runSync(queries.add_source, [randomUUID(), values.sourceName]);
-		values.setSourceName("");
-		navigate(sourceRoutes.main);
+	const addRelation = (relationName: string, relationType: RelationType) => {
+		const query = `INSERT INTO "relation" VALUES (?, ?, ?)`;
+		db.runSync(query, [randomUUID(), relationName, relationType]);
 	};
 
-	const updateSource = (sourceId: string) => {
-		db.runSync(queries.update_source, [values.sourceName, sourceId]);
-		values.setSourceName("");
-		navigate(sourceRoutes.main);
+	const updateRelation = (relationId: string, relationName: string) => {
+		const query = `UPDATE "relation" SET name = ? WHERE id = ?`;
+		db.runSync(query, [relationName, relationId]);
 	};
 
-	const deleteSource = (sourceId: string) => {
-		db.runSync(queries.delete_source, [sourceId]);
-		navigate(sourceRoutes.main);
-	};
-
-	const fetchAllTrips = () => {
-		return db.getAllSync<ITrip>(queries.fetch_all_trips);
-	};
-
-	const fetchTrip = (tripId: string) => {
-		return db.getFirstSync<ITrip>(queries.fetch_trip, [tripId]) as ITrip;
-	};
-
-	const addTrip = () => {
-		db.runSync(queries.add_trip, [randomUUID(), values.tripName]);
-		values.setTripName("");
-		navigate(tripRoutes.main);
-	};
-
-	const updateTrip = (tripId: string) => {
-		db.runSync(queries.update_trip, [values.tripName, tripId]);
-		values.setTripName("");
-		navigate(tripRoutes.main);
-	};
-
-	const deleteTrip = (tripId: string) => {
-		db.runSync(queries.delete_trip, [tripId]);
-		navigate(tripRoutes.main);
-	};
-
-	const fetchAllCategories = () => {
-		return db.getAllSync<ICategory>(queries.fetch_all_categories);
-	};
-
-	const fetchCategory = (categoryId: string) => {
-		return db.getFirstSync<ICategory>(
-			queries.fetch_category,
-			categoryId,
-		) as ICategory;
-	};
-
-	const addCategory = () => {
-		db.runSync(queries.add_category, [randomUUID(), values.categoryName]);
-		values.setCategoryName("");
-		navigate(categoryRoutes.main);
-	};
-
-	const updateCategory = (categoryId: string) => {
-		db.runSync(queries.update_category, [values.categoryName, categoryId]);
-		values.setCategoryName("");
-		navigate(categoryRoutes.main);
-	};
-
-	const deleteCategory = (categoryId: string) => {
-		db.runSync(queries.delete_category, [categoryId]);
-		navigate(categoryRoutes.main);
-	};
-
-	const fetchAllInvestments = () => {
-		return db.getAllSync<IInvestment>(queries.fetch_all_investments);
-	};
-
-	const fetchInvestment = (investmentId: string) => {
-		return db.getFirstSync<IInvestment>(queries.fetch_investment, [
-			investmentId,
-		]) as IInvestment;
-	};
-
-	const addInvestment = () => {
-		db.runSync(queries.add_investment, [
-			randomUUID(),
-			values.investmentName,
-		]);
-		values.setInvestmentName("");
-		navigate(investmentRoutes.main);
-	};
-
-	const updateInvestment = (investmentId: string) => {
-		db.runSync(queries.update_investment, [
-			values.investmentName,
-			investmentId,
-		]);
-		values.setInvestmentName("");
-		navigate(investmentRoutes.main);
-	};
-
-	const deleteInvestment = (investmentId: string) => {
-		db.runSync(queries.delete_investment, [investmentId]);
-		navigate(investmentRoutes.main);
+	const deleteRelation = (relationId: string) => {
+		const query = `DELETE FROM "relation" WHERE id = ?`;
+		db.runSync(query, [relationId]);
 	};
 
 	const fetchAllTransactions = () => {
-		return db.getAllSync<ITransaction>(queries.fetch_all_transactions);
+		const query = `SELECT * FROM "transaction" ORDER BY date DESC`;
+		return db.getAllSync<Transaction>(query);
 	};
 
 	const fetchTransaction = (transactionId: string) => {
-		return db.getFirstSync<ITransaction>(queries.fetch_transaction, [
-			transactionId,
-		]) as ITransaction;
+		const query = `SELECT * FROM "transaction" WHERE id = ?`;
+		return db.getFirstSync<Transaction>(query, [transactionId])!;
 	};
 
-	const addTransactionTrip = (transactionId: string, tripId: string) => {
-		db.runSync(queries.add_transaction_trip, [transactionId, tripId]);
-	};
-
-	const addTransactionCategory = (
+	const addTransactionRelation = (
 		transactionId: string,
-		categoryId: string,
+		relationId: string,
+		transactionRelationType: TransactionRelationType,
 	) => {
-		db.runSync(queries.add_transaction_category, [
-			transactionId,
-			categoryId,
-		]);
+		const query = `INSERT INTO "transaction_relation" VALUES (?, ?, ?)`;
+		db.runSync(query, [transactionId, relationId, transactionRelationType]);
 	};
 
-	const addTransaction = () => {
-		const newTransactionId = randomUUID();
-		const convertedDate = convertStringToDate(values.date);
-		if (values.type === Type.GENERAL) {
-			db.runSync(queries.add_transaction, [
-				newTransactionId,
-				parseInt(values.amount),
-				values.reason,
-				Type.GENERAL,
-				values.action,
-				convertedDate,
-				values.source,
-				null,
-				null,
-			]);
-			values.trips.forEach((tripId) =>
-				addTransactionTrip(newTransactionId, tripId),
-			);
-			values.categories.forEach((categoryId) =>
-				addTransactionCategory(newTransactionId, categoryId),
-			);
-		} else if (values.type === Type.TRANSFER) {
-			db.runSync(queries.add_transaction, [
-				newTransactionId,
-				parseInt(values.amount),
-				values.reason,
-				Type.TRANSFER,
-				values.action,
-				convertedDate,
-				values.source,
-				values.destination,
-				null,
-			]);
-		} else {
-			db.runSync(queries.add_transaction, [
-				newTransactionId,
-				parseInt(values.amount),
-				values.reason,
-				Type.INVESTMENT,
-				values.action,
-				convertedDate,
-				values.source,
-				null,
-				values.investment,
-			]);
-		}
-		values.setAmount("");
-		values.setReason("");
-		values.setSource("");
-		values.setType(Type.GENERAL);
-		values.setAction(Action.DEBIT);
-		values.setInvestment("");
-		values.setDestination("");
-		values.setTrips([]);
-		values.setCategories([]);
-		navigate(transactionRoutes.main);
+	const deleteRelationsForTransaction = (transactionId: string) => {
+		const query = `DELETE FROM "transaction_relation" WHERE transaction_id = ?`;
+		db.runSync(query, [transactionId]);
+	};
+
+	const addTransaction = (
+		amount: number,
+		reason: string,
+		action: TransactionAction,
+		type: TransactionType,
+		date: Date,
+	) => {
+		const query = `INSERT INTO "transaction" VALUES (?, ?, ?, ?, ?, ?)`;
+		const transactionId = randomUUID();
+		db.runSync(query, [
+			transactionId,
+			amount,
+			reason,
+			type,
+			action,
+			date.getTime(),
+		]);
+		return transactionId;
 	};
 
 	const deleteTransaction = (transactionId: string) => {
-		db.runSync(queries.delete_transaction, [transactionId]);
-		db.runSync(queries.delete_transaction_category, [transactionId]);
-		db.runSync(queries.delete_transaction_trip, [transactionId]);
-		navigate(transactionRoutes.main);
+		const query = `DELETE FROM "transaction" WHERE id = ?`;
+		db.runSync(query, [transactionId]);
 	};
 
-	const updateTransaction = (id: string) => {
-		deleteTransaction(id);
-		addTransaction();
-		navigate(transactionRoutes.main);
+	const fetchTransactionsForRelation = (relationId: string) => {
+		const query = `SELECT * FROM "transaction" JOIN "transaction_relation" ON "transaction".id = "transaction_relation".transaction_id WHERE "transaction_relation".relation_id = ?`;
+		return db.getAllSync<Transaction>(query, [relationId]);
 	};
 
-	const fetchTransactionsForSource = (sourceId: string) => {
-		return db.getAllSync<ITransaction>(
-			queries.fetch_transactions_for_source,
-			[sourceId, sourceId],
+	const updateTransaction = (
+		transactionId: string,
+		amount: number,
+		reason: string,
+		action: TransactionAction,
+		type: TransactionType,
+		date: Date,
+	) => {
+		const query = `UPDATE "transaction" SET amount = ?, reason = ?, action = ?, type = ?, date = ? WHERE id = ?`;
+		db.runSync(query, [
+			amount,
+			reason,
+			action,
+			type,
+			date.getTime(),
+			transactionId,
+		]);
+	};
+
+	const fetchRelationsForTransaction = (transactionId: string) => {
+		const query = `SELECT "relation".id, "relation".name, "transaction_relation".type FROM "relation" JOIN "transaction_relation" ON "relation".id = "transaction_relation".relation_id WHERE "transaction_relation".transaction_id = ?;`;
+		return db.getAllSync<RelationForTxn>(query, [transactionId]).reduce(
+			(acc, relation) => {
+				(acc[relation.type] ||= []).push(relation);
+				return acc;
+			},
+			{} as Record<TransactionRelationType, RelationForTxn[]>,
 		);
-	};
-
-	const fetchTransactionsForCategory = (categoryId: string) => {
-		return db.getAllSync<ITransaction>(
-			queries.fetch_transactions_for_category,
-			[categoryId],
-		);
-	};
-
-	const fetchTransactionsForTrip = (tripId: string) => {
-		return db.getAllSync<ITransaction>(
-			queries.fetch_transactions_for_trip,
-			[tripId],
-		);
-	};
-
-	const fetchTransactionsForInvestment = (investmentId: string) => {
-		return db.getAllSync<ITransaction>(
-			queries.fetch_transactions_for_investment,
-			[investmentId],
-		);
-	};
-
-	const fetchTotalForSource = (sourceId: string) => {
-		return (
-			(
-				db.getFirstSync<ITotal>(queries.fetch_total_for_source, [
-					sourceId,
-					sourceId,
-					sourceId,
-					sourceId,
-				]) as ITotal
-			).total ?? 0
-		);
-	};
-
-	const fetchTotalForTrip = (sourceId: string) => {
-		return (
-			(
-				db.getFirstSync<ITotal>(queries.fetch_total_for_trip, [
-					sourceId,
-				]) as ITotal
-			).total ?? 0
-		);
-	};
-
-	const fetchTotalForInvestment = (sourceId: string) => {
-		return (
-			(
-				db.getFirstSync<ITotal>(queries.fetch_total_for_investment, [
-					sourceId,
-				]) as ITotal
-			).total ?? 0
-		);
-	};
-
-	const fetchTotalForCategory = (sourceId: string) => {
-		return (
-			(
-				db.getFirstSync<ITotal>(queries.fetch_total_for_category, [
-					sourceId,
-				]) as ITotal
-			).total ?? 0
-		);
-	};
-
-	const fetchTotalForAll = () => {
-		return (
-			(db.getFirstSync<ITotal>(queries.fetch_total_for_all) as ITotal)
-				.total ?? 0
-		);
-	};
-
-	const fetchTripsForTransaction = (transactionId: string) => {
-		return db
-			.getAllSync<{
-				tripId: string;
-			}>(queries.fetch_trips_for_transaction, [transactionId])
-			.map((trip) => trip.tripId);
-	};
-
-	const fetchCategoriesForTransaction = (transactionId: string) => {
-		return db
-			.getAllSync<{
-				categoryId: string;
-			}>(queries.fetch_categories_for_transaction, [transactionId])
-			.map((category) => category.categoryId);
-	};
-
-	const transactionEditScreenFocus = (transactionId: string) => {
-		const transaction = fetchTransaction(transactionId);
-		values.setReason(transaction.reason);
-		values.setAmount(String(transaction.amount));
-		values.setDate(convertDateToString(transaction.date));
-		values.setType(transaction.type);
-		values.setSource(transaction.sourceId);
-		values.setAction(transaction.action);
-		values.setDestination(transaction.destinationId ?? null);
-		values.setInvestment(transaction.investmentId ?? null);
-		values.setTrips(fetchTripsForTransaction(transactionId));
-		values.setCategories(fetchCategoriesForTransaction(transactionId));
 	};
 
 	return {
-		fetchAllSources,
-		fetchSource,
-		addSource,
-		updateSource,
-		deleteSource,
-		fetchAllTrips,
-		fetchTrip,
-		addTrip,
-		updateTrip,
-		deleteTrip,
-		fetchAllCategories,
-		fetchCategory,
-		addCategory,
-		updateCategory,
-		deleteCategory,
-		fetchAllInvestments,
-		fetchInvestment,
-		addInvestment,
-		updateInvestment,
-		deleteInvestment,
+		fetchAllRelations,
+		fetchRelation,
+		addRelation,
+		updateRelation,
+		deleteRelation,
 		fetchAllTransactions,
 		fetchTransaction,
+		addTransactionRelation,
 		addTransaction,
 		deleteTransaction,
 		updateTransaction,
-		fetchTransactionsForSource,
-		fetchTransactionsForCategory,
-		fetchTransactionsForTrip,
-		fetchTransactionsForInvestment,
-		fetchTotalForSource,
-		fetchTotalForTrip,
-		fetchTotalForInvestment,
-		fetchTotalForCategory,
-		fetchTotalForAll,
-		transactionEditScreenFocus,
+		fetchTransactionsForRelation,
+		fetchRelationsForTransaction,
+		deleteRelationsForTransaction,
 	};
 };
 

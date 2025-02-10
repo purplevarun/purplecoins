@@ -1,0 +1,109 @@
+appId: host.exp.exponent
+---
+- runScript: ./output.js
+# no transactions yet
+- tapOn:
+    id: "transaction_icon"
+- assertVisible:
+    below: "Transactions"
+    text: "No Transactions found"
+- tapOn:
+    id: "plus_icon"
+# adding first transaction SALARY
+- assertVisible: "Add Transaction"
+- assertVisible: "General"
+- assertVisible: "Transfer"
+- assertVisible: "Investment"
+- assertVisible: "${output.data.date}"
+- assertVisible: "DEBIT"
+- tapOn: "DEBIT"
+- assertVisible: "CREDIT"
+- tapOn:
+    id: "close_icon"
+- assertVisible:
+    below: "Transactions"
+    text: "No Transactions found"
+- tapOn:
+    id: "plus_icon"
+- tapOn: "DEBIT"
+- tapOn: "Amount"
+- inputText: "1000"
+- tapOn: "Reason"
+- inputText: "Salary"
+- tapOn: "Destination"
+- tapOn: "Source 1"
+- tapOn:
+    id: "check_icon"
+- assertVisible:
+    below: "${output.data.date}"
+    text: "Salary"
+- assertVisible:
+    leftOf: "₹1,000"
+    text: "Salary"
+# first transaction SALARY added
+- tapOn:
+    id: "source_icon"
+- assertVisible:
+    below: "Total Balance = ₹1,000"
+    rightOf: "Source 1"
+    text: "₹1,000"
+- tapOn:
+    id: "transaction_icon"
+# adding second transaction GEN TXN
+- tapOn:
+    id: "plus_icon"
+- tapOn: "General"
+- tapOn: "Amount"
+- inputText: "100"
+- assertVisible: "DEBIT"
+- tapOn: "Reason"
+- inputText: "Gen Txn"
+- tapOn: "${output.data.date}"
+- eraseText
+- inputText: "01/01/2025"
+- tapOn: "Source"
+- tapOn: "Source 1"
+- tapOn: "Categories"
+- tapOn: "Category 1"
+- tapOn:
+    point: "50%,50%"
+- tapOn: "Trips"
+- tapOn: "Trip 1"
+- tapOn:
+    point: "50%,50%"
+- tapOn:
+    id: "check_icon"
+# second transaction GEN TXN added
+- tapOn:
+    id: "source_icon"
+- assertVisible:
+    below: "Total Balance = ₹900"
+    rightOf: "Source 1"
+    text: "₹900"
+- tapOn:
+    id: "transaction_icon"
+- tapOn: "Gen Txn"
+- tapOn:
+    id: "edit_icon"
+- assertVisible: "Edit Transaction"
+- assertVisible:
+    leftOf: "DEBIT"
+    text: "100"
+- assertVisible:
+    leftOf: "01/01/2025"
+    text: "Gen txn"
+- assertVisible: "Source 1"
+- assertVisible: "Category 1"
+- assertVisible: "Trip 1"
+- tapOn: "100"
+- eraseText
+- inputText: "200"
+- tapOn:
+    id: "check_icon"
+# GEN TXN edited
+- tapOn:
+    id: "source_icon"
+- assertVisible:
+    below: "Total Balance = ₹800"
+    rightOf: "Source 1"
+    text: "₹800"

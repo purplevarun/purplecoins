@@ -4,31 +4,28 @@ import Header from "../../components/Header";
 import ScreenLayout from "../../components/ScreenLayout";
 import useDatabase from "../../hooks/useDatabase";
 import useScreen from "../../hooks/useScreen";
-import { formatMoney } from "../../util/HelperFunctions";
+import { calculateTotal, formatMoney } from "../../util/HelperFunctions";
 import LinkedTransactions from "../transaction/LinkedTransactions";
 
 const InvestmentDetail = ({ route }: any) => {
-	const id = route.params.id;
-	const { navigate } = useScreen();
-	const {
-		fetchInvestment,
-		deleteInvestment,
-		fetchTransactionsForInvestment,
-		fetchTotalForInvestment,
-	} = useDatabase();
-	const investment = fetchInvestment(id);
-	const transactions = fetchTransactionsForInvestment(id);
-	const total = fetchTotalForInvestment(id);
-
+	const { id } = route.params;
+	const navigate = useScreen();
+	const { fetchRelation, deleteRelation,fetchTransactionsForRelation } = useDatabase();
+	const relation = fetchRelation(id);
+	const transactions = fetchTransactionsForRelation(id);
+	const total = calculateTotal(transactions);
 	return (
 		<ScreenLayout>
 			<Header
 				handleClose={() => navigate(investmentRoutes.main)}
-				handleEdit={() => navigate(investmentRoutes.edit, id)}
+				handleEdit={() => navigate(investmentRoutes.edit, { id })}
 				canBeDeleted={transactions.length === 0}
-				handleDelete={() => deleteInvestment(id)}
+				handleDelete={() => {
+					deleteRelation(id);
+					navigate(investmentRoutes.main);
+				}}
 			/>
-			<DataTab name={"Name"} value={investment.name} />
+			<DataTab name={"Name"} value={relation.name} />
 			<DataTab
 				name={"Amount"}
 				value={formatMoney(Math.abs(total))}

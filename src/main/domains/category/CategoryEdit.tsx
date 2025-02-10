@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { categoryRoutes } from "../../app/router/Routes";
 import CustomInput from "../../components/CustomInput";
 import Header from "../../components/Header";
@@ -5,30 +6,28 @@ import ScreenLayout from "../../components/ScreenLayout";
 import useDatabase from "../../hooks/useDatabase";
 import useFocus from "../../hooks/useFocus";
 import useScreen from "../../hooks/useScreen";
-import useValues from "../../hooks/useValues";
 
 const CategoryEdit = ({ route }: any) => {
 	const id = route.params.id;
-	const { categoryName, setCategoryName } = useValues();
-	const { navigate } = useScreen();
-	const { updateCategory, fetchCategory } = useDatabase();
-
-	useFocus(() => {
-		const category = fetchCategory(id);
-		setCategoryName(category.name);
-	});
+	const [name, setName] = useState("");
+	const navigate = useScreen();
+	const { fetchRelation, updateRelation } = useDatabase();
+	useFocus(() => setName(fetchRelation(id).name));
 
 	return (
 		<ScreenLayout>
 			<Header
 				handleClose={() => navigate(categoryRoutes.main)}
-				handleSubmit={() => updateCategory(id)}
-				canBeSubmitted={categoryName !== ""}
+				handleSubmit={() => {
+					updateRelation(id, name);
+					navigate(categoryRoutes.main);
+				}}
+				canBeSubmitted={name !== ""}
 			/>
 			<CustomInput
-				name={"Name"}
-				value={categoryName}
-				setValue={setCategoryName}
+				name={"Category Name"}
+				value={name}
+				setValue={setName}
 			/>
 		</ScreenLayout>
 	);

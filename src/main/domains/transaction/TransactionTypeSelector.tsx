@@ -4,22 +4,22 @@ import {
 	GREEN_COLOR,
 	YELLOW_COLOR,
 } from "../../constants/colors.config";
-import Type from "../../constants/enums/Type";
+import TransactionType from "../../constants/enums/TransactionType";
 
 interface ITypeSelector {
-	type: Type;
-	setType: (val: Type) => void;
+	type: TransactionType;
+	setType: (val: TransactionType) => void;
 }
 
 const ExpenseData = {
-	[Type.GENERAL]: { name: "General", color: GREEN_COLOR },
-	[Type.TRANSFER]: { name: "Transfer", color: BLUE_COLOR },
-	[Type.INVESTMENT]: { name: "Investment", color: YELLOW_COLOR },
+	[TransactionType.GENERAL]: { name: "General", color: GREEN_COLOR },
+	[TransactionType.TRANSFER]: { name: "Transfer", color: BLUE_COLOR },
+	[TransactionType.INVESTMENT]: { name: "Investment", color: YELLOW_COLOR },
 };
 
 const TransactionTypeSelector = ({ type, setType }: ITypeSelector) => {
-	const radioButtonData = Object.keys(Type).map((key, index) => {
-		const type = Type[key as keyof typeof Type];
+	const radioButtonData = Object.keys(TransactionType).map((key, index) => {
+		const type = TransactionType[key as keyof typeof TransactionType];
 		const { name, color } = ExpenseData[type];
 		return {
 			id: index.toString(),

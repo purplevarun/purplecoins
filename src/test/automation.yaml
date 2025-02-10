@@ -8,4 +8,8 @@ appId: host.exp.exponent
 - runFlow: ./category.yaml
 - runFlow: ./trip.yaml
 - runFlow: ./investment.yaml
-- runFlow: ./transaction.yaml
+- runFlow: ./gen_transaction.yaml
+- runFlow: ./transfer_transaction.yaml
+- runFlow: ./ivt_transaction.yaml
+- runFlow: ./gen_transaction_details.yaml
+- runFlow: ./transaction_order.yaml

@@ -7,18 +7,19 @@ import ScreenLayout from "../../components/ScreenLayout";
 import useDatabase from "../../hooks/useDatabase";
 import useFocus from "../../hooks/useFocus";
 import useScreen from "../../hooks/useScreen";
-import ITransaction from "./ITransaction";
+import Transaction from "../../models/Transaction";
 import TransactionRenderItem from "./TransactionRenderItem";
 
 const TransactionMain = () => {
-	const [transactions, setTransactions] = useState<ITransaction[]>([]);
-	const { navigate } = useScreen();
+	const [transactions, setTransactions] = useState<Transaction[]>([]);
+	const navigate = useScreen();
 	const { fetchAllTransactions } = useDatabase();
 	const handlePlus = () => navigate(transactionRoutes.add);
 
 	useFocus(() => setTransactions(fetchAllTransactions()));
 
-	if (transactions.length === 0) return <NoContent handlePlus={handlePlus} />;
+	if (transactions.length === 0)
+		return <NoContent handlePlus={handlePlus} text={"Transactions"} />;
 	return (
 		<ScreenLayout>
 			<Header handlePlus={handlePlus} />

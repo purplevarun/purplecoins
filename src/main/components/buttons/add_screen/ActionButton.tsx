@@ -10,7 +10,7 @@ import {
 	CENTER,
 	FONT_SIZE,
 } from "../../../constants/constants.config";
-import Action from "../../../constants/enums/Action";
+import TransactionAction from "../../../constants/enums/TransactionAction";
 import CustomText from "../../CustomText";
 
 const ActionButton = ({
@@ -18,15 +18,17 @@ const ActionButton = ({
 	setAction,
 	width,
 }: {
-	action: Action;
-	setAction: (val: Action) => void;
+	action: TransactionAction;
+	setAction: (val: TransactionAction) => void;
 	width: DimensionValue;
 }) => {
 	return (
 		<TouchableOpacity
 			style={{
 				backgroundColor:
-					action === Action.DEBIT ? RED_COLOR : GREEN_COLOR,
+					action === TransactionAction.DEBIT
+						? RED_COLOR
+						: GREEN_COLOR,
 				width,
 				borderRadius: BORDER_RADIUS,
 				height: FONT_SIZE * 2.5,
@@ -37,7 +39,9 @@ const ActionButton = ({
 			}}
 			onPress={() =>
 				setAction(
-					action === Action.DEBIT ? Action.CREDIT : Action.DEBIT,
+					action === TransactionAction.DEBIT
+						? TransactionAction.CREDIT
+						: TransactionAction.DEBIT,
 				)
 			}
 		>

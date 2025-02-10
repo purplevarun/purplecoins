@@ -15,17 +15,18 @@ import {
 } from "../../constants/constants.config";
 import useDatabase from "../../hooks/useDatabase";
 import useScreen from "../../hooks/useScreen";
-import { formatMoney } from "../../util/HelperFunctions";
-import ICategory from "./ICategory";
+import Relation from "../../models/Relation";
+import { calculateTotal, formatMoney } from "../../util/HelperFunctions";
 
-const CategoryRenderItem = ({ item }: { item: ICategory }) => {
+const CategoryRenderItem = ({ item }: { item: Relation }) => {
 	return <Implementation item={item} />;
 };
 
-const Implementation = ({ item }: { item: ICategory }) => {
-	const { fetchTotalForCategory } = useDatabase();
-	const { navigate } = useScreen();
-	const total = fetchTotalForCategory(item.id);
+const Implementation = ({ item: { id, name } }: { item: Relation }) => {
+	const { fetchTransactionsForRelation } = useDatabase();
+	const navigate = useScreen();
+	const transactions = fetchTransactionsForRelation(id);
+	const total = calculateTotal(transactions);
 
 	return (
 		<TouchableOpacity
@@ -39,9 +40,15 @@ const Implementation = ({ item }: { item: ICategory }) => {
 				flexDirection: FLEX_ROW,
 				justifyContent: SPACE_BETWEEN,
 			}}
-			onPress={() => navigate(categoryRoutes.detail, item.id)}
+			onPress={() =>
+				navigate(categoryRoutes.detail, {
+					id,
+					transactions,
+					total,
+				})
+			}
 		>
-			<CustomText text={item.name} />
+			<CustomText text={name} />
 			<CustomText text={formatMoney(Math.abs(total))} />
 		</TouchableOpacity>
 	);

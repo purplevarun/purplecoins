@@ -1,34 +1,34 @@
 export const transactionRoutes = {
-	main: "Transaction.Main",
-	add: "Transaction.Add",
-	detail: "Transaction.Detail",
-	edit: "Transaction.Edit",
+	main: "Transactions",
+	add: "Add Transaction",
+	detail: "Transaction Detail",
+	edit: "Edit Transaction",
 };
 
 export const sourceRoutes = {
-	main: "Source.Main",
-	add: "Source.Add",
-	detail: "Source.Detail",
-	edit: "Source.Edit",
+	main: "Sources",
+	add: "Add Source",
+	detail: "Source Detail",
+	edit: "Edit Source",
 };
 
 export const investmentRoutes = {
-	main: "Investment.Main",
-	add: "Investment.Add",
-	detail: "Investment.Detail",
-	edit: "Investment.Edit",
+	main: "Investments",
+	add: "Add Investment",
+	detail: "Investment Detail",
+	edit: "Edit Investment",
 };
 
 export const tripRoutes = {
-	main: "Trip.Main",
-	add: "Trip.Add",
-	detail: "Trip.Detail",
-	edit: "Trip.Edit",
+	main: "Trips",
+	add: "Add Trip",
+	detail: "Trip Detail",
+	edit: "Edit Trip",
 };
 
 export const categoryRoutes = {
-	main: "Category.Main",
-	add: "Category.Add",
-	detail: "Category.Detail",
-	edit: "Category.Edit",
+	main: "Categories",
+	add: "Add Category",
+	detail: "Category Detail",
+	edit: "Edit Category",
 };

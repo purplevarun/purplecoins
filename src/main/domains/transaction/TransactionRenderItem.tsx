@@ -16,24 +16,24 @@ import {
 	PADDING,
 	SPACE_BETWEEN,
 } from "../../constants/constants.config";
-import Action from "../../constants/enums/Action";
-import Type from "../../constants/enums/Type";
+import TransactionAction from "../../constants/enums/TransactionAction";
+import TransactionType from "../../constants/enums/TransactionType";
 import useScreen from "../../hooks/useScreen";
+import Transaction from "../../models/Transaction";
 import { convertDateToString, formatMoney } from "../../util/HelperFunctions";
-import ITransaction from "./ITransaction";
 
-const TransactionRenderItem = ({ item }: { item: ITransaction }) => {
+const TransactionRenderItem = ({ item }: { item: Transaction }) => {
 	return <Implementation item={item} />;
 };
 
-const Implementation = ({ item }: { item: ITransaction }) => {
-	const { navigate } = useScreen();
+const Implementation = ({ item }: { item: Transaction }) => {
+	const navigate = useScreen();
 	const borderColor =
-		item.type === Type.TRANSFER
+		item.type === TransactionType.TRANSFER
 			? BLUE_COLOR
-			: item.type === Type.INVESTMENT
+			: item.type === TransactionType.INVESTMENT
 				? YELLOW_COLOR
-				: item.action === Action.DEBIT
+				: item.action === TransactionAction.DEBIT
 					? RED_COLOR
 					: GREEN_COLOR;
 	return (
@@ -49,7 +49,9 @@ const Implementation = ({ item }: { item: ITransaction }) => {
 					flexDirection: FLEX_ROW,
 					justifyContent: SPACE_BETWEEN,
 				}}
-				onPress={() => navigate(transactionRoutes.detail, item.id)}
+				onPress={() =>
+					navigate(transactionRoutes.detail, { id: item.id })
+				}
 			>
 				<CustomText text={item.reason} />
 				<CustomText text={formatMoney(item.amount)} />

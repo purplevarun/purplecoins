@@ -4,31 +4,29 @@ import Header from "../../components/Header";
 import ScreenLayout from "../../components/ScreenLayout";
 import useDatabase from "../../hooks/useDatabase";
 import useScreen from "../../hooks/useScreen";
-import { formatMoney } from "../../util/HelperFunctions";
+import { calculateTotal, formatMoney } from "../../util/HelperFunctions";
 import LinkedTransactions from "../transaction/LinkedTransactions";
 
 const SourceDetail = ({ route }: any) => {
-	const id = route.params.id;
-	const { navigate } = useScreen();
-	const {
-		fetchTransactionsForSource,
-		deleteSource,
-		fetchSource,
-		fetchTotalForSource,
-	} = useDatabase();
-	const source = fetchSource(id);
-	const transactions = fetchTransactionsForSource(id);
-	const total = fetchTotalForSource(id);
-
+	const { id } = route.params;
+	const navigate = useScreen();
+	const { fetchRelation, deleteRelation, fetchTransactionsForRelation } =
+		useDatabase();
+	const relation = fetchRelation(id);
+	const transactions = fetchTransactionsForRelation(id);
+	const total = calculateTotal(transactions);
 	return (
 		<ScreenLayout>
 			<Header
 				handleClose={() => navigate(sourceRoutes.main)}
-				handleEdit={() => navigate(sourceRoutes.edit, id)}
+				handleEdit={() => navigate(sourceRoutes.edit, { id })}
 				canBeDeleted={transactions.length === 0}
-				handleDelete={() => deleteSource(id)}
+				handleDelete={() => {
+					deleteRelation(id);
+					navigate(sourceRoutes.main);
+				}}
 			/>
-			<DataTab name={"Name"} value={source.name} />
+			<DataTab name={"Name"} value={relation.name} />
 			<DataTab
 				name={"Amount"}
 				value={formatMoney(Math.abs(total))}

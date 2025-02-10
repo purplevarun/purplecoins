@@ -1,3 +1,6 @@
+import TransactionType from "../constants/enums/TransactionType";
+import Transaction, { amount } from "../models/Transaction";
+
 export const formatMoney = (money: number | null | undefined) => {
 	if (money === null || money === undefined) return "null";
 	return "₹" + money.toLocaleString("en-IN");
@@ -16,5 +19,13 @@ export const convertStringToDate = (incomingDate: string) => {
 	const newDate = new Date();
 	newDate.setFullYear(parseInt(y), parseInt(m) - 1, parseInt(d));
 	newDate.setHours(0, 0, 0, 0);
-	return newDate.getTime();
+	return newDate;
 };
+
+export const calculateTotal = (
+	transactions: Transaction[],
+	balance?: boolean,
+) =>
+	transactions
+		.filter((tx) => !balance || tx.type !== TransactionType.TRANSFER)
+		.reduce((sum, tx) => sum + amount(tx), 0);

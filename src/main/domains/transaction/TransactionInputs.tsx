@@ -3,14 +3,12 @@ import DropdownSelector from "../../components/DropdownSelector";
 import DropdownType from "../../components/DropdownType";
 import PaddedRow from "../../components/PaddedRow";
 import ActionButton from "../../components/buttons/add_screen/ActionButton";
-import Action from "../../constants/enums/Action";
-import Type from "../../constants/enums/Type";
+import RelationType from "../../constants/enums/RelationType";
+import TransactionAction from "../../constants/enums/TransactionAction";
+import TransactionType from "../../constants/enums/TransactionType";
 import useDatabase from "../../hooks/useDatabase";
 import useValues from "../../hooks/useValues";
-import ICategory from "../category/ICategory";
-import IInvestment from "../investment/IInvestment";
-import ISource from "../source/ISource";
-import ITrip from "../trip/ITrip";
+import Relation from "../../models/Relation";
 
 const TransactionInputs = () => {
 	const {
@@ -34,18 +32,13 @@ const TransactionInputs = () => {
 		setCategories,
 		setDestination,
 	} = useValues();
-	const {
-		fetchAllSources,
-		fetchAllInvestments,
-		fetchAllTrips,
-		fetchAllCategories,
-	} = useDatabase();
-	const sourceList = fetchAllSources();
-	const categoryList = fetchAllCategories();
-	const tripList = fetchAllTrips();
-	const investmentList = fetchAllInvestments();
+	const { fetchAllRelations } = useDatabase();
+	const sourceList = fetchAllRelations(RelationType.SOURCE);
+	const categoryList = fetchAllRelations(RelationType.CATEGORY);
+	const tripList = fetchAllRelations(RelationType.TRIP);
+	const investmentList = fetchAllRelations(RelationType.INVESTMENT);
 
-	const callback = (s: ISource | ITrip | ICategory | IInvestment) => ({
+	const callback = (s: Relation) => ({
 		label: s.name,
 		value: s.id,
 	});
@@ -58,9 +51,9 @@ const TransactionInputs = () => {
 	const tripModels = tripList.map(callback);
 	const investmentModels = investmentList.map(callback);
 
-	const isGeneral = type === Type.GENERAL;
-	const isInvestment = type === Type.INVESTMENT;
-	const isTransfer = type === Type.TRANSFER;
+	const isGeneral = type === TransactionType.GENERAL;
+	const isInvestment = type === TransactionType.INVESTMENT;
+	const isTransfer = type === TransactionType.TRANSFER;
 
 	return (
 		<>
@@ -98,7 +91,7 @@ const TransactionInputs = () => {
 				<PaddedRow>
 					<DropdownSelector
 						name={
-							action === Action.DEBIT
+							action === TransactionAction.DEBIT
 								? DropdownType.SOURCE
 								: DropdownType.DESTINATION
 						}
