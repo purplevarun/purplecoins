@@ -4,44 +4,48 @@ import SettingsButton from "../../components/buttons/tab_bar/SettingsButton";
 import SourceButton from "../../components/buttons/tab_bar/SourceButton";
 import TransactionButton from "../../components/buttons/tab_bar/TransactionButton";
 import TripButton from "../../components/buttons/tab_bar/TripButton";
+import RelationType from "../../constants/enums/RelationType";
 import Service from "../../constants/enums/Service";
-import CategoryRouter from "../../domains/category/CategoryRouter";
-import InvestmentRouter from "../../domains/investment/InvestmentRouter";
+import RelationRouter from "../../domains/relation/RelationRouter";
 import SettingScreen from "../../domains/setting/SettingScreen";
-import SourceRouter from "../../domains/source/SourceRouter";
 import TransactionRouter from "../../domains/transaction/TransactionRouter";
-import TripRouter from "../../domains/trip/TripRouter";
 
 const tabRoutes = {
 	transaction: {
 		name: Service.TRANSACTION,
 		component: TransactionRouter,
 		Icon: TransactionButton,
+		params: {},
 	},
 	source: {
 		name: Service.SOURCE,
-		component: SourceRouter,
+		component: RelationRouter,
 		Icon: SourceButton,
+		params: { relation: RelationType.SOURCE },
 	},
 	category: {
 		name: Service.CATEGORY,
-		component: CategoryRouter,
+		component: RelationRouter,
 		Icon: CategoryButton,
+		params: { relation: RelationType.CATEGORY },
 	},
 	trip: {
 		name: Service.TRIP,
-		component: TripRouter,
+		component: RelationRouter,
 		Icon: TripButton,
+		params: { relation: RelationType.TRIP },
 	},
 	investment: {
 		name: Service.INVESTMENT,
-		component: InvestmentRouter,
+		component: RelationRouter,
 		Icon: InvestmentButton,
+		params: { relation: RelationType.INVESTMENT },
 	},
 	settings: {
 		name: Service.SETTINGS,
 		component: SettingScreen,
 		Icon: SettingsButton,
+		params: {},
 	},
 };
 

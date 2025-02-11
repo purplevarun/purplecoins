@@ -1,9 +1,9 @@
 import TransactionRelationType from "../constants/enums/TransactionRelationType";
 
-interface RelationForTxn {
+interface LinkedRelation {
 	id: string;
 	name: string;
 	type: TransactionRelationType;
 }
 
-export default RelationForTxn;
+export default LinkedRelation;

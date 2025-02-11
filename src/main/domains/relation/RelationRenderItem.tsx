@@ -1,5 +1,4 @@
 import { TouchableOpacity } from "react-native";
-import { sourceRoutes } from "../../app/router/Routes";
 import CustomText from "../../components/CustomText";
 import {
 	GREEN_COLOR,
@@ -17,12 +16,13 @@ import useDatabase from "../../hooks/useDatabase";
 import useScreen from "../../hooks/useScreen";
 import Relation from "../../models/Relation";
 import { calculateTotal, formatMoney } from "../../util/HelperFunctions";
+import RelationMap from "./RelationMap";
 
-const SourceRenderItem = ({ item }: { item: Relation }) => {
+const RelationRenderItem = ({ item }: { item: Relation }) => {
 	return <Implementation item={item} />;
 };
 
-const Implementation = ({ item: { id, name } }: { item: Relation }) => {
+const Implementation = ({ item: { id, name, type } }: { item: Relation }) => {
 	const { fetchTransactionsForRelation } = useDatabase();
 	const navigate = useScreen();
 	const transactions = fetchTransactionsForRelation(id);
@@ -41,7 +41,7 @@ const Implementation = ({ item: { id, name } }: { item: Relation }) => {
 				justifyContent: SPACE_BETWEEN,
 			}}
 			onPress={() =>
-				navigate(sourceRoutes.detail, {
+				navigate(RelationMap[type].routes.detail, {
 					id,
 					transactions,
 					total,
@@ -54,4 +54,4 @@ const Implementation = ({ item: { id, name } }: { item: Relation }) => {
 	);
 };
 
-export default SourceRenderItem;
+export default RelationRenderItem;

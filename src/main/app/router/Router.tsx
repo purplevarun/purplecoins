@@ -12,8 +12,13 @@ const Router = () => {
 	}, []);
 	return (
 		<TopTab.Navigator tabBarPosition={TAB_BAR_POSITION} tabBar={TabBar}>
-			{Object.values(tabRoutes).map(({ name, component }) => (
-				<TopTab.Screen name={name} component={component} key={name} />
+			{Object.values(tabRoutes).map(({ name, component, params }) => (
+				<TopTab.Screen
+					name={name}
+					component={component}
+					key={name}
+					initialParams={params}
+				/>
 			))}
 		</TopTab.Navigator>
 	);

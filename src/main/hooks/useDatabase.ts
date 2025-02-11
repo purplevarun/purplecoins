@@ -4,8 +4,8 @@ import RelationType from "../constants/enums/RelationType";
 import TransactionAction from "../constants/enums/TransactionAction";
 import TransactionRelationType from "../constants/enums/TransactionRelationType";
 import TransactionType from "../constants/enums/TransactionType";
+import LinkedRelation from "../models/LinkedRelation";
 import Relation from "../models/Relation";
-import RelationForTxn from "../models/RelationForTxn";
 import Transaction from "../models/Transaction";
 
 const useDatabase = () => {
@@ -111,12 +111,12 @@ const useDatabase = () => {
 
 	const fetchRelationsForTransaction = (transactionId: string) => {
 		const query = `SELECT "relation".id, "relation".name, "transaction_relation".type FROM "relation" JOIN "transaction_relation" ON "relation".id = "transaction_relation".relation_id WHERE "transaction_relation".transaction_id = ?;`;
-		return db.getAllSync<RelationForTxn>(query, [transactionId]).reduce(
+		return db.getAllSync<LinkedRelation>(query, [transactionId]).reduce(
 			(acc, relation) => {
 				(acc[relation.type] ||= []).push(relation);
 				return acc;
 			},
-			{} as Record<TransactionRelationType, RelationForTxn[]>,
+			{} as Record<TransactionRelationType, LinkedRelation[]>,
 		);
 	};
 

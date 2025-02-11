@@ -1,11 +1,4 @@
-const tableNames = [
-	"transaction",
-	"transaction",
-	"relation",
-	"transaction_relation",
-];
-
-const drop_tables = tableNames.map(
+const drop_tables = ["transaction", "relation", "transaction_relation"].map(
 	(tableName) => `DROP TABLE IF EXISTS "${tableName}";`,
 );
 

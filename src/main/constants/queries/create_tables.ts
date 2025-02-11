@@ -1,4 +1,4 @@
-const new_create_transaction = `
+const transaction = `
 CREATE TABLE IF NOT EXISTS "transaction" (
 	id              TEXT PRIMARY KEY NOT NULL,
 	amount 			INTEGER NOT NULL CHECK (amount > 0),
@@ -8,14 +8,14 @@ CREATE TABLE IF NOT EXISTS "transaction" (
 	date            DATE NOT NULL
 );`;
 
-const new_create_relation = `
+const relation = `
 CREATE TABLE IF NOT EXISTS "relation" (
 	id			TEXT PRIMARY KEY NOT NULL,
 	name 		TEXT NOT NULL,
 	type		TEXT NOT NULL CHECK (type IN ('SOURCE', 'CATEGORY', 'TRIP', 'INVESTMENT'))
 );`;
 
-const new_create_transaction_relation = `
+const transaction_relation = `
 CREATE TABLE IF NOT EXISTS "transaction_relation" (
 	transaction_id 	TEXT NOT NULL,
 	relation_id 	TEXT NOT NULL,
@@ -25,10 +25,6 @@ CREATE TABLE IF NOT EXISTS "transaction_relation" (
 	FOREIGN KEY (relation_id) REFERENCES "relation" (id)
 );`;
 
-const create_tables = [
-	new_create_transaction,
-	new_create_relation,
-	new_create_transaction_relation,
-];
+const create_tables = [transaction, relation, transaction_relation];
 
 export default create_tables;

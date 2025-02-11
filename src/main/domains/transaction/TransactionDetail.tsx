@@ -14,7 +14,7 @@ import ScreenLayout from "../../components/ScreenLayout";
 import { FLEX_ROW, PADDING } from "../../constants/constants.config";
 import useDatabase from "../../hooks/useDatabase";
 import useScreen from "../../hooks/useScreen";
-import RelationForTxn from "../../models/RelationForTxn";
+import LinkedRelation from "../../models/LinkedRelation";
 import { convertDateToString, formatMoney } from "../../util/HelperFunctions";
 
 const TransactionDetail = ({ route }: any) => {
@@ -67,7 +67,7 @@ const TransactionDetail = ({ route }: any) => {
 	);
 };
 
-const Trips = ({ relations }: { relations: RelationForTxn[] }) => {
+const Trips = ({ relations }: { relations: LinkedRelation[] }) => {
 	const navigate = useScreen();
 	if (relations.length === 0) return null;
 	return (
@@ -91,7 +91,7 @@ const Trips = ({ relations }: { relations: RelationForTxn[] }) => {
 	);
 };
 
-const Categories = ({ relations }: { relations: RelationForTxn[] }) => {
+const Categories = ({ relations }: { relations: LinkedRelation[] }) => {
 	const navigate = useScreen();
 	if (relations.length === 0) return null;
 	return (
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
 	},
 });
 
-const Source = ({ source: { id, name } }: { source: RelationForTxn }) => {
+const Source = ({ source: { id, name } }: { source: LinkedRelation }) => {
 	const navigate = useScreen();
 	return (
 		<DataTabWrapper>
@@ -142,7 +142,7 @@ const Source = ({ source: { id, name } }: { source: RelationForTxn }) => {
 const Destination = ({
 	destination: { id, name },
 }: {
-	destination: RelationForTxn;
+	destination: LinkedRelation;
 }) => {
 	const navigate = useScreen();
 	return (
@@ -160,7 +160,7 @@ const Destination = ({
 const Investment = ({
 	investment: { id, name },
 }: {
-	investment: RelationForTxn;
+	investment: LinkedRelation;
 }) => {
 	const navigate = useScreen();
 	return (
