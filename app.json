@@ -3,7 +3,7 @@
 		"name": "Purplecoins",
 		"slug": "purplecoins",
 		"owner": "purplevarun",
-		"version": "2.4.0",
+		"version": "2.5.0",
 		"orientation": "portrait",
 		"icon": "./assets/images/icon.png",
 		"userInterfaceStyle": "dark",
