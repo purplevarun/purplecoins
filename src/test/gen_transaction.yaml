@@ -3,12 +3,12 @@ appId: host.exp.exponent
 - runScript: ./output.js
 # no transactions yet
 - tapOn:
-    id: "transaction_icon"
+      id: "transaction_icon"
 - assertVisible:
-    below: "Transactions"
-    text: "No Transactions found"
+      below: "Transactions"
+      text: "No Transactions found"
 - tapOn:
-    id: "plus_icon"
+      id: "plus_icon"
 # adding first transaction SALARY
 - assertVisible: "Add Transaction"
 - assertVisible: "General"
@@ -19,12 +19,12 @@ appId: host.exp.exponent
 - tapOn: "DEBIT"
 - assertVisible: "CREDIT"
 - tapOn:
-    id: "close_icon"
+      id: "close_icon"
 - assertVisible:
-    below: "Transactions"
-    text: "No Transactions found"
+      below: "Transactions"
+      text: "No Transactions found"
 - tapOn:
-    id: "plus_icon"
+      id: "plus_icon"
 - tapOn: "DEBIT"
 - tapOn: "Amount"
 - inputText: "1000"
@@ -33,25 +33,25 @@ appId: host.exp.exponent
 - tapOn: "Destination"
 - tapOn: "Source 1"
 - tapOn:
-    id: "check_icon"
+      id: "check_icon"
 - assertVisible:
-    below: "${output.data.date}"
-    text: "Salary"
+      below: "${output.data.date}"
+      text: "Salary"
 - assertVisible:
-    leftOf: "₹1,000"
-    text: "Salary"
+      leftOf: "₹1,000"
+      text: "Salary"
 # first transaction SALARY added
 - tapOn:
-    id: "source_icon"
+      id: "source_icon"
 - assertVisible:
-    below: "Total Balance = ₹1,000"
-    rightOf: "Source 1"
-    text: "₹1,000"
+      below: "Total Balance = ₹1,000"
+      rightOf: "Source 1"
+      text: "₹1,000"
 - tapOn:
-    id: "transaction_icon"
+      id: "transaction_icon"
 # adding second transaction GEN TXN
 - tapOn:
-    id: "plus_icon"
+      id: "plus_icon"
 - tapOn: "General"
 - tapOn: "Amount"
 - inputText: "100"
@@ -66,32 +66,32 @@ appId: host.exp.exponent
 - tapOn: "Categories"
 - tapOn: "Category 1"
 - tapOn:
-    point: "50%,50%"
+      point: "50%,50%"
 - tapOn: "Trips"
 - tapOn: "Trip 1"
 - tapOn:
-    point: "50%,50%"
+      point: "50%,50%"
 - tapOn:
-    id: "check_icon"
+      id: "check_icon"
 # second transaction GEN TXN added
 - tapOn:
-    id: "source_icon"
+      id: "source_icon"
 - assertVisible:
-    below: "Total Balance = ₹900"
-    rightOf: "Source 1"
-    text: "₹900"
+      below: "Total Balance = ₹900"
+      rightOf: "Source 1"
+      text: "₹900"
 - tapOn:
-    id: "transaction_icon"
+      id: "transaction_icon"
 - tapOn: "Gen Txn"
 - tapOn:
-    id: "edit_icon"
+      id: "edit_icon"
 - assertVisible: "Edit Transaction"
 - assertVisible:
-    leftOf: "DEBIT"
-    text: "100"
+      leftOf: "DEBIT"
+      text: "100"
 - assertVisible:
-    leftOf: "01/01/2025"
-    text: "Gen txn"
+      leftOf: "01/01/2025"
+      text: "Gen txn"
 - assertVisible: "Source 1"
 - assertVisible: "Category 1"
 - assertVisible: "Trip 1"
@@ -99,11 +99,11 @@ appId: host.exp.exponent
 - eraseText
 - inputText: "200"
 - tapOn:
-    id: "check_icon"
+      id: "check_icon"
 # GEN TXN edited
 - tapOn:
-    id: "source_icon"
+      id: "source_icon"
 - assertVisible:
-    below: "Total Balance = ₹800"
-    rightOf: "Source 1"
-    text: "₹800"
+      below: "Total Balance = ₹800"
+      rightOf: "Source 1"
+      text: "₹800"

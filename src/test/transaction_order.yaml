@@ -13,7 +13,7 @@ appId: host.exp.exponent
 - eraseText
 - inputText: "${output.data.date}"
 - tapOn:
-    id: "check_icon"
+      id: "check_icon"
 - assertVisible:
       above: "Gen Txn"
       text: "Transfer Txn"

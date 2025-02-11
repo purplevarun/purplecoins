@@ -1,14 +1,16 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import AddRelationScreen from "../../AddRelationScreen";
+import EditRelationScreen from "../../EditRelationScreen";
 import { investmentRoutes } from "../../app/router/Routes";
 import ScreenLayout from "../../components/ScreenLayout";
 import { SCREEN_OPTIONS } from "../../constants/constants.config";
-import InvestmentAdd from "./InvestmentAdd";
+import RelationType from "../../constants/enums/RelationType";
 import InvestmentDetail from "./InvestmentDetail";
-import InvestmentEdit from "./InvestmentEdit";
 import InvestmentMain from "./InvestmentMain";
 
 const InvestmentRouter = () => {
 	const Stack = createNativeStackNavigator();
+	const relation = RelationType.INVESTMENT;
 	return (
 		<ScreenLayout>
 			<Stack.Navigator screenOptions={SCREEN_OPTIONS}>
@@ -18,7 +20,8 @@ const InvestmentRouter = () => {
 				/>
 				<Stack.Screen
 					name={investmentRoutes.add}
-					component={InvestmentAdd}
+					component={AddRelationScreen}
+					initialParams={{ relation }}
 				/>
 				<Stack.Screen
 					name={investmentRoutes.detail}
@@ -26,7 +29,8 @@ const InvestmentRouter = () => {
 				/>
 				<Stack.Screen
 					name={investmentRoutes.edit}
-					component={InvestmentEdit}
+					component={EditRelationScreen}
+					initialParams={{ relation }}
 				/>
 			</Stack.Navigator>
 		</ScreenLayout>

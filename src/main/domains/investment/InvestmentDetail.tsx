@@ -8,9 +8,10 @@ import { calculateTotal, formatMoney } from "../../util/HelperFunctions";
 import LinkedTransactions from "../transaction/LinkedTransactions";
 
 const InvestmentDetail = ({ route }: any) => {
-	const { id } = route.params;
+	const id = route.params.id;
 	const navigate = useScreen();
-	const { fetchRelation, deleteRelation,fetchTransactionsForRelation } = useDatabase();
+	const { fetchRelation, deleteRelation, fetchTransactionsForRelation } =
+		useDatabase();
 	const relation = fetchRelation(id);
 	const transactions = fetchTransactionsForRelation(id);
 	const total = calculateTotal(transactions);
