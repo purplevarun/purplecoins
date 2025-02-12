@@ -9,8 +9,7 @@ import { FONT_SIZE } from "../../constants/constants.config";
 import useSetting from "./useSetting";
 
 const SettingScreen = () => {
-	const { handleImport, handleExport, handleClear, addSampleData } =
-		useSetting();
+	const { handleImport, handleExport, handleClear } = useSetting();
 	const [modal, setModal] = useState(false);
 	return (
 		<ScreenLayout>
@@ -23,7 +22,6 @@ const SettingScreen = () => {
 				onPress={() => setModal(true)}
 				color={RED_COLOR}
 			/>
-			<CustomButton text={"Add Sample Data"} onPress={addSampleData} />
 			{modal && (
 				<ConfirmationModal setModal={setModal} onDelete={handleClear} />
 			)}
