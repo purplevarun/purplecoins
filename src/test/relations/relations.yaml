@@ -1,0 +1,6 @@
+appId: host.exp.exponent
+---
+- runFlow: ./source.yaml
+- runFlow: ./category.yaml
+- runFlow: ./trip.yaml
+- runFlow: ./investment.yaml
