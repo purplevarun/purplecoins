@@ -20,6 +20,7 @@ const CustomInput = ({
 	password = false,
 	disabled = false,
 	width = "90%",
+	bottom = 0,
 }: {
 	value: string;
 	setValue?: (_: string) => void;
@@ -29,6 +30,7 @@ const CustomInput = ({
 	disabled?: boolean;
 	required?: boolean;
 	width?: DimensionValue;
+	bottom?: DimensionValue;
 }) => {
 	const inputRef = useRef<TextInput>(null);
 
@@ -36,8 +38,9 @@ const CustomInput = ({
 		<View
 			style={{
 				paddingTop: PADDING_TOP_ADD_SCREEN,
-				width,
 				alignSelf: CENTER,
+				width,
+				marginBottom: bottom,
 			}}
 		>
 			{value.length === 0 && (

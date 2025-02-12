@@ -1,9 +1,12 @@
 import { FlashList } from "@shopify/flash-list";
 import { useState } from "react";
 import { transactionRoutes } from "../../app/router/Routes";
+import CustomText from "../../components/CustomText";
+import Finder from "../../components/Finder";
 import Header from "../../components/Header";
-import NoContent from "../../components/NoContent";
 import ScreenLayout from "../../components/ScreenLayout";
+import { DISABLED_COLOR } from "../../constants/colors.config";
+import { FONT_SIZE } from "../../constants/constants.config";
 import useDatabase from "../../hooks/useDatabase";
 import useFocus from "../../hooks/useFocus";
 import useScreen from "../../hooks/useScreen";
@@ -14,20 +17,29 @@ const TransactionMain = () => {
 	const [transactions, setTransactions] = useState<Transaction[]>([]);
 	const navigate = useScreen();
 	const { fetchAllTransactions } = useDatabase();
-	const handlePlus = () => navigate(transactionRoutes.add);
-
+	const [showFinder, setShowFinder] = useState(false);
 	useFocus(() => setTransactions(fetchAllTransactions()));
 
-	if (transactions.length === 0)
-		return <NoContent handlePlus={handlePlus} text={"Transactions"} />;
 	return (
 		<ScreenLayout>
-			<Header handlePlus={handlePlus} />
-			<FlashList
-				data={transactions}
-				renderItem={TransactionRenderItem}
-				estimatedItemSize={1000}
+			<Header
+				handlePlus={() => navigate(transactionRoutes.add)}
+				handleFind={() => setShowFinder((prev) => !prev)}
 			/>
+			{showFinder && <Finder setTransactions={setTransactions} />}
+			{transactions.length === 0 ? (
+				<CustomText
+					text={"No Transactions found"}
+					color={DISABLED_COLOR}
+					paddingTop={FONT_SIZE}
+				/>
+			) : (
+				<FlashList
+					data={transactions}
+					renderItem={TransactionRenderItem}
+					estimatedItemSize={100}
+				/>
+			)}
 		</ScreenLayout>
 	);
 };

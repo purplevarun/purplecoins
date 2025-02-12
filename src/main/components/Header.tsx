@@ -13,6 +13,7 @@ import CheckButton from "./buttons/header/CheckButton";
 import CloseButton from "./buttons/header/CloseButton";
 import DeleteButton from "./buttons/header/DeleteButton";
 import EditButton from "./buttons/header/EditButton";
+import FindButton from "./buttons/header/FindButton";
 import PlusButton from "./buttons/header/PlusButton";
 
 const Header = ({
@@ -23,6 +24,7 @@ const Header = ({
 	canBeDeleted,
 	handleSubmit,
 	canBeSubmitted,
+	handleFind,
 }: {
 	handleClose?: () => void;
 	handlePlus?: () => void;
@@ -31,17 +33,18 @@ const Header = ({
 	handleSubmit?: () => void;
 	canBeDeleted?: boolean;
 	canBeSubmitted?: boolean;
+	handleFind?: () => void;
 }) => {
-	const title = useRoute().name;
-
+	const { name } = useRoute();
 	return (
 		<View style={styles.headerContainer}>
 			<CustomText
-				text={title}
+				text={name}
 				alignSelf={CENTER}
 				fontSize={LARGE_FONT_SIZE}
 			/>
 			<View style={styles.iconContainer}>
+				<FindButton onClick={handleFind} />
 				<CheckButton
 					handleCheck={handleSubmit}
 					enabled={canBeSubmitted}

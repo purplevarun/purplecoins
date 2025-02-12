@@ -1,0 +1,22 @@
+appId: host.exp.exponent
+---
+- tapOn:
+      id: "transaction_icon"
+- assertNotVisible: "Search"
+- tapOn:
+      id: "find_icon"
+- assertVisible: "Search"
+- tapOn: "Search"
+- inputText: "txn"
+- assertNotVisible: "Salary"
+- assertVisible:
+      below: "txn"
+      text: "Transfer Txn"
+- assertVisible:
+      below: "txn"
+      text: "Ivt Txn"
+- eraseText
+- assertVisible: "Salary"
+- tapOn:
+      id: "find_icon"
+- assertNotVisible: "Search"

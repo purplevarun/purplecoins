@@ -1,155 +1,155 @@
 appId: host.exp.exponent
 ---
 - tapOn:
-    id: "transaction_icon"
+      id: "transaction_icon"
 - tapOn: "Gen Txn"
 - assertVisible: "Transaction Detail"
 - assertVisible:
-    rightOf: "Amount"
-    text: "₹200"
+      rightOf: "Amount"
+      text: "₹200"
 - assertVisible:
-    rightOf: "Reason"
-    text: "Gen Txn"
+      rightOf: "Reason"
+      text: "Gen Txn"
 - assertVisible:
-    rightOf: "Type"
-    text: "GENERAL"
+      rightOf: "Type"
+      text: "GENERAL"
 - assertVisible:
-    rightOf: "Action"
-    text: "DEBIT"
+      rightOf: "Action"
+      text: "DEBIT"
 - assertVisible:
-    rightOf: "Date"
-    text: "01/01/2025"
+      rightOf: "Date"
+      text: "01/01/2025"
 - assertVisible:
-    rightOf: "Source"
-    text: "Source 1"
+      rightOf: "Source"
+      text: "Source 1"
 - assertVisible:
-    rightOf: "Categories"
-    text: "Category 1"
+      rightOf: "Categories"
+      text: "Category 1"
 - assertVisible:
-    rightOf: "Trips"
-    text: "Trip 1"
+      rightOf: "Trips"
+      text: "Trip 1"
 - tapOn: "Source 1"
 - assertVisible:
-    below: "Linked Transactions"
-    text: "Salary"
+      below: "Linked Transactions"
+      text: "Salary"
 - assertVisible:
-    below: "Linked Transactions"
-    text: "Gen Txn"
+      below: "Linked Transactions"
+      text: "Gen Txn"
 - assertVisible:
-    below: "Linked Transactions"
-    text: "Transfer Txn"
+      below: "Linked Transactions"
+      text: "Transfer Txn"
 - assertVisible:
-    below: "Linked Transactions"
-    text: "Ivt Txn"
+      below: "Linked Transactions"
+      text: "Ivt Txn"
 - tapOn:
-    id: "transaction_icon"
+      id: "transaction_icon"
 - tapOn: "Category 1"
 - assertVisible:
-    below: "Linked Transactions"
-    text: "Gen Txn"
+      below: "Linked Transactions"
+      text: "Gen Txn"
 - tapOn:
-    id: "transaction_icon"
+      id: "transaction_icon"
 - tapOn: "Trip 1"
 - assertVisible:
-    below: "Linked Transactions"
-    text: "Gen Txn"
+      below: "Linked Transactions"
+      text: "Gen Txn"
 - tapOn:
-    id: "close_icon"
+      id: "close_icon"
 - tapOn:
-    id: "transaction_icon"
+      id: "transaction_icon"
 - tapOn:
-    id: "edit_icon"
+      id: "edit_icon"
 - tapOn: "Trips"
 - tapOn: "Trip 2"
 - tapOn:
-    point: "50%,50%"
+      point: "50%,50%"
 - tapOn:
-    id: "check_icon"
+      id: "check_icon"
 - tapOn: "Gen Txn"
 - assertVisible:
-    rightOf: "Trips"
-    text: "Trip 1"
+      rightOf: "Trips"
+      text: "Trip 1"
 - assertVisible:
-    rightOf: "Trips"
-    text: "Trip 2"
+      rightOf: "Trips"
+      text: "Trip 2"
 - tapOn:
-    id: "edit_icon"
+      id: "edit_icon"
 - tapOn: "Categories"
 - tapOn: "Category 2"
 - tapOn:
-    point: "50%,50%"
+      point: "50%,50%"
 - tapOn:
-    id: "check_icon"
+      id: "check_icon"
 - tapOn: "Gen Txn"
 - assertVisible:
-    rightOf: "Categories"
-    text: "Category 1"
+      rightOf: "Categories"
+      text: "Category 1"
 - assertVisible:
-    rightOf: "Categories"
-    text: "Category 2"
+      rightOf: "Categories"
+      text: "Category 2"
 - tapOn:
-    id: "close_icon"
+      id: "close_icon"
 - tapOn:
-    id: "transaction_icon"
+      id: "transaction_icon"
 - tapOn: "Transfer Txn"
 - assertVisible:
-    rightOf: "Source"
-    text: "Source 1"
+      rightOf: "Source"
+      text: "Source 1"
 - assertVisible:
-    rightOf: "Destination"
-    text: "Source 2"
+      rightOf: "Destination"
+      text: "Source 2"
 - assertVisible:
-    rightOf: "Type"
-    text: "TRANSFER"
+      rightOf: "Type"
+      text: "TRANSFER"
 - assertNotVisible: "Action"
 - tapOn: "Source 1"
 - assertVisible:
-    below: "Linked Transactions"
-    leftOf: "₹100"
-    text: "Transfer Txn"
+      below: "Linked Transactions"
+      leftOf: "₹100"
+      text: "Transfer Txn"
 - tapOn:
-    id: "transaction_icon"
+      id: "transaction_icon"
 - tapOn: "Source 2"
 - assertVisible:
-    below: "Linked Transactions"
-    leftOf: "₹100"
-    text: "Transfer Txn"
+      below: "Linked Transactions"
+      leftOf: "₹100"
+      text: "Transfer Txn"
 - tapOn:
-    id: "transaction_icon"
+      id: "transaction_icon"
 - tapOn:
-    id: "close_icon"
+      id: "close_icon"
 - tapOn: "Ivt Txn"
 - assertVisible:
-    rightOf: "Type"
-    text: "INVESTMENT"
+      rightOf: "Type"
+      text: "INVESTMENT"
 - assertVisible:
-    rightOf: "Action"
-    text: "DEBIT"
+      rightOf: "Action"
+      text: "DEBIT"
 - assertVisible:
-    rightOf: "Date"
-    text: "31/12/2024"
+      rightOf: "Date"
+      text: "31/12/2024"
 - assertVisible:
-    rightOf: "Amount"
-    text: "₹150"
+      rightOf: "Amount"
+      text: "₹150"
 - assertVisible:
-    rightOf: "Source"
-    text: "Source 1"
+      rightOf: "Source"
+      text: "Source 1"
 - assertVisible:
-    rightOf: "Investment"
-    text: "Investment 1"
+      rightOf: "Investment"
+      text: "Investment 1"
 - tapOn: "Source 1"
 - assertVisible:
-    below: "Linked Transactions"
-    leftOf: "₹150"
-    text: "Ivt Txn"
+      below: "Linked Transactions"
+      leftOf: "₹150"
+      text: "Ivt Txn"
 - tapOn:
-    id: "transaction_icon"
+      id: "transaction_icon"
 - tapOn: "Investment 1"
 - assertVisible:
-    below: "Linked Transactions"
-    leftOf: "₹150"
-    text: "Ivt Txn"
+      below: "Linked Transactions"
+      leftOf: "₹150"
+      text: "Ivt Txn"
 - tapOn:
-    id: "transaction_icon"
+      id: "transaction_icon"
 - tapOn:
-    id: "close_icon"
+      id: "close_icon"
