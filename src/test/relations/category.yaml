@@ -44,3 +44,9 @@ appId: host.exp.exponent
 - assertNotVisible: "Category 2"
 - assertNotVisible: "Category 3"
 - assertVisible: "Category 1"
+- tapOn:
+      id: "plus_icon"
+- tapOn: "Category Name"
+- inputText: "Category 2"
+- tapOn:
+      id: "check_icon"

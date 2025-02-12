@@ -44,3 +44,9 @@ appId: host.exp.exponent
 - assertNotVisible: "Source 2"
 - assertNotVisible: "Source 3"
 - assertVisible: "Source 1"
+- tapOn:
+      id: "plus_icon"
+- tapOn: "Source Name"
+- inputText: "Source 2"
+- tapOn:
+      id: "check_icon"

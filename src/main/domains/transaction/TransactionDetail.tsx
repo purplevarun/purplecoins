@@ -12,6 +12,7 @@ import DataTabWrapper from "../../components/DataTabWrapper";
 import Header from "../../components/Header";
 import ScreenLayout from "../../components/ScreenLayout";
 import { FLEX_ROW, PADDING } from "../../constants/constants.config";
+import TransactionType from "../../constants/enums/TransactionType";
 import useDatabase from "../../hooks/useDatabase";
 import useScreen from "../../hooks/useScreen";
 import LinkedRelation from "../../models/LinkedRelation";
@@ -36,14 +37,16 @@ const TransactionDetail = ({ route }: any) => {
 				}
 				handleDelete={() => {
 					deleteTransaction(transactionId);
-					navigate(sourceRoutes.main);
+					navigate(transactionRoutes.main);
 				}}
 				canBeDeleted={true}
 			/>
 			<DataTab name={"Amount"} value={formatMoney(transaction.amount)} />
 			<DataTab name={"Reason"} value={transaction.reason} />
 			<DataTab name={"Type"} value={transaction.type} />
-			<DataTab name={"Action"} value={transaction.action} />
+			{transaction.type !== TransactionType.TRANSFER && (
+				<DataTab name={"Action"} value={transaction.action} />
+			)}
 			<DataTab
 				name={"Date"}
 				value={convertDateToString(transaction.date)}

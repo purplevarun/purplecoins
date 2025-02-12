@@ -44,3 +44,9 @@ appId: host.exp.exponent
 - assertNotVisible: "Trip 2"
 - assertNotVisible: "Trip 3"
 - assertVisible: "Trip 1"
+- tapOn:
+      id: "plus_icon"
+- tapOn: "Trip Name"
+- inputText: "Trip 2"
+- tapOn:
+      id: "check_icon"

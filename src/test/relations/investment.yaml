@@ -44,3 +44,9 @@ appId: host.exp.exponent
 - assertNotVisible: "Investment 2"
 - assertNotVisible: "Investment 3"
 - assertVisible: "Investment 1"
+- tapOn:
+      id: "plus_icon"
+- tapOn: "Investment Name"
+- inputText: "Investment 2"
+- tapOn:
+      id: "check_icon"

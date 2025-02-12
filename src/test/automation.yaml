@@ -1,5 +1,6 @@
 appId: host.exp.exponent
 ---
+- runScript: ./output.js
 - tapOn:
       id: "setting_icon"
 - tapOn: "Clear Data"

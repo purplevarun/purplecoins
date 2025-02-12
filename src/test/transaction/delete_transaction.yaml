@@ -1,0 +1,23 @@
+appId: host.exp.exponent
+---
+- tapOn:
+    id: "transaction_icon"
+- tapOn: "Gen Txn"
+- tapOn:
+    id: "delete_icon"
+- tapOn: "Yes"
+- assertNotVisible: "Gen Txn"
+- assertVisible: "Salary"
+- assertVisible: "Transfer Txn"
+- assertVisible: "Ivt Txn"
+- tapOn:
+    id: "source_icon"
+- tapOn:
+      id: "close_icon"
+- assertVisible: "Total Balance = ₹850"
+- assertVisible:
+    leftOf: "₹750"
+    text: "Source 1"
+- assertVisible:
+    leftOf: "₹100"
+    text: "Source 2"

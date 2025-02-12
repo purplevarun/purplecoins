@@ -1,6 +1,5 @@
 appId: host.exp.exponent
 ---
-- runScript: ./output.js
 # no transactions yet
 - tapOn:
       id: "transaction_icon"

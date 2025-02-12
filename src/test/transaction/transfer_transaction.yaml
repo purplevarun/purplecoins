@@ -1,14 +1,6 @@
 appId: host.exp.exponent
 ---
 - tapOn:
-      id: "source_icon"
-- tapOn:
-      id: "plus_icon"
-- tapOn: "Source Name"
-- inputText: "Source 2"
-- tapOn:
-      id: "check_icon"
-- tapOn:
       id: "transaction_icon"
 - tapOn:
       id: "plus_icon"

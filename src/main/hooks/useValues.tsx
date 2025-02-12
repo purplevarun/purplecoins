@@ -13,10 +13,6 @@ interface Values {
 	destination: string | null;
 	trips: string[];
 	categories: string[];
-	sourceName: string;
-	categoryName: string;
-	investmentName: string;
-	tripName: string;
 	date: string;
 	setAmount: (amount: string) => void;
 	setReason: (reason: string) => void;
@@ -27,10 +23,6 @@ interface Values {
 	setDestination: (destination: string | null) => void;
 	setTrips: (trips: string[]) => void;
 	setCategories: (categories: string[]) => void;
-	setSourceName: (sourceName: string) => void;
-	setCategoryName: (categoryName: string) => void;
-	setInvestmentName: (investmentName: string) => void;
-	setTripName: (tripName: string) => void;
 	setDate: (date: string) => void;
 	clear: () => void;
 }
@@ -46,10 +38,6 @@ const useValues = create<Values>((set) => ({
 	trips: [],
 	categories: [],
 	groupedTransactions: [],
-	sourceName: "",
-	categoryName: "",
-	investmentName: "",
-	tripName: "",
 	date: convertDateToString(),
 	setAmount: (amount) => set({ amount }),
 	setReason: (reason) => set({ reason }),
@@ -60,10 +48,6 @@ const useValues = create<Values>((set) => ({
 	setDestination: (destination) => set({ destination }),
 	setTrips: (trips) => set({ trips }),
 	setCategories: (categories) => set({ categories }),
-	setSourceName: (sourceName) => set({ sourceName }),
-	setCategoryName: (categoryName) => set({ categoryName }),
-	setInvestmentName: (investmentName) => set({ investmentName }),
-	setTripName: (tripName) => set({ tripName }),
 	setDate: (date) => set({ date }),
 	clear: () =>
 		set((state) => ({
@@ -76,10 +60,6 @@ const useValues = create<Values>((set) => ({
 			destination: null,
 			trips: [],
 			categories: [],
-			sourceName: "",
-			categoryName: "",
-			investmentName: "",
-			tripName: "",
 			date: state.date,
 		})),
 }));

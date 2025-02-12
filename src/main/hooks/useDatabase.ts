@@ -86,7 +86,7 @@ const useDatabase = () => {
 	};
 
 	const fetchTransactionsForRelation = (relationId: string) => {
-		const query = `SELECT * FROM "transaction" JOIN "transaction_relation" ON "transaction".id = "transaction_relation".transaction_id WHERE "transaction_relation".relation_id = ?`;
+		const query = `SELECT "transaction".* FROM "transaction" JOIN "transaction_relation" ON "transaction".id = "transaction_relation".transaction_id WHERE "transaction_relation".relation_id = ? ORDER BY "transaction".date DESC`;
 		return db.getAllSync<Transaction>(query, [relationId]);
 	};
 

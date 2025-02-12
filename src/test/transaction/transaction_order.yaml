@@ -1,6 +1,5 @@
 appId: host.exp.exponent
 ---
-- runScript: ./output.js
 - tapOn:
       id: "transaction_icon"
 - assertVisible:
