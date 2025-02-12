@@ -2,11 +2,11 @@ import { FlashList } from "@shopify/flash-list";
 import { useState } from "react";
 import { transactionRoutes } from "../../app/router/Routes";
 import CustomText from "../../components/CustomText";
-import Finder from "../../components/Finder";
 import Header from "../../components/Header";
 import ScreenLayout from "../../components/ScreenLayout";
+import TransactionFinder from "../../components/TransactionFinder";
 import { DISABLED_COLOR } from "../../constants/colors.config";
-import { FONT_SIZE } from "../../constants/constants.config";
+import { CENTER, SCREEN_HEIGHT } from "../../constants/constants.config";
 import useDatabase from "../../hooks/useDatabase";
 import useFocus from "../../hooks/useFocus";
 import useScreen from "../../hooks/useScreen";
@@ -26,12 +26,15 @@ const TransactionMain = () => {
 				handlePlus={() => navigate(transactionRoutes.add)}
 				handleFind={() => setShowFinder((prev) => !prev)}
 			/>
-			{showFinder && <Finder setTransactions={setTransactions} />}
+			{showFinder && (
+				<TransactionFinder setTransactions={setTransactions} />
+			)}
 			{transactions.length === 0 ? (
 				<CustomText
 					text={"No Transactions found"}
 					color={DISABLED_COLOR}
-					paddingTop={FONT_SIZE}
+					paddingTop={SCREEN_HEIGHT / 4}
+					alignSelf={CENTER}
 				/>
 			) : (
 				<FlashList

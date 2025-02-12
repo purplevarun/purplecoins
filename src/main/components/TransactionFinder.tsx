@@ -5,7 +5,7 @@ import Transaction from "../models/Transaction";
 import { convertDateToString } from "../util/HelperFunctions";
 import CustomInput from "./CustomInput";
 
-const Finder = ({
+const TransactionFinder = ({
 	setTransactions,
 }: {
 	setTransactions: (_: Transaction[]) => void;
@@ -35,4 +35,4 @@ const Finder = ({
 	);
 };
 
-export default Finder;
+export default TransactionFinder;

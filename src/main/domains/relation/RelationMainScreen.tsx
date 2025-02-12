@@ -2,9 +2,14 @@ import { FlashList } from "@shopify/flash-list";
 import { useState } from "react";
 import CustomText from "../../components/CustomText";
 import Header from "../../components/Header";
-import NoContent from "../../components/NoContent";
+import RelationFinder from "../../components/RelationFinder";
 import ScreenLayout from "../../components/ScreenLayout";
-import { CENTER, FONT_SIZE } from "../../constants/constants.config";
+import { DISABLED_COLOR } from "../../constants/colors.config";
+import {
+	CENTER,
+	FONT_SIZE,
+	SCREEN_HEIGHT,
+} from "../../constants/constants.config";
 import RelationType from "../../constants/enums/RelationType";
 import useDatabase from "../../hooks/useDatabase";
 import useFocus from "../../hooks/useFocus";
@@ -20,23 +25,36 @@ const RelationMainScreen = ({ route }: any) => {
 	const navigate = useScreen();
 	const { fetchAllRelations } = useDatabase();
 	const relation = relationMap[relationType];
+	const [showFinder, setShowFinder] = useState(false);
 	useFocus(() => setRelations(fetchAllRelations(relationType)));
-	if (relations.length === 0)
-		return (
-			<NoContent
-				handlePlus={() => navigate(relation.routes.add)}
-				text={plural(relation.name)}
-			/>
-		);
+
 	return (
 		<ScreenLayout>
-			<Header handlePlus={() => navigate(relation.routes.add)} />
-			<DisplayTotal relation={relationType} />
-			<FlashList
-				data={relations}
-				renderItem={RelationRenderItem}
-				estimatedItemSize={5}
+			<Header
+				handlePlus={() => navigate(relation.routes.add)}
+				handleFind={() => setShowFinder((prev) => !prev)}
 			/>
+			<DisplayTotal relation={relationType} />
+			{showFinder && (
+				<RelationFinder
+					setRelations={setRelations}
+					type={relationType}
+				/>
+			)}
+			{relations.length === 0 ? (
+				<CustomText
+					text={text(relation.name)}
+					color={DISABLED_COLOR}
+					paddingTop={SCREEN_HEIGHT / 4}
+					alignSelf={CENTER}
+				/>
+			) : (
+				<FlashList
+					data={relations}
+					renderItem={RelationRenderItem}
+					estimatedItemSize={5}
+				/>
+			)}
 		</ScreenLayout>
 	);
 };
@@ -55,9 +73,9 @@ const DisplayTotal = ({ relation }: { relation: RelationType }) => {
 	);
 };
 
-const plural = (text: string) => {
-	if (text === "Category") return "Categories";
-	return text + "s";
+const text = (text: string) => {
+	if (text === "Category") return "No Categories found";
+	return `No ${text}s found`;
 };
 
 export default RelationMainScreen;
