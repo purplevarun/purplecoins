@@ -17,6 +17,7 @@ const CustomButton = ({
 	disabled = false,
 	color = GREEN_COLOR,
 	marginV = FONT_SIZE,
+	fontSize=FONT_SIZE
 }: {
 	text?: string;
 	onPress?: VoidFunction;
@@ -25,6 +26,7 @@ const CustomButton = ({
 	disabled?: boolean;
 	color?: string;
 	marginV?: number;
+	fontSize?:number
 }) => {
 	return (
 		<TouchableOpacity
@@ -43,7 +45,7 @@ const CustomButton = ({
 			onLongPress={onHold}
 			disabled={disabled}
 		>
-			<CustomText text={text} alignSelf={CENTER} />
+			<CustomText text={text} alignSelf={CENTER} fontSize={fontSize}/>
 		</TouchableOpacity>
 	);
 };

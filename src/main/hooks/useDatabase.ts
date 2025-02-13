@@ -7,6 +7,7 @@ import TransactionType from "../constants/enums/TransactionType";
 import LinkedRelation from "../models/LinkedRelation";
 import Relation from "../models/Relation";
 import Transaction from "../models/Transaction";
+import RelationWithTotal from "../types/RelationWithTotal";
 
 const useDatabase = () => {
 	const db = useSQLiteContext();
@@ -120,6 +121,20 @@ const useDatabase = () => {
 		);
 	};
 
+	const fetchBreakdown = (startDate: number, endDate: number) => {
+		const query = `
+		SELECT r.id, r.name, r.type, SUM(t.amount) AS total
+		FROM "transaction" t
+		JOIN "transaction_relation" tr ON t.id = tr.transaction_id
+		JOIN "relation" r ON tr.relation_id = r.id
+		WHERE t.action = 'DEBIT'
+		AND t.type <> 'TRANSFER'
+		AND t.date BETWEEN ? AND ?
+		GROUP BY r.name, r.type;
+		`;
+		return db.getAllSync<RelationWithTotal>(query, [startDate, endDate]);
+	};
+
 	return {
 		fetchAllRelations,
 		fetchRelation,
@@ -135,6 +150,7 @@ const useDatabase = () => {
 		fetchTransactionsForRelation,
 		fetchRelationsForTransaction,
 		deleteRelationsForTransaction,
+		fetchBreakdown,
 	};
 };
 

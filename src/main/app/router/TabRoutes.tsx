@@ -6,9 +6,9 @@ import TransactionButton from "../../components/buttons/tab_bar/TransactionButto
 import TripButton from "../../components/buttons/tab_bar/TripButton";
 import RelationType from "../../constants/enums/RelationType";
 import Service from "../../constants/enums/Service";
-import RelationRouter from "../../domains/relation/RelationRouter";
-import SettingScreen from "../../domains/setting/SettingScreen";
-import TransactionRouter from "../../domains/transaction/TransactionRouter";
+import RelationRouter from "../../screens/relation/RelationRouter";
+import SettingScreen from "../../screens/setting/SettingScreen";
+import TransactionRouter from "../../screens/transaction/TransactionRouter";
 
 const tabRoutes = {
 	transaction: {

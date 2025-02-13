@@ -7,16 +7,16 @@ import {
 import { CENTER, LARGE_FONT_SIZE } from "../../../constants/constants.config";
 
 const CheckButton = ({
-	handleCheck,
+	onClick,
 	enabled,
 }: {
-	handleCheck?: () => void;
+	onClick?: () => void;
 	enabled?: boolean;
 }) =>
-	handleCheck && (
+	onClick && (
 		<TouchableOpacity
 			style={{ alignSelf: CENTER }}
-			onPress={handleCheck}
+			onPress={onClick}
 			disabled={!enabled}
 			testID={"check_icon"}
 		>

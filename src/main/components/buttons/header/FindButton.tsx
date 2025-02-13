@@ -1,5 +1,5 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { TouchableOpacity } from "react-native";
+import { DimensionValue, TouchableOpacity } from "react-native";
 import { PRIMARY_COLOR } from "../../../constants/colors.config";
 import {
 	CENTER,
@@ -7,10 +7,16 @@ import {
 	MARGIN,
 } from "../../../constants/constants.config";
 
-const FindButton = ({ onClick }: { onClick?: () => void }) =>
+const FindButton = ({
+	onClick,
+	bottom,
+}: {
+	onClick?: () => void;
+	bottom?: DimensionValue;
+}) =>
 	onClick && (
 		<TouchableOpacity
-			style={{ alignSelf: CENTER, bottom: MARGIN / 1.5, right: MARGIN }}
+			style={{ alignSelf: CENTER, bottom, right: MARGIN }}
 			onPress={onClick}
 			disabled={false}
 			testID={"find_icon"}

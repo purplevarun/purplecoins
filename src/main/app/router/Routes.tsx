@@ -3,6 +3,7 @@ export const transactionRoutes = {
 	add: "Add Transaction",
 	detail: "Transaction Detail",
 	edit: "Edit Transaction",
+	analysis: "Data Analysis",
 };
 
 export const sourceRoutes = {

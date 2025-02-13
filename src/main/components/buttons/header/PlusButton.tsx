@@ -3,11 +3,11 @@ import { TouchableOpacity } from "react-native";
 import { PRIMARY_COLOR } from "../../../constants/colors.config";
 import { CENTER, LARGE_FONT_SIZE } from "../../../constants/constants.config";
 
-const PlusButton = ({ handlePlus }: { handlePlus?: () => void }) =>
-	handlePlus && (
+const PlusButton = ({ onClick }: { onClick?: () => void }) =>
+	onClick && (
 		<TouchableOpacity
 			style={{ alignSelf: CENTER }}
-			onPress={handlePlus}
+			onPress={onClick}
 			testID={"plus_icon"}
 		>
 			<FontAwesome

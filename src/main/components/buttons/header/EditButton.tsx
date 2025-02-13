@@ -3,11 +3,11 @@ import { TouchableOpacity } from "react-native";
 import { PRIMARY_COLOR } from "../../../constants/colors.config";
 import { CENTER, LARGE_FONT_SIZE } from "../../../constants/constants.config";
 
-const EditButton = ({ handleEdit }: { handleEdit?: () => void }) =>
-	handleEdit && (
+const EditButton = ({ onClick }: { onClick?: () => void }) =>
+	onClick && (
 		<TouchableOpacity
 			style={{ alignSelf: CENTER }}
-			onPress={handleEdit}
+			onPress={onClick}
 			testID={"edit_icon"}
 		>
 			<FontAwesome

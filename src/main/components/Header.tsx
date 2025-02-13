@@ -1,19 +1,23 @@
 import { useRoute } from "@react-navigation/native";
 import { StyleSheet, View } from "react-native";
+import { transactionRoutes } from "../app/router/Routes";
 import {
 	CENTER,
 	FLEX_ROW,
 	HEADER_HEIGHT,
 	LARGE_FONT_SIZE,
+	MARGIN,
 	PADDING,
 	SPACE_BETWEEN,
 } from "../constants/constants.config";
+import useScreen from "../hooks/useScreen";
 import CustomText from "./CustomText";
 import CheckButton from "./buttons/header/CheckButton";
 import CloseButton from "./buttons/header/CloseButton";
 import DeleteButton from "./buttons/header/DeleteButton";
 import EditButton from "./buttons/header/EditButton";
 import FindButton from "./buttons/header/FindButton";
+import InfoButton from "./buttons/header/InfoButton";
 import PlusButton from "./buttons/header/PlusButton";
 
 const Header = ({
@@ -36,6 +40,7 @@ const Header = ({
 	handleFind?: () => void;
 }) => {
 	const { name } = useRoute();
+	const navigation = useScreen();
 	return (
 		<View style={styles.headerContainer}>
 			<CustomText
@@ -44,18 +49,20 @@ const Header = ({
 				fontSize={LARGE_FONT_SIZE}
 			/>
 			<View style={styles.iconContainer}>
-				<FindButton onClick={handleFind} />
-				<CheckButton
-					handleCheck={handleSubmit}
-					enabled={canBeSubmitted}
-				/>
-				<PlusButton handlePlus={handlePlus} />
-				<EditButton handleEdit={handleEdit} />
+				{name === transactionRoutes.main && (
+					<InfoButton
+						onClick={() => navigation(transactionRoutes.analysis)}
+					/>
+				)}
+				<FindButton onClick={handleFind} bottom={MARGIN / 1.5} />
+				<CheckButton onClick={handleSubmit} enabled={canBeSubmitted} />
+				<PlusButton onClick={handlePlus} />
+				<EditButton onClick={handleEdit} />
 				<DeleteButton
 					onDelete={handleDelete}
 					canBeDeleted={canBeDeleted}
 				/>
-				<CloseButton handleClose={handleClose} />
+				<CloseButton onClick={handleClose} />
 			</View>
 		</View>
 	);

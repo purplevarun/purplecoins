@@ -3,11 +3,11 @@ import { TouchableOpacity } from "react-native";
 import { PRIMARY_COLOR } from "../../../constants/colors.config";
 import { CENTER, LARGE_FONT_SIZE } from "../../../constants/constants.config";
 
-const CloseButton = ({ handleClose }: { handleClose?: () => void }) =>
-	handleClose && (
+const CloseButton = ({ onClick }: { onClick?: () => void }) =>
+	onClick && (
 		<TouchableOpacity
 			style={{ alignSelf: CENTER, bottom: 1 }}
-			onPress={handleClose}
+			onPress={onClick}
 			testID={"close_icon"}
 		>
 			<FontAwesome
