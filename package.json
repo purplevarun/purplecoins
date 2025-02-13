@@ -1,9 +1,9 @@
 {
 	"name": "pupercoins",
-	"version": "2.5.0",
+	"version": "3.0.0",
 	"main": "src/main/app/entry/App.tsx",
 	"scripts": {
-		"dev": "expo start -c -p 3009",
+		"dev": "expo start -c -p 3000",
 		"clean": "rm -rf node_modules yarn.lock .expo && yarn",
 		"doctor": "npx expo-doctor",
 		"format": "prettier --write .",
