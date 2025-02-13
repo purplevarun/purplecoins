@@ -127,9 +127,7 @@ const useDatabase = () => {
 		FROM "transaction" t
 		JOIN "transaction_relation" tr ON t.id = tr.transaction_id
 		JOIN "relation" r ON tr.relation_id = r.id
-		WHERE t.action = 'DEBIT'
-		AND t.type <> 'TRANSFER'
-		AND t.date BETWEEN ? AND ?
+		WHERE t.date >= ? AND t.date <= ?
 		GROUP BY r.name, r.type;
 		`;
 		return db.getAllSync<RelationWithTotal>(query, [startDate, endDate]);

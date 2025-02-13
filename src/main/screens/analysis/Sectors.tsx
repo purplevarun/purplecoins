@@ -7,22 +7,17 @@ const Sectors = ({ relations }: { relations: RelationWithTotal[] }) => {
 	return (
 		<View>
 			<Sector
-				text={"Top Spending Categories"}
+				text={"Top Categories"}
 				type={RelationType.CATEGORY}
 				relations={relations}
 			/>
 			<Sector
-				text={"Highest Investments"}
+				text={"Top Investments"}
 				type={RelationType.INVESTMENT}
 				relations={relations}
 			/>
 			<Sector
-				text={"Preferred Accounts"}
-				type={RelationType.SOURCE}
-				relations={relations}
-			/>
-			<Sector
-				text={"Top Travel Expenses"}
+				text={"Top Trips"}
 				type={RelationType.TRIP}
 				relations={relations}
 			/>
