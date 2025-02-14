@@ -19,14 +19,20 @@ import { calculateTotal, formatMoney } from "../../util/HelperFunctions";
 import RelationMap from "./RelationMap";
 
 const RelationRenderItem = ({ item }: { item: Relation }) => {
-	return <Implementation item={item} />;
+	return <RelationRenderItemImplementation item={item} />;
 };
 
-const Implementation = ({ item: { id, name, type } }: { item: Relation }) => {
+export const RelationRenderItemImplementation = ({
+	item,
+	total,
+}: {
+	item: Relation;
+	total?: number;
+}) => {
 	const { fetchTransactionsForRelation } = useDatabase();
 	const navigate = useScreen();
-	const transactions = fetchTransactionsForRelation(id);
-	const total = calculateTotal(transactions);
+	const transactions = fetchTransactionsForRelation(item.id);
+	const calculatedTotal = total ?? calculateTotal(transactions);
 
 	return (
 		<TouchableOpacity
@@ -35,21 +41,21 @@ const Implementation = ({ item: { id, name, type } }: { item: Relation }) => {
 				borderRadius: BORDER_RADIUS,
 				padding: PADDING,
 				margin: MARGIN,
-				borderWidth: total == 0 ? 0 : 2,
-				borderColor: total < 0 ? RED_COLOR : GREEN_COLOR,
+				borderWidth: calculatedTotal == 0 ? 0 : 2,
+				borderColor: calculatedTotal < 0 ? RED_COLOR : GREEN_COLOR,
 				flexDirection: FLEX_ROW,
 				justifyContent: SPACE_BETWEEN,
 			}}
 			onPress={() =>
-				navigate(RelationMap[type].routes.detail, {
-					id,
+				navigate(RelationMap[item.type].routes.detail, {
+					id: item.id,
 					transactions,
-					total,
+					total: calculatedTotal,
 				})
 			}
 		>
-			<CustomText text={name} />
-			<CustomText text={formatMoney(Math.abs(total))} />
+			<CustomText text={item.name} />
+			<CustomText text={formatMoney(Math.abs(calculatedTotal))} />
 		</TouchableOpacity>
 	);
 };

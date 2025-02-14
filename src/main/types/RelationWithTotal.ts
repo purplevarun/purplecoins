@@ -7,4 +7,4 @@ interface RelationWithTotal {
 	total: number;
 }
 
-export default RelationWithTotal
+export default RelationWithTotal;

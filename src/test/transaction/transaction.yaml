@@ -7,3 +7,4 @@ appId: host.exp.exponent
 - runFlow: ./transaction_order.yaml
 - runFlow: ./delete_transaction.yaml
 - runFlow: ./find_transactions.yaml
+- runFlow: ./analysis.yaml

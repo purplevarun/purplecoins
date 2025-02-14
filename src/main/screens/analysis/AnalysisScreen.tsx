@@ -2,18 +2,21 @@ import { useState } from "react";
 import { transactionRoutes } from "../../app/router/Routes";
 import Header from "../../components/Header";
 import ScreenLayout from "../../components/ScreenLayout";
+import useDatabase from "../../hooks/useDatabase";
 import useScreen from "../../hooks/useScreen";
 import RelationWithTotal from "../../types/RelationWithTotal";
 import DateFilter from "./DateFilter";
 import PredefinedRange from "./PredefinedRange";
-import Sectors from "./Sectors";
+import TopCategories from "./TopCategories";
 
 const AnalysisScreen = () => {
 	const [relations, setRelations] = useState<RelationWithTotal[]>([]);
 	const navigation = useScreen();
 	const [customStartDate, setCustomStartDate] = useState("");
 	const [customEndDate, setCustomEndDate] = useState("");
-
+	const { fetchBreakdown } = useDatabase();
+	const onFind = () =>
+		setRelations(fetchBreakdown(customStartDate, customEndDate));
 	return (
 		<ScreenLayout>
 			<Header handleClose={() => navigation(transactionRoutes.main)} />
@@ -22,13 +25,13 @@ const AnalysisScreen = () => {
 				setCustomEndDate={setCustomEndDate}
 			/>
 			<DateFilter
-				setRelations={setRelations}
+				onFind={onFind}
 				customStartDate={customStartDate}
 				customEndDate={customEndDate}
 				setCustomStartDate={setCustomStartDate}
 				setCustomEndDate={setCustomEndDate}
 			/>
-			<Sectors relations={relations} />
+			<TopCategories relations={relations} />
 		</ScreenLayout>
 	);
 };

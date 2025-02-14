@@ -11,24 +11,20 @@ import {
 	PADDING,
 	SPACE_EVENLY,
 } from "../../constants/constants.config";
-import useDatabase from "../../hooks/useDatabase";
-import RelationWithTotal from "../../types/RelationWithTotal";
-import { convertStringToDate } from "../../util/HelperFunctions";
 
 const DateFilter = ({
-	setRelations,
+	onFind,
 	customStartDate,
 	customEndDate,
 	setCustomStartDate,
 	setCustomEndDate,
 }: {
-	setRelations: (_: RelationWithTotal[]) => void;
+	onFind: () => void;
 	customStartDate: string;
 	customEndDate: string;
 	setCustomStartDate: (_: string) => void;
 	setCustomEndDate: (_: string) => void;
 }) => {
-	const { fetchBreakdown } = useDatabase();
 	return (
 		<View
 			style={{
@@ -63,16 +59,7 @@ const DateFilter = ({
 					width={"40%"}
 				/>
 			</View>
-			<FindButton
-				onClick={() =>
-					setRelations(
-						fetchBreakdown(
-							convertStringToDate(customStartDate).getTime(),
-							convertStringToDate(customEndDate).getTime(),
-						),
-					)
-				}
-			/>
+			<FindButton onClick={onFind} />
 		</View>
 	);
 };

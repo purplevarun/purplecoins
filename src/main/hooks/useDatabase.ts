@@ -8,6 +8,7 @@ import LinkedRelation from "../models/LinkedRelation";
 import Relation from "../models/Relation";
 import Transaction from "../models/Transaction";
 import RelationWithTotal from "../types/RelationWithTotal";
+import { calculateTotal, convertStringToDate } from "../util/HelperFunctions";
 
 const useDatabase = () => {
 	const db = useSQLiteContext();
@@ -91,6 +92,19 @@ const useDatabase = () => {
 		return db.getAllSync<Transaction>(query, [relationId]);
 	};
 
+	const fetchTransactionsForRelationBetweenDate = (
+		relationId: string,
+		startDate: number,
+		endDate: number,
+	) => {
+		const query = `SELECT "transaction".* FROM "transaction" JOIN "transaction_relation" ON "transaction".id = "transaction_relation".transaction_id WHERE "transaction_relation".relation_id = ? AND "transaction".date BETWEEN ? AND ? ORDER BY "transaction".date DESC`;
+		return db.getAllSync<Transaction>(query, [
+			relationId,
+			startDate,
+			endDate,
+		]);
+	};
+
 	const updateTransaction = (
 		transactionId: string,
 		amount: number,
@@ -121,16 +135,24 @@ const useDatabase = () => {
 		);
 	};
 
-	const fetchBreakdown = (startDate: number, endDate: number) => {
-		const query = `
-		SELECT r.id, r.name, r.type, SUM(t.amount) AS total
-		FROM "transaction" t
-		JOIN "transaction_relation" tr ON t.id = tr.transaction_id
-		JOIN "relation" r ON tr.relation_id = r.id
-		WHERE t.date >= ? AND t.date <= ?
-		GROUP BY r.name, r.type;
-		`;
-		return db.getAllSync<RelationWithTotal>(query, [startDate, endDate]);
+	const fetchBreakdown = (startDate: string, endDate: string) => {
+		const categories = fetchAllRelations(RelationType.CATEGORY);
+		const breakdown: Record<string, RelationWithTotal> = {};
+		categories.forEach((category) => {
+			const transactions = fetchTransactionsForRelationBetweenDate(
+				category.id,
+				convertStringToDate(startDate).getTime(),
+				convertStringToDate(endDate).getTime(),
+			);
+			if (transactions.length !== 0) {
+				const categoryBreakdown = (breakdown[category.id] ||=
+					defaultBreakdownObject);
+				categoryBreakdown.total += calculateTotal(transactions);
+				categoryBreakdown.id = category.id;
+				categoryBreakdown.name = category.name;
+			}
+		});
+		return Object.values(breakdown);
 	};
 
 	return {
@@ -150,6 +172,13 @@ const useDatabase = () => {
 		deleteRelationsForTransaction,
 		fetchBreakdown,
 	};
+};
+
+const defaultBreakdownObject = {
+	total: 0,
+	name: "",
+	id: "",
+	type: RelationType.CATEGORY,
 };
 
 export default useDatabase;
