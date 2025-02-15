@@ -25,9 +25,13 @@ interface Values {
 	setCategories: (categories: string[]) => void;
 	setDate: (date: string) => void;
 	clear: () => void;
+	trigger: boolean;
+	changeTrigger: () => void;
 }
 
 const useValues = create<Values>((set) => ({
+	trigger: false,
+	changeTrigger: () => set((state) => ({ trigger: !state.trigger })),
 	amount: "",
 	reason: "",
 	source: "",

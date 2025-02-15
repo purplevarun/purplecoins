@@ -15,7 +15,11 @@ import useDatabase from "../../hooks/useDatabase";
 import useFocus from "../../hooks/useFocus";
 import useScreen from "../../hooks/useScreen";
 import Relation from "../../models/Relation";
-import { calculateTotal, formatMoney } from "../../util/HelperFunctions";
+import {
+	calculateInvestmentTotal,
+	calculateTotal,
+	formatMoney,
+} from "../../util/HelperFunctions";
 import relationMap from "./RelationMap";
 import RelationRenderItem from "./RelationRenderItem";
 
@@ -60,17 +64,29 @@ const RelationMainScreen = ({ route }: any) => {
 };
 
 const DisplayTotal = ({ relation }: { relation: RelationType }) => {
-	if (relation !== RelationType.SOURCE) return null;
 	const { fetchAllTransactions } = useDatabase();
-	const total = calculateTotal(fetchAllTransactions(), true);
-	return (
-		<CustomText
-			text={`Total Balance = ${formatMoney(total)}`}
-			alignSelf={CENTER}
-			fontSize={FONT_SIZE * 1.2}
-			paddingVertical={FONT_SIZE}
-		/>
-	);
+	if (relation === RelationType.SOURCE) {
+		const total = calculateTotal(fetchAllTransactions(), true);
+		return (
+			<CustomText
+				text={`Total Balance = ${formatMoney(total)}`}
+				alignSelf={CENTER}
+				fontSize={FONT_SIZE * 1.2}
+				paddingVertical={FONT_SIZE}
+			/>
+		);
+	}
+	if (relation === RelationType.INVESTMENT) {
+		const total = calculateInvestmentTotal(fetchAllTransactions());
+		return (
+			<CustomText
+				text={`Total Invested Amount = ${formatMoney(Math.abs(total))}`}
+				alignSelf={CENTER}
+				fontSize={FONT_SIZE * 1.2}
+				paddingVertical={FONT_SIZE}
+			/>
+		);
+	}
 };
 
 const text = (text: string) => {

@@ -1,6 +1,7 @@
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback } from "react";
 
-const useFocus = (fn: () => void) => useFocusEffect(useCallback(fn, []));
+const useFocus = (fn: () => void, params?: any[]) =>
+	useFocusEffect(useCallback(fn, params ?? []));
 
 export default useFocus;

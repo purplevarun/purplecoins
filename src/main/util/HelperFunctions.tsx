@@ -29,3 +29,8 @@ export const calculateTotal = (
 	transactions
 		.filter((tx) => !balance || tx.type !== TransactionType.TRANSFER)
 		.reduce((sum, tx) => sum + amount(tx), 0);
+
+export const calculateInvestmentTotal = (transactions: Transaction[]) =>
+	transactions
+		.filter((tx) => tx.type === TransactionType.INVESTMENT)
+		.reduce((sum, tx) => sum + amount(tx), 0);

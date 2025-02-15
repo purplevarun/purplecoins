@@ -7,6 +7,7 @@ import TransactionType from "../constants/enums/TransactionType";
 import LinkedRelation from "../models/LinkedRelation";
 import Relation from "../models/Relation";
 import Transaction from "../models/Transaction";
+import TransactionRelation from "../models/TransactionRelation";
 import RelationWithTotal from "../types/RelationWithTotal";
 import { calculateTotal, convertStringToDate } from "../util/HelperFunctions";
 
@@ -155,6 +156,27 @@ const useDatabase = () => {
 		return Object.values(breakdown);
 	};
 
+	const duplicateTransaction = (transaction: Transaction) => {
+		const newTransactionId = addTransaction(
+			transaction.amount,
+			transaction.reason,
+			transaction.action,
+			transaction.type,
+			new Date(transaction.date),
+		);
+		const query = `SELECT * FROM "transaction_relation" WHERE transaction_id = ?;`;
+		const relations = db.getAllSync<TransactionRelation>(query, [
+			transaction.id,
+		]);
+		relations.forEach((relation) => {
+			addTransactionRelation(
+				newTransactionId,
+				relation.relation_id,
+				relation.type,
+			);
+		});
+	};
+
 	return {
 		fetchAllRelations,
 		fetchRelation,
@@ -171,6 +193,7 @@ const useDatabase = () => {
 		fetchRelationsForTransaction,
 		deleteRelationsForTransaction,
 		fetchBreakdown,
+		duplicateTransaction,
 	};
 };
 

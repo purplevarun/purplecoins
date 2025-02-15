@@ -18,7 +18,9 @@ import {
 } from "../../constants/constants.config";
 import TransactionAction from "../../constants/enums/TransactionAction";
 import TransactionType from "../../constants/enums/TransactionType";
+import useDatabase from "../../hooks/useDatabase";
 import useScreen from "../../hooks/useScreen";
+import useValues from "../../hooks/useValues";
 import Transaction from "../../models/Transaction";
 import { convertDateToString, formatMoney } from "../../util/HelperFunctions";
 
@@ -28,6 +30,8 @@ const TransactionRenderItem = ({ item }: { item: Transaction }) => {
 
 const Implementation = ({ item }: { item: Transaction }) => {
 	const navigate = useScreen();
+	const { duplicateTransaction } = useDatabase();
+	const values = useValues();
 	const borderColor =
 		item.type === TransactionType.TRANSFER
 			? BLUE_COLOR
@@ -52,6 +56,10 @@ const Implementation = ({ item }: { item: Transaction }) => {
 				onPress={() =>
 					navigate(transactionRoutes.detail, { id: item.id })
 				}
+				onLongPress={() => {
+					duplicateTransaction(item);
+					values.changeTrigger();
+				}}
 			>
 				<CustomText text={item.reason} />
 				<CustomText text={formatMoney(item.amount)} />

@@ -10,6 +10,7 @@ import { CENTER, SCREEN_HEIGHT } from "../../constants/constants.config";
 import useDatabase from "../../hooks/useDatabase";
 import useFocus from "../../hooks/useFocus";
 import useScreen from "../../hooks/useScreen";
+import useValues from "../../hooks/useValues";
 import Transaction from "../../models/Transaction";
 import TransactionRenderItem from "./TransactionRenderItem";
 
@@ -18,8 +19,8 @@ const TransactionMain = () => {
 	const navigate = useScreen();
 	const { fetchAllTransactions } = useDatabase();
 	const [showFinder, setShowFinder] = useState(false);
-	useFocus(() => setTransactions(fetchAllTransactions()));
-
+	const values = useValues();
+	useFocus(() => setTransactions(fetchAllTransactions()), [values.trigger]);
 	return (
 		<ScreenLayout>
 			<Header
