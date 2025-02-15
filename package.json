@@ -1,6 +1,6 @@
 {
 	"name": "pupercoins",
-	"version": "3.0.0",
+	"version": "3.1.0",
 	"main": "src/main/app/entry/App.tsx",
 	"scripts": {
 		"dev": "expo start -c -p 3000",
