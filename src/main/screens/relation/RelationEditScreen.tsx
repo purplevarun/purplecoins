@@ -1,7 +1,7 @@
 import { useState } from "react";
-import CustomInput from "../../components/CustomInput";
-import Header from "../../components/Header";
-import ScreenLayout from "../../components/ScreenLayout";
+import Header from "../../components/header/Header";
+import CustomInput from "../../components/input/CustomInput";
+import ScreenLayout from "../../components/layout/ScreenLayout";
 import RelationType from "../../constants/enums/RelationType";
 import useDatabase from "../../hooks/useDatabase";
 import useFocus from "../../hooks/useFocus";

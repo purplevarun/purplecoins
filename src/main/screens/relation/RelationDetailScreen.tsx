@@ -1,9 +1,12 @@
-import DataTab from "../../components/DataTab";
-import Header from "../../components/Header";
-import ScreenLayout from "../../components/ScreenLayout";
+import { useState } from "react";
+import DataTab from "../../components/data_tab/DataTab";
+import Header from "../../components/header/Header";
+import ScreenLayout from "../../components/layout/ScreenLayout";
 import RelationType from "../../constants/enums/RelationType";
 import useDatabase from "../../hooks/useDatabase";
+import useFocus from "../../hooks/useFocus";
 import useScreen from "../../hooks/useScreen";
+import Transaction from "../../models/Transaction";
 import { calculateTotal, formatMoney } from "../../util/HelperFunctions";
 import LinkedTransactions from "../transaction/LinkedTransactions";
 import relationMap from "./RelationMap";
@@ -15,7 +18,10 @@ const RelationDetailScreen = ({ route }: any) => {
 	const { fetchRelation, deleteRelation, fetchTransactionsForRelation } =
 		useDatabase();
 	const relation = fetchRelation(id);
-	const transactions = fetchTransactionsForRelation(id);
+	const [transactions, setTransactions] = useState<Transaction[]>([]);
+	useFocus(() => {
+		setTransactions(fetchTransactionsForRelation(id));
+	});
 	const total = calculateTotal(transactions);
 	const routes = relationMap[relationType].routes;
 	return (

@@ -1,12 +1,12 @@
 import { FlashList } from "@shopify/flash-list";
 import { useState } from "react";
 import { transactionRoutes } from "../../app/router/Routes";
-import CustomText from "../../components/CustomText";
-import Header from "../../components/Header";
-import ScreenLayout from "../../components/ScreenLayout";
-import TransactionFinder from "../../components/TransactionFinder";
-import { DISABLED_COLOR } from "../../constants/colors.config";
-import { CENTER, SCREEN_HEIGHT } from "../../constants/constants.config";
+import TransactionFinder from "../../components/finder/TransactionFinder";
+import Header from "../../components/header/Header";
+import ScreenLayout from "../../components/layout/ScreenLayout";
+import CustomText from "../../components/text/CustomText";
+import { DISABLED_COLOR } from "../../constants/config/colors.config";
+import { CENTER, SCREEN_HEIGHT } from "../../constants/config/constants.config";
 import useDatabase from "../../hooks/useDatabase";
 import useFocus from "../../hooks/useFocus";
 import useScreen from "../../hooks/useScreen";

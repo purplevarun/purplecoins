@@ -1,9 +1,12 @@
 import { FlashList } from "@shopify/flash-list";
 import { View } from "react-native";
-import CustomText from "../../components/CustomText";
-import Vertical from "../../components/Vertical";
-import { DISABLED_COLOR } from "../../constants/colors.config";
-import { LARGE_FONT_SIZE, PADDING } from "../../constants/constants.config";
+import Vertical from "../../components/layout/Vertical";
+import CustomText from "../../components/text/CustomText";
+import { DISABLED_COLOR } from "../../constants/config/colors.config";
+import {
+	LARGE_FONT_SIZE,
+	PADDING,
+} from "../../constants/config/constants.config";
 import Transaction from "../../models/Transaction";
 import TransactionRenderItem from "./TransactionRenderItem";
 

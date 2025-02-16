@@ -1,6 +1,6 @@
 import { transactionRoutes } from "../../app/router/Routes";
-import Header from "../../components/Header";
-import ScreenLayout from "../../components/ScreenLayout";
+import Header from "../../components/header/Header";
+import ScreenLayout from "../../components/layout/ScreenLayout";
 import TransactionRelationType from "../../constants/enums/TransactionRelationType";
 import useDatabase from "../../hooks/useDatabase";
 import useFocus from "../../hooks/useFocus";

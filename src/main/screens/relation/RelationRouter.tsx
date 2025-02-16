@@ -1,6 +1,6 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import ScreenLayout from "../../components/ScreenLayout";
-import { SCREEN_OPTIONS } from "../../constants/constants.config";
+import ScreenLayout from "../../components/layout/ScreenLayout";
+import { SCREEN_OPTIONS } from "../../constants/config/constants.config";
 import RelationType from "../../constants/enums/RelationType";
 import RelationAddScreen from "./RelationAddScreen";
 import RelationDetailScreen from "./RelationDetailScreen";

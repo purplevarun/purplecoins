@@ -2,7 +2,7 @@ import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import { useSQLiteContext } from "expo-sqlite";
-import { DB_FILE_PATH } from "../../constants/constants.config";
+import { DB_FILE_PATH } from "../../constants/config/constants.config";
 import create_tables from "../../constants/queries/create_tables";
 import drop_tables from "../../constants/queries/drop_tables";
 

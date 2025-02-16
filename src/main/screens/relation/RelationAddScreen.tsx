@@ -1,14 +1,18 @@
 import { useState } from "react";
-import CustomInput from "../../components/CustomInput";
-import Header from "../../components/Header";
-import ScreenLayout from "../../components/ScreenLayout";
+import Header from "../../components/header/Header";
+import CustomInput from "../../components/input/CustomInput";
+import ScreenLayout from "../../components/layout/ScreenLayout";
 import RelationType from "../../constants/enums/RelationType";
 import useDatabase from "../../hooks/useDatabase";
 import useScreen from "../../hooks/useScreen";
 import RelationMap from "./RelationMap";
 
-const RelationAddScreen = ({ route }: any) => {
-	const relationType = route.params.relation as RelationType;
+const RelationAddScreen = ({
+	route,
+}: {
+	route?: { params: { relation: RelationType } };
+}) => {
+	const relationType = route!.params.relation;
 	const [name, setName] = useState("");
 	const navigate = useScreen();
 	const { addRelation } = useDatabase();
@@ -27,6 +31,7 @@ const RelationAddScreen = ({ route }: any) => {
 				name={`${currentRelation.name} Name`}
 				value={name}
 				setValue={setName}
+				autoFocus
 			/>
 		</ScreenLayout>
 	);

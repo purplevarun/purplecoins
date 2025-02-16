@@ -5,7 +5,7 @@ import {
 	FONT_SIZE,
 	PADDING,
 	SPACE_BETWEEN,
-} from "../../constants/constants.config";
+} from "../../constants/config/constants.config";
 import tabRoutes from "./TabRoutes";
 
 const TabBar = (props: MaterialTopTabBarProps) => (

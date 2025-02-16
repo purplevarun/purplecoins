@@ -1,39 +1,55 @@
 import { TouchableOpacity } from "react-native";
-import CustomText from "../../components/CustomText";
+import CustomText from "../../components/text/CustomText";
 import {
 	GREEN_COLOR,
 	RED_COLOR,
 	SECONDARY_COLOR,
-} from "../../constants/colors.config";
+} from "../../constants/config/colors.config";
 import {
 	BORDER_RADIUS,
 	FLEX_ROW,
 	MARGIN,
 	PADDING,
 	SPACE_BETWEEN,
-} from "../../constants/constants.config";
+} from "../../constants/config/constants.config";
+import TransactionAction from "../../constants/enums/TransactionAction";
+import TransactionType from "../../constants/enums/TransactionType";
 import useDatabase from "../../hooks/useDatabase";
 import useScreen from "../../hooks/useScreen";
 import Relation from "../../models/Relation";
-import { calculateTotal, formatMoney } from "../../util/HelperFunctions";
+import { formatMoney } from "../../util/HelperFunctions";
 import RelationMap from "./RelationMap";
 
 const RelationRenderItem = ({ item }: { item: Relation }) => {
-	return <RelationRenderItemImplementation item={item} />;
+	return <Implementation item={item} />;
 };
 
-export const RelationRenderItemImplementation = ({
-	item,
-	total,
-}: {
-	item: Relation;
-	total?: number;
-}) => {
-	const { fetchTransactionsForRelation } = useDatabase();
+const Implementation = ({ item }: { item: Relation }) => {
+	const { fetchTransactionsForRelation, fetchRelationsForTransaction } =
+		useDatabase();
 	const navigate = useScreen();
 	const transactions = fetchTransactionsForRelation(item.id);
-	const calculatedTotal = total ?? calculateTotal(transactions);
-
+	const calculateTotal = () => {
+		let sum = 0;
+		transactions.forEach((transaction) => {
+			if (transaction.type === TransactionType.TRANSFER) {
+				const relations = fetchRelationsForTransaction(transaction.id);
+				const destination = relations.TRANSACTION_DESTINATION[0];
+				if (item.id === destination.id) {
+					sum += transaction.amount;
+				} else {
+					sum -= transaction.amount;
+				}
+			} else if (transaction.action === TransactionAction.CREDIT) {
+				sum += transaction.amount;
+			} else {
+				sum -= transaction.amount;
+			}
+		});
+		return sum;
+	};
+	const total = calculateTotal();
+	const currentRelation = RelationMap[item.type];
 	return (
 		<TouchableOpacity
 			style={{
@@ -41,21 +57,21 @@ export const RelationRenderItemImplementation = ({
 				borderRadius: BORDER_RADIUS,
 				padding: PADDING,
 				margin: MARGIN,
-				borderWidth: calculatedTotal == 0 ? 0 : 2,
-				borderColor: calculatedTotal < 0 ? RED_COLOR : GREEN_COLOR,
+				borderWidth: total == 0 ? 0 : 2,
+				borderColor: total < 0 ? RED_COLOR : GREEN_COLOR,
 				flexDirection: FLEX_ROW,
 				justifyContent: SPACE_BETWEEN,
 			}}
 			onPress={() =>
-				navigate(RelationMap[item.type].routes.detail, {
+				navigate(currentRelation.routes.detail, {
 					id: item.id,
 					transactions,
-					total: calculatedTotal,
+					total,
 				})
 			}
 		>
 			<CustomText text={item.name} />
-			<CustomText text={formatMoney(Math.abs(calculatedTotal))} />
+			<CustomText text={formatMoney(Math.abs(total))} />
 		</TouchableOpacity>
 	);
 };

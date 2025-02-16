@@ -1,9 +1,0 @@
-appId: host.exp.exponent
----
-- tapOn:
-      id: "info_icon"
-- assertVisible: "Data Analysis"
-- assertVisible: "This Month"
-- assertVisible: "Last Month"
-- assertVisible: "This Year"
-- assertVisible: "Last Year"

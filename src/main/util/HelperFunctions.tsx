@@ -1,3 +1,4 @@
+import TransactionAction from "../constants/enums/TransactionAction";
 import TransactionType from "../constants/enums/TransactionType";
 import Transaction, { amount } from "../models/Transaction";
 
@@ -22,12 +23,22 @@ export const convertStringToDate = (incomingDate: string) => {
 	return newDate;
 };
 
-export const calculateTotal = (
-	transactions: Transaction[],
-	balance?: boolean,
-) =>
+export const calculateTotal = (transactions: Transaction[]) => {
+	let sum = 0;
+	transactions.forEach((transaction) => {
+		if (transaction.action === TransactionAction.CREDIT) {
+			sum += transaction.amount;
+		} else {
+			sum -= transaction.amount;
+		}
+	});
+
+	return sum;
+};
+
+export const calculateNetWorth = (transactions: Transaction[]) =>
 	transactions
-		.filter((tx) => !balance || tx.type !== TransactionType.TRANSFER)
+		.filter((tx) => tx.type !== TransactionType.TRANSFER)
 		.reduce((sum, tx) => sum + amount(tx), 0);
 
 export const calculateInvestmentTotal = (transactions: Transaction[]) =>

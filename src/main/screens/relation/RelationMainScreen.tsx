@@ -1,15 +1,15 @@
 import { FlashList } from "@shopify/flash-list";
 import { useState } from "react";
-import CustomText from "../../components/CustomText";
-import Header from "../../components/Header";
-import RelationFinder from "../../components/RelationFinder";
-import ScreenLayout from "../../components/ScreenLayout";
-import { DISABLED_COLOR } from "../../constants/colors.config";
+import RelationFinder from "../../components/finder/RelationFinder";
+import Header from "../../components/header/Header";
+import ScreenLayout from "../../components/layout/ScreenLayout";
+import CustomText from "../../components/text/CustomText";
+import { DISABLED_COLOR } from "../../constants/config/colors.config";
 import {
 	CENTER,
 	FONT_SIZE,
 	SCREEN_HEIGHT,
-} from "../../constants/constants.config";
+} from "../../constants/config/constants.config";
 import RelationType from "../../constants/enums/RelationType";
 import useDatabase from "../../hooks/useDatabase";
 import useFocus from "../../hooks/useFocus";
@@ -17,14 +17,18 @@ import useScreen from "../../hooks/useScreen";
 import Relation from "../../models/Relation";
 import {
 	calculateInvestmentTotal,
-	calculateTotal,
+	calculateNetWorth,
 	formatMoney,
 } from "../../util/HelperFunctions";
 import relationMap from "./RelationMap";
 import RelationRenderItem from "./RelationRenderItem";
 
-const RelationMainScreen = ({ route }: any) => {
-	const relationType = route.params.relation as RelationType;
+const RelationMainScreen = ({
+	route,
+}: {
+	route?: { params: { relation: RelationType } };
+}) => {
+	const relationType = route!.params.relation;
 	const [relations, setRelations] = useState<Relation[]>([]);
 	const navigate = useScreen();
 	const { fetchAllRelations } = useDatabase();
@@ -66,7 +70,7 @@ const RelationMainScreen = ({ route }: any) => {
 const DisplayTotal = ({ relation }: { relation: RelationType }) => {
 	const { fetchAllTransactions } = useDatabase();
 	if (relation === RelationType.SOURCE) {
-		const total = calculateTotal(fetchAllTransactions(), true);
+		const total = calculateNetWorth(fetchAllTransactions());
 		return (
 			<CustomText
 				text={`Total Balance = ${formatMoney(total)}`}

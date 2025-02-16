@@ -1,9 +1,9 @@
-import RadioButtons from "../../components/buttons/add_screen/RadioButtons";
+import RadioButtons from "../../components/button/add_screen/RadioButtons";
 import {
 	BLUE_COLOR,
 	GREEN_COLOR,
 	YELLOW_COLOR,
-} from "../../constants/colors.config";
+} from "../../constants/config/colors.config";
 import TransactionType from "../../constants/enums/TransactionType";
 
 interface ITypeSelector {

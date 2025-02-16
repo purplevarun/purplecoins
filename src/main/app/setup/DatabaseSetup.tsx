@@ -1,8 +1,8 @@
 import { SQLiteDatabase, SQLiteProvider } from "expo-sqlite";
 import { Suspense } from "react";
-import LoadingScreen from "../../components/LoadingScreen";
-import { DB_NAME } from "../../constants/constants.config";
+import { DB_NAME } from "../../constants/config/constants.config";
 import create_tables from "../../constants/queries/create_tables";
+import LoadingScreen from "../../screens/loading/LoadingScreen";
 import IProvider from "../../types/IProvider";
 
 const DatabaseSetup: IProvider = ({ children }) => {

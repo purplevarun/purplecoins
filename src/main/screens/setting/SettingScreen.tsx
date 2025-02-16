@@ -1,11 +1,11 @@
 import { useState } from "react";
-import Header from "../../components/Header";
-import ScreenLayout from "../../components/ScreenLayout";
-import Vertical from "../../components/Vertical";
-import CustomButton from "../../components/buttons/CustomButton";
-import ConfirmationModal from "../../components/buttons/header/ConfirmationModal";
-import { RED_COLOR } from "../../constants/colors.config";
-import { FONT_SIZE } from "../../constants/constants.config";
+import CustomButton from "../../components/button/CustomButton";
+import ConfirmationModal from "../../components/button/header/ConfirmationModal";
+import Header from "../../components/header/Header";
+import ScreenLayout from "../../components/layout/ScreenLayout";
+import Vertical from "../../components/layout/Vertical";
+import { RED_COLOR } from "../../constants/config/colors.config";
+import { FONT_SIZE } from "../../constants/config/constants.config";
 import useSetting from "./useSetting";
 
 const SettingScreen = () => {

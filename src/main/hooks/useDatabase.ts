@@ -8,8 +8,6 @@ import LinkedRelation from "../models/LinkedRelation";
 import Relation from "../models/Relation";
 import Transaction from "../models/Transaction";
 import TransactionRelation from "../models/TransactionRelation";
-import RelationWithTotal from "../types/RelationWithTotal";
-import { calculateTotal, convertStringToDate } from "../util/HelperFunctions";
 
 const useDatabase = () => {
 	const db = useSQLiteContext();
@@ -26,7 +24,7 @@ const useDatabase = () => {
 
 	const addRelation = (relationName: string, relationType: RelationType) => {
 		const query = `INSERT INTO "relation" VALUES (?, ?, ?)`;
-		db.runSync(query, [randomUUID(), relationName, relationType]);
+		db.runSync(query, [randomUUID(), relationName.trim(), relationType]);
 	};
 
 	const updateRelation = (relationId: string, relationName: string) => {
@@ -75,7 +73,7 @@ const useDatabase = () => {
 		db.runSync(query, [
 			transactionId,
 			amount,
-			reason,
+			reason.trim(),
 			type,
 			action,
 			date.getTime(),
@@ -91,19 +89,6 @@ const useDatabase = () => {
 	const fetchTransactionsForRelation = (relationId: string) => {
 		const query = `SELECT "transaction".* FROM "transaction" JOIN "transaction_relation" ON "transaction".id = "transaction_relation".transaction_id WHERE "transaction_relation".relation_id = ? ORDER BY "transaction".date DESC`;
 		return db.getAllSync<Transaction>(query, [relationId]);
-	};
-
-	const fetchTransactionsForRelationBetweenDate = (
-		relationId: string,
-		startDate: number,
-		endDate: number,
-	) => {
-		const query = `SELECT "transaction".* FROM "transaction" JOIN "transaction_relation" ON "transaction".id = "transaction_relation".transaction_id WHERE "transaction_relation".relation_id = ? AND "transaction".date BETWEEN ? AND ? ORDER BY "transaction".date DESC`;
-		return db.getAllSync<Transaction>(query, [
-			relationId,
-			startDate,
-			endDate,
-		]);
 	};
 
 	const updateTransaction = (
@@ -134,26 +119,6 @@ const useDatabase = () => {
 			},
 			{} as Record<TransactionRelationType, LinkedRelation[]>,
 		);
-	};
-
-	const fetchBreakdown = (startDate: string, endDate: string) => {
-		const categories = fetchAllRelations(RelationType.CATEGORY);
-		const breakdown: Record<string, RelationWithTotal> = {};
-		categories.forEach((category) => {
-			const transactions = fetchTransactionsForRelationBetweenDate(
-				category.id,
-				convertStringToDate(startDate).getTime(),
-				convertStringToDate(endDate).getTime(),
-			);
-			if (transactions.length !== 0) {
-				const categoryBreakdown = (breakdown[category.id] ||=
-					defaultBreakdownObject);
-				categoryBreakdown.total += calculateTotal(transactions);
-				categoryBreakdown.id = category.id;
-				categoryBreakdown.name = category.name;
-			}
-		});
-		return Object.values(breakdown);
 	};
 
 	const duplicateTransaction = (transaction: Transaction) => {
@@ -192,16 +157,8 @@ const useDatabase = () => {
 		fetchTransactionsForRelation,
 		fetchRelationsForTransaction,
 		deleteRelationsForTransaction,
-		fetchBreakdown,
 		duplicateTransaction,
 	};
-};
-
-const defaultBreakdownObject = {
-	total: 0,
-	name: "",
-	id: "",
-	type: RelationType.CATEGORY,
 };
 
 export default useDatabase;

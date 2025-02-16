@@ -1,13 +1,13 @@
 import { TouchableOpacity, View } from "react-native";
 import { transactionRoutes } from "../../app/router/Routes";
-import CustomText from "../../components/CustomText";
+import CustomText from "../../components/text/CustomText";
 import {
 	BLUE_COLOR,
 	GREEN_COLOR,
 	RED_COLOR,
 	SECONDARY_COLOR,
 	YELLOW_COLOR,
-} from "../../constants/colors.config";
+} from "../../constants/config/colors.config";
 import {
 	BORDER_RADIUS,
 	BORDER_WIDTH,
@@ -15,7 +15,7 @@ import {
 	MARGIN,
 	PADDING,
 	SPACE_BETWEEN,
-} from "../../constants/constants.config";
+} from "../../constants/config/constants.config";
 import TransactionAction from "../../constants/enums/TransactionAction";
 import TransactionType from "../../constants/enums/TransactionType";
 import useDatabase from "../../hooks/useDatabase";

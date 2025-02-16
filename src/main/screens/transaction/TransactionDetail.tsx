@@ -6,12 +6,12 @@ import {
 	transactionRoutes,
 	tripRoutes,
 } from "../../app/router/Routes";
-import CustomText from "../../components/CustomText";
-import DataTab from "../../components/DataTab";
-import DataTabWrapper from "../../components/DataTabWrapper";
-import Header from "../../components/Header";
-import ScreenLayout from "../../components/ScreenLayout";
-import { FLEX_ROW, PADDING } from "../../constants/constants.config";
+import DataTab from "../../components/data_tab/DataTab";
+import DataTabWrapper from "../../components/data_tab/DataTabWrapper";
+import Header from "../../components/header/Header";
+import ScreenLayout from "../../components/layout/ScreenLayout";
+import CustomText from "../../components/text/CustomText";
+import { FLEX_ROW, PADDING } from "../../constants/config/constants.config";
 import TransactionType from "../../constants/enums/TransactionType";
 import useDatabase from "../../hooks/useDatabase";
 import useScreen from "../../hooks/useScreen";

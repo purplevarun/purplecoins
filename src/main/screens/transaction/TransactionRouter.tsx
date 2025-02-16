@@ -1,8 +1,7 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { transactionRoutes } from "../../app/router/Routes";
-import ScreenLayout from "../../components/ScreenLayout";
-import { SCREEN_OPTIONS } from "../../constants/constants.config";
-import AnalysisScreen from "../analysis/AnalysisScreen";
+import ScreenLayout from "../../components/layout/ScreenLayout";
+import { SCREEN_OPTIONS } from "../../constants/config/constants.config";
 import TransactionAdd from "./TransactionAdd";
 import TransactionDetail from "./TransactionDetail";
 import TransactionEdit from "./TransactionEdit";
@@ -28,10 +27,6 @@ const TransactionRouter = () => {
 				<Stack.Screen
 					name={transactionRoutes.edit}
 					component={TransactionEdit}
-				/>
-				<Stack.Screen
-					name={transactionRoutes.analysis}
-					component={AnalysisScreen}
 				/>
 			</Stack.Navigator>
 		</ScreenLayout>

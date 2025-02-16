@@ -1,9 +1,9 @@
-import CategoryButton from "../../components/buttons/tab_bar/CategoryButton";
-import InvestmentButton from "../../components/buttons/tab_bar/InvestmentButton";
-import SettingsButton from "../../components/buttons/tab_bar/SettingsButton";
-import SourceButton from "../../components/buttons/tab_bar/SourceButton";
-import TransactionButton from "../../components/buttons/tab_bar/TransactionButton";
-import TripButton from "../../components/buttons/tab_bar/TripButton";
+import CategoryButton from "../../components/button/tab_bar/CategoryButton";
+import InvestmentButton from "../../components/button/tab_bar/InvestmentButton";
+import SettingsButton from "../../components/button/tab_bar/SettingsButton";
+import SourceButton from "../../components/button/tab_bar/SourceButton";
+import TransactionButton from "../../components/button/tab_bar/TransactionButton";
+import TripButton from "../../components/button/tab_bar/TripButton";
 import RelationType from "../../constants/enums/RelationType";
 import Service from "../../constants/enums/Service";
 import RelationRouter from "../../screens/relation/RelationRouter";
@@ -17,17 +17,17 @@ const tabRoutes = {
 		Icon: TransactionButton,
 		params: {},
 	},
-	source: {
-		name: Service.SOURCE,
-		component: RelationRouter,
-		Icon: SourceButton,
-		params: { relation: RelationType.SOURCE },
-	},
 	category: {
 		name: Service.CATEGORY,
 		component: RelationRouter,
 		Icon: CategoryButton,
 		params: { relation: RelationType.CATEGORY },
+	},
+	source: {
+		name: Service.SOURCE,
+		component: RelationRouter,
+		Icon: SourceButton,
+		params: { relation: RelationType.SOURCE },
 	},
 	trip: {
 		name: Service.TRIP,
