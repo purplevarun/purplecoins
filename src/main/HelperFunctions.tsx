@@ -1,7 +1,3 @@
-import Transaction, { amount } from "./Transaction";
-import TransactionAction from "./TransactionAction";
-import TransactionType from "./TransactionType";
-
 export const formatMoney = (money: number | null | undefined) => {
 	if (money === null || money === undefined) return "null";
 	return "₹" + money.toLocaleString("en-IN");
@@ -22,26 +18,3 @@ export const convertStringToDate = (incomingDate: string) => {
 	newDate.setHours(0, 0, 0, 0);
 	return newDate;
 };
-
-export const calculateTotal = (transactions: Transaction[]) => {
-	let sum = 0;
-	transactions.forEach((transaction) => {
-		if (transaction.action === TransactionAction.CREDIT) {
-			sum += transaction.amount;
-		} else {
-			sum -= transaction.amount;
-		}
-	});
-
-	return sum;
-};
-
-export const calculateNetWorth = (transactions: Transaction[]) =>
-	transactions
-		.filter((tx) => tx.type !== TransactionType.TRANSFER)
-		.reduce((sum, tx) => sum + amount(tx), 0);
-
-export const calculateInvestmentTotal = (transactions: Transaction[]) =>
-	transactions
-		.filter((tx) => tx.type === TransactionType.INVESTMENT)
-		.reduce((sum, tx) => sum + amount(tx), 0);

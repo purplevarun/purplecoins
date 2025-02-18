@@ -12,8 +12,25 @@ const useDatabase = () => {
 	const db = useSQLiteContext();
 
 	const fetchAllRelations = (relationType: RelationType) => {
-		const query = `SELECT * FROM "relation" WHERE type = ?`;
-		return db.getAllSync<Relation>(query, [relationType]);
+		const query = `
+		SELECT r.*, COALESCE(SUM(
+			CASE
+				WHEN t.type = 'TRANSFER' THEN 
+					CASE WHEN tr.type = 'TRANSACTION_DESTINATION' THEN t.amount ELSE -t.amount END
+				WHEN t.action = 'CREDIT' THEN t.amount
+				ELSE -t.amount
+			END
+		), 0) AS total
+		FROM "relation" r
+		LEFT JOIN "transaction_relation" tr ON r.id = tr.relation_id
+		LEFT JOIN "transaction" t ON tr.transaction_id = t.id
+		WHERE r.type = ?
+		GROUP BY r.id
+		ORDER BY total
+		;`;
+		return db.getAllSync<Relation & { total: number }>(query, [
+			relationType,
+		]);
 	};
 
 	const fetchRelation = (relationId: string) => {
@@ -37,8 +54,40 @@ const useDatabase = () => {
 	};
 
 	const fetchAllTransactions = () => {
-		const query = `SELECT * FROM "transaction" ORDER BY date DESC`;
-		return db.getAllSync<Transaction>(query);
+		const query = `
+		SELECT * FROM "transaction" ORDER BY date DESC;
+		`;
+		return db.getAllSync<Transaction & { total: number }>(query);
+	};
+
+	const fetchTotalForSource = () => {
+		const query = `
+		SELECT
+		COALESCE(SUM(
+			CASE 
+				WHEN type = 'TRANSFER' THEN 0
+				WHEN action = 'DEBIT' THEN -amount
+				ELSE amount
+			END
+		), 0) AS total
+		FROM "transaction"
+	`;
+		return db.getFirstSync<{ total: number }>(query);
+	};
+
+	const fetchTotalForInvestment = () => {
+		const query = `
+		SELECT
+		COALESCE(SUM(
+			CASE 
+				WHEN action = 'DEBIT' THEN -amount
+				ELSE amount
+			END
+		), 0) AS total
+		FROM "transaction"
+		WHERE type = 'INVESTMENT'
+	`;
+		return db.getFirstSync<{ total: number }>(query);
 	};
 
 	const fetchTransaction = (transactionId: string) => {
@@ -135,6 +184,8 @@ const useDatabase = () => {
 		fetchTransactionsForRelation,
 		fetchRelationsForTransaction,
 		deleteRelationsForTransaction,
+		fetchTotalForSource,
+		fetchTotalForInvestment,
 	};
 };
 

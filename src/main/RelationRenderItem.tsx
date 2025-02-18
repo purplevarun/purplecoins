@@ -3,8 +3,6 @@ import CustomText from "./CustomText";
 import { formatMoney } from "./HelperFunctions";
 import Relation from "./Relation";
 import RelationMap from "./RelationMap";
-import TransactionAction from "./TransactionAction";
-import TransactionType from "./TransactionType";
 import { GREEN_COLOR, RED_COLOR, SECONDARY_COLOR } from "./colors.config";
 import {
 	BORDER_RADIUS,
@@ -21,30 +19,9 @@ const RelationRenderItem = ({ item }: { item: Relation }) => {
 };
 
 const Implementation = ({ item }: { item: Relation }) => {
-	const { fetchTransactionsForRelation, fetchRelationsForTransaction } =
-		useDatabase();
+	const { fetchTransactionsForRelation } = useDatabase();
 	const navigate = useScreen();
 	const transactions = fetchTransactionsForRelation(item.id);
-	const calculateTotal = () => {
-		let sum = 0;
-		transactions.forEach((transaction) => {
-			if (transaction.type === TransactionType.TRANSFER) {
-				const relations = fetchRelationsForTransaction(transaction.id);
-				const destination = relations.TRANSACTION_DESTINATION[0];
-				if (item.id === destination.id) {
-					sum += transaction.amount;
-				} else {
-					sum -= transaction.amount;
-				}
-			} else if (transaction.action === TransactionAction.CREDIT) {
-				sum += transaction.amount;
-			} else {
-				sum -= transaction.amount;
-			}
-		});
-		return sum;
-	};
-	const total = calculateTotal();
 	const currentRelation = RelationMap[item.type];
 	return (
 		<TouchableOpacity
@@ -53,8 +30,8 @@ const Implementation = ({ item }: { item: Relation }) => {
 				borderRadius: BORDER_RADIUS,
 				padding: PADDING,
 				margin: MARGIN,
-				borderWidth: total == 0 ? 0 : 2,
-				borderColor: total < 0 ? RED_COLOR : GREEN_COLOR,
+				borderWidth: item.total == 0 ? 0 : 2,
+				borderColor: item.total! < 0 ? RED_COLOR : GREEN_COLOR,
 				flexDirection: FLEX_ROW,
 				justifyContent: SPACE_BETWEEN,
 			}}
@@ -62,12 +39,12 @@ const Implementation = ({ item }: { item: Relation }) => {
 				navigate(currentRelation.routes.detail, {
 					id: item.id,
 					transactions,
-					total,
+					total: item.total,
 				})
 			}
 		>
 			<CustomText text={item.name} />
-			<CustomText text={formatMoney(Math.abs(total))} />
+			<CustomText text={formatMoney(Math.abs(item.total!))} />
 		</TouchableOpacity>
 	);
 };

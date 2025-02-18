@@ -2,11 +2,7 @@ import { FlashList } from "@shopify/flash-list";
 import { useState } from "react";
 import CustomText from "./CustomText";
 import Header from "./Header";
-import {
-	calculateInvestmentTotal,
-	calculateNetWorth,
-	formatMoney,
-} from "./HelperFunctions";
+import { formatMoney } from "./HelperFunctions";
 import Relation from "./Relation";
 import RelationFinder from "./RelationFinder";
 import relationMap from "./RelationMap";
@@ -64,9 +60,9 @@ const RelationMainScreen = ({
 };
 
 const DisplayTotal = ({ relation }: { relation: RelationType }) => {
-	const { fetchAllTransactions } = useDatabase();
+	const { fetchTotalForSource, fetchTotalForInvestment } = useDatabase();
 	if (relation === RelationType.SOURCE) {
-		const total = calculateNetWorth(fetchAllTransactions());
+		const total = fetchTotalForSource()?.total;
 		return (
 			<CustomText
 				text={`Total Balance = ${formatMoney(total)}`}
@@ -77,10 +73,10 @@ const DisplayTotal = ({ relation }: { relation: RelationType }) => {
 		);
 	}
 	if (relation === RelationType.INVESTMENT) {
-		const total = calculateInvestmentTotal(fetchAllTransactions());
+		const total = fetchTotalForInvestment()?.total!;
 		return (
 			<CustomText
-				text={`Total Invested Amount = ${formatMoney(Math.abs(total))}`}
+				text={`Current Investments = ${formatMoney(Math.abs(total))}`}
 				alignSelf={CENTER}
 				fontSize={FONT_SIZE * 1.2}
 				paddingVertical={FONT_SIZE}

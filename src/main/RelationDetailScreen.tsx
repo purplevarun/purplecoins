@@ -1,7 +1,7 @@
 import { useState } from "react";
 import DataTab from "./DataTab";
 import Header from "./Header";
-import { calculateTotal, formatMoney } from "./HelperFunctions";
+import { formatMoney } from "./HelperFunctions";
 import LinkedTransactions from "./LinkedTransactions";
 import relationMap from "./RelationMap";
 import RelationType from "./RelationType";
@@ -22,7 +22,7 @@ const RelationDetailScreen = ({ route }: any) => {
 	useFocus(() => {
 		setTransactions(fetchTransactionsForRelation(id));
 	});
-	const total = calculateTotal(transactions);
+	const total = route.params.total;
 	const routes = relationMap[relationType].routes;
 	return (
 		<ScreenLayout>
