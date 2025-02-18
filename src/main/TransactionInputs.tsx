@@ -50,7 +50,6 @@ const TransactionInputs = () => {
 	const [investmentModels, setInvestmentModels] = useState<IRenderItem[]>([]);
 
 	useFocus(() => {
-		console.log("FOCUS!");
 		setSourceModels(fetchAllRelations(RelationType.SOURCE).map(callback));
 		setDestinationModels(
 			fetchAllRelations(RelationType.SOURCE)

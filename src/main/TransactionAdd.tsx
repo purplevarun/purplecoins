@@ -10,46 +10,44 @@ import useScreen from "./useScreen";
 import useValues from "./useValues";
 
 const TransactionAdd = () => {
-	const {
-		type,
-		setType,
-		amount,
-		reason,
-		action,
-		date,
-		trips,
-		categories,
-		source,
-		investment,
-		destination,
-		clear,
-	} = useValues();
+	const values = useValues();
 	const navigate = useScreen();
 	const { addTransaction, addTransactionRelation } = useDatabase();
+	const canBeSubmitted = () => {
+		if (values.amount === "" || parseInt(values.amount) <= 0) return false;
+		if (values.reason === "") return false;
+		if (values.date.length !== 10) return false;
+		if (values.date.split("/").length !== 3) return false;
+		const [d, m, y] = values.date.split("/");
+		if (parseInt(d) < 1 || parseInt(d) > 31) return false;
+		if (parseInt(m) < 1 || parseInt(m) > 12) return false;
+		if (y.length !== 4) return false;
+		return values.source !== "";
+	};
 
 	return (
 		<ScreenLayout>
 			<Header
 				handleClose={() => {
 					navigate(transactionRoutes.main);
-					clear();
+					values.clear();
 				}}
 				handleSubmit={() => {
 					const transactionId = addTransaction(
-						parseInt(amount),
-						reason,
-						action,
-						type,
-						convertStringToDate(date),
+						parseInt(values.amount),
+						values.reason,
+						values.action,
+						values.type,
+						convertStringToDate(values.date),
 					);
-					trips.forEach((trip) =>
+					values.trips.forEach((trip) =>
 						addTransactionRelation(
 							transactionId,
 							trip,
 							TransactionRelationType.TRIP,
 						),
 					);
-					categories.forEach((category) =>
+					values.categories.forEach((category) =>
 						addTransactionRelation(
 							transactionId,
 							category,
@@ -58,27 +56,30 @@ const TransactionAdd = () => {
 					);
 					addTransactionRelation(
 						transactionId,
-						source,
+						values.source,
 						TransactionRelationType.SOURCE,
 					);
-					if (investment)
+					if (values.investment)
 						addTransactionRelation(
 							transactionId,
-							investment,
+							values.investment,
 							TransactionRelationType.INVESTMENT,
 						);
-					if (destination)
+					if (values.destination)
 						addTransactionRelation(
 							transactionId,
-							destination,
+							values.destination,
 							TransactionRelationType.DESTINATION,
 						);
-					clear();
+					values.clear();
 					navigate(transactionRoutes.main);
 				}}
-				canBeSubmitted={true}
+				canBeSubmitted={canBeSubmitted()}
 			/>
-			<TransactionTypeSelector type={type} setType={setType} />
+			<TransactionTypeSelector
+				type={values.type}
+				setType={values.setType}
+			/>
 			<TransactionInputs />
 		</ScreenLayout>
 	);
