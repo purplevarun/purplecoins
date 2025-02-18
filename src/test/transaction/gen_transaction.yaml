@@ -65,11 +65,11 @@ appId: host.exp.exponent
 - tapOn: "Categories"
 - tapOn: "Category 1"
 - tapOn:
-      point: "50%,50%"
+      point: "50%,60%"
 - tapOn: "Trips"
 - tapOn: "Trip 1"
 - tapOn:
-      point: "50%,50%"
+      point: "50%,60%"
 - tapOn:
       id: "check_icon"
 # second transaction GEN TXN added

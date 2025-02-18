@@ -62,7 +62,7 @@ appId: host.exp.exponent
 - tapOn: "Trips"
 - tapOn: "Trip 2"
 - tapOn:
-      point: "50%,50%"
+      point: "50%,60%"
 - tapOn:
       id: "check_icon"
 - tapOn: "Gen Txn"
@@ -77,7 +77,7 @@ appId: host.exp.exponent
 - tapOn: "Categories"
 - tapOn: "Category 2"
 - tapOn:
-      point: "50%,50%"
+      point: "50%,60%"
 - tapOn:
       id: "check_icon"
 - tapOn: "Gen Txn"
