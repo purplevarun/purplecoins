@@ -29,6 +29,7 @@ const RelationFinder = ({
 			setValue={onFind}
 			width={"100%"}
 			bottom={PADDING}
+			autoFocus
 		/>
 	);
 };

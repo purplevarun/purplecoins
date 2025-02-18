@@ -1,13 +1,16 @@
+import { useState } from "react";
 import ActionButton from "./ActionButton";
 import CustomInput from "./CustomInput";
 import DropdownSelector from "./DropdownSelector";
 import DropdownType from "./DropdownType";
+import IRenderItem from "./IRenderItem";
 import PaddedRow from "./PaddedRow";
 import Relation from "./Relation";
 import RelationType from "./RelationType";
 import TransactionAction from "./TransactionAction";
 import TransactionType from "./TransactionType";
 import useDatabase from "./useDatabase";
+import useFocus from "./useFocus";
 import useValues from "./useValues";
 
 const TransactionInputs = () => {
@@ -33,23 +36,35 @@ const TransactionInputs = () => {
 		setDestination,
 	} = useValues();
 	const { fetchAllRelations } = useDatabase();
-	const sourceList = fetchAllRelations(RelationType.SOURCE);
-	const categoryList = fetchAllRelations(RelationType.CATEGORY);
-	const tripList = fetchAllRelations(RelationType.TRIP);
-	const investmentList = fetchAllRelations(RelationType.INVESTMENT);
-
-	const callback = (s: Relation) => ({
+	const callback = (s: Relation): IRenderItem => ({
 		label: s.name,
 		value: s.id,
 	});
 
-	const sourceModels = sourceList.map(callback);
-	const destinationModels = sourceList
-		.filter((destination) => destination.id !== source)
-		.map(callback);
-	const categoryModels = categoryList.map(callback);
-	const tripModels = tripList.map(callback);
-	const investmentModels = investmentList.map(callback);
+	const [sourceModels, setSourceModels] = useState<IRenderItem[]>([]);
+	const [destinationModels, setDestinationModels] = useState<IRenderItem[]>(
+		[],
+	);
+	const [categoryModels, setCategoryModels] = useState<IRenderItem[]>([]);
+	const [tripModels, setTripModels] = useState<IRenderItem[]>([]);
+	const [investmentModels, setInvestmentModels] = useState<IRenderItem[]>([]);
+
+	useFocus(() => {
+		console.log("FOCUS!");
+		setSourceModels(fetchAllRelations(RelationType.SOURCE).map(callback));
+		setDestinationModels(
+			fetchAllRelations(RelationType.SOURCE)
+				.filter((destination) => destination.id !== source)
+				.map(callback),
+		);
+		setCategoryModels(
+			fetchAllRelations(RelationType.CATEGORY).map(callback),
+		);
+		setTripModels(fetchAllRelations(RelationType.TRIP).map(callback));
+		setInvestmentModels(
+			fetchAllRelations(RelationType.INVESTMENT).map(callback),
+		);
+	});
 
 	const isGeneral = type === TransactionType.GENERAL;
 	const isInvestment = type === TransactionType.INVESTMENT;
