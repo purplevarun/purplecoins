@@ -36,8 +36,8 @@ const ActionButton = ({
 	});
 
 	const handlePress = () =>
-		setAction((prevAction) =>
-			prevAction === TransactionAction.DEBIT
+		setAction(
+			action === TransactionAction.DEBIT
 				? TransactionAction.CREDIT
 				: TransactionAction.DEBIT,
 		);
