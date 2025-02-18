@@ -1,5 +1,8 @@
 import { FC } from "react";
 import { Modal, StyleSheet, View } from "react-native";
+import CustomButton from "./CustomButton";
+import CustomText from "./CustomText";
+import Vertical from "./Vertical";
 import {
 	PRIMARY_COLOR,
 	RED_COLOR,
@@ -18,9 +21,6 @@ import {
 	MODAL_WIDTH,
 	SPACE_EVENLY,
 } from "./constants.config";
-import Vertical from "./Vertical";
-import CustomText from "./CustomText";
-import CustomButton from "./CustomButton";
 
 const ConfirmationModal: IDeleteModal = ({ setModal, onDelete }) => {
 	return (

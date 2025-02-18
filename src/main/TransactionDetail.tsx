@@ -1,4 +1,10 @@
 import { StyleSheet, TouchableOpacity, View } from "react-native";
+import CustomText from "./CustomText";
+import DataTab from "./DataTab";
+import DataTabWrapper from "./DataTabWrapper";
+import Header from "./Header";
+import { convertDateToString, formatMoney } from "./HelperFunctions";
+import LinkedRelation from "./LinkedRelation";
 import {
 	categoryRoutes,
 	investmentRoutes,
@@ -6,17 +12,11 @@ import {
 	transactionRoutes,
 	tripRoutes,
 } from "./Routes";
-import DataTab from "./DataTab";
-import DataTabWrapper from "./DataTabWrapper";
-import Header from "./Header";
 import ScreenLayout from "./ScreenLayout";
-import CustomText from "./CustomText";
-import { FLEX_ROW, PADDING } from "./constants.config";
 import TransactionType from "./TransactionType";
+import { FLEX_ROW, PADDING } from "./constants.config";
 import useDatabase from "./useDatabase";
 import useScreen from "./useScreen";
-import LinkedRelation from "./LinkedRelation";
-import { convertDateToString, formatMoney } from "./HelperFunctions";
 
 const TransactionDetail = ({ route }: any) => {
 	const transactionId = route.params.id;

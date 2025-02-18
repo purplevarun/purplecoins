@@ -1,16 +1,9 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useState } from "react";
 import { StyleSheet, TouchableOpacity } from "react-native";
-import {
-	BACKGROUND_COLOR,
-	PRIMARY_COLOR,
-} from "./colors.config";
-import {
-	CENTER,
-	FONT_SIZE,
-	MARGIN,
-} from "./constants.config";
 import ConfirmationModal from "./ConfirmationModal";
+import { BACKGROUND_COLOR, PRIMARY_COLOR } from "./colors.config";
+import { CENTER, FONT_SIZE, MARGIN } from "./constants.config";
 
 const DeleteButton = ({
 	onDelete,

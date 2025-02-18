@@ -1,12 +1,12 @@
 import { useState } from "react";
-import Header from "./Header";
 import CustomInput from "./CustomInput";
-import ScreenLayout from "./ScreenLayout";
+import Header from "./Header";
+import RelationMap from "./RelationMap";
 import RelationType from "./RelationType";
+import ScreenLayout from "./ScreenLayout";
 import useDatabase from "./useDatabase";
 import useFocus from "./useFocus";
 import useScreen from "./useScreen";
-import RelationMap from "./RelationMap";
 
 const RelationEditScreen = ({ route }: any) => {
 	const relationType = route.params.relation as RelationType;
@@ -30,6 +30,7 @@ const RelationEditScreen = ({ route }: any) => {
 				name={`${relation.name} Name`}
 				value={name}
 				setValue={setName}
+				autoFocus
 			/>
 		</ScreenLayout>
 	);

@@ -33,4 +33,4 @@ export const SCREEN_OPTIONS: NativeStackNavigationOptions = {
 };
 export const DB_FILE_PATH = `${FileSystem.documentDirectory}SQLite/${DB_NAME}`;
 export const TAB_BAR_POSITION = "bottom";
-export const FLEX_END="flex-end"
+export const FLEX_END = "flex-end";

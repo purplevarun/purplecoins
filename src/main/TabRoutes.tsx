@@ -1,14 +1,14 @@
 import CategoryButton from "./CategoryButton";
 import InvestmentButton from "./InvestmentButton";
+import RelationRouter from "./RelationRouter";
+import RelationType from "./RelationType";
+import Service from "./Service";
+import SettingScreen from "./SettingScreen";
 import SettingsButton from "./SettingsButton";
 import SourceButton from "./SourceButton";
 import TransactionButton from "./TransactionButton";
-import TripButton from "./TripButton";
-import RelationType from "./RelationType";
-import Service from "./Service";
-import RelationRouter from "./RelationRouter";
-import SettingScreen from "./SettingScreen";
 import TransactionRouter from "./TransactionRouter";
+import TripButton from "./TripButton";
 
 const tabRoutes = {
 	transaction: {

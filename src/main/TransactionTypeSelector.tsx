@@ -1,10 +1,6 @@
 import RadioButtons from "./RadioButtons";
-import {
-	BLUE_COLOR,
-	GREEN_COLOR,
-	YELLOW_COLOR,
-} from "./colors.config";
 import TransactionType from "./TransactionType";
+import { BLUE_COLOR, GREEN_COLOR, YELLOW_COLOR } from "./colors.config";
 
 interface ITypeSelector {
 	type: TransactionType;

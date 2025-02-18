@@ -1,9 +1,9 @@
 import { useState } from "react";
+import CustomInput from "./CustomInput";
+import { convertDateToString } from "./HelperFunctions";
+import Transaction from "./Transaction";
 import { PADDING } from "./constants.config";
 import useDatabase from "./useDatabase";
-import Transaction from "./Transaction";
-import { convertDateToString } from "./HelperFunctions";
-import CustomInput from "./CustomInput";
 
 const TransactionFinder = ({
 	setTransactions,

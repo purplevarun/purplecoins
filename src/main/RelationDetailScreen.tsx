@@ -1,15 +1,15 @@
 import { useState } from "react";
 import DataTab from "./DataTab";
 import Header from "./Header";
-import ScreenLayout from "./ScreenLayout";
-import RelationType from "./RelationType";
-import useDatabase from "./useDatabase";
-import useFocus from "./useFocus";
-import useScreen from "./useScreen";
-import Transaction from "./Transaction";
 import { calculateTotal, formatMoney } from "./HelperFunctions";
 import LinkedTransactions from "./LinkedTransactions";
 import relationMap from "./RelationMap";
+import RelationType from "./RelationType";
+import ScreenLayout from "./ScreenLayout";
+import Transaction from "./Transaction";
+import useDatabase from "./useDatabase";
+import useFocus from "./useFocus";
+import useScreen from "./useScreen";
 
 const RelationDetailScreen = ({ route }: any) => {
 	const id = route.params.id;

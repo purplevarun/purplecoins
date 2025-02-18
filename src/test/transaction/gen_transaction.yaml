@@ -24,9 +24,8 @@ appId: host.exp.exponent
       text: "No Transactions found"
 - tapOn:
       id: "plus_icon"
-- tapOn: "DEBIT"
-- tapOn: "Amount"
 - inputText: "1000"
+- tapOn: "DEBIT"
 - tapOn: "Reason"
 - inputText: "Salary"
 - tapOn: "Destination"

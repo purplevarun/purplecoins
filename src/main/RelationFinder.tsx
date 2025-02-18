@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { PADDING } from "./constants.config";
-import RelationType from "./RelationType";
-import useDatabase from "./useDatabase";
-import Relation from "./Relation";
 import CustomInput from "./CustomInput";
+import Relation from "./Relation";
+import RelationType from "./RelationType";
+import { PADDING } from "./constants.config";
+import useDatabase from "./useDatabase";
 
 const RelationFinder = ({
 	setRelations,

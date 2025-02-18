@@ -1,10 +1,11 @@
 import { TouchableOpacity } from "react-native";
 import CustomText from "./CustomText";
-import {
-	GREEN_COLOR,
-	RED_COLOR,
-	SECONDARY_COLOR,
-} from "./colors.config";
+import { formatMoney } from "./HelperFunctions";
+import Relation from "./Relation";
+import RelationMap from "./RelationMap";
+import TransactionAction from "./TransactionAction";
+import TransactionType from "./TransactionType";
+import { GREEN_COLOR, RED_COLOR, SECONDARY_COLOR } from "./colors.config";
 import {
 	BORDER_RADIUS,
 	FLEX_ROW,
@@ -12,13 +13,8 @@ import {
 	PADDING,
 	SPACE_BETWEEN,
 } from "./constants.config";
-import TransactionAction from "./TransactionAction";
-import TransactionType from "./TransactionType";
 import useDatabase from "./useDatabase";
 import useScreen from "./useScreen";
-import Relation from "./Relation";
-import { formatMoney } from "./HelperFunctions";
-import RelationMap from "./RelationMap";
 
 const RelationRenderItem = ({ item }: { item: Relation }) => {
 	return <Implementation item={item} />;

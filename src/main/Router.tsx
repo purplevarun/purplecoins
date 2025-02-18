@@ -1,9 +1,9 @@
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
-import { TAB_BAR_POSITION } from "./constants.config";
 import TabBar from "./TabBar";
 import tabRoutes from "./TabRoutes";
+import { TAB_BAR_POSITION } from "./constants.config";
 
 const Router = () => {
 	const TopTab = createMaterialTopTabNavigator();

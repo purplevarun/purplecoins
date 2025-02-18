@@ -1,11 +1,11 @@
 import { useState } from "react";
-import Header from "./Header";
 import CustomInput from "./CustomInput";
-import ScreenLayout from "./ScreenLayout";
+import Header from "./Header";
+import RelationMap from "./RelationMap";
 import RelationType from "./RelationType";
+import ScreenLayout from "./ScreenLayout";
 import useDatabase from "./useDatabase";
 import useScreen from "./useScreen";
-import RelationMap from "./RelationMap";
 
 const RelationAddScreen = ({
 	route,

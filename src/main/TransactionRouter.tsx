@@ -1,11 +1,11 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { transactionRoutes } from "./Routes";
 import ScreenLayout from "./ScreenLayout";
-import { SCREEN_OPTIONS } from "./constants.config";
 import TransactionAdd from "./TransactionAdd";
 import TransactionDetail from "./TransactionDetail";
 import TransactionEdit from "./TransactionEdit";
 import TransactionMain from "./TransactionMain";
+import { SCREEN_OPTIONS } from "./constants.config";
 
 const TransactionRouter = () => {
 	const Stack = createNativeStackNavigator();

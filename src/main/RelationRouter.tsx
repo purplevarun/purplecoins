@@ -1,12 +1,12 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import ScreenLayout from "./ScreenLayout";
-import { SCREEN_OPTIONS } from "./constants.config";
-import RelationType from "./RelationType";
 import RelationAddScreen from "./RelationAddScreen";
 import RelationDetailScreen from "./RelationDetailScreen";
 import RelationEditScreen from "./RelationEditScreen";
 import RelationMainScreen from "./RelationMainScreen";
 import RelationMap from "./RelationMap";
+import RelationType from "./RelationType";
+import ScreenLayout from "./ScreenLayout";
+import { SCREEN_OPTIONS } from "./constants.config";
 
 const RelationRouter = ({ route }: any) => {
 	const Stack = createNativeStackNavigator();

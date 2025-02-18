@@ -1,10 +1,6 @@
 import { ColorValue, FlexAlignType, Text } from "react-native";
 import { PRIMARY_COLOR } from "./colors.config";
-import {
-	FLEX_START,
-	FONT_SIZE,
-	UBUNTU_FONT,
-} from "./constants.config";
+import { FLEX_START, FONT_SIZE, UBUNTU_FONT } from "./constants.config";
 
 type ITextDecoration =
 	| "none"

@@ -1,14 +1,14 @@
 import ActionButton from "./ActionButton";
+import CustomInput from "./CustomInput";
 import DropdownSelector from "./DropdownSelector";
 import DropdownType from "./DropdownType";
-import CustomInput from "./CustomInput";
 import PaddedRow from "./PaddedRow";
+import Relation from "./Relation";
 import RelationType from "./RelationType";
 import TransactionAction from "./TransactionAction";
 import TransactionType from "./TransactionType";
 import useDatabase from "./useDatabase";
 import useValues from "./useValues";
-import Relation from "./Relation";
 
 const TransactionInputs = () => {
 	const {
@@ -64,6 +64,7 @@ const TransactionInputs = () => {
 					setValue={setAmount}
 					width={isTransfer ? "100%" : "66%"}
 					numeric
+					autoFocus
 				/>
 				{!isTransfer && (
 					<ActionButton

@@ -1,12 +1,12 @@
 import { MaterialTopTabBarProps } from "@react-navigation/material-top-tabs";
 import { View } from "react-native";
+import tabRoutes from "./TabRoutes";
 import {
 	FLEX_ROW,
 	FONT_SIZE,
 	PADDING,
 	SPACE_BETWEEN,
 } from "./constants.config";
-import tabRoutes from "./TabRoutes";
 
 const TabBar = (props: MaterialTopTabBarProps) => (
 	<TabBarImplementation {...props} />

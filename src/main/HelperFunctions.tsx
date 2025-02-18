@@ -1,6 +1,6 @@
+import Transaction, { amount } from "./Transaction";
 import TransactionAction from "./TransactionAction";
 import TransactionType from "./TransactionType";
-import Transaction, { amount } from "./Transaction";
 
 export const formatMoney = (money: number | null | undefined) => {
 	if (money === null || money === undefined) return "null";

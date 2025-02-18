@@ -1,7 +1,7 @@
 import { create } from "zustand";
+import { convertDateToString } from "./HelperFunctions";
 import TransactionAction from "./TransactionAction";
 import TransactionType from "./TransactionType";
-import { convertDateToString } from "./HelperFunctions";
 
 interface Values {
 	amount: string;
@@ -25,13 +25,9 @@ interface Values {
 	setCategories: (categories: string[]) => void;
 	setDate: (date: string) => void;
 	clear: () => void;
-	trigger: boolean;
-	changeTrigger: () => void;
 }
 
 const useValues = create<Values>((set) => ({
-	trigger: false,
-	changeTrigger: () => set((state) => ({ trigger: !state.trigger })),
 	amount: "",
 	reason: "",
 	source: "",

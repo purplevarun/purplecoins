@@ -3,12 +3,12 @@ import * as NavigationBar from "expo-navigation-bar";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar, View } from "react-native";
 import "react-native-gesture-handler";
-import { BACKGROUND_COLOR } from "./colors.config";
-import { FLEX_ONE } from "./constants.config";
-import LoadingScreen from "./LoadingScreen";
-import IProvider from "./IProvider";
 import CustomFontSetup from "./CustomFontSetup";
 import DatabaseSetup from "./DatabaseSetup";
+import IProvider from "./IProvider";
+import LoadingScreen from "./LoadingScreen";
+import { BACKGROUND_COLOR } from "./colors.config";
+import { FLEX_ONE } from "./constants.config";
 
 const AppSetup: IProvider = ({ children }) => {
 	SplashScreen.preventAutoHideAsync().catch();

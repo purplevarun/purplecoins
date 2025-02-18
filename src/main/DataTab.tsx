@@ -1,7 +1,7 @@
 import { FC } from "react";
-import { PRIMARY_COLOR, RED_COLOR } from "./colors.config";
 import CustomText from "./CustomText";
 import DataTabWrapper from "./DataTabWrapper";
+import { PRIMARY_COLOR, RED_COLOR } from "./colors.config";
 
 type IDataTab = FC<{
 	name: string;

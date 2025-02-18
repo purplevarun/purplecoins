@@ -1,8 +1,8 @@
 import { ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
+import LoadingScreen from "./LoadingScreen";
 import { BACKGROUND_COLOR } from "./colors.config";
 import { FLEX_ONE, PADDING } from "./constants.config";
-import LoadingScreen from "./LoadingScreen";
 
 const ScreenLayout = ({
 	children,

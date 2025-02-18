@@ -1,6 +1,6 @@
 import registerRootComponent from "expo/build/launch/registerRootComponent";
-import Router from "./Router";
 import AppSetup from "./AppSetup";
+import Router from "./Router";
 
 const App = () => {
 	return (

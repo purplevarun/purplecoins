@@ -1,12 +1,9 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { TouchableOpacity } from "react-native";
-import {
-	DISABLED_COLOR,
-	PRIMARY_COLOR,
-} from "./colors.config";
-import { FONT_SIZE } from "./constants.config";
-import Service from "./Service";
 import ITabButton from "./ITabButton";
+import Service from "./Service";
+import { DISABLED_COLOR, PRIMARY_COLOR } from "./colors.config";
+import { FONT_SIZE } from "./constants.config";
 
 const SourceButton: ITabButton = ({ active, navigate }) => {
 	return (

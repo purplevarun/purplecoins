@@ -1,13 +1,12 @@
 import { randomUUID } from "expo-crypto";
 import { useSQLiteContext } from "expo-sqlite";
+import LinkedRelation from "./LinkedRelation";
+import Relation from "./Relation";
 import RelationType from "./RelationType";
+import Transaction from "./Transaction";
 import TransactionAction from "./TransactionAction";
 import TransactionRelationType from "./TransactionRelationType";
 import TransactionType from "./TransactionType";
-import LinkedRelation from "./LinkedRelation";
-import Relation from "./Relation";
-import Transaction from "./Transaction";
-import TransactionRelation from "./TransactionRelation";
 
 const useDatabase = () => {
 	const db = useSQLiteContext();
@@ -121,27 +120,6 @@ const useDatabase = () => {
 		);
 	};
 
-	const duplicateTransaction = (transaction: Transaction) => {
-		const newTransactionId = addTransaction(
-			transaction.amount,
-			transaction.reason,
-			transaction.action,
-			transaction.type,
-			new Date(transaction.date),
-		);
-		const query = `SELECT * FROM "transaction_relation" WHERE transaction_id = ?;`;
-		const relations = db.getAllSync<TransactionRelation>(query, [
-			transaction.id,
-		]);
-		relations.forEach((relation) => {
-			addTransactionRelation(
-				newTransactionId,
-				relation.relation_id,
-				relation.type,
-			);
-		});
-	};
-
 	return {
 		fetchAllRelations,
 		fetchRelation,
@@ -157,7 +135,6 @@ const useDatabase = () => {
 		fetchTransactionsForRelation,
 		fetchRelationsForTransaction,
 		deleteRelationsForTransaction,
-		duplicateTransaction,
 	};
 };
 

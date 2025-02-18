@@ -1,11 +1,7 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { DimensionValue, TouchableOpacity } from "react-native";
 import { PRIMARY_COLOR } from "./colors.config";
-import {
-	CENTER,
-	LARGE_FONT_SIZE,
-	MARGIN,
-} from "./constants.config";
+import { CENTER, LARGE_FONT_SIZE, MARGIN } from "./constants.config";
 
 const FindButton = ({
 	onClick,

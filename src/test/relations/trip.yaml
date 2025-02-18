@@ -13,7 +13,6 @@ appId: host.exp.exponent
 - assertVisible: "No Trips found"
 - tapOn:
       id: "plus_icon"
-- tapOn: "Trip Name"
 - inputText: "Trip 1"
 - tapOn:
       id: "check_icon"
@@ -21,7 +20,6 @@ appId: host.exp.exponent
 - assertVisible: "Trip 1"
 - tapOn:
       id: "plus_icon"
-- tapOn: "Trip Name"
 - inputText: "Trip 2"
 - tapOn:
       id: "check_icon"
@@ -30,7 +28,6 @@ appId: host.exp.exponent
 - tapOn: "Trip 2"
 - tapOn:
       id: "edit_icon"
-- tapOn: "Trip 2"
 - eraseText
 - inputText: "Trip 3"
 - tapOn:
@@ -46,7 +43,6 @@ appId: host.exp.exponent
 - assertVisible: "Trip 1"
 - tapOn:
       id: "plus_icon"
-- tapOn: "Trip Name"
 - inputText: "Trip 2"
 - tapOn:
       id: "check_icon"

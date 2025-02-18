@@ -1,14 +1,11 @@
 import { FlashList } from "@shopify/flash-list";
 import { View } from "react-native";
-import Vertical from "./Vertical";
 import CustomText from "./CustomText";
-import { DISABLED_COLOR } from "./colors.config";
-import {
-	LARGE_FONT_SIZE,
-	PADDING,
-} from "./constants.config";
 import Transaction from "./Transaction";
 import TransactionRenderItem from "./TransactionRenderItem";
+import Vertical from "./Vertical";
+import { DISABLED_COLOR } from "./colors.config";
+import { LARGE_FONT_SIZE, PADDING } from "./constants.config";
 
 const LinkedTransactions = ({
 	transactions,

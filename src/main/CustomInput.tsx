@@ -1,9 +1,6 @@
 import { useRef } from "react";
 import { DimensionValue, Text, TextInput, View } from "react-native";
-import {
-	DISABLED_COLOR,
-	PRIMARY_COLOR,
-} from "./colors.config";
+import { DISABLED_COLOR, PRIMARY_COLOR } from "./colors.config";
 import {
 	ABSOLUTE,
 	BORDER_RADIUS,

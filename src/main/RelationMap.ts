@@ -1,10 +1,10 @@
+import RelationType from "./RelationType";
 import {
 	categoryRoutes,
 	investmentRoutes,
 	sourceRoutes,
 	tripRoutes,
 } from "./Routes";
-import RelationType from "./RelationType";
 
 const RelationMap = {
 	[RelationType.CATEGORY]: {

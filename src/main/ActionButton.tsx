@@ -1,4 +1,3 @@
-import { Dispatch, SetStateAction } from "react";
 import { DimensionValue, StyleSheet, TouchableOpacity } from "react-native";
 import CustomText from "./CustomText";
 import TransactionAction from "./TransactionAction";
@@ -17,7 +16,7 @@ const ActionButton = ({
 	width,
 }: {
 	action: TransactionAction;
-	setAction: Dispatch<SetStateAction<TransactionAction>>;
+	setAction: (_: TransactionAction) => void;
 	width: DimensionValue;
 }) => {
 	const backgroundColor =

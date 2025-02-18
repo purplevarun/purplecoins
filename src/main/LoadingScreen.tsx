@@ -1,13 +1,6 @@
 import { ActivityIndicator, StyleSheet, View } from "react-native";
-import {
-	BACKGROUND_COLOR,
-	PRIMARY_COLOR,
-} from "./colors.config";
-import {
-	CENTER,
-	FLEX_ONE,
-	LOADER_SIZE,
-} from "./constants.config";
+import { BACKGROUND_COLOR, PRIMARY_COLOR } from "./colors.config";
+import { CENTER, FLEX_ONE, LOADER_SIZE } from "./constants.config";
 
 const LoadingScreen = () => {
 	return (

@@ -1,10 +1,6 @@
 import { View } from "react-native";
-import {
-	CENTER,
-	FLEX_ROW,
-	SPACE_BETWEEN,
-} from "./constants.config";
 import IProvider from "./IProvider";
+import { CENTER, FLEX_ROW, SPACE_BETWEEN } from "./constants.config";
 
 const PaddedRow: IProvider = ({ children }) => {
 	return (

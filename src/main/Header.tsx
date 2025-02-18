@@ -1,5 +1,12 @@
 import { useRoute } from "@react-navigation/native";
 import { StyleSheet, View } from "react-native";
+import CheckButton from "./CheckButton";
+import CloseButton from "./CloseButton";
+import CustomText from "./CustomText";
+import DeleteButton from "./DeleteButton";
+import EditButton from "./EditButton";
+import FindButton from "./FindButton";
+import PlusButton from "./PlusButton";
 import {
 	CENTER,
 	FLEX_ROW,
@@ -9,13 +16,6 @@ import {
 	PADDING,
 	SPACE_BETWEEN,
 } from "./constants.config";
-import CheckButton from "./CheckButton";
-import CloseButton from "./CloseButton";
-import DeleteButton from "./DeleteButton";
-import EditButton from "./EditButton";
-import FindButton from "./FindButton";
-import PlusButton from "./PlusButton";
-import CustomText from "./CustomText";
 
 const Header = ({
 	handleClose,

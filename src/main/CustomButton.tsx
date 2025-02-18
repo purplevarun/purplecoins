@@ -1,4 +1,5 @@
 import { DimensionValue, TouchableOpacity } from "react-native";
+import CustomText from "./CustomText";
 import { GREEN_COLOR } from "./colors.config";
 import {
 	BORDER_RADIUS,
@@ -7,7 +8,6 @@ import {
 	PADDING,
 	SCREEN_WIDTH,
 } from "./constants.config";
-import CustomText from "./CustomText";
 
 const CustomButton = ({
 	text = "Submit",

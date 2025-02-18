@@ -1,10 +1,6 @@
 import { StyleSheet, View } from "react-native";
-import {
-	FLEX_ROW,
-	MARGIN,
-	SPACE_BETWEEN,
-} from "./constants.config";
 import IProvider from "./IProvider";
+import { FLEX_ROW, MARGIN, SPACE_BETWEEN } from "./constants.config";
 
 const DataTabWrapper: IProvider = ({ children }) => {
 	return <View style={styles.tab} children={children} />;

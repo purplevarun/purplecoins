@@ -1,6 +1,6 @@
 import { useFonts } from "expo-font";
-import LoadingScreen from "./LoadingScreen";
 import IProvider from "./IProvider";
+import LoadingScreen from "./LoadingScreen";
 
 const CustomFontSetup: IProvider = ({ children }) => {
 	const [loaded, error] = useFonts({

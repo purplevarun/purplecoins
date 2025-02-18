@@ -1,27 +1,23 @@
 import { FlashList } from "@shopify/flash-list";
 import { useState } from "react";
-import RelationFinder from "./RelationFinder";
-import Header from "./Header";
-import ScreenLayout from "./ScreenLayout";
 import CustomText from "./CustomText";
-import { DISABLED_COLOR } from "./colors.config";
-import {
-	CENTER,
-	FONT_SIZE,
-	SCREEN_HEIGHT,
-} from "./constants.config";
-import RelationType from "./RelationType";
-import useDatabase from "./useDatabase";
-import useFocus from "./useFocus";
-import useScreen from "./useScreen";
-import Relation from "./Relation";
+import Header from "./Header";
 import {
 	calculateInvestmentTotal,
 	calculateNetWorth,
 	formatMoney,
 } from "./HelperFunctions";
+import Relation from "./Relation";
+import RelationFinder from "./RelationFinder";
 import relationMap from "./RelationMap";
 import RelationRenderItem from "./RelationRenderItem";
+import RelationType from "./RelationType";
+import ScreenLayout from "./ScreenLayout";
+import { DISABLED_COLOR } from "./colors.config";
+import { CENTER, FONT_SIZE, SCREEN_HEIGHT } from "./constants.config";
+import useDatabase from "./useDatabase";
+import useFocus from "./useFocus";
+import useScreen from "./useScreen";
 
 const RelationMainScreen = ({
 	route,

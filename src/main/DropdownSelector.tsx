@@ -1,5 +1,8 @@
 import { DimensionValue, StyleSheet, View } from "react-native";
 import { Dropdown, MultiSelect } from "react-native-element-dropdown";
+import CustomText from "./CustomText";
+import DropdownType from "./DropdownType";
+import IRenderItem from "./IRenderItem";
 import {
 	BACKGROUND_COLOR,
 	DISABLED_COLOR,
@@ -15,9 +18,6 @@ import {
 	PADDING,
 	PADDING_TOP_ADD_SCREEN,
 } from "./constants.config";
-import IRenderItem from "./IRenderItem";
-import CustomText from "./CustomText";
-import DropdownType from "./DropdownType";
 
 const DropdownSelector = ({
 	name,
