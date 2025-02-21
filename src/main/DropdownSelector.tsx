@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { DimensionValue, StyleSheet, View } from "react-native";
 import { Dropdown, MultiSelect } from "react-native-element-dropdown";
 import CustomText from "./CustomText";
@@ -82,6 +83,8 @@ const DropdownSelector = ({
 		</View>
 	);
 
+	const multiSelectRef = useRef<any>();
+
 	if (single)
 		return (
 			<View style={[style.wrapper, { width }]}>
@@ -97,8 +100,12 @@ const DropdownSelector = ({
 		return (
 			<View style={[style.wrapper, { width }]}>
 				<MultiSelect
+					ref={multiSelectRef}
 					value={multi.value}
-					onChange={multi.setValue}
+					onChange={(values) => {
+						multi.setValue(values);
+						multiSelectRef.current.close();
+					}}
 					renderSelectedItem={renderSelectedItem}
 					{...props}
 				/>

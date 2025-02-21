@@ -51,11 +51,6 @@ const TransactionInputs = () => {
 
 	useFocus(() => {
 		setSourceModels(fetchAllRelations(RelationType.SOURCE).map(callback));
-		setDestinationModels(
-			fetchAllRelations(RelationType.SOURCE)
-				.filter((destination) => destination.id !== source)
-				.map(callback),
-		);
 		setCategoryModels(
 			fetchAllRelations(RelationType.CATEGORY).map(callback),
 		);
@@ -64,6 +59,14 @@ const TransactionInputs = () => {
 			fetchAllRelations(RelationType.INVESTMENT).map(callback),
 		);
 	});
+
+	useFocus(() => {
+		setDestinationModels(
+			fetchAllRelations(RelationType.SOURCE)
+				.filter((destination) => destination.id !== source)
+				.map(callback),
+		);
+	}, [source]);
 
 	const isGeneral = type === TransactionType.GENERAL;
 	const isInvestment = type === TransactionType.INVESTMENT;
