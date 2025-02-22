@@ -5,6 +5,7 @@ import CloseButton from "./CloseButton";
 import CustomText from "./CustomText";
 import DeleteButton from "./DeleteButton";
 import EditButton from "./EditButton";
+import FilterButton from "./FilterButton";
 import FindButton from "./FindButton";
 import PlusButton from "./PlusButton";
 import {
@@ -12,7 +13,6 @@ import {
 	FLEX_ROW,
 	HEADER_HEIGHT,
 	LARGE_FONT_SIZE,
-	MARGIN,
 	PADDING,
 	SPACE_BETWEEN,
 } from "./constants.config";
@@ -26,6 +26,7 @@ const Header = ({
 	handleSubmit,
 	canBeSubmitted,
 	handleFind,
+	handleFilter,
 }: {
 	handleClose?: () => void;
 	handlePlus?: () => void;
@@ -35,6 +36,7 @@ const Header = ({
 	canBeDeleted?: boolean;
 	canBeSubmitted?: boolean;
 	handleFind?: () => void;
+	handleFilter?: () => void;
 }) => {
 	const { name } = useRoute();
 	return (
@@ -45,7 +47,10 @@ const Header = ({
 				fontSize={LARGE_FONT_SIZE}
 			/>
 			<View style={styles.iconContainer}>
-				<FindButton onClick={handleFind} bottom={MARGIN / 1.5} />
+				{!name.includes("Transaction") && (
+					<FilterButton onClick={handleFilter} />
+				)}
+				<FindButton onClick={handleFind} />
 				<CheckButton onClick={handleSubmit} enabled={canBeSubmitted} />
 				<PlusButton onClick={handlePlus} />
 				<EditButton onClick={handleEdit} />

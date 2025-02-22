@@ -18,6 +18,7 @@ const CustomText = ({
 	right = 0,
 	paddingVertical = 0,
 	decoration = undefined,
+	textAlign,
 }: {
 	text: string | number;
 	fontSize?: number;
@@ -27,6 +28,7 @@ const CustomText = ({
 	right?: number;
 	paddingVertical?: number;
 	decoration?: ITextDecoration;
+	textAlign?: "center" | "right" | "auto" | "left" | "justify";
 }) => {
 	const fontFamily = UBUNTU_FONT;
 	return (
@@ -40,6 +42,7 @@ const CustomText = ({
 				right,
 				textDecorationLine: decoration,
 				paddingVertical,
+				textAlign,
 			}}
 		>
 			{text}

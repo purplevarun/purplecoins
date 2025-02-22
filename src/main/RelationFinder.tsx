@@ -8,9 +8,11 @@ import useDatabase from "./useDatabase";
 const RelationFinder = ({
 	setRelations,
 	type,
+	showFinder,
 }: {
 	setRelations: (_: Relation[]) => void;
 	type: RelationType;
+	showFinder: boolean;
 }) => {
 	const [searchText, setSearchText] = useState("");
 	const { fetchAllRelations } = useDatabase();
@@ -23,14 +25,16 @@ const RelationFinder = ({
 		setRelations(filteredRelations);
 	};
 	return (
-		<CustomInput
-			name={"Search"}
-			value={searchText}
-			setValue={onFind}
-			width={"100%"}
-			bottom={PADDING}
-			autoFocus
-		/>
+		showFinder && (
+			<CustomInput
+				name={"Search"}
+				value={searchText}
+				setValue={onFind}
+				width={"100%"}
+				bottom={PADDING}
+				autoFocus
+			/>
+		)
 	);
 };
 

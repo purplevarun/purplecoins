@@ -1,5 +1,6 @@
 import { randomUUID } from "expo-crypto";
 import { useSQLiteContext } from "expo-sqlite";
+import { convertStringToDate } from "./HelperFunctions";
 import LinkedRelation from "./LinkedRelation";
 import Relation from "./Relation";
 import RelationType from "./RelationType";
@@ -11,26 +12,55 @@ import TransactionType from "./TransactionType";
 const useDatabase = () => {
 	const db = useSQLiteContext();
 
-	const fetchAllRelations = (relationType: RelationType) => {
-		const query = `
-		SELECT r.*, COALESCE(SUM(
-			CASE
-				WHEN t.type = 'TRANSFER' THEN 
-					CASE WHEN tr.type = 'TRANSACTION_DESTINATION' THEN t.amount ELSE -t.amount END
-				WHEN t.action = 'CREDIT' THEN t.amount
-				ELSE -t.amount
-			END
-		), 0) AS total
-		FROM "relation" r
-		LEFT JOIN "transaction_relation" tr ON r.id = tr.relation_id
-		LEFT JOIN "transaction" t ON tr.transaction_id = t.id
-		WHERE r.type = ?
-		GROUP BY r.id
-		ORDER BY total
-		;`;
-		return db.getAllSync<Relation & { total: number }>(query, [
-			relationType,
-		]);
+	const fetchAllRelations = (
+		relationType: RelationType,
+		startDate?: string,
+		endDate?: string,
+	) => {
+		if (startDate && endDate) {
+			const query = `
+			SELECT r.*, COALESCE(SUM(
+				CASE
+					WHEN t.type = 'TRANSFER' THEN 
+						CASE WHEN tr.type = 'TRANSACTION_DESTINATION' THEN t.amount ELSE -t.amount END
+					WHEN t.action = 'CREDIT' THEN t.amount
+					ELSE -t.amount
+				END
+			), 0) AS total
+			FROM "relation" r
+			LEFT JOIN "transaction_relation" tr ON r.id = tr.relation_id
+			LEFT JOIN "transaction" t ON tr.transaction_id = t.id
+			WHERE r.type = ?
+			AND t.date >= ? AND t.date <= ?
+			GROUP BY r.id
+			ORDER BY total
+			;`;
+			return db.getAllSync<Relation & { total: number }>(query, [
+				relationType,
+				convertStringToDate(startDate).getTime(),
+				convertStringToDate(endDate).getTime(),
+			]);
+		} else {
+			const query = `
+			SELECT r.*, COALESCE(SUM(
+				CASE
+					WHEN t.type = 'TRANSFER' THEN 
+						CASE WHEN tr.type = 'TRANSACTION_DESTINATION' THEN t.amount ELSE -t.amount END
+					WHEN t.action = 'CREDIT' THEN t.amount
+					ELSE -t.amount
+				END
+			), 0) AS total
+			FROM "relation" r
+			LEFT JOIN "transaction_relation" tr ON r.id = tr.relation_id
+			LEFT JOIN "transaction" t ON tr.transaction_id = t.id
+			WHERE r.type = ?
+			GROUP BY r.id
+			ORDER BY total
+			;`;
+			return db.getAllSync<Relation & { total: number }>(query, [
+				relationType,
+			]);
+		}
 	};
 
 	const fetchRelation = (relationId: string) => {

@@ -1,6 +1,7 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { DimensionValue, StyleSheet, View } from "react-native";
 import { Dropdown, MultiSelect } from "react-native-element-dropdown";
+import CustomInput from "./CustomInput";
 import CustomText from "./CustomText";
 import DropdownType from "./DropdownType";
 import IRenderItem from "./IRenderItem";
@@ -59,6 +60,20 @@ const DropdownSelector = ({
 		);
 	};
 	const renderRightIcon = () => null;
+	const [searchText, setSearchText] = useState("");
+	const renderInputSearch = (onSearch: (text: string) => void) => (
+		<CustomInput
+			value={searchText}
+			setValue={(value) => {
+				setSearchText(value);
+				onSearch(value);
+			}}
+			name={"Search"}
+			autoFocus
+			border={false}
+			width={"95%"}
+		/>
+	);
 	const props = {
 		placeholder: name,
 		data: data,
@@ -75,6 +90,7 @@ const DropdownSelector = ({
 		search: true,
 		inputSearchStyle: style.inputSearch,
 		renderRightIcon,
+		renderInputSearch,
 	};
 
 	const renderSelectedItem = (item: IRenderItem) => (
@@ -90,7 +106,10 @@ const DropdownSelector = ({
 			<View style={[style.wrapper, { width }]}>
 				<Dropdown
 					value={single.value}
-					onChange={(item) => single.setValue(item.value)}
+					onChange={(item) => {
+						single.setValue(item.value);
+						setSearchText("");
+					}}
 					{...props}
 				/>
 			</View>
@@ -105,6 +124,7 @@ const DropdownSelector = ({
 					onChange={(values) => {
 						multi.setValue(values);
 						multiSelectRef.current.close();
+						setSearchText("");
 					}}
 					renderSelectedItem={renderSelectedItem}
 					{...props}

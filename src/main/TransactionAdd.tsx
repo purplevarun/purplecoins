@@ -1,3 +1,4 @@
+import { Keyboard } from "react-native";
 import Header from "./Header";
 import { convertStringToDate } from "./HelperFunctions";
 import { transactionRoutes } from "./Routes";
@@ -73,6 +74,7 @@ const TransactionAdd = () => {
 						);
 					values.clear();
 					navigate(transactionRoutes.main);
+					Keyboard.dismiss();
 				}}
 				canBeSubmitted={canBeSubmitted()}
 			/>

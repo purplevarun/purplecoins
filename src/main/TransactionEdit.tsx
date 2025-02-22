@@ -1,3 +1,4 @@
+import { Keyboard } from "react-native";
 import Header from "./Header";
 import { convertDateToString, convertStringToDate } from "./HelperFunctions";
 import { transactionRoutes } from "./Routes";
@@ -61,6 +62,7 @@ const TransactionEdit = ({ route }: any) => {
 			);
 		existingRelations.TRANSACTION_INVESTMENT &&
 			setInvestment(existingRelations.TRANSACTION_INVESTMENT[0].id);
+		Keyboard.dismiss();
 	});
 
 	return (

@@ -22,6 +22,7 @@ const CustomInput = ({
 	width = "90%",
 	bottom = 0,
 	autoFocus = false,
+	border = true,
 }: {
 	value: string;
 	setValue?: (_: string) => void;
@@ -33,6 +34,7 @@ const CustomInput = ({
 	width?: DimensionValue;
 	bottom?: DimensionValue;
 	autoFocus?: boolean;
+	border?: boolean;
 }) => {
 	const inputRef = useRef<TextInput>(null);
 
@@ -68,7 +70,7 @@ const CustomInput = ({
 				autoCorrect={false}
 				style={{
 					height: FONT_SIZE * 2.5,
-					borderWidth: BORDER_WIDTH,
+					borderWidth: border ? BORDER_WIDTH : 0,
 					borderRadius: BORDER_RADIUS,
 					padding: PADDING,
 					borderColor: PRIMARY_COLOR,

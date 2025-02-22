@@ -2,8 +2,9 @@ import { FlashList } from "@shopify/flash-list";
 import { useState } from "react";
 import CustomText from "./CustomText";
 import Header from "./Header";
-import { formatMoney } from "./HelperFunctions";
+import { convertStringToDate, formatMoney } from "./HelperFunctions";
 import Relation from "./Relation";
+import RelationFilter from "./RelationFilter";
 import RelationFinder from "./RelationFinder";
 import relationMap from "./RelationMap";
 import RelationRenderItem from "./RelationRenderItem";
@@ -26,21 +27,44 @@ const RelationMainScreen = ({
 	const { fetchAllRelations } = useDatabase();
 	const relation = relationMap[relationType];
 	const [showFinder, setShowFinder] = useState(false);
-	useFocus(() => setRelations(fetchAllRelations(relationType)));
+	const [showFilter, setShowFilter] = useState(false);
+	const [startDate, setStartDate] = useState("");
+	const [endDate, setEndDate] = useState("");
+	useFocus(() => {
+		if (startDate === "" && endDate === "") {
+			setRelations(fetchAllRelations(relationType));
+			return;
+		}
+		if (isValid(startDate, endDate)) {
+			setRelations(fetchAllRelations(relationType, startDate, endDate));
+			return;
+		}
+	}, [startDate, endDate]);
 
 	return (
 		<ScreenLayout>
 			<Header
 				handlePlus={() => navigate(relation.routes.add)}
 				handleFind={() => setShowFinder((prev) => !prev)}
+				handleFilter={() => {
+					setShowFilter((prev) => !prev);
+					setStartDate("");
+					setEndDate("");
+				}}
 			/>
 			<DisplayTotal relation={relationType} />
-			{showFinder && (
-				<RelationFinder
-					setRelations={setRelations}
-					type={relationType}
-				/>
-			)}
+			<RelationFilter
+				showFilter={showFilter}
+				startDate={startDate}
+				setStartDate={setStartDate}
+				endDate={endDate}
+				setEndDate={setEndDate}
+			/>
+			<RelationFinder
+				showFinder={showFinder}
+				setRelations={setRelations}
+				type={relationType}
+			/>
 			{relations.length === 0 ? (
 				<CustomText
 					text={text(relation.name)}
@@ -88,6 +112,20 @@ const DisplayTotal = ({ relation }: { relation: RelationType }) => {
 const text = (text: string) => {
 	if (text === "Category") return "No Categories found";
 	return `No ${text}s found`;
+};
+
+const isValid = (startDate: string, endDate: string) => {
+	[startDate, endDate].forEach((date) => {
+		if (date.length !== 10) return false;
+		if (date.split("/").length !== 3) return false;
+		const [d, m, y] = date.split("/");
+		if (d.length !== 2 && m.length !== 2 && y.length !== 4) return false;
+		if (parseInt(d) > 31 || parseInt(m) > 12) return false;
+	});
+	return (
+		convertStringToDate(endDate).getTime() >=
+		convertStringToDate(startDate).getTime()
+	);
 };
 
 export default RelationMainScreen;

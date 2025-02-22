@@ -1,4 +1,5 @@
 import { FC } from "react";
+import { View } from "react-native";
 import CustomText from "./CustomText";
 import DataTabWrapper from "./DataTabWrapper";
 import { PRIMARY_COLOR, RED_COLOR } from "./colors.config";
@@ -14,10 +15,14 @@ const DataTab: IDataTab = ({ name, value, debit }) => {
 		return (
 			<DataTabWrapper>
 				<CustomText text={name} />
-				<CustomText
-					text={value === "null" ? "Not specified" : value}
-					color={debit ? RED_COLOR : PRIMARY_COLOR}
-				/>
+				<View style={{ width: "50%" }}>
+					<CustomText
+						text={value === "null" ? "Not specified" : value}
+						color={debit ? RED_COLOR : PRIMARY_COLOR}
+						alignSelf={"flex-end"}
+						textAlign={"right"}
+					/>
+				</View>
 			</DataTabWrapper>
 		);
 };
