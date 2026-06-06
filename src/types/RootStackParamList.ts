@@ -1,0 +1,23 @@
+import type { RelationKind } from "./RelationKind";
+import type { VaultKind } from "./VaultKind";
+
+type RootStackParamList = {
+	Dashboard: undefined;
+	Transactions: undefined;
+	TransactionForm: { transactionId?: string } | undefined;
+	Relations: { kind: RelationKind };
+	RelationForm: { kind: RelationKind; entityId?: string };
+	Budgets: undefined;
+	BudgetForm: { budgetId?: string } | undefined;
+	Analysis: undefined;
+	ExchangeRates: undefined;
+	Notes: undefined;
+	NoteForm: { noteId?: string } | undefined;
+	Todos: undefined;
+	TodoForm: { todoId?: string } | undefined;
+	Vault: { kind: VaultKind };
+	VaultForm: { kind: VaultKind; entryId?: string };
+	Settings: undefined;
+};
+
+export type { RootStackParamList };

@@ -5,13 +5,13 @@
 		"version": "1.0.0",
 		"orientation": "portrait",
 		"icon": "./assets/icon.png",
-		"userInterfaceStyle": "light",
+		"userInterfaceStyle": "dark",
 		"ios": {
 			"supportsTablet": true
 		},
 		"android": {
 			"adaptiveIcon": {
-				"backgroundColor": "#E6F4FE",
+				"backgroundColor": "#080B14",
 				"foregroundImage": "./assets/icon.png",
 				"backgroundImage": "./assets/icon.png",
 				"monochromeImage": "./assets/icon.png"
@@ -21,6 +21,12 @@
 		},
 		"web": {
 			"favicon": "./assets/icon.png"
-		}
+		},
+		"plugins": [
+			"expo-sqlite",
+			"expo-sharing",
+			"@react-native-community/datetimepicker",
+			"expo-font"
+		]
 	}
 }

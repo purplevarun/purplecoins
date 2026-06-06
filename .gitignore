@@ -3,8 +3,10 @@
 # dependencies
 node_modules/
 .idea/
+*.apk
 # Expo
 .expo/
+.expo-export-test/
 dist/
 web-build/
 expo-env.d.ts
