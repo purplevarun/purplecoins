@@ -3,7 +3,7 @@ import { File, Paths } from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import {
 	backupDatabaseAsync,
-	deserializeDatabaseAsync,
+	openDatabaseAsync,
 	type SQLiteDatabase,
 } from "expo-sqlite";
 
@@ -11,7 +11,6 @@ import {
 	APP_NAME,
 	BACKUP_EXTENSION,
 	BACKUP_MIME_TYPE,
-	SCHEMA_VERSION,
 } from "@/constants/appConstants";
 import { SCHEMA_SQL } from "@/database/schema";
 import { AppError } from "@/errors/AppError";
@@ -46,6 +45,8 @@ const exportBackup = async (database: SQLiteDatabase): Promise<void> => {
 	});
 };
 
+const TEMP_RESTORE_DB_NAME = "restore-temp.db";
+
 const restoreBackup = async (database: SQLiteDatabase): Promise<boolean> => {
 	const result = await DocumentPicker.getDocumentAsync({
 		type: [BACKUP_MIME_TYPE, "application/octet-stream", "*/*"],
@@ -65,36 +66,44 @@ const restoreBackup = async (database: SQLiteDatabase): Promise<boolean> => {
 			`Select a ${BACKUP_EXTENSION} file.`,
 		);
 	}
-	const importedDatabase = await deserializeDatabaseAsync(
-		await new File(asset.uri).bytes(),
+
+	const pickedFile = new File(asset.uri);
+	const tempFile = new File(
+		new File(Paths.document, "SQLite"),
+		TEMP_RESTORE_DB_NAME,
 	);
+	if (tempFile.exists) tempFile.delete();
+	tempFile.create({ overwrite: true });
+	tempFile.write(await pickedFile.bytes());
+	console.log("[restore] 1. bytes written, size:", tempFile.size);
+
+	const tempDatabase = await openDatabaseAsync(TEMP_RESTORE_DB_NAME);
+	console.log("[restore] 2. temp DB opened");
+
+	const tempCount = await tempDatabase.getFirstAsync<{ count: number }>(
+		"SELECT COUNT(*) as count FROM transactions;",
+	);
+	console.log("[restore] 3. transactions in temp DB:", tempCount?.count);
+
 	try {
-		const integrity = await importedDatabase.getFirstAsync<
-			Readonly<{ integrity: string }>
-		>("SELECT integrity_check AS integrity FROM pragma_integrity_check;");
-		const version = await importedDatabase.getFirstAsync<
-			Readonly<{ user_version: number }>
-		>("PRAGMA user_version;");
-		if (integrity?.integrity !== "ok") {
-			throw new AppError(
-				"INVALID_BACKUP",
-				"The selected backup failed its integrity check.",
-			);
-		}
-		if (version?.user_version !== SCHEMA_VERSION) {
-			throw new AppError(
-				"UNSUPPORTED_BACKUP",
-				"The selected backup uses an unsupported schema version.",
-			);
-		}
 		await backupDatabaseAsync({
-			sourceDatabase: importedDatabase,
+			sourceDatabase: tempDatabase,
 			destDatabase: database,
 		});
+		console.log("[restore] 4. backupDatabaseAsync done");
+
 		await database.execAsync(SCHEMA_SQL);
+		await database.execAsync("PRAGMA wal_checkpoint(TRUNCATE);");
+
+		const liveCount = await database.getFirstAsync<{ count: number }>(
+			"SELECT COUNT(*) as count FROM transactions;",
+		);
+		console.log("[restore] 5. transactions in live DB:", liveCount?.count);
+
 		return true;
 	} finally {
-		await importedDatabase.closeAsync();
+		await tempDatabase.closeAsync();
+		if (tempFile.exists) tempFile.delete();
 	}
 };
 
