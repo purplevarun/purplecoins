@@ -11,10 +11,8 @@
 		},
 		"android": {
 			"adaptiveIcon": {
-				"backgroundColor": "#080B14",
-				"foregroundImage": "./assets/icon.png",
-				"backgroundImage": "./assets/icon.png",
-				"monochromeImage": "./assets/icon.png"
+				"foregroundImage": "./assets/adaptive-icon.png",
+				"backgroundColor": "#080B14"
 			},
 			"predictiveBackGestureEnabled": false,
 			"package": "com.purplevarun.Gringotts"

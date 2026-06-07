@@ -1,4 +1,4 @@
-import type { BudgetPeriod } from "./BudgetPeriod";
+import type { BudgetPeriod } from "@/types/BudgetPeriod";
 
 type Budget = Readonly<{
 	id: string;

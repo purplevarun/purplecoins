@@ -1,5 +1,6 @@
+import { CustomText } from "@/components/CustomText";
 import { Ionicons } from "@expo/vector-icons";
-import { Pressable, StyleSheet, Text } from "react-native";
+import { Pressable, StyleSheet } from "react-native";
 
 import { COLORS } from "@/constants/colors";
 
@@ -21,9 +22,11 @@ const CurrencyToggle = ({
 			name="earth"
 			size={18}
 		/>
-		<Text style={[styles.label, isNativeCurrency && styles.activeLabel]}>
+		<CustomText
+			style={[styles.label, isNativeCurrency && styles.activeLabel]}
+		>
 			{isNativeCurrency ? "Native currencies" : "Converted to INR"}
-		</Text>
+		</CustomText>
 	</Pressable>
 );
 

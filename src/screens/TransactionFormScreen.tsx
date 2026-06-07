@@ -1,6 +1,7 @@
+import { CustomText } from "@/components/CustomText";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useEffect, useState } from "react";
-import { Alert, StyleSheet, Text, View } from "react-native";
+import { Alert, StyleSheet, View } from "react-native";
 
 import { AppButton } from "@/components/AppButton";
 import { AttachmentField } from "@/components/AttachmentField";
@@ -249,9 +250,9 @@ const TransactionFormScreen = ({
 		<ScreenContainer>
 			<GlassCard>
 				<View style={styles.form}>
-					<Text style={styles.heading}>
+					<CustomText style={styles.heading}>
 						{transactionId ? "Edit transaction" : "New transaction"}
-					</Text>
+					</CustomText>
 					<SegmentedControl
 						onChange={handleClassificationChange}
 						options={CLASSIFICATION_OPTIONS}

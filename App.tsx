@@ -1,14 +1,16 @@
 import "react-native-gesture-handler";
 
+import { useFonts } from "expo-font";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 
-import { LoadingScreen } from "./src/components/LoadingScreen";
-import { initializeDatabase } from "./src/database/initializeDatabase";
-import { AppNavigator } from "./src/navigation/AppNavigator";
-import { DatabaseProvider } from "./src/providers/DatabaseProvider";
-import type { DatabaseState } from "./src/types/DatabaseState";
+import { LoadingScreen } from "@/components/LoadingScreen";
+import { APP_FONTS } from "@/constants/typography";
+import { initializeDatabase } from "@/database/initializeDatabase";
+import { AppNavigator } from "@/navigation/AppNavigator";
+import { DatabaseProvider } from "@/providers/DatabaseProvider";
+import type { DatabaseState } from "@/types/DatabaseState";
 
 const INITIAL_DATABASE_STATE: DatabaseState = {
 	database: null,
@@ -16,6 +18,7 @@ const INITIAL_DATABASE_STATE: DatabaseState = {
 };
 
 const App = (): React.JSX.Element => {
+	const [fontsLoaded] = useFonts(APP_FONTS);
 	const [databaseState, setDatabaseState] = useState<DatabaseState>(
 		INITIAL_DATABASE_STATE,
 	);
@@ -36,6 +39,10 @@ const App = (): React.JSX.Element => {
 
 		void getInitializedDatabase();
 	}, []);
+
+	if (!fontsLoaded) {
+		return <View style={styles.container} />;
+	}
 
 	if (!databaseState.database) {
 		return <LoadingScreen error={databaseState.error} />;

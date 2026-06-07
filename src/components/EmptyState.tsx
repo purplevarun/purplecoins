@@ -1,6 +1,7 @@
+import { CustomText } from "@/components/CustomText";
 import { Ionicons } from "@expo/vector-icons";
 import type { ComponentProps } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 import { COLORS } from "@/constants/colors";
 
@@ -19,8 +20,8 @@ const EmptyState = ({
 		<View style={styles.icon}>
 			<Ionicons color={COLORS.primaryBright} name={icon} size={30} />
 		</View>
-		<Text style={styles.title}>{title}</Text>
-		<Text style={styles.message}>{message}</Text>
+		<CustomText style={styles.title}>{title}</CustomText>
+		<CustomText style={styles.message}>{message}</CustomText>
 	</View>
 );
 

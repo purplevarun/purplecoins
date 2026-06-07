@@ -1,4 +1,5 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { CustomText } from "@/components/CustomText";
+import { Pressable, StyleSheet, View } from "react-native";
 
 import { COLORS } from "@/constants/colors";
 import type { SelectOption } from "@/types/SelectOption";
@@ -23,14 +24,14 @@ const SegmentedControl = ({
 					onPress={() => onChange(option.value)}
 					style={[styles.option, isSelected && styles.selectedOption]}
 				>
-					<Text
+					<CustomText
 						style={[
 							styles.label,
 							isSelected && styles.selectedLabel,
 						]}
 					>
 						{option.label}
-					</Text>
+					</CustomText>
 				</Pressable>
 			);
 		})}

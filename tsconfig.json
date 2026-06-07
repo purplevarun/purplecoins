@@ -6,10 +6,8 @@
 		"noImplicitOverride": true,
 		"noFallthroughCasesInSwitch": true,
 		"noImplicitReturns": true,
-		"ignoreDeprecations": "6.0",
-		"baseUrl": ".",
 		"paths": {
-			"@/*": ["src/*"]
+			"@/*": ["./src/*"]
 		}
 	},
 	"include": ["**/*.ts", "**/*.tsx"]

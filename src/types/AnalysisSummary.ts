@@ -1,5 +1,5 @@
-import type { CategoryAnalysis } from "./CategoryAnalysis";
-import type { InvestmentAnalysis } from "./InvestmentAnalysis";
+import type { CategoryAnalysis } from "@/types/CategoryAnalysis";
+import type { InvestmentAnalysis } from "@/types/InvestmentAnalysis";
 
 type AnalysisSummary = Readonly<{
 	categories: readonly CategoryAnalysis[];

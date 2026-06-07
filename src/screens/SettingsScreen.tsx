@@ -1,7 +1,8 @@
 import { version } from "@/../package.json";
+import { CustomText } from "@/components/CustomText";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useEffect, useState } from "react";
-import { Alert, StyleSheet, Switch, Text, View } from "react-native";
+import { Alert, StyleSheet, Switch, View } from "react-native";
 
 import { AppButton } from "@/components/AppButton";
 import { GlassCard } from "@/components/GlassCard";
@@ -95,26 +96,30 @@ const SettingsScreen = (_props: SettingsScreenProps): React.JSX.Element => {
 		<ScreenContainer>
 			<GlassCard>
 				<View style={styles.brand}>
-					<Text style={styles.appName}>{APP_NAME}</Text>
-					<Text style={styles.version}>Version {version}</Text>
-					<Text style={styles.description}>
+					<CustomText style={styles.appName}>{APP_NAME}</CustomText>
+					<CustomText style={styles.version}>
+						Version {version}
+					</CustomText>
+					<CustomText style={styles.description}>
 						Local-first finance, tools and vault. No account and no
 						cloud dependency.
-					</Text>
+					</CustomText>
 				</View>
 			</GlassCard>
 			<GlassCard>
 				<View style={styles.section}>
-					<Text style={styles.heading}>Currency display</Text>
+					<CustomText style={styles.heading}>
+						Currency display
+					</CustomText>
 					<View style={styles.switchRow}>
 						<View style={styles.switchDetails}>
-							<Text style={styles.switchTitle}>
+							<CustomText style={styles.switchTitle}>
 								Native currencies
-							</Text>
-							<Text style={styles.switchDescription}>
+							</CustomText>
+							<CustomText style={styles.switchDescription}>
 								On shows totals per source currency. Off
 								converts analysis and categories to INR.
-							</Text>
+							</CustomText>
 						</View>
 						<Switch
 							onValueChange={(value) =>
@@ -127,11 +132,13 @@ const SettingsScreen = (_props: SettingsScreenProps): React.JSX.Element => {
 			</GlassCard>
 			<GlassCard>
 				<View style={styles.section}>
-					<Text style={styles.heading}>Backup and restore</Text>
-					<Text style={styles.description}>
+					<CustomText style={styles.heading}>
+						Backup and restore
+					</CustomText>
+					<CustomText style={styles.description}>
 						A .gringotts file is a plain, complete SQLite snapshot,
 						including attachments. Keep it somewhere private.
-					</Text>
+					</CustomText>
 					<AppButton
 						icon="share-outline"
 						isLoading={isWorking}

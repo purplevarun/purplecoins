@@ -1,10 +1,10 @@
+import { CustomText } from "@/components/CustomText";
 import { Ionicons } from "@expo/vector-icons";
 import type { ComponentProps } from "react";
 import {
 	ActivityIndicator,
 	Pressable,
 	StyleSheet,
-	Text,
 	type ViewStyle,
 } from "react-native";
 
@@ -98,9 +98,9 @@ const AppButton = ({
 					{icon ? (
 						<Ionicons color={colors.color} name={icon} size={18} />
 					) : null}
-					<Text style={[styles.label, { color: colors.color }]}>
+					<CustomText style={[styles.label, { color: colors.color }]}>
 						{label}
-					</Text>
+					</CustomText>
 				</>
 			)}
 		</Pressable>

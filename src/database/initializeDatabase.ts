@@ -2,7 +2,7 @@ import { openDatabaseAsync, type SQLiteDatabase } from "expo-sqlite";
 
 import { DATABASE_NAME, SCHEMA_VERSION } from "@/constants/appConstants";
 
-import { SCHEMA_SQL } from "./schema";
+import { SCHEMA_SQL } from "@/database/schema";
 
 const initializeDatabase = async (): Promise<SQLiteDatabase> => {
 	const database = await openDatabaseAsync(DATABASE_NAME);

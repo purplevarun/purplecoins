@@ -1,7 +1,8 @@
+import { CustomText } from "@/components/CustomText";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useState } from "react";
-import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { Platform, Pressable, StyleSheet, View } from "react-native";
 
 import { COLORS } from "@/constants/colors";
 import { formatDate } from "@/utils/date";
@@ -21,12 +22,14 @@ const DateField = ({
 
 	return (
 		<View style={styles.container}>
-			<Text style={styles.label}>{label}</Text>
+			<CustomText style={styles.label}>{label}</CustomText>
 			<Pressable
 				onPress={() => setIsPickerVisible(true)}
 				style={styles.trigger}
 			>
-				<Text style={styles.value}>{formatDate(value)}</Text>
+				<CustomText style={styles.value}>
+					{formatDate(value)}
+				</CustomText>
 				<Ionicons
 					color={COLORS.textMuted}
 					name="calendar-outline"
@@ -37,10 +40,11 @@ const DateField = ({
 				<DateTimePicker
 					display={Platform.OS === "ios" ? "inline" : "default"}
 					mode="date"
-					onChange={(_event, selectedDate) => {
-						setIsPickerVisible(Platform.OS === "ios");
-						if (selectedDate) {
-							onChange(selectedDate.getTime());
+					onDismiss={() => setIsPickerVisible(false)}
+					onValueChange={(_event, selectedDate) => {
+						onChange(selectedDate.getTime());
+						if (Platform.OS === "android") {
+							setIsPickerVisible(false);
 						}
 					}}
 					value={new Date(value)}

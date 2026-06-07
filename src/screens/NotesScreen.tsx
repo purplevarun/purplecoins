@@ -1,14 +1,15 @@
+import { CustomText } from "@/components/CustomText";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { useCallback, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useCallback, useMemo, useState } from "react";
+import { Pressable, StyleSheet, View } from "react-native";
 
 import { EmptyState } from "@/components/EmptyState";
 import { FloatingAddButton } from "@/components/FloatingAddButton";
 import { GlassCard } from "@/components/GlassCard";
 import { Notice } from "@/components/Notice";
-import { ScreenContainer } from "@/components/ScreenContainer";
+import { ListHeader, ScreenList } from "@/components/ScreenList";
 import { TextField } from "@/components/TextField";
 import { COLORS } from "@/constants/colors";
 import { useDatabaseContext } from "@/hooks/useDatabaseContext";
@@ -43,15 +44,58 @@ const NotesScreen = ({ navigation }: NotesScreenProps): React.JSX.Element => {
 	);
 
 	const normalizedSearch = search.trim().toLowerCase();
-	const filteredNotes = notes.filter((note) =>
-		`${note.title} ${note.content} ${note.folderName ?? ""}`
-			.toLowerCase()
-			.includes(normalizedSearch),
+	const filteredNotes = useMemo(
+		() =>
+			notes.filter((note) =>
+				`${note.title} ${note.content} ${note.folderName ?? ""}`
+					.toLowerCase()
+					.includes(normalizedSearch),
+			),
+		[normalizedSearch, notes],
 	);
 
-	return (
-		<View style={styles.screen}>
-			<ScreenContainer>
+	const renderNote = useCallback(
+		({ item: note }: { item: Note }): React.JSX.Element => (
+			<Pressable
+				onPress={() =>
+					navigation.navigate("NoteForm", {
+						noteId: note.id,
+					})
+				}
+			>
+				<GlassCard>
+					<View style={styles.headingRow}>
+						<CustomText style={styles.title}>
+							{note.title}
+						</CustomText>
+						{note.hasAttachment ? (
+							<Ionicons
+								color={COLORS.primaryBright}
+								name="attach"
+								size={16}
+							/>
+						) : null}
+					</View>
+					{note.folderName ? (
+						<CustomText style={styles.folder}>
+							{note.folderName}
+						</CustomText>
+					) : null}
+					<CustomText numberOfLines={3} style={styles.content}>
+						{note.content || "Empty note"}
+					</CustomText>
+					<CustomText style={styles.date}>
+						Updated {formatDateTime(note.updatedAt)}
+					</CustomText>
+				</GlassCard>
+			</Pressable>
+		),
+		[navigation],
+	);
+
+	const listHeader = useMemo(
+		() => (
+			<ListHeader>
 				<TextField
 					label="Search"
 					onChangeText={setSearch}
@@ -59,48 +103,31 @@ const NotesScreen = ({ navigation }: NotesScreenProps): React.JSX.Element => {
 					value={search}
 				/>
 				{error ? <Notice message={error} tone="danger" /> : null}
-				{filteredNotes.length === 0 ? (
-					<EmptyState
-						icon="document-text-outline"
-						message="Capture a thought, detail or reference."
-						title="No notes found"
-					/>
-				) : null}
-				{filteredNotes.map((note) => (
-					<Pressable
-						key={note.id}
-						onPress={() =>
-							navigation.navigate("NoteForm", {
-								noteId: note.id,
-							})
-						}
-					>
-						<GlassCard>
-							<View style={styles.headingRow}>
-								<Text style={styles.title}>{note.title}</Text>
-								{note.hasAttachment ? (
-									<Ionicons
-										color={COLORS.primaryBright}
-										name="attach"
-										size={16}
-									/>
-								) : null}
-							</View>
-							{note.folderName ? (
-								<Text style={styles.folder}>
-									{note.folderName}
-								</Text>
-							) : null}
-							<Text numberOfLines={3} style={styles.content}>
-								{note.content || "Empty note"}
-							</Text>
-							<Text style={styles.date}>
-								Updated {formatDateTime(note.updatedAt)}
-							</Text>
-						</GlassCard>
-					</Pressable>
-				))}
-			</ScreenContainer>
+			</ListHeader>
+		),
+		[error, search],
+	);
+
+	const listEmpty = useMemo(
+		() => (
+			<EmptyState
+				icon="document-text-outline"
+				message="Capture a thought, detail or reference."
+				title="No notes found"
+			/>
+		),
+		[],
+	);
+
+	return (
+		<View style={styles.screen}>
+			<ScreenList
+				ListEmptyComponent={listEmpty}
+				ListHeaderComponent={listHeader}
+				data={filteredNotes}
+				keyExtractor={(note) => note.id}
+				renderItem={renderNote}
+			/>
 			<FloatingAddButton
 				onPress={() => navigation.navigate("NoteForm")}
 			/>

@@ -2,6 +2,7 @@ import { DarkTheme, NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import { COLORS } from "@/constants/colors";
+import { FONT_FAMILY } from "@/constants/typography";
 import { AnalysisScreen } from "@/screens/AnalysisScreen";
 import { BudgetFormScreen } from "@/screens/BudgetFormScreen";
 import { BudgetsScreen } from "@/screens/BudgetsScreen";
@@ -44,7 +45,10 @@ const AppNavigator = (): React.JSX.Element => (
 				headerStyle: { backgroundColor: COLORS.backgroundElevated },
 				headerTintColor: COLORS.text,
 				headerShadowVisible: false,
-				headerTitleStyle: { fontWeight: "800" },
+				headerTitleStyle: {
+					fontFamily: FONT_FAMILY,
+					fontWeight: "800",
+				},
 				animation: "slide_from_right",
 			}}
 		>

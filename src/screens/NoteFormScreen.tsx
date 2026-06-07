@@ -1,6 +1,7 @@
+import { CustomText } from "@/components/CustomText";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useEffect, useState } from "react";
-import { Alert, StyleSheet, Text, View } from "react-native";
+import { Alert, StyleSheet, View } from "react-native";
 
 import { AppButton } from "@/components/AppButton";
 import { AttachmentField } from "@/components/AttachmentField";
@@ -101,9 +102,9 @@ const NoteFormScreen = ({
 		<ScreenContainer>
 			<GlassCard>
 				<View style={styles.form}>
-					<Text style={styles.heading}>
+					<CustomText style={styles.heading}>
 						{noteId ? "Edit note" : "New note"}
-					</Text>
+					</CustomText>
 					<TextField
 						label="Title"
 						onChangeText={setTitle}

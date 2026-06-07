@@ -1,4 +1,5 @@
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { CustomText } from "@/components/CustomText";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 
 import { COLORS } from "@/constants/colors";
 
@@ -10,13 +11,17 @@ const LoadingScreen = ({ error }: LoadingScreenProps): React.JSX.Element => (
 	<View style={styles.container}>
 		{error ? (
 			<>
-				<Text style={styles.title}>Unable to open Gringotts</Text>
-				<Text style={styles.error}>{error}</Text>
+				<CustomText style={styles.title}>
+					Unable to open Gringotts
+				</CustomText>
+				<CustomText style={styles.error}>{error}</CustomText>
 			</>
 		) : (
 			<>
 				<ActivityIndicator color={COLORS.primary} size="large" />
-				<Text style={styles.label}>Opening the vault...</Text>
+				<CustomText style={styles.label}>
+					Opening the vault...
+				</CustomText>
 			</>
 		)}
 	</View>

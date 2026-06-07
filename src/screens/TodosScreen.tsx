@@ -1,14 +1,15 @@
+import { CustomText } from "@/components/CustomText";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { useCallback, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useCallback, useMemo, useState } from "react";
+import { Pressable, StyleSheet, View } from "react-native";
 
 import { EmptyState } from "@/components/EmptyState";
 import { FloatingAddButton } from "@/components/FloatingAddButton";
 import { GlassCard } from "@/components/GlassCard";
 import { Notice } from "@/components/Notice";
-import { ScreenContainer } from "@/components/ScreenContainer";
+import { ListHeader, ScreenList } from "@/components/ScreenList";
 import { COLORS } from "@/constants/colors";
 import { useDatabaseContext } from "@/hooks/useDatabaseContext";
 import { getTodos, toggleTodo } from "@/services/todoService";
@@ -40,94 +41,117 @@ const TodosScreen = ({ navigation }: TodosScreenProps): React.JSX.Element => {
 		}, [dataVersion, getScreenData]),
 	);
 
-	const handleToggle = async (id: string): Promise<void> => {
-		try {
-			await toggleTodo(database, id);
-			refreshData();
-		} catch (caughtError: unknown) {
-			setError(getErrorMessage(caughtError));
-		}
-	};
+	const handleToggle = useCallback(
+		async (id: string): Promise<void> => {
+			try {
+				await toggleTodo(database, id);
+				refreshData();
+			} catch (caughtError: unknown) {
+				setError(getErrorMessage(caughtError));
+			}
+		},
+		[database, refreshData],
+	);
+
+	const renderTodo = useCallback(
+		({ item: todo }: { item: Todo }): React.JSX.Element => (
+			<Pressable
+				onPress={() =>
+					navigation.navigate("TodoForm", {
+						todoId: todo.id,
+					})
+				}
+			>
+				<GlassCard accent={todo.isDone ? "success" : "default"}>
+					<View style={styles.row}>
+						<Pressable
+							onPress={() => void handleToggle(todo.id)}
+							style={styles.checkbox}
+						>
+							<Ionicons
+								color={
+									todo.isDone
+										? COLORS.success
+										: COLORS.textMuted
+								}
+								name={
+									todo.isDone
+										? "checkmark-circle"
+										: "ellipse-outline"
+								}
+								size={27}
+							/>
+						</Pressable>
+						<View style={styles.details}>
+							<View style={styles.headingRow}>
+								<CustomText
+									style={[
+										styles.title,
+										todo.isDone && styles.completedTitle,
+									]}
+								>
+									{todo.title}
+								</CustomText>
+								{todo.hasAttachment ? (
+									<Ionicons
+										color={COLORS.primaryBright}
+										name="attach"
+										size={15}
+									/>
+								) : null}
+							</View>
+							{todo.description ? (
+								<CustomText
+									numberOfLines={2}
+									style={styles.description}
+								>
+									{todo.description}
+								</CustomText>
+							) : null}
+							<CustomText style={styles.meta}>
+								{todo.folderName ?? "No folder"}
+								{todo.dueAt
+									? ` · Due ${formatDate(todo.dueAt)}`
+									: ""}
+							</CustomText>
+						</View>
+					</View>
+				</GlassCard>
+			</Pressable>
+		),
+		[handleToggle, navigation],
+	);
+
+	const listHeader = useMemo(
+		() => (
+			<ListHeader>
+				{error ? <Notice message={error} tone="danger" /> : null}
+			</ListHeader>
+		),
+		[error],
+	);
+
+	const listEmpty = useMemo(
+		() => (
+			<EmptyState
+				icon="checkbox-outline"
+				message="Add something you need to remember."
+				title="No todos yet"
+			/>
+		),
+		[],
+	);
 
 	return (
 		<View style={styles.screen}>
-			<ScreenContainer>
-				{error ? <Notice message={error} tone="danger" /> : null}
-				{todos.length === 0 ? (
-					<EmptyState
-						icon="checkbox-outline"
-						message="Add something you need to remember."
-						title="No todos yet"
-					/>
-				) : null}
-				{todos.map((todo) => (
-					<Pressable
-						key={todo.id}
-						onPress={() =>
-							navigation.navigate("TodoForm", {
-								todoId: todo.id,
-							})
-						}
-					>
-						<GlassCard accent={todo.isDone ? "success" : "default"}>
-							<View style={styles.row}>
-								<Pressable
-									onPress={() => void handleToggle(todo.id)}
-									style={styles.checkbox}
-								>
-									<Ionicons
-										color={
-											todo.isDone
-												? COLORS.success
-												: COLORS.textMuted
-										}
-										name={
-											todo.isDone
-												? "checkmark-circle"
-												: "ellipse-outline"
-										}
-										size={27}
-									/>
-								</Pressable>
-								<View style={styles.details}>
-									<View style={styles.headingRow}>
-										<Text
-											style={[
-												styles.title,
-												todo.isDone &&
-													styles.completedTitle,
-											]}
-										>
-											{todo.title}
-										</Text>
-										{todo.hasAttachment ? (
-											<Ionicons
-												color={COLORS.primaryBright}
-												name="attach"
-												size={15}
-											/>
-										) : null}
-									</View>
-									{todo.description ? (
-										<Text
-											numberOfLines={2}
-											style={styles.description}
-										>
-											{todo.description}
-										</Text>
-									) : null}
-									<Text style={styles.meta}>
-										{todo.folderName ?? "No folder"}
-										{todo.dueAt
-											? ` · Due ${formatDate(todo.dueAt)}`
-											: ""}
-									</Text>
-								</View>
-							</View>
-						</GlassCard>
-					</Pressable>
-				))}
-			</ScreenContainer>
+			<ScreenList
+				ListEmptyComponent={listEmpty}
+				ListHeaderComponent={listHeader}
+				data={todos}
+				extraData={dataVersion}
+				keyExtractor={(todo) => todo.id}
+				renderItem={renderTodo}
+			/>
 			<FloatingAddButton
 				onPress={() => navigation.navigate("TodoForm")}
 			/>

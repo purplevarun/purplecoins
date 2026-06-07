@@ -1,5 +1,6 @@
+import { CustomText } from "@/components/CustomText";
 import { Ionicons } from "@expo/vector-icons";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 import { AppButton } from "@/components/AppButton";
 import { COLORS } from "@/constants/colors";
@@ -37,7 +38,7 @@ const AttachmentField = ({
 
 	return (
 		<View style={styles.container}>
-			<Text style={styles.label}>Attachment</Text>
+			<CustomText style={styles.label}>Attachment</CustomText>
 			{fileName && sizeBytes ? (
 				<View style={styles.fileRow}>
 					<View style={styles.fileIcon}>
@@ -48,12 +49,12 @@ const AttachmentField = ({
 						/>
 					</View>
 					<View style={styles.fileDetails}>
-						<Text numberOfLines={1} style={styles.fileName}>
+						<CustomText numberOfLines={1} style={styles.fileName}>
 							{fileName}
-						</Text>
-						<Text style={styles.fileSize}>
+						</CustomText>
+						<CustomText style={styles.fileSize}>
 							{formatFileSize(sizeBytes)}
-						</Text>
+						</CustomText>
 					</View>
 					{existingAttachment && !pendingAttachment ? (
 						<AppButton
@@ -80,7 +81,7 @@ const AttachmentField = ({
 					variant="secondary"
 				/>
 			)}
-			<Text style={styles.hint}>One file, maximum 2 MB.</Text>
+			<CustomText style={styles.hint}>One file, maximum 2 MB.</CustomText>
 		</View>
 	);
 };

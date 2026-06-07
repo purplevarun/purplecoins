@@ -1,8 +1,9 @@
+import { CustomText } from "@/components/CustomText";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useCallback, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 
 import { CurrencyToggle } from "@/components/CurrencyToggle";
 import { DonutChart } from "@/components/DonutChart";
@@ -180,18 +181,18 @@ const AnalysisScreen = ({
 					/>
 				</Pressable>
 				<View style={styles.periodText}>
-					<Text style={styles.periodTitle}>
+					<CustomText style={styles.periodTitle}>
 						{period === "MONTH"
 							? anchorDate.toLocaleString("en-IN", {
 									month: "long",
 									year: "numeric",
 								})
 							: String(anchorDate.getFullYear())}
-					</Text>
-					<Text style={styles.periodRange}>
+					</CustomText>
+					<CustomText style={styles.periodRange}>
 						{formatDate(dateRange.start)} –{" "}
 						{formatDate(dateRange.end)}
-					</Text>
+					</CustomText>
 				</View>
 				<Pressable
 					onPress={() =>
@@ -221,60 +222,66 @@ const AnalysisScreen = ({
 			{error ? <Notice message={error} tone="danger" /> : null}
 			<View style={styles.summaryGrid}>
 				<GlassCard accent="success">
-					<Text style={styles.summaryLabel}>Income</Text>
-					<Text
+					<CustomText style={styles.summaryLabel}>Income</CustomText>
+					<CustomText
 						style={[styles.summaryValue, { color: COLORS.success }]}
 					>
 						{currencySummaries.length
 							? currencySummaries.map((currencySummary) => (
-									<Text key={currencySummary.currencyCode}>
+									<CustomText
+										key={currencySummary.currencyCode}
+									>
 										{formatMoney(
 											currencySummary.totalIncome,
 											currencySummary.currencyCode,
 										)}
 										{"\n"}
-									</Text>
+									</CustomText>
 								))
 							: formatMoney(ZERO_AMOUNT, "INR")}
-					</Text>
+					</CustomText>
 				</GlassCard>
 				<GlassCard accent="danger">
-					<Text style={styles.summaryLabel}>Expenses</Text>
-					<Text
+					<CustomText style={styles.summaryLabel}>
+						Expenses
+					</CustomText>
+					<CustomText
 						style={[styles.summaryValue, { color: COLORS.danger }]}
 					>
 						{currencySummaries.length
 							? currencySummaries.map((currencySummary) => (
-									<Text key={currencySummary.currencyCode}>
+									<CustomText
+										key={currencySummary.currencyCode}
+									>
 										{formatMoney(
 											currencySummary.totalExpense,
 											currencySummary.currencyCode,
 										)}
 										{"\n"}
-									</Text>
+									</CustomText>
 								))
 							: formatMoney(ZERO_AMOUNT, "INR")}
-					</Text>
+					</CustomText>
 				</GlassCard>
 			</View>
 			<GlassCard accent={netAccent}>
-				<Text style={styles.summaryLabel}>Net profit</Text>
-				<Text style={styles.netProfit}>
+				<CustomText style={styles.summaryLabel}>Net profit</CustomText>
+				<CustomText style={styles.netProfit}>
 					{currencySummaries.length
 						? currencySummaries.map((currencySummary) => (
-								<Text key={currencySummary.currencyCode}>
+								<CustomText key={currencySummary.currencyCode}>
 									{formatMoney(
 										currencySummary.netProfit,
 										currencySummary.currencyCode,
 									)}
 									{"\n"}
-								</Text>
+								</CustomText>
 							))
 						: formatMoney(ZERO_AMOUNT, "INR")}
-				</Text>
-				<Text style={styles.formula}>
+				</CustomText>
+				<CustomText style={styles.formula}>
 					Income category nets − expense category nets
-				</Text>
+				</CustomText>
 			</GlassCard>
 			<SectionHeading
 				subtitle="Credits minus debits for every category. Classification decides the analysis bucket."
@@ -313,15 +320,15 @@ const AnalysisScreen = ({
 				>
 					<View style={styles.categoryRow}>
 						<View style={styles.categoryDetails}>
-							<Text style={styles.categoryName}>
+							<CustomText style={styles.categoryName}>
 								{category.categoryName}
-							</Text>
-							<Text style={styles.categoryBucket}>
+							</CustomText>
+							<CustomText style={styles.categoryBucket}>
 								{category.isIncome
 									? "Income category"
 									: "Expense category"}
-							</Text>
-							<Text style={styles.categoryBreakdown}>
+							</CustomText>
+							<CustomText style={styles.categoryBreakdown}>
 								Credits{" "}
 								{formatMoney(
 									category.credits,
@@ -332,9 +339,9 @@ const AnalysisScreen = ({
 									category.debits,
 									category.currencyCode,
 								)}
-							</Text>
+							</CustomText>
 						</View>
-						<Text
+						<CustomText
 							style={[
 								styles.categoryNet,
 								{
@@ -349,7 +356,7 @@ const AnalysisScreen = ({
 							]}
 						>
 							{formatMoney(category.net, category.currencyCode)}
-						</Text>
+						</CustomText>
 					</View>
 				</GlassCard>
 			))}
@@ -362,40 +369,40 @@ const AnalysisScreen = ({
 					<GlassCard
 						key={`${investment.investmentId}:${investment.currencyCode}`}
 					>
-						<Text style={styles.categoryName}>
+						<CustomText style={styles.categoryName}>
 							{investment.investmentName}
-						</Text>
+						</CustomText>
 						<View style={styles.investmentRow}>
 							<View>
-								<Text style={styles.summaryLabel}>
+								<CustomText style={styles.summaryLabel}>
 									Total invested
-								</Text>
-								<Text style={styles.investmentValue}>
+								</CustomText>
+								<CustomText style={styles.investmentValue}>
 									{formatMoney(
 										investment.totalInvested,
 										investment.currencyCode,
 									)}
-								</Text>
+								</CustomText>
 							</View>
 							<View>
-								<Text style={styles.summaryLabel}>
+								<CustomText style={styles.summaryLabel}>
 									Total redeemed
-								</Text>
-								<Text style={styles.investmentValue}>
+								</CustomText>
+								<CustomText style={styles.investmentValue}>
 									{formatMoney(
 										investment.totalRedeemed,
 										investment.currencyCode,
 									)}
-								</Text>
+								</CustomText>
 							</View>
 						</View>
-						<Text style={styles.formula}>
+						<CustomText style={styles.formula}>
 							{getInvestmentNetLabel(investment.net)}:{" "}
 							{formatMoney(
 								getInvestmentNetAmount(investment.net),
 								investment.currencyCode,
 							)}
-						</Text>
+						</CustomText>
 					</GlassCard>
 				))
 			) : (
@@ -414,7 +421,9 @@ const AnalysisScreen = ({
 					name="earth-outline"
 					size={18}
 				/>
-				<Text style={styles.ratesLinkText}>Manage exchange rates</Text>
+				<CustomText style={styles.ratesLinkText}>
+					Manage exchange rates
+				</CustomText>
 			</Pressable>
 		</ScreenContainer>
 	);

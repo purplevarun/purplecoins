@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View } from "react-native";
+import { CustomText } from "@/components/CustomText";
+import { StyleSheet, View } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 
 import { COLORS } from "@/constants/colors";
@@ -60,8 +61,12 @@ const DonutChart = ({
 						: null}
 				</Svg>
 				<View style={styles.center}>
-					<Text style={styles.centerLabel}>{centerLabel}</Text>
-					<Text style={styles.centerSubLabel}>category net</Text>
+					<CustomText style={styles.centerLabel}>
+						{centerLabel}
+					</CustomText>
+					<CustomText style={styles.centerSubLabel}>
+						category net
+					</CustomText>
 				</View>
 			</View>
 			<View style={styles.legend}>
@@ -73,9 +78,12 @@ const DonutChart = ({
 								{ backgroundColor: datum.color },
 							]}
 						/>
-						<Text numberOfLines={1} style={styles.legendLabel}>
+						<CustomText
+							numberOfLines={1}
+							style={styles.legendLabel}
+						>
 							{datum.label}
-						</Text>
+						</CustomText>
 					</View>
 				))}
 			</View>

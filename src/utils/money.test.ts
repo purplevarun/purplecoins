@@ -5,7 +5,7 @@ import {
 	multiplyMoney,
 	normalizeMoney,
 	subtractMoney,
-} from "./money";
+} from "@/utils/money";
 
 describe("money utilities", () => {
 	it("adds decimal amounts without floating-point drift", () => {

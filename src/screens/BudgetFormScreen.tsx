@@ -1,6 +1,7 @@
+import { CustomText } from "@/components/CustomText";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 import { AppButton } from "@/components/AppButton";
 import { GlassCard } from "@/components/GlassCard";
@@ -92,9 +93,9 @@ const BudgetFormScreen = ({
 		<ScreenContainer>
 			<GlassCard>
 				<View style={styles.form}>
-					<Text style={styles.heading}>
+					<CustomText style={styles.heading}>
 						{budgetId ? "Edit budget" : "New budget"}
-					</Text>
+					</CustomText>
 					<SelectField
 						label="Expense category"
 						onChange={setCategoryId}

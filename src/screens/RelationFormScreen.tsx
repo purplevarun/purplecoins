@@ -1,6 +1,7 @@
+import { CustomText } from "@/components/CustomText";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useEffect, useState } from "react";
-import { Alert, StyleSheet, Switch, Text, View } from "react-native";
+import { Alert, StyleSheet, Switch, View } from "react-native";
 
 import { AppButton } from "@/components/AppButton";
 import { GlassCard } from "@/components/GlassCard";
@@ -131,11 +132,11 @@ const RelationFormScreen = ({
 		<ScreenContainer>
 			<GlassCard>
 				<View style={styles.form}>
-					<Text style={styles.heading}>
+					<CustomText style={styles.heading}>
 						{entityId
 							? `Edit ${entityLabel}`
 							: `New ${entityLabel}`}
-					</Text>
+					</CustomText>
 					<TextField
 						label="Name"
 						onChangeText={setName}
@@ -160,13 +161,13 @@ const RelationFormScreen = ({
 					{kind === "CATEGORY" ? (
 						<View style={styles.switchRow}>
 							<View style={styles.switchText}>
-								<Text style={styles.switchTitle}>
+								<CustomText style={styles.switchTitle}>
 									Income category
-								</Text>
-								<Text style={styles.switchDescription}>
+								</CustomText>
+								<CustomText style={styles.switchDescription}>
 									Controls which analysis bucket receives this
 									category. Net sign never changes the bucket.
-								</Text>
+								</CustomText>
 							</View>
 							<Switch
 								onValueChange={setIsIncome}

@@ -1,6 +1,7 @@
+import { CustomText } from "@/components/CustomText";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useEffect, useState } from "react";
-import { Alert, StyleSheet, Switch, Text, View } from "react-native";
+import { Alert, StyleSheet, Switch, View } from "react-native";
 
 import { AppButton } from "@/components/AppButton";
 import { AttachmentField } from "@/components/AttachmentField";
@@ -109,9 +110,9 @@ const TodoFormScreen = ({
 		<ScreenContainer>
 			<GlassCard>
 				<View style={styles.form}>
-					<Text style={styles.heading}>
+					<CustomText style={styles.heading}>
 						{todoId ? "Edit todo" : "New todo"}
-					</Text>
+					</CustomText>
 					<TextField
 						label="Title"
 						onChangeText={setTitle}
@@ -132,7 +133,9 @@ const TodoFormScreen = ({
 						value={folderId}
 					/>
 					<View style={styles.switchRow}>
-						<Text style={styles.switchLabel}>Due date</Text>
+						<CustomText style={styles.switchLabel}>
+							Due date
+						</CustomText>
 						<Switch
 							onValueChange={setHasDueDate}
 							value={hasDueDate}
@@ -146,7 +149,9 @@ const TodoFormScreen = ({
 						/>
 					) : null}
 					<View style={styles.switchRow}>
-						<Text style={styles.switchLabel}>Completed</Text>
+						<CustomText style={styles.switchLabel}>
+							Completed
+						</CustomText>
 						<Switch onValueChange={setIsDone} value={isDone} />
 					</View>
 					<AttachmentField

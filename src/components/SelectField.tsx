@@ -1,13 +1,7 @@
+import { CustomText } from "@/components/CustomText";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
-import {
-	Modal,
-	Pressable,
-	ScrollView,
-	StyleSheet,
-	Text,
-	View,
-} from "react-native";
+import { Modal, Pressable, ScrollView, StyleSheet, View } from "react-native";
 
 import { COLORS } from "@/constants/colors";
 import type { SelectOption } from "@/types/SelectOption";
@@ -38,9 +32,9 @@ const SelectField = ({
 
 	return (
 		<View style={styles.container}>
-			<Text style={styles.label}>{label}</Text>
+			<CustomText style={styles.label}>{label}</CustomText>
 			<Pressable onPress={() => setIsOpen(true)} style={styles.trigger}>
-				<Text
+				<CustomText
 					numberOfLines={1}
 					style={[
 						styles.triggerText,
@@ -48,7 +42,7 @@ const SelectField = ({
 					]}
 				>
 					{selectedOption?.label ?? placeholder}
-				</Text>
+				</CustomText>
 				<Ionicons
 					color={COLORS.textMuted}
 					name="chevron-down"
@@ -66,14 +60,18 @@ const SelectField = ({
 					style={styles.overlay}
 				>
 					<Pressable style={styles.sheet}>
-						<Text style={styles.sheetTitle}>{label}</Text>
+						<CustomText style={styles.sheetTitle}>
+							{label}
+						</CustomText>
 						<ScrollView>
 							{isOptional ? (
 								<Pressable
 									onPress={() => handleSelect("")}
 									style={styles.option}
 								>
-									<Text style={styles.optionText}>None</Text>
+									<CustomText style={styles.optionText}>
+										None
+									</CustomText>
 								</Pressable>
 							) : null}
 							{options.map((option) => (
@@ -87,13 +85,15 @@ const SelectField = ({
 									]}
 								>
 									<View style={styles.optionContent}>
-										<Text style={styles.optionText}>
+										<CustomText style={styles.optionText}>
 											{option.label}
-										</Text>
+										</CustomText>
 										{option.description ? (
-											<Text style={styles.description}>
+											<CustomText
+												style={styles.description}
+											>
 												{option.description}
-											</Text>
+											</CustomText>
 										) : null}
 									</View>
 									{option.value === value ? (

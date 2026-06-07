@@ -8,7 +8,7 @@ import {
 	buildCategoryAnalysis,
 	buildCategoryCurrencySummaries,
 	buildInvestmentAnalysis,
-} from "./analysisService";
+} from "@/services/analysisService";
 
 const NOW = 1_780_754_481_000;
 

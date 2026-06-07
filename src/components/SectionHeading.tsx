@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View } from "react-native";
+import { CustomText } from "@/components/CustomText";
+import { StyleSheet, View } from "react-native";
 
 import { COLORS } from "@/constants/colors";
 
@@ -12,8 +13,10 @@ const SectionHeading = ({
 	subtitle,
 }: SectionHeadingProps): React.JSX.Element => (
 	<View style={styles.container}>
-		<Text style={styles.title}>{title}</Text>
-		{subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+		<CustomText style={styles.title}>{title}</CustomText>
+		{subtitle ? (
+			<CustomText style={styles.subtitle}>{subtitle}</CustomText>
+		) : null}
 	</View>
 );
 

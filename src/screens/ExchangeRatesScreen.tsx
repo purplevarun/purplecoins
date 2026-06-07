@@ -1,13 +1,14 @@
+import { CustomText } from "@/components/CustomText";
 import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { useCallback, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { useCallback, useMemo, useState } from "react";
+import { StyleSheet, View } from "react-native";
 
 import { AppButton } from "@/components/AppButton";
 import { EmptyState } from "@/components/EmptyState";
 import { GlassCard } from "@/components/GlassCard";
 import { Notice } from "@/components/Notice";
-import { ScreenContainer } from "@/components/ScreenContainer";
+import { ListHeader, ScreenList } from "@/components/ScreenList";
 import { TextField } from "@/components/TextField";
 import { DEFAULT_CURRENCY_CODE } from "@/constants/appConstants";
 import { COLORS } from "@/constants/colors";
@@ -79,7 +80,7 @@ const ExchangeRatesScreen = (
 		}, [dataVersion, getScreenData]),
 	);
 
-	const handleFetch = async (): Promise<void> => {
+	const handleFetch = useCallback(async (): Promise<void> => {
 		setIsFetching(true);
 		setError("");
 		setMessage("");
@@ -97,97 +98,127 @@ const ExchangeRatesScreen = (
 		} finally {
 			setIsFetching(false);
 		}
-	};
+	}, [database, getScreenData, refreshData]);
 
-	const handleSave = async (currencyCode: string): Promise<void> => {
-		setError("");
-		setMessage("");
-		try {
-			await saveManualExchangeRate(
-				database,
-				currencyCode,
-				drafts[currencyCode] ?? "",
+	const handleSave = useCallback(
+		async (currencyCode: string): Promise<void> => {
+			setError("");
+			setMessage("");
+			try {
+				await saveManualExchangeRate(
+					database,
+					currencyCode,
+					drafts[currencyCode] ?? "",
+				);
+				setMessage(`${currencyCode} rate saved.`);
+				refreshData();
+				await getScreenData();
+			} catch (caughtError: unknown) {
+				setError(getErrorMessage(caughtError));
+			}
+		},
+		[database, drafts, getScreenData, refreshData],
+	);
+
+	const renderCurrency = useCallback(
+		({ item: currencyCode }: { item: string }): React.JSX.Element => {
+			const rate = rates.find(
+				(existingRate) => existingRate.currencyCode === currencyCode,
 			);
-			setMessage(`${currencyCode} rate saved.`);
-			refreshData();
-			await getScreenData();
-		} catch (caughtError: unknown) {
-			setError(getErrorMessage(caughtError));
-		}
-	};
+			return (
+				<GlassCard>
+					<View style={styles.rateHeader}>
+						<View>
+							<CustomText style={styles.currency}>
+								1 {currencyCode}
+							</CustomText>
+							<CustomText style={styles.meta}>
+								{rate
+									? `${rate.source} · ${formatDateTime(rate.updatedAt)}`
+									: "Rate not set"}
+							</CustomText>
+						</View>
+						<CustomText style={styles.equals}>
+							={" "}
+							{rate
+								? formatMoney(
+										rate.rateToInr,
+										DEFAULT_CURRENCY_CODE,
+									)
+								: `? ${DEFAULT_CURRENCY_CODE}`}
+						</CustomText>
+					</View>
+					<TextField
+						keyboardType="decimal-pad"
+						label={`Rate to ${DEFAULT_CURRENCY_CODE}`}
+						onChangeText={(value) =>
+							setDrafts((currentDrafts) => ({
+								...currentDrafts,
+								[currencyCode]: value,
+							}))
+						}
+						placeholder="0.00"
+						value={drafts[currencyCode] ?? ""}
+					/>
+					<AppButton
+						isCompact
+						label="Save manual rate"
+						onPress={() => void handleSave(currencyCode)}
+						variant="secondary"
+					/>
+				</GlassCard>
+			);
+		},
+		[drafts, handleSave, rates],
+	);
+
+	const listHeader = useMemo(
+		() => (
+			<ListHeader>
+				<Notice message="Rates are master values used only for converted category and analysis totals. Transfers always use their stored from and to amounts." />
+				<AppButton
+					icon="cloud-download-outline"
+					isLoading={isFetching}
+					label="Fetch latest rates"
+					onPress={() => void handleFetch()}
+				/>
+				{error ? <Notice message={error} tone="danger" /> : null}
+				{message ? <Notice message={message} /> : null}
+			</ListHeader>
+		),
+		[error, handleFetch, isFetching, message],
+	);
+
+	const listEmpty = useMemo(
+		() => (
+			<EmptyState
+				icon="earth-outline"
+				message="Add a source with a currency other than INR."
+				title="No foreign currencies"
+			/>
+		),
+		[],
+	);
 
 	return (
-		<ScreenContainer>
-			<Notice message="Rates are master values used only for converted category and analysis totals. Transfers always use their stored from and to amounts." />
-			<AppButton
-				icon="cloud-download-outline"
-				isLoading={isFetching}
-				label="Fetch latest rates"
-				onPress={() => void handleFetch()}
+		<View style={styles.screen}>
+			<ScreenList
+				ListEmptyComponent={listEmpty}
+				ListHeaderComponent={listHeader}
+				data={currencies}
+				extraData={[drafts, rates]}
+				keyExtractor={(currencyCode) => currencyCode}
+				renderItem={renderCurrency}
 			/>
-			{error ? <Notice message={error} tone="danger" /> : null}
-			{message ? <Notice message={message} /> : null}
-			{currencies.length === 0 ? (
-				<EmptyState
-					icon="earth-outline"
-					message="Add a source with a currency other than INR."
-					title="No foreign currencies"
-				/>
-			) : null}
-			{currencies.map((currencyCode) => {
-				const rate = rates.find(
-					(existingRate) =>
-						existingRate.currencyCode === currencyCode,
-				);
-				return (
-					<GlassCard key={currencyCode}>
-						<View style={styles.rateHeader}>
-							<View>
-								<Text style={styles.currency}>
-									1 {currencyCode}
-								</Text>
-								<Text style={styles.meta}>
-									{rate
-										? `${rate.source} · ${formatDateTime(rate.updatedAt)}`
-										: "Rate not set"}
-								</Text>
-							</View>
-							<Text style={styles.equals}>
-								={" "}
-								{rate
-									? formatMoney(
-											rate.rateToInr,
-											DEFAULT_CURRENCY_CODE,
-										)
-									: `? ${DEFAULT_CURRENCY_CODE}`}
-							</Text>
-						</View>
-						<TextField
-							keyboardType="decimal-pad"
-							label={`Rate to ${DEFAULT_CURRENCY_CODE}`}
-							onChangeText={(value) =>
-								setDrafts((currentDrafts) => ({
-									...currentDrafts,
-									[currencyCode]: value,
-								}))
-							}
-							placeholder="0.00"
-							value={drafts[currencyCode] ?? ""}
-						/>
-						<AppButton
-							isCompact
-							label="Save manual rate"
-							onPress={() => void handleSave(currencyCode)}
-							variant="secondary"
-						/>
-					</GlassCard>
-				);
-			})}
-		</ScreenContainer>
+		</View>
 	);
 };
 
 const styles = StyleSheet.create({
+	screen: {
+		flex: 1,
+		backgroundColor: COLORS.background,
+	},
 	rateHeader: {
 		flexDirection: "row",
 		justifyContent: "space-between",

@@ -1,5 +1,5 @@
-import type { RelationKind } from "./RelationKind";
-import type { VaultKind } from "./VaultKind";
+import type { RelationKind } from "@/types/RelationKind";
+import type { VaultKind } from "@/types/VaultKind";
 
 type RootStackParamList = {
 	Dashboard: undefined;

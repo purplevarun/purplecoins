@@ -1,4 +1,6 @@
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import { CustomText } from "@/components/CustomText";
+import { CustomTextInput } from "@/components/CustomTextInput";
+import { StyleSheet, View } from "react-native";
 
 import { COLORS } from "@/constants/colors";
 
@@ -26,8 +28,8 @@ const TextField = ({
 	autoCapitalize = "sentences",
 }: TextFieldProps): React.JSX.Element => (
 	<View style={styles.container}>
-		<Text style={styles.label}>{label}</Text>
-		<TextInput
+		<CustomText style={styles.label}>{label}</CustomText>
+		<CustomTextInput
 			autoCapitalize={autoCapitalize}
 			editable={isEditable}
 			keyboardType={keyboardType}

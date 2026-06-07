@@ -1,5 +1,5 @@
-import type { TransactionClassification } from "./TransactionClassification";
-import type { TransactionType } from "./TransactionType";
+import type { TransactionClassification } from "@/types/TransactionClassification";
+import type { TransactionType } from "@/types/TransactionType";
 
 type TransactionInput = Readonly<{
 	id?: string;

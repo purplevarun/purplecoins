@@ -1,5 +1,6 @@
+import { CustomText } from "@/components/CustomText";
 import { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 import { AppButton } from "@/components/AppButton";
 import { SelectField } from "@/components/SelectField";
@@ -76,9 +77,9 @@ const FolderPicker = ({
 					variant="secondary"
 				/>
 			)}
-			<Text style={styles.hint}>
+			<CustomText style={styles.hint}>
 				Folders with linked items cannot be deleted.
-			</Text>
+			</CustomText>
 		</View>
 	);
 };

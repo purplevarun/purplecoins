@@ -1,4 +1,4 @@
-import type { AttachmentOwnerType } from "./AttachmentOwnerType";
+import type { AttachmentOwnerType } from "@/types/AttachmentOwnerType";
 
 type AttachmentMetadata = Readonly<{
 	id: string;

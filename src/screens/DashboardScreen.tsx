@@ -1,7 +1,8 @@
+import { CustomText } from "@/components/CustomText";
 import { Ionicons } from "@expo/vector-icons";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { LinearGradient } from "expo-linear-gradient";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { GlassCard } from "@/components/GlassCard";
@@ -158,10 +159,12 @@ const DashboardScreen = ({
 									size={24}
 								/>
 							</View>
-							<Text style={styles.tileTitle}>{tile.label}</Text>
-							<Text style={styles.tileSubtitle}>
+							<CustomText style={styles.tileTitle}>
+								{tile.label}
+							</CustomText>
+							<CustomText style={styles.tileSubtitle}>
 								{tile.subtitle}
-							</Text>
+							</CustomText>
 						</View>
 					</GlassCard>
 				</Pressable>
@@ -178,13 +181,15 @@ const DashboardScreen = ({
 				<ScreenContainer>
 					<View style={styles.header}>
 						<View>
-							<Text style={styles.eyebrow}>
+							<CustomText style={styles.eyebrow}>
 								YOUR PRIVATE LEDGER
-							</Text>
-							<Text style={styles.appName}>{APP_NAME}</Text>
-							<Text style={styles.tagline}>
+							</CustomText>
+							<CustomText style={styles.appName}>
+								{APP_NAME}
+							</CustomText>
+							<CustomText style={styles.tagline}>
 								Every coin accounted for.
-							</Text>
+							</CustomText>
 						</View>
 						<Pressable
 							onPress={() => navigation.navigate("Settings")}
@@ -262,8 +267,9 @@ const styles = StyleSheet.create({
 	},
 	grid: {
 		flexDirection: "row",
+		justifyContent: "space-between",
 		flexWrap: "wrap",
-		gap: 10,
+		rowGap: 10,
 	},
 	tileWrapper: {
 		width: "48.5%",

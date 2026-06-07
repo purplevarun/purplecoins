@@ -1,5 +1,6 @@
+import { CustomText } from "@/components/CustomText";
 import { Ionicons } from "@expo/vector-icons";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 import { COLORS } from "@/constants/colors";
 
@@ -27,7 +28,7 @@ const Notice = ({ message, tone = "info" }: NoticeProps): React.JSX.Element => {
 				name={tone === "danger" ? "alert-circle" : "information-circle"}
 				size={20}
 			/>
-			<Text style={styles.message}>{message}</Text>
+			<CustomText style={styles.message}>{message}</CustomText>
 		</View>
 	);
 };

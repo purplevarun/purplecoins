@@ -1,4 +1,4 @@
-import type { RateSource } from "./RateSource";
+import type { RateSource } from "@/types/RateSource";
 
 type ExchangeRate = Readonly<{
 	currencyCode: string;
