@@ -2,44 +2,42 @@ import { CustomText } from "@/components/CustomText";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { useCallback, useMemo, useState } from "react";
-import { Alert, Pressable, StyleSheet, View } from "react-native";
+import { useCallback, useLayoutEffect, useMemo, useState } from "react";
+import { Pressable, StyleSheet, View } from "react-native";
 
 import { AppButton } from "@/components/AppButton";
-import { CurrencyToggle } from "@/components/CurrencyToggle";
 import { EmptyState } from "@/components/EmptyState";
 import { FloatingAddButton } from "@/components/FloatingAddButton";
 import { GlassCard } from "@/components/GlassCard";
+import { HeaderIconButton } from "@/components/HeaderIconButton";
 import { Notice } from "@/components/Notice";
 import { ListHeader, ScreenList } from "@/components/ScreenList";
 import { COLORS } from "@/constants/colors";
+import { useAppDialog } from "@/hooks/useAppDialog";
 import { useDatabaseContext } from "@/hooks/useDatabaseContext";
 import {
 	getAnalysisSummary,
 	getInvestmentNetAmount,
 	getInvestmentNetLabel,
 } from "@/services/analysisService";
-import { deleteCategory, getCategories } from "@/services/categoryService";
-import { deleteInvestment, getInvestments } from "@/services/investmentService";
+import { getCategories } from "@/services/categoryService";
+import { getInvestments } from "@/services/investmentService";
 import {
 	getNativeCurrencyDisplay,
 	updateNativeCurrencyDisplay,
 } from "@/services/settingsService";
-import {
-	deleteSource,
-	getSources,
-	validateSource,
-} from "@/services/sourceService";
-import { deleteTrip, getTrips } from "@/services/tripService";
+import { getSources, validateSource } from "@/services/sourceService";
+import { getTrips } from "@/services/tripService";
+import { getTripTotals } from "@/services/tripTotalService";
 import type { AnalysisSummary } from "@/types/AnalysisSummary";
 import type { Category } from "@/types/Category";
 import type { Investment } from "@/types/Investment";
-import type { RelationKind } from "@/types/RelationKind";
 import type { RootStackParamList } from "@/types/RootStackParamList";
 import type { Source } from "@/types/Source";
 import type { Trip } from "@/types/Trip";
+import type { TripTotal } from "@/types/TripTotal";
 import { getErrorMessage } from "@/utils/error";
-import { formatMoney, ZERO_AMOUNT } from "@/utils/money";
+import { compareMoney, formatMoney, ZERO_AMOUNT } from "@/utils/money";
 import { getRelationLabels } from "@/utils/relation";
 
 type RelationsScreenProps = NativeStackScreenProps<
@@ -61,10 +59,12 @@ const RelationsScreen = ({
 	route,
 }: RelationsScreenProps): React.JSX.Element => {
 	const { database, dataVersion, refreshData } = useDatabaseContext();
+	const dialog = useAppDialog();
 	const { kind } = route.params;
 	const [sources, setSources] = useState<readonly Source[]>([]);
 	const [categories, setCategories] = useState<readonly Category[]>([]);
 	const [trips, setTrips] = useState<readonly Trip[]>([]);
+	const [tripTotals, setTripTotals] = useState<readonly TripTotal[]>([]);
 	const [investments, setInvestments] = useState<readonly Investment[]>([]);
 	const [analysis, setAnalysis] = useState<AnalysisSummary | null>(null);
 	const [isNativeCurrency, setIsNativeCurrency] = useState(true);
@@ -76,10 +76,13 @@ const RelationsScreen = ({
 			const nativeCurrency = await getNativeCurrencyDisplay(database);
 			setIsNativeCurrency(nativeCurrency);
 			if (kind === "SOURCE") {
+				setAnalysis(null);
+				setTripTotals([]);
 				setSources(await getSources(database));
 				return;
 			}
 			if (kind === "CATEGORY") {
+				setTripTotals([]);
 				const [loadedCategories, loadedAnalysis] = await Promise.all([
 					getCategories(database),
 					getAnalysisSummary(database, {
@@ -95,9 +98,16 @@ const RelationsScreen = ({
 				return;
 			}
 			if (kind === "TRIP") {
-				setTrips(await getTrips(database));
+				setAnalysis(null);
+				const [loadedTrips, loadedTripTotals] = await Promise.all([
+					getTrips(database),
+					getTripTotals(database),
+				]);
+				setTrips(loadedTrips);
+				setTripTotals(loadedTripTotals);
 				return;
 			}
+			setTripTotals([]);
 			const [loadedInvestments, loadedAnalysis] = await Promise.all([
 				getInvestments(database),
 				getAnalysisSummary(database, {
@@ -126,40 +136,26 @@ const RelationsScreen = ({
 		await getScreenData();
 	}, [database, getScreenData, isNativeCurrency]);
 
-	const handleDelete = useCallback(
-		(id: string, name: string, relationKind: RelationKind): void => {
-			Alert.alert(`Delete ${name}?`, "This action cannot be undone.", [
-				{ text: "Cancel", style: "cancel" },
-				{
-					text: "Delete",
-					style: "destructive",
-					onPress: () => {
-						const processDelete = async (): Promise<void> => {
-							try {
-								if (relationKind === "SOURCE") {
-									await deleteSource(database, id);
-								} else if (relationKind === "CATEGORY") {
-									await deleteCategory(database, id);
-								} else if (relationKind === "TRIP") {
-									await deleteTrip(database, id);
-								} else {
-									await deleteInvestment(database, id);
-								}
-								refreshData();
-							} catch (caughtError: unknown) {
-								Alert.alert(
-									"Unable to delete",
-									getErrorMessage(caughtError),
-								);
-							}
-						};
-						void processDelete();
-					},
-				},
-			]);
-		},
-		[database, refreshData],
-	);
+	useLayoutEffect(() => {
+		if (kind !== "CATEGORY" && kind !== "INVESTMENT") {
+			navigation.setOptions({ headerRight: undefined });
+			return;
+		}
+		navigation.setOptions({
+			headerRight: () => (
+				<HeaderIconButton
+					accessibilityLabel={
+						isNativeCurrency
+							? "Show INR totals"
+							: "Show native currency totals"
+					}
+					icon="earth-outline"
+					isActive={isNativeCurrency}
+					onPress={() => void handleToggleCurrency()}
+				/>
+			),
+		});
+	}, [handleToggleCurrency, isNativeCurrency, kind, navigation]);
 
 	const handleValidate = useCallback(
 		async (id: string): Promise<void> => {
@@ -167,10 +163,14 @@ const RelationsScreen = ({
 				await validateSource(database, id);
 				refreshData();
 			} catch (caughtError: unknown) {
-				Alert.alert("Unable to validate", getErrorMessage(caughtError));
+				dialog.showMessage({
+					title: "Unable to validate",
+					message: getErrorMessage(caughtError),
+					variant: "danger",
+				});
 			}
 		},
-		[database, refreshData],
+		[database, dialog, refreshData],
 	);
 
 	const listData = useMemo((): readonly RelationListItem[] => {
@@ -207,9 +207,10 @@ const RelationsScreen = ({
 				return (
 					<Pressable
 						onPress={() =>
-							navigation.navigate("RelationForm", {
+							navigation.navigate("LinkedTransactions", {
 								kind: "SOURCE",
 								entityId: source.id,
+								entityName: source.name,
 							})
 						}
 					>
@@ -263,19 +264,6 @@ const RelationsScreen = ({
 									}
 									variant="success"
 								/>
-								<AppButton
-									icon="trash-outline"
-									isCompact
-									label="Delete"
-									onPress={() =>
-										handleDelete(
-											source.id,
-											source.name,
-											"SOURCE",
-										)
-									}
-									variant="danger"
-								/>
 							</View>
 						</GlassCard>
 					</Pressable>
@@ -290,9 +278,10 @@ const RelationsScreen = ({
 				return (
 					<Pressable
 						onPress={() =>
-							navigation.navigate("RelationForm", {
+							navigation.navigate("LinkedTransactions", {
 								kind: "CATEGORY",
 								entityId: category.id,
+								entityName: category.name,
 							})
 						}
 					>
@@ -326,12 +315,7 @@ const RelationsScreen = ({
 									</CustomText>
 									{totals.length === 0 ? (
 										<CustomText style={styles.amount}>
-											{formatMoney(
-												ZERO_AMOUNT,
-												isNativeCurrency
-													? "INR"
-													: "INR",
-											)}
+											{formatMoney(ZERO_AMOUNT, "INR")}
 										</CustomText>
 									) : (
 										totals.map((total) => (
@@ -341,8 +325,10 @@ const RelationsScreen = ({
 													styles.amount,
 													{
 														color:
-															Number(total.net) >=
-															0
+															compareMoney(
+																total.net,
+																ZERO_AMOUNT,
+															) >= 0
 																? COLORS.success
 																: COLORS.danger,
 													},
@@ -356,25 +342,16 @@ const RelationsScreen = ({
 										))
 									)}
 								</View>
-								<AppButton
-									icon="trash-outline"
-									isCompact
-									label="Delete"
-									onPress={() =>
-										handleDelete(
-											category.id,
-											category.name,
-											"CATEGORY",
-										)
-									}
-									variant="danger"
-								/>
 							</View>
 						</GlassCard>
 					</Pressable>
 				);
 			}
 			const entity = item.entity;
+			const totals =
+				item.kind === "TRIP"
+					? tripTotals.filter((row) => row.tripId === entity.id)
+					: [];
 			const investmentTotals =
 				item.kind === "INVESTMENT"
 					? (analysis?.investments.filter(
@@ -384,9 +361,10 @@ const RelationsScreen = ({
 			return (
 				<Pressable
 					onPress={() =>
-						navigation.navigate("RelationForm", {
+						navigation.navigate("LinkedTransactions", {
 							kind: item.kind,
 							entityId: entity.id,
+							entityName: entity.name,
 						})
 					}
 				>
@@ -411,6 +389,38 @@ const RelationsScreen = ({
 								<CustomText style={styles.title}>
 									{entity.name}
 								</CustomText>
+								{item.kind === "TRIP" ? (
+									totals.length ? (
+										totals.map((total) => (
+											<CustomText
+												key={total.currencyCode}
+												style={[
+													styles.amount,
+													{
+														color:
+															compareMoney(
+																total.total,
+																ZERO_AMOUNT,
+															) >= 0
+																? COLORS.danger
+																: COLORS.success,
+													},
+												]}
+											>
+												Total{" "}
+												{formatMoney(
+													total.total,
+													total.currencyCode,
+												)}
+											</CustomText>
+										))
+									) : (
+										<CustomText style={styles.amount}>
+											Total{" "}
+											{formatMoney(ZERO_AMOUNT, "INR")}
+										</CustomText>
+									)
+								) : null}
 								{investmentTotals.map((total) => (
 									<View
 										key={total.currencyCode}
@@ -430,7 +440,25 @@ const RelationsScreen = ({
 												total.currencyCode,
 											)}
 										</CustomText>
-										<CustomText style={styles.amount}>
+										<CustomText
+											style={[
+												styles.amount,
+												{
+													color:
+														compareMoney(
+															total.net,
+															ZERO_AMOUNT,
+														) > 0
+															? COLORS.danger
+															: compareMoney(
+																		total.net,
+																		ZERO_AMOUNT,
+																  ) < 0
+																? COLORS.success
+																: COLORS.text,
+												},
+											]}
+										>
 											{getInvestmentNetLabel(total.net)}{" "}
 											{formatMoney(
 												getInvestmentNetAmount(
@@ -442,25 +470,12 @@ const RelationsScreen = ({
 									</View>
 								))}
 							</View>
-							<AppButton
-								icon="trash-outline"
-								isCompact
-								label="Delete"
-								onPress={() =>
-									handleDelete(
-										entity.id,
-										entity.name,
-										item.kind,
-									)
-								}
-								variant="danger"
-							/>
 						</View>
 					</GlassCard>
 				</Pressable>
 			);
 		},
-		[analysis, handleDelete, handleValidate, isNativeCurrency, navigation],
+		[analysis, handleValidate, navigation, tripTotals],
 	);
 
 	const relationLabels = getRelationLabels(kind);
@@ -468,12 +483,6 @@ const RelationsScreen = ({
 	const listHeader = useMemo(
 		() => (
 			<ListHeader>
-				{kind === "CATEGORY" || kind === "INVESTMENT" ? (
-					<CurrencyToggle
-						isNativeCurrency={isNativeCurrency}
-						onToggle={() => void handleToggleCurrency()}
-					/>
-				) : null}
 				{analysis?.missingCurrencies.length ? (
 					<Notice
 						message={`Missing INR rates: ${analysis.missingCurrencies.join(", ")}. Those amounts are excluded from converted totals.`}
@@ -483,7 +492,7 @@ const RelationsScreen = ({
 				{error ? <Notice message={error} tone="danger" /> : null}
 			</ListHeader>
 		),
-		[analysis, error, handleToggleCurrency, isNativeCurrency, kind],
+		[analysis, error],
 	);
 
 	const listEmpty = useMemo(

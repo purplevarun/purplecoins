@@ -8,6 +8,8 @@ import { BudgetFormScreen } from "@/screens/BudgetFormScreen";
 import { BudgetsScreen } from "@/screens/BudgetsScreen";
 import { DashboardScreen } from "@/screens/DashboardScreen";
 import { ExchangeRatesScreen } from "@/screens/ExchangeRatesScreen";
+import { GlobalSearchScreen } from "@/screens/GlobalSearchScreen";
+import { LinkedTransactionsScreen } from "@/screens/LinkedTransactionsScreen";
 import { NoteFormScreen } from "@/screens/NoteFormScreen";
 import { NotesScreen } from "@/screens/NotesScreen";
 import { RelationFormScreen } from "@/screens/RelationFormScreen";
@@ -80,6 +82,11 @@ const AppNavigator = (): React.JSX.Element => (
 				options={{ title: "Details" }}
 			/>
 			<Stack.Screen
+				component={LinkedTransactionsScreen}
+				name="LinkedTransactions"
+				options={({ route }) => ({ title: route.params.entityName })}
+			/>
+			<Stack.Screen
 				component={BudgetsScreen}
 				name="Budgets"
 				options={{ title: "Budgets" }}
@@ -98,6 +105,11 @@ const AppNavigator = (): React.JSX.Element => (
 				component={ExchangeRatesScreen}
 				name="ExchangeRates"
 				options={{ title: "Exchange rates" }}
+			/>
+			<Stack.Screen
+				component={GlobalSearchScreen}
+				name="GlobalSearch"
+				options={{ title: "Search" }}
 			/>
 			<Stack.Screen
 				component={NotesScreen}

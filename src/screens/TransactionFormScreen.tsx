@@ -1,7 +1,7 @@
 import { CustomText } from "@/components/CustomText";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useEffect, useState } from "react";
-import { Alert, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 import { AppButton } from "@/components/AppButton";
 import { AttachmentField } from "@/components/AttachmentField";
@@ -13,6 +13,7 @@ import { SegmentedControl } from "@/components/SegmentedControl";
 import { SelectField } from "@/components/SelectField";
 import { TextField } from "@/components/TextField";
 import { COLORS } from "@/constants/colors";
+import { useAppDialog } from "@/hooks/useAppDialog";
 import { useAttachment } from "@/hooks/useAttachment";
 import { useDatabaseContext } from "@/hooks/useDatabaseContext";
 import { getCategories } from "@/services/categoryService";
@@ -59,6 +60,7 @@ const TransactionFormScreen = ({
 }: TransactionFormScreenProps): React.JSX.Element => {
 	const transactionId = route.params?.transactionId;
 	const { database, refreshData } = useDatabaseContext();
+	const dialog = useAppDialog();
 	const attachment = useAttachment("TRANSACTION", transactionId);
 	const [classification, setClassification] =
 		useState<TransactionClassification>("GENERAL");
@@ -225,25 +227,24 @@ const TransactionFormScreen = ({
 		if (!transactionId) {
 			return;
 		}
-		Alert.alert("Delete transaction?", "This action cannot be undone.", [
-			{ text: "Cancel", style: "cancel" },
-			{
-				text: "Delete",
-				style: "destructive",
-				onPress: () => {
-					const processDelete = async (): Promise<void> => {
-						try {
-							await deleteTransaction(database, transactionId);
-							refreshData();
-							navigation.goBack();
-						} catch (caughtError: unknown) {
-							setError(getErrorMessage(caughtError));
-						}
-					};
-					void processDelete();
-				},
+		dialog.confirm({
+			title: "Delete transaction?",
+			message: "This action cannot be undone.",
+			confirmLabel: "Delete",
+			variant: "danger",
+			onConfirm: () => {
+				const processDelete = async (): Promise<void> => {
+					try {
+						await deleteTransaction(database, transactionId);
+						refreshData();
+						navigation.goBack();
+					} catch (caughtError: unknown) {
+						setError(getErrorMessage(caughtError));
+					}
+				};
+				void processDelete();
 			},
-		]);
+		});
 	};
 
 	return (

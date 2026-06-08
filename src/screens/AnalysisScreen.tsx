@@ -2,10 +2,10 @@ import { CustomText } from "@/components/CustomText";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
-import { CurrencyToggle } from "@/components/CurrencyToggle";
+import { DateField } from "@/components/DateField";
 import { DonutChart } from "@/components/DonutChart";
 import { EmptyState } from "@/components/EmptyState";
 import { GlassCard } from "@/components/GlassCard";
@@ -13,34 +13,34 @@ import { Notice } from "@/components/Notice";
 import { ScreenContainer } from "@/components/ScreenContainer";
 import { SectionHeading } from "@/components/SectionHeading";
 import { SegmentedControl } from "@/components/SegmentedControl";
+import { DEFAULT_CURRENCY_CODE } from "@/constants/appConstants";
 import { COLORS } from "@/constants/colors";
 import { useDatabaseContext } from "@/hooks/useDatabaseContext";
 import {
-	buildCategoryCurrencySummaries,
 	getAnalysisSummary,
 	getInvestmentNetAmount,
 	getInvestmentNetLabel,
 } from "@/services/analysisService";
-import {
-	getNativeCurrencyDisplay,
-	updateNativeCurrencyDisplay,
-} from "@/services/settingsService";
 import type { AnalysisPeriod } from "@/types/AnalysisPeriod";
 import type { AnalysisSummary } from "@/types/AnalysisSummary";
-import type { CategoryCurrencySummary } from "@/types/CategoryCurrencySummary";
 import type { ChartDatum } from "@/types/ChartDatum";
+import type { DateRange } from "@/types/DateRange";
 import type { RootStackParamList } from "@/types/RootStackParamList";
 import type { SelectOption } from "@/types/SelectOption";
 import {
 	formatDate,
 	getAnalysisDateRange,
+	getCustomDateRange,
 	shiftAnalysisAnchor,
 } from "@/utils/date";
 import { getErrorMessage } from "@/utils/error";
 import {
 	absoluteMoney,
+	addMoney,
 	compareMoney,
 	formatMoney,
+	subtractMoney,
+	sumMoney,
 	ZERO_AMOUNT,
 } from "@/utils/money";
 
@@ -49,9 +49,25 @@ type AnalysisScreenProps = NativeStackScreenProps<
 	"Analysis"
 >;
 
+type AnalysisDateRangeInput = Readonly<{
+	period: AnalysisPeriod;
+	anchorDate: Date;
+	customStartAt: number;
+	customEndAt: number;
+}>;
+
+type SummaryMetricInput = Readonly<{
+	label: string;
+	value: string;
+	accent: "success" | "danger" | "warning" | "default";
+	color: string;
+}>;
+
 const PERIOD_OPTIONS: readonly SelectOption[] = [
 	{ label: "Month", value: "MONTH" },
 	{ label: "Year", value: "YEAR" },
+	{ label: "All", value: "ALL" },
+	{ label: "Custom", value: "CUSTOM" },
 ];
 
 const CHART_COLORS = [
@@ -65,24 +81,61 @@ const CHART_COLORS = [
 	"#FB923C",
 ] as const;
 
-const getDisplayCurrencySummaries = (
-	summary: AnalysisSummary | null,
-	isNativeCurrency: boolean,
-): readonly CategoryCurrencySummary[] => {
-	if (!summary) {
-		return [];
+const getSelectedDateRange = ({
+	period,
+	anchorDate,
+	customStartAt,
+	customEndAt,
+}: AnalysisDateRangeInput): DateRange => {
+	if (period === "CUSTOM") {
+		return getCustomDateRange(customStartAt, customEndAt);
 	}
-	if (isNativeCurrency) {
-		return buildCategoryCurrencySummaries(summary.categories);
+	return getAnalysisDateRange(period, anchorDate);
+};
+
+const getPeriodTitle = (period: AnalysisPeriod, anchorDate: Date): string => {
+	if (period === "MONTH") {
+		return anchorDate.toLocaleString("en-IN", {
+			month: "long",
+			year: "numeric",
+		});
 	}
-	return [
-		{
-			currencyCode: "INR",
-			totalIncome: summary.totalIncome,
-			totalExpense: summary.totalExpense,
-			netProfit: summary.netProfit,
-		},
-	];
+	if (period === "YEAR") {
+		return String(anchorDate.getFullYear());
+	}
+	if (period === "ALL") {
+		return "All transactions";
+	}
+	return "Custom period";
+};
+
+const formatSignedMoney = (amount: string): string => {
+	const formattedAmount = formatMoney(amount, DEFAULT_CURRENCY_CODE);
+	return compareMoney(amount, ZERO_AMOUNT) > 0
+		? `+${formattedAmount}`
+		: formattedAmount;
+};
+
+const getInvestmentColor = (net: string): string => {
+	const comparison = compareMoney(net, ZERO_AMOUNT);
+	if (comparison > 0) {
+		return COLORS.danger;
+	}
+	if (comparison < 0) {
+		return COLORS.success;
+	}
+	return COLORS.text;
+};
+
+const getInvestmentAccent = (net: string): "success" | "danger" | "default" => {
+	const comparison = compareMoney(net, ZERO_AMOUNT);
+	if (comparison > 0) {
+		return "danger";
+	}
+	if (comparison < 0) {
+		return "success";
+	}
+	return "default";
 };
 
 const AnalysisScreen = ({
@@ -91,25 +144,35 @@ const AnalysisScreen = ({
 	const { database, dataVersion } = useDatabaseContext();
 	const [period, setPeriod] = useState<AnalysisPeriod>("MONTH");
 	const [anchorDate, setAnchorDate] = useState(new Date());
-	const [isNativeCurrency, setIsNativeCurrency] = useState(true);
+	const [customStartAt, setCustomStartAt] = useState(() => Date.now());
+	const [customEndAt, setCustomEndAt] = useState(() => Date.now());
 	const [summary, setSummary] = useState<AnalysisSummary | null>(null);
 	const [error, setError] = useState("");
 
+	const dateRange = useMemo(
+		() =>
+			getSelectedDateRange({
+				period,
+				anchorDate,
+				customStartAt,
+				customEndAt,
+			}),
+		[anchorDate, customEndAt, customStartAt, period],
+	);
+
 	const getScreenData = useCallback(async (): Promise<void> => {
 		try {
-			const nativeCurrency = await getNativeCurrencyDisplay(database);
-			setIsNativeCurrency(nativeCurrency);
 			setSummary(
 				await getAnalysisSummary(database, {
-					dateRange: getAnalysisDateRange(period, anchorDate),
-					isNativeCurrency: nativeCurrency,
+					dateRange,
+					isNativeCurrency: false,
 				}),
 			);
 			setError("");
 		} catch (caughtError: unknown) {
 			setError(getErrorMessage(caughtError));
 		}
-	}, [anchorDate, database, period]);
+	}, [database, dateRange]);
 
 	useFocusEffect(
 		useCallback(() => {
@@ -119,24 +182,25 @@ const AnalysisScreen = ({
 	);
 
 	const handlePeriodChange = (value: string): void => {
-		setPeriod(value === "YEAR" ? "YEAR" : "MONTH");
+		if (value === "YEAR" || value === "ALL" || value === "CUSTOM") {
+			setPeriod(value);
+			return;
+		}
+		setPeriod("MONTH");
 	};
 
-	const handleToggleCurrency = async (): Promise<void> => {
-		const nextValue = !isNativeCurrency;
-		await updateNativeCurrencyDisplay(database, nextValue);
-		setIsNativeCurrency(nextValue);
-		setSummary(
-			await getAnalysisSummary(database, {
-				dateRange: getAnalysisDateRange(period, anchorDate),
-				isNativeCurrency: nextValue,
-			}),
-		);
-	};
-
-	const dateRange = getAnalysisDateRange(period, anchorDate);
-	const chartData: readonly ChartDatum[] = !isNativeCurrency
-		? (summary?.categories
+	const hasMissingCurrencies = Boolean(summary?.missingCurrencies.length);
+	const investmentNet = sumMoney(
+		summary?.investments.map((investment) => investment.net) ?? [],
+	);
+	const investmentCashFlow = subtractMoney(ZERO_AMOUNT, investmentNet);
+	const netAfterInvestments = addMoney(
+		summary?.netProfit ?? ZERO_AMOUNT,
+		investmentCashFlow,
+	);
+	const chartData: readonly ChartDatum[] = hasMissingCurrencies
+		? []
+		: (summary?.categories
 				.filter(
 					(category) => compareMoney(category.net, ZERO_AMOUNT) !== 0,
 				)
@@ -145,18 +209,72 @@ const AnalysisScreen = ({
 					label: category.categoryName,
 					value: Number(absoluteMoney(category.net)),
 					color: CHART_COLORS[index] ?? COLORS.primary,
-				})) ?? [])
-		: [];
-	const currencySummaries = getDisplayCurrencySummaries(
-		summary,
-		isNativeCurrency,
+				})) ?? []);
+	const summaryMetrics: readonly SummaryMetricInput[] = [
+		{
+			label: "Income",
+			value: formatMoney(
+				summary?.totalIncome ?? ZERO_AMOUNT,
+				DEFAULT_CURRENCY_CODE,
+			),
+			accent: "success",
+			color: COLORS.success,
+		},
+		{
+			label: "Expenses",
+			value: formatMoney(
+				summary?.totalExpense ?? ZERO_AMOUNT,
+				DEFAULT_CURRENCY_CODE,
+			),
+			accent: "danger",
+			color: COLORS.danger,
+		},
+		{
+			label: "Investments",
+			value: formatSignedMoney(investmentCashFlow),
+			accent: "warning",
+			color: getInvestmentColor(investmentNet),
+		},
+		{
+			label: "Net",
+			value: formatSignedMoney(summary?.netProfit ?? ZERO_AMOUNT),
+			accent:
+				compareMoney(summary?.netProfit ?? ZERO_AMOUNT, ZERO_AMOUNT) < 0
+					? "danger"
+					: "success",
+			color:
+				compareMoney(summary?.netProfit ?? ZERO_AMOUNT, ZERO_AMOUNT) < 0
+					? COLORS.danger
+					: COLORS.success,
+		},
+		{
+			label: "Net after investments",
+			value: formatSignedMoney(netAfterInvestments),
+			accent:
+				compareMoney(netAfterInvestments, ZERO_AMOUNT) < 0
+					? "danger"
+					: "success",
+			color:
+				compareMoney(netAfterInvestments, ZERO_AMOUNT) < 0
+					? COLORS.danger
+					: COLORS.success,
+		},
+	];
+
+	const renderMetric = (metric: SummaryMetricInput): React.JSX.Element => (
+		<View key={metric.label} style={styles.summaryTile}>
+			<GlassCard accent={metric.accent}>
+				<CustomText style={styles.summaryLabel}>
+					{metric.label}
+				</CustomText>
+				<CustomText
+					style={[styles.summaryValue, { color: metric.color }]}
+				>
+					{metric.value}
+				</CustomText>
+			</GlassCard>
+		</View>
 	);
-	const netAccent = currencySummaries.some(
-		(currencySummary) =>
-			compareMoney(currencySummary.netProfit, ZERO_AMOUNT) < 0,
-	)
-		? "danger"
-		: "success";
 
 	return (
 		<ScreenContainer>
@@ -165,266 +283,253 @@ const AnalysisScreen = ({
 				options={PERIOD_OPTIONS}
 				value={period}
 			/>
-			<View style={styles.periodRow}>
-				<Pressable
-					onPress={() =>
-						setAnchorDate(
-							shiftAnalysisAnchor(period, anchorDate, -1),
-						)
-					}
-					style={styles.periodButton}
-				>
-					<Ionicons
-						color={COLORS.text}
-						name="chevron-back"
-						size={21}
-					/>
-				</Pressable>
-				<View style={styles.periodText}>
-					<CustomText style={styles.periodTitle}>
-						{period === "MONTH"
-							? anchorDate.toLocaleString("en-IN", {
-									month: "long",
-									year: "numeric",
-								})
-							: String(anchorDate.getFullYear())}
-					</CustomText>
-					<CustomText style={styles.periodRange}>
-						{formatDate(dateRange.start)} –{" "}
-						{formatDate(dateRange.end)}
-					</CustomText>
+			{period === "MONTH" || period === "YEAR" ? (
+				<View style={styles.periodRow}>
+					<Pressable
+						onPress={() =>
+							setAnchorDate(
+								shiftAnalysisAnchor(period, anchorDate, -1),
+							)
+						}
+						style={styles.periodButton}
+					>
+						<Ionicons
+							color={COLORS.text}
+							name="chevron-back"
+							size={21}
+						/>
+					</Pressable>
+					<View style={styles.periodText}>
+						<CustomText style={styles.periodTitle}>
+							{getPeriodTitle(period, anchorDate)}
+						</CustomText>
+						<CustomText style={styles.periodRange}>
+							{formatDate(dateRange.start)} -{" "}
+							{formatDate(dateRange.end)}
+						</CustomText>
+					</View>
+					<Pressable
+						onPress={() =>
+							setAnchorDate(
+								shiftAnalysisAnchor(period, anchorDate, 1),
+							)
+						}
+						style={styles.periodButton}
+					>
+						<Ionicons
+							color={COLORS.text}
+							name="chevron-forward"
+							size={21}
+						/>
+					</Pressable>
 				</View>
-				<Pressable
-					onPress={() =>
-						setAnchorDate(
-							shiftAnalysisAnchor(period, anchorDate, 1),
-						)
-					}
-					style={styles.periodButton}
-				>
-					<Ionicons
-						color={COLORS.text}
-						name="chevron-forward"
-						size={21}
-					/>
-				</Pressable>
-			</View>
-			<CurrencyToggle
-				isNativeCurrency={isNativeCurrency}
-				onToggle={() => void handleToggleCurrency()}
-			/>
+			) : null}
+			{period === "ALL" ? (
+				<Notice message="Showing every transaction and category stored locally." />
+			) : null}
+			{period === "CUSTOM" ? (
+				<GlassCard>
+					<View style={styles.customDates}>
+						<DateField
+							label="From"
+							onChange={setCustomStartAt}
+							value={customStartAt}
+						/>
+						<DateField
+							label="To"
+							onChange={setCustomEndAt}
+							value={customEndAt}
+						/>
+						<CustomText style={styles.periodRange}>
+							{formatDate(dateRange.start)} -{" "}
+							{formatDate(dateRange.end)}
+						</CustomText>
+					</View>
+				</GlassCard>
+			) : null}
 			{summary?.missingCurrencies.length ? (
 				<Notice
-					message={`Missing INR rates: ${summary.missingCurrencies.join(", ")}. Set rates before relying on converted totals.`}
+					message={`Update INR exchange rates for ${summary.missingCurrencies.join(", ")} before analysis can include those transactions.`}
 					tone="warning"
 				/>
 			) : null}
 			{error ? <Notice message={error} tone="danger" /> : null}
-			<View style={styles.summaryGrid}>
-				<GlassCard accent="success">
-					<CustomText style={styles.summaryLabel}>Income</CustomText>
-					<CustomText
-						style={[styles.summaryValue, { color: COLORS.success }]}
-					>
-						{currencySummaries.length
-							? currencySummaries.map((currencySummary) => (
-									<CustomText
-										key={currencySummary.currencyCode}
-									>
-										{formatMoney(
-											currencySummary.totalIncome,
-											currencySummary.currencyCode,
-										)}
-										{"\n"}
-									</CustomText>
-								))
-							: formatMoney(ZERO_AMOUNT, "INR")}
-					</CustomText>
-				</GlassCard>
-				<GlassCard accent="danger">
-					<CustomText style={styles.summaryLabel}>
-						Expenses
-					</CustomText>
-					<CustomText
-						style={[styles.summaryValue, { color: COLORS.danger }]}
-					>
-						{currencySummaries.length
-							? currencySummaries.map((currencySummary) => (
-									<CustomText
-										key={currencySummary.currencyCode}
-									>
-										{formatMoney(
-											currencySummary.totalExpense,
-											currencySummary.currencyCode,
-										)}
-										{"\n"}
-									</CustomText>
-								))
-							: formatMoney(ZERO_AMOUNT, "INR")}
-					</CustomText>
-				</GlassCard>
-			</View>
-			<GlassCard accent={netAccent}>
-				<CustomText style={styles.summaryLabel}>Net profit</CustomText>
-				<CustomText style={styles.netProfit}>
-					{currencySummaries.length
-						? currencySummaries.map((currencySummary) => (
-								<CustomText key={currencySummary.currencyCode}>
-									{formatMoney(
-										currencySummary.netProfit,
-										currencySummary.currencyCode,
-									)}
-									{"\n"}
-								</CustomText>
-							))
-						: formatMoney(ZERO_AMOUNT, "INR")}
-				</CustomText>
-				<CustomText style={styles.formula}>
-					Income category nets − expense category nets
-				</CustomText>
-			</GlassCard>
-			<SectionHeading
-				subtitle="Credits minus debits for every category. Classification decides the analysis bucket."
-				title="Category net"
-			/>
-			{isNativeCurrency ? (
-				<Notice
-					message="Switch the world toggle off to compare categories in one INR chart. Native currencies are kept separate."
-					tone="info"
-				/>
-			) : chartData.length ? (
-				<GlassCard>
-					<DonutChart
-						centerLabel={formatMoney(
-							summary?.netProfit ?? ZERO_AMOUNT,
-							"INR",
-						)}
-						data={chartData}
-					/>
-				</GlassCard>
-			) : (
-				<EmptyState
-					icon="pie-chart-outline"
-					message="Add categorized transactions in this period."
-					title="Nothing to analyse"
-				/>
-			)}
-			{summary?.categories.map((category) => (
-				<GlassCard
-					accent={
-						compareMoney(category.net, ZERO_AMOUNT) >= 0
-							? "success"
-							: "danger"
-					}
-					key={`${category.categoryId}:${category.currencyCode}`}
+			{hasMissingCurrencies ? (
+				<Pressable
+					onPress={() => navigation.navigate("ExchangeRates")}
+					style={styles.ratesLink}
 				>
-					<View style={styles.categoryRow}>
-						<View style={styles.categoryDetails}>
-							<CustomText style={styles.categoryName}>
-								{category.categoryName}
-							</CustomText>
-							<CustomText style={styles.categoryBucket}>
-								{category.isIncome
-									? "Income category"
-									: "Expense category"}
-							</CustomText>
-							<CustomText style={styles.categoryBreakdown}>
-								Credits{" "}
-								{formatMoney(
-									category.credits,
-									category.currencyCode,
-								)}
-								{" · "}Debits{" "}
-								{formatMoney(
-									category.debits,
-									category.currencyCode,
-								)}
-							</CustomText>
-						</View>
-						<CustomText
-							style={[
-								styles.categoryNet,
-								{
-									color:
-										compareMoney(
-											category.net,
-											ZERO_AMOUNT,
-										) >= 0
-											? COLORS.success
-											: COLORS.danger,
-								},
-							]}
-						>
-							{formatMoney(category.net, category.currencyCode)}
-						</CustomText>
-					</View>
-				</GlassCard>
-			))}
-			<SectionHeading
-				subtitle="Investment transactions stay separate from income and expenses."
-				title="Investments"
-			/>
-			{summary?.investments.length ? (
-				summary.investments.map((investment) => (
-					<GlassCard
-						key={`${investment.investmentId}:${investment.currencyCode}`}
-					>
-						<CustomText style={styles.categoryName}>
-							{investment.investmentName}
-						</CustomText>
-						<View style={styles.investmentRow}>
-							<View>
-								<CustomText style={styles.summaryLabel}>
-									Total invested
-								</CustomText>
-								<CustomText style={styles.investmentValue}>
-									{formatMoney(
-										investment.totalInvested,
-										investment.currencyCode,
-									)}
-								</CustomText>
-							</View>
-							<View>
-								<CustomText style={styles.summaryLabel}>
-									Total redeemed
-								</CustomText>
-								<CustomText style={styles.investmentValue}>
-									{formatMoney(
-										investment.totalRedeemed,
-										investment.currencyCode,
-									)}
-								</CustomText>
-							</View>
-						</View>
-						<CustomText style={styles.formula}>
-							{getInvestmentNetLabel(investment.net)}:{" "}
-							{formatMoney(
-								getInvestmentNetAmount(investment.net),
-								investment.currencyCode,
-							)}
-						</CustomText>
-					</GlassCard>
-				))
+					<Ionicons
+						color={COLORS.primaryBright}
+						name="earth-outline"
+						size={18}
+					/>
+					<CustomText style={styles.ratesLinkText}>
+						Manage exchange rates
+					</CustomText>
+				</Pressable>
 			) : (
-				<EmptyState
-					icon="trending-up"
-					message="No investment transactions in this period."
-					title="No investment activity"
-				/>
+				<>
+					<View style={styles.summaryGrid}>
+						{summaryMetrics.map(renderMetric)}
+					</View>
+					<SectionHeading
+						subtitle="Credits minus debits for every category. Classification decides the analysis bucket."
+						title="Category net"
+					/>
+					{chartData.length ? (
+						<GlassCard>
+							<DonutChart
+								centerLabel={formatSignedMoney(
+									summary?.netProfit ?? ZERO_AMOUNT,
+								)}
+								data={chartData}
+							/>
+						</GlassCard>
+					) : (
+						<EmptyState
+							icon="pie-chart-outline"
+							message="Add categorized transactions in this period."
+							title="Nothing to analyse"
+						/>
+					)}
+					{summary?.categories.map((category) => (
+						<GlassCard
+							accent={
+								compareMoney(category.net, ZERO_AMOUNT) >= 0
+									? "success"
+									: "danger"
+							}
+							key={`${category.categoryId}:${category.currencyCode}`}
+						>
+							<View style={styles.categoryRow}>
+								<View style={styles.categoryDetails}>
+									<CustomText style={styles.categoryName}>
+										{category.categoryName}
+									</CustomText>
+									<CustomText style={styles.categoryBucket}>
+										{category.isIncome
+											? "Income category"
+											: "Expense category"}
+									</CustomText>
+									<CustomText
+										style={styles.categoryBreakdown}
+									>
+										Credits{" "}
+										{formatMoney(
+											category.credits,
+											category.currencyCode,
+										)}
+										{" · "}Debits{" "}
+										{formatMoney(
+											category.debits,
+											category.currencyCode,
+										)}
+									</CustomText>
+								</View>
+								<CustomText
+									style={[
+										styles.categoryNet,
+										{
+											color:
+												compareMoney(
+													category.net,
+													ZERO_AMOUNT,
+												) >= 0
+													? COLORS.success
+													: COLORS.danger,
+										},
+									]}
+								>
+									{formatMoney(
+										category.net,
+										category.currencyCode,
+									)}
+								</CustomText>
+							</View>
+						</GlassCard>
+					))}
+					<SectionHeading
+						subtitle="Investment transactions stay separate from income and expenses."
+						title="Investments"
+					/>
+					{summary?.investments.length ? (
+						summary.investments.map((investment) => (
+							<GlassCard
+								accent={getInvestmentAccent(investment.net)}
+								key={`${investment.investmentId}:${investment.currencyCode}`}
+							>
+								<CustomText style={styles.categoryName}>
+									{investment.investmentName}
+								</CustomText>
+								<View style={styles.investmentRow}>
+									<View>
+										<CustomText style={styles.summaryLabel}>
+											Total invested
+										</CustomText>
+										<CustomText
+											style={styles.investmentValue}
+										>
+											{formatMoney(
+												investment.totalInvested,
+												investment.currencyCode,
+											)}
+										</CustomText>
+									</View>
+									<View>
+										<CustomText style={styles.summaryLabel}>
+											Total redeemed
+										</CustomText>
+										<CustomText
+											style={styles.investmentValue}
+										>
+											{formatMoney(
+												investment.totalRedeemed,
+												investment.currencyCode,
+											)}
+										</CustomText>
+									</View>
+								</View>
+								<CustomText
+									style={[
+										styles.investmentNet,
+										{
+											color: getInvestmentColor(
+												investment.net,
+											),
+										},
+									]}
+								>
+									{getInvestmentNetLabel(investment.net)}:{" "}
+									{formatMoney(
+										getInvestmentNetAmount(investment.net),
+										investment.currencyCode,
+									)}
+								</CustomText>
+							</GlassCard>
+						))
+					) : (
+						<EmptyState
+							icon="trending-up"
+							message="No investment transactions in this period."
+							title="No investment activity"
+						/>
+					)}
+					<Pressable
+						onPress={() => navigation.navigate("ExchangeRates")}
+						style={styles.ratesLink}
+					>
+						<Ionicons
+							color={COLORS.primaryBright}
+							name="earth-outline"
+							size={18}
+						/>
+						<CustomText style={styles.ratesLinkText}>
+							Manage exchange rates
+						</CustomText>
+					</Pressable>
+				</>
 			)}
-			<Pressable
-				onPress={() => navigation.navigate("ExchangeRates")}
-				style={styles.ratesLink}
-			>
-				<Ionicons
-					color={COLORS.primaryBright}
-					name="earth-outline"
-					size={18}
-				/>
-				<CustomText style={styles.ratesLinkText}>
-					Manage exchange rates
-				</CustomText>
-			</Pressable>
 		</ScreenContainer>
 	);
 };
@@ -458,9 +563,16 @@ const styles = StyleSheet.create({
 		color: COLORS.textMuted,
 		fontSize: 11,
 	},
+	customDates: {
+		gap: 12,
+	},
 	summaryGrid: {
 		flexDirection: "row",
+		flexWrap: "wrap",
 		gap: 10,
+	},
+	summaryTile: {
+		width: "48.5%",
 	},
 	summaryLabel: {
 		color: COLORS.textMuted,
@@ -472,17 +584,6 @@ const styles = StyleSheet.create({
 	summaryValue: {
 		fontSize: 18,
 		fontWeight: "900",
-		marginTop: 5,
-	},
-	netProfit: {
-		color: COLORS.text,
-		fontSize: 25,
-		fontWeight: "900",
-		marginTop: 5,
-	},
-	formula: {
-		color: COLORS.textMuted,
-		fontSize: 11,
 		marginTop: 5,
 	},
 	categoryRow: {
@@ -525,6 +626,11 @@ const styles = StyleSheet.create({
 		fontSize: 14,
 		fontWeight: "900",
 		marginTop: 4,
+	},
+	investmentNet: {
+		fontSize: 12,
+		fontWeight: "900",
+		marginTop: 10,
 	},
 	ratesLink: {
 		flexDirection: "row",

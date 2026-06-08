@@ -216,6 +216,7 @@ const getMissingCurrencies = (
 	[
 		...new Set(
 			transactions
+				.filter((transaction) => transaction.type !== "TRANSFER")
 				.map((transaction) => transaction.sourceCurrencyCode)
 				.filter(
 					(currencyCode) =>

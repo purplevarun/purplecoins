@@ -1,7 +1,7 @@
 import { CustomText } from "@/components/CustomText";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useEffect, useState } from "react";
-import { Alert, StyleSheet, Switch, View } from "react-native";
+import { StyleSheet, Switch, View } from "react-native";
 
 import { AppButton } from "@/components/AppButton";
 import { GlassCard } from "@/components/GlassCard";
@@ -10,6 +10,7 @@ import { ScreenContainer } from "@/components/ScreenContainer";
 import { TextField } from "@/components/TextField";
 import { DEFAULT_CURRENCY_CODE } from "@/constants/appConstants";
 import { COLORS } from "@/constants/colors";
+import { useAppDialog } from "@/hooks/useAppDialog";
 import { useDatabaseContext } from "@/hooks/useDatabaseContext";
 import { getCategory, saveCategory } from "@/services/categoryService";
 import { getInvestment, saveInvestment } from "@/services/investmentService";
@@ -32,6 +33,7 @@ const RelationFormScreen = ({
 	route,
 }: RelationFormScreenProps): React.JSX.Element => {
 	const { database, refreshData } = useDatabaseContext();
+	const dialog = useAppDialog();
 	const { kind, entityId } = route.params;
 	const [name, setName] = useState("");
 	const [currencyCode, setCurrencyCode] = useState(DEFAULT_CURRENCY_CODE);
@@ -112,18 +114,14 @@ const RelationFormScreen = ({
 			void processSave();
 			return;
 		}
-		Alert.alert(
-			"Change analysis classification?",
-			"This will reclassify the category across all historical analysis.",
-			[
-				{ text: "Cancel", style: "cancel" },
-				{
-					text: "Change",
-					style: "destructive",
-					onPress: () => void processSave(),
-				},
-			],
-		);
+		dialog.confirm({
+			title: "Change analysis classification?",
+			message:
+				"This will reclassify the category across all historical analysis.",
+			confirmLabel: "Change",
+			variant: "danger",
+			onConfirm: () => void processSave(),
+		});
 	};
 
 	const entityLabel = kind.charAt(0) + kind.slice(1).toLowerCase();

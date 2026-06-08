@@ -1,10 +1,20 @@
 import type { AnalysisPeriod } from "@/types/AnalysisPeriod";
 import type { DateRange } from "@/types/DateRange";
 
+const ALL_TIME_START = 0;
+const ALL_TIME_END = 8_640_000_000_000_000;
+const DAY_END_HOURS = 23;
+const DAY_END_MINUTES = 59;
+const DAY_END_SECONDS = 59;
+const DAY_END_MILLISECONDS = 999;
+
 const getAnalysisDateRange = (
 	period: AnalysisPeriod,
 	anchorDate: Date,
 ): DateRange => {
+	if (period === "ALL" || period === "CUSTOM") {
+		return { start: ALL_TIME_START, end: ALL_TIME_END };
+	}
 	const year = anchorDate.getFullYear();
 	const month = anchorDate.getMonth();
 	const start =
@@ -28,8 +38,24 @@ const shiftAnalysisAnchor = (
 		shiftedDate.setMonth(shiftedDate.getMonth() + direction);
 		return shiftedDate;
 	}
+	if (period !== "YEAR") {
+		return shiftedDate;
+	}
 	shiftedDate.setFullYear(shiftedDate.getFullYear() + direction);
 	return shiftedDate;
+};
+
+const getCustomDateRange = (startAt: number, endAt: number): DateRange => {
+	const startDate = new Date(Math.min(startAt, endAt));
+	startDate.setHours(0, 0, 0, 0);
+	const endDate = new Date(Math.max(startAt, endAt));
+	endDate.setHours(
+		DAY_END_HOURS,
+		DAY_END_MINUTES,
+		DAY_END_SECONDS,
+		DAY_END_MILLISECONDS,
+	);
+	return { start: startDate.getTime(), end: endDate.getTime() };
 };
 
 const formatDate = (timestamp: number): string =>
@@ -52,5 +78,6 @@ export {
 	formatDate,
 	formatDateTime,
 	getAnalysisDateRange,
+	getCustomDateRange,
 	shiftAnalysisAnchor,
 };

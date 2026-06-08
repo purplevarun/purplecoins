@@ -7,11 +7,17 @@ import { Pressable, StyleSheet, View } from "react-native";
 
 import { EmptyState } from "@/components/EmptyState";
 import { FloatingAddButton } from "@/components/FloatingAddButton";
+import { FolderFilterChips } from "@/components/FolderFilterChips";
 import { GlassCard } from "@/components/GlassCard";
 import { Notice } from "@/components/Notice";
 import { ListHeader, ScreenList } from "@/components/ScreenList";
 import { COLORS } from "@/constants/colors";
+import {
+	FOLDER_FILTER_ALL,
+	FOLDER_FILTER_NONE,
+} from "@/constants/folderConstants";
 import { useDatabaseContext } from "@/hooks/useDatabaseContext";
+import { useFolders } from "@/hooks/useFolders";
 import { getTodos, toggleTodo } from "@/services/todoService";
 import type { RootStackParamList } from "@/types/RootStackParamList";
 import type { Todo } from "@/types/Todo";
@@ -22,7 +28,9 @@ type TodosScreenProps = NativeStackScreenProps<RootStackParamList, "Todos">;
 
 const TodosScreen = ({ navigation }: TodosScreenProps): React.JSX.Element => {
 	const { database, dataVersion, refreshData } = useDatabaseContext();
+	const { folders } = useFolders("TODO");
 	const [todos, setTodos] = useState<readonly Todo[]>([]);
+	const [selectedFolderId, setSelectedFolderId] = useState(FOLDER_FILTER_ALL);
 	const [error, setError] = useState("");
 
 	const getScreenData = useCallback(async (): Promise<void> => {
@@ -122,13 +130,32 @@ const TodosScreen = ({ navigation }: TodosScreenProps): React.JSX.Element => {
 		[handleToggle, navigation],
 	);
 
+	const filteredTodos = useMemo(
+		() =>
+			todos.filter((todo) => {
+				if (selectedFolderId === FOLDER_FILTER_ALL) {
+					return true;
+				}
+				if (selectedFolderId === FOLDER_FILTER_NONE) {
+					return !todo.folderId;
+				}
+				return todo.folderId === selectedFolderId;
+			}),
+		[selectedFolderId, todos],
+	);
+
 	const listHeader = useMemo(
 		() => (
 			<ListHeader>
+				<FolderFilterChips
+					folders={folders}
+					onSelectFolder={setSelectedFolderId}
+					selectedFolderId={selectedFolderId}
+				/>
 				{error ? <Notice message={error} tone="danger" /> : null}
 			</ListHeader>
 		),
-		[error],
+		[error, folders, selectedFolderId],
 	);
 
 	const listEmpty = useMemo(
@@ -147,7 +174,7 @@ const TodosScreen = ({ navigation }: TodosScreenProps): React.JSX.Element => {
 			<ScreenList
 				ListEmptyComponent={listEmpty}
 				ListHeaderComponent={listHeader}
-				data={todos}
+				data={filteredTodos}
 				extraData={dataVersion}
 				keyExtractor={(todo) => todo.id}
 				renderItem={renderTodo}

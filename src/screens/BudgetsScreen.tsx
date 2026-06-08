@@ -2,7 +2,7 @@ import { CustomText } from "@/components/CustomText";
 import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useCallback, useMemo, useState } from "react";
-import { Alert, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 import { AppButton } from "@/components/AppButton";
 import { EmptyState } from "@/components/EmptyState";
@@ -12,6 +12,7 @@ import { Notice } from "@/components/Notice";
 import { ListHeader, ScreenList } from "@/components/ScreenList";
 import { DEFAULT_CURRENCY_CODE } from "@/constants/appConstants";
 import { COLORS } from "@/constants/colors";
+import { useAppDialog } from "@/hooks/useAppDialog";
 import { useDatabaseContext } from "@/hooks/useDatabaseContext";
 import { getAnalysisSummary } from "@/services/analysisService";
 import { deleteBudget, getBudgets } from "@/services/budgetService";
@@ -33,6 +34,7 @@ const BudgetsScreen = ({
 	navigation,
 }: BudgetsScreenProps): React.JSX.Element => {
 	const { database, dataVersion, refreshData } = useDatabaseContext();
+	const dialog = useAppDialog();
 	const [budgets, setBudgets] = useState<readonly Budget[]>([]);
 	const [monthlyAnalysis, setMonthlyAnalysis] =
 		useState<AnalysisSummary | null>(null);
@@ -98,29 +100,29 @@ const BudgetsScreen = ({
 
 	const handleDelete = useCallback(
 		(budget: Budget): void => {
-			Alert.alert("Delete budget?", budget.categoryName, [
-				{ text: "Cancel", style: "cancel" },
-				{
-					text: "Delete",
-					style: "destructive",
-					onPress: () => {
-						const processDelete = async (): Promise<void> => {
-							try {
-								await deleteBudget(database, budget.id);
-								refreshData();
-							} catch (caughtError: unknown) {
-								Alert.alert(
-									"Unable to delete",
-									getErrorMessage(caughtError),
-								);
-							}
-						};
-						void processDelete();
-					},
+			dialog.confirm({
+				title: "Delete budget?",
+				message: budget.categoryName,
+				confirmLabel: "Delete",
+				variant: "danger",
+				onConfirm: () => {
+					const processDelete = async (): Promise<void> => {
+						try {
+							await deleteBudget(database, budget.id);
+							refreshData();
+						} catch (caughtError: unknown) {
+							dialog.showMessage({
+								title: "Unable to delete",
+								message: getErrorMessage(caughtError),
+								variant: "danger",
+							});
+						}
+					};
+					void processDelete();
 				},
-			]);
+			});
 		},
-		[database, refreshData],
+		[database, dialog, refreshData],
 	);
 
 	const renderBudget = useCallback(

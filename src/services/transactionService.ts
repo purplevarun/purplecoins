@@ -9,6 +9,7 @@ import {
 	getTransactionRows,
 	updateTransactionRow,
 } from "@/repositories/financeRepository";
+import type { LinkedTransactionFilter } from "@/types/LinkedTransactionFilter";
 import type { Transaction } from "@/types/Transaction";
 import type { TransactionInput } from "@/types/TransactionInput";
 import { createId } from "@/utils/id";
@@ -24,6 +25,35 @@ const getTransactions = async (
 ): Promise<readonly Transaction[]> => {
 	const transactions = await getTransactionRows(database);
 	return transactions.map(mapTransaction);
+};
+
+const isLinkedTransaction = (
+	transaction: Transaction,
+	filter: LinkedTransactionFilter,
+): boolean => {
+	if (filter.kind === "SOURCE") {
+		return (
+			transaction.sourceId === filter.entityId ||
+			transaction.destinationSourceId === filter.entityId
+		);
+	}
+	if (filter.kind === "CATEGORY") {
+		return transaction.categoryId === filter.entityId;
+	}
+	if (filter.kind === "TRIP") {
+		return transaction.tripId === filter.entityId;
+	}
+	return transaction.investmentId === filter.entityId;
+};
+
+const getLinkedTransactions = async (
+	database: SQLiteDatabase,
+	filter: LinkedTransactionFilter,
+): Promise<readonly Transaction[]> => {
+	const transactions = await getTransactions(database);
+	return transactions.filter((transaction) =>
+		isLinkedTransaction(transaction, filter),
+	);
 };
 
 const getTransaction = async (
@@ -162,6 +192,7 @@ const getTransactionDisplayReason = (transaction: Transaction): string => {
 
 export {
 	deleteTransaction,
+	getLinkedTransactions,
 	getTransaction,
 	getTransactionDisplayReason,
 	getTransactions,

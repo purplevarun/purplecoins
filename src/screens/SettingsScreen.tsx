@@ -2,7 +2,7 @@ import { version } from "@/../package.json";
 import { CustomText } from "@/components/CustomText";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useEffect, useState } from "react";
-import { Alert, StyleSheet, Switch, View } from "react-native";
+import { StyleSheet, Switch, View } from "react-native";
 
 import { AppButton } from "@/components/AppButton";
 import { GlassCard } from "@/components/GlassCard";
@@ -10,6 +10,7 @@ import { Notice } from "@/components/Notice";
 import { ScreenContainer } from "@/components/ScreenContainer";
 import { APP_NAME } from "@/constants/appConstants";
 import { COLORS } from "@/constants/colors";
+import { useAppDialog } from "@/hooks/useAppDialog";
 import { useDatabaseContext } from "@/hooks/useDatabaseContext";
 import { exportBackup, restoreBackup } from "@/services/backupService";
 import {
@@ -26,6 +27,7 @@ type SettingsScreenProps = NativeStackScreenProps<
 
 const SettingsScreen = (_props: SettingsScreenProps): React.JSX.Element => {
 	const { database, refreshData } = useDatabaseContext();
+	const dialog = useAppDialog();
 	const [isNativeCurrency, setIsNativeCurrency] = useState(true);
 	const [isWorking, setIsWorking] = useState(false);
 	const [error, setError] = useState("");
@@ -59,37 +61,32 @@ const SettingsScreen = (_props: SettingsScreenProps): React.JSX.Element => {
 	};
 
 	const handleRestore = (): void => {
-		Alert.alert(
-			"Restore backup?",
-			"This replaces every record currently stored in Gringotts.",
-			[
-				{ text: "Cancel", style: "cancel" },
-				{
-					text: "Choose backup",
-					style: "destructive",
-					onPress: () => {
-						const processRestore = async (): Promise<void> => {
-							setIsWorking(true);
-							setError("");
-							setMessage("");
-							try {
-								const wasRestored =
-									await restoreBackup(database);
-								if (wasRestored) {
-									refreshData();
-									setMessage("Backup restored successfully.");
-								}
-							} catch (caughtError: unknown) {
-								setError(getErrorMessage(caughtError));
-							} finally {
-								setIsWorking(false);
-							}
-						};
-						void processRestore();
-					},
-				},
-			],
-		);
+		dialog.confirm({
+			title: "Restore backup?",
+			message:
+				"This replaces every record currently stored on this phone.",
+			confirmLabel: "Choose backup",
+			variant: "danger",
+			onConfirm: () => {
+				const processRestore = async (): Promise<void> => {
+					setIsWorking(true);
+					setError("");
+					setMessage("");
+					try {
+						const wasRestored = await restoreBackup(database);
+						if (wasRestored) {
+							refreshData();
+							setMessage("Backup restored successfully.");
+						}
+					} catch (caughtError: unknown) {
+						setError(getErrorMessage(caughtError));
+					} finally {
+						setIsWorking(false);
+					}
+				};
+				void processRestore();
+			},
+		});
 	};
 
 	return (
@@ -118,7 +115,7 @@ const SettingsScreen = (_props: SettingsScreenProps): React.JSX.Element => {
 							</CustomText>
 							<CustomText style={styles.switchDescription}>
 								On shows totals per source currency. Off
-								converts analysis and categories to INR.
+								converts category and investment totals to INR.
 							</CustomText>
 						</View>
 						<Switch
@@ -136,28 +133,25 @@ const SettingsScreen = (_props: SettingsScreenProps): React.JSX.Element => {
 						Backup and restore
 					</CustomText>
 					<CustomText style={styles.description}>
-						A .gringotts file is a plain, complete SQLite snapshot,
-						including attachments. Keep it somewhere private.
+						A .purplecoins file is a plain, complete SQLite
+						snapshot, including attachments. Keep it somewhere
+						private.
 					</CustomText>
 					<AppButton
 						icon="share-outline"
 						isLoading={isWorking}
-						label="Export .gringotts"
+						label="Export .purplecoins"
 						onPress={() => void handleExport()}
 					/>
 					<AppButton
 						icon="download-outline"
 						isDisabled={isWorking}
-						label="Restore .gringotts"
+						label="Restore .purplecoins"
 						onPress={handleRestore}
 						variant="secondary"
 					/>
 				</View>
 			</GlassCard>
-			<Notice
-				message="Supabase sync is intentionally excluded from Phase 1."
-				tone="info"
-			/>
 			{message ? <Notice message={message} /> : null}
 			{error ? <Notice message={error} tone="danger" /> : null}
 		</ScreenContainer>

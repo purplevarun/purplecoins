@@ -41,7 +41,7 @@ const exportBackup = async (database: SQLiteDatabase): Promise<void> => {
 	}
 	await Sharing.shareAsync(output.uri, {
 		mimeType: BACKUP_MIME_TYPE,
-		dialogTitle: "Export Gringotts backup",
+		dialogTitle: "Export Purplecoins backup",
 	});
 };
 
@@ -75,30 +75,17 @@ const restoreBackup = async (database: SQLiteDatabase): Promise<boolean> => {
 	if (tempFile.exists) tempFile.delete();
 	tempFile.create({ overwrite: true });
 	tempFile.write(await pickedFile.bytes());
-	console.log("[restore] 1. bytes written, size:", tempFile.size);
 
 	const tempDatabase = await openDatabaseAsync(TEMP_RESTORE_DB_NAME);
-	console.log("[restore] 2. temp DB opened");
-
-	const tempCount = await tempDatabase.getFirstAsync<{ count: number }>(
-		"SELECT COUNT(*) as count FROM transactions;",
-	);
-	console.log("[restore] 3. transactions in temp DB:", tempCount?.count);
 
 	try {
 		await backupDatabaseAsync({
 			sourceDatabase: tempDatabase,
 			destDatabase: database,
 		});
-		console.log("[restore] 4. backupDatabaseAsync done");
 
 		await database.execAsync(SCHEMA_SQL);
 		await database.execAsync("PRAGMA wal_checkpoint(TRUNCATE);");
-
-		const liveCount = await database.getFirstAsync<{ count: number }>(
-			"SELECT COUNT(*) as count FROM transactions;",
-		);
-		console.log("[restore] 5. transactions in live DB:", liveCount?.count);
 
 		return true;
 	} finally {

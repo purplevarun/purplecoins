@@ -1,10 +1,15 @@
 {
 	"expo": {
-		"name": "Gringotts",
-		"slug": "Gringotts",
-		"version": "1.1.0",
+		"name": "Purplecoins",
+		"slug": "purplecoins",
+		"version": "4.0.0",
 		"orientation": "portrait",
 		"icon": "./assets/icon.png",
+		"splash": {
+			"image": "./assets/splash.png",
+			"resizeMode": "contain",
+			"backgroundColor": "#080B14"
+		},
 		"userInterfaceStyle": "dark",
 		"ios": {
 			"supportsTablet": true
@@ -15,7 +20,7 @@
 				"backgroundColor": "#080B14"
 			},
 			"predictiveBackGestureEnabled": false,
-			"package": "com.purplevarun.Gringotts"
+			"package": "com.purple.coins"
 		},
 		"web": {
 			"favicon": "./assets/icon.png"
@@ -24,12 +29,8 @@
 			"expo-sqlite",
 			"expo-sharing",
 			"@react-native-community/datetimepicker",
-			"expo-font"
-		],
-		"extra": {
-			"eas": {
-				"projectId": "5b1c801d-8377-4a23-aaa6-e01edd9033bd"
-			}
-		}
+			"expo-font",
+			"expo-splash-screen"
+		]
 	}
 }

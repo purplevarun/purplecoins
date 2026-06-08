@@ -4,7 +4,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import * as Clipboard from "expo-clipboard";
 import { useCallback, useMemo, useState } from "react";
-import { Alert, Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 
 import { AppButton } from "@/components/AppButton";
 import { EmptyState } from "@/components/EmptyState";
@@ -14,6 +14,7 @@ import { Notice } from "@/components/Notice";
 import { ListHeader, ScreenList } from "@/components/ScreenList";
 import { TextField } from "@/components/TextField";
 import { COLORS } from "@/constants/colors";
+import { useAppDialog } from "@/hooks/useAppDialog";
 import { useDatabaseContext } from "@/hooks/useDatabaseContext";
 import { deleteCard, getCards } from "@/services/cardService";
 import { deleteIdentity, getIdentities } from "@/services/identityService";
@@ -37,6 +38,7 @@ const VaultScreen = ({
 	route,
 }: VaultScreenProps): React.JSX.Element => {
 	const { database, dataVersion, refreshData } = useDatabaseContext();
+	const dialog = useAppDialog();
 	const { kind } = route.params;
 	const [passwords, setPasswords] = useState<readonly PasswordEntry[]>([]);
 	const [cards, setCards] = useState<readonly CardEntry[]>([]);
@@ -77,32 +79,31 @@ const VaultScreen = ({
 
 	const handleDelete = useCallback(
 		(id: string, label: string, vaultKind: VaultKind): void => {
-			Alert.alert(`Delete ${label}?`, "This action cannot be undone.", [
-				{ text: "Cancel", style: "cancel" },
-				{
-					text: "Delete",
-					style: "destructive",
-					onPress: () => {
-						const processDelete = async (): Promise<void> => {
-							try {
-								if (vaultKind === "PASSWORD") {
-									await deletePassword(database, id);
-								} else if (vaultKind === "CARD") {
-									await deleteCard(database, id);
-								} else {
-									await deleteIdentity(database, id);
-								}
-								refreshData();
-							} catch (caughtError: unknown) {
-								setError(getErrorMessage(caughtError));
+			dialog.confirm({
+				title: `Delete ${label}?`,
+				message: "This action cannot be undone.",
+				confirmLabel: "Delete",
+				variant: "danger",
+				onConfirm: () => {
+					const processDelete = async (): Promise<void> => {
+						try {
+							if (vaultKind === "PASSWORD") {
+								await deletePassword(database, id);
+							} else if (vaultKind === "CARD") {
+								await deleteCard(database, id);
+							} else {
+								await deleteIdentity(database, id);
 							}
-						};
-						void processDelete();
-					},
+							refreshData();
+						} catch (caughtError: unknown) {
+							setError(getErrorMessage(caughtError));
+						}
+					};
+					void processDelete();
 				},
-			]);
+			});
 		},
-		[database, refreshData],
+		[database, dialog, refreshData],
 	);
 
 	const normalizedSearch = search.trim().toLowerCase();
@@ -321,7 +322,7 @@ const VaultScreen = ({
 		() => (
 			<ListHeader>
 				<Notice
-					message="Vault data is stored locally in the Gringotts SQLite database. Phase 1 does not encrypt these fields."
+					message="Vault data is stored locally on this phone. These fields are not encrypted."
 					tone="warning"
 				/>
 				<TextField

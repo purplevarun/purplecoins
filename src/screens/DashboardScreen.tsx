@@ -6,6 +6,7 @@ import { Pressable, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { GlassCard } from "@/components/GlassCard";
+import { HeaderIconButton } from "@/components/HeaderIconButton";
 import { ScreenContainer } from "@/components/ScreenContainer";
 import { SectionHeading } from "@/components/SectionHeading";
 import { APP_NAME } from "@/constants/appConstants";
@@ -191,16 +192,20 @@ const DashboardScreen = ({
 								Every coin accounted for.
 							</CustomText>
 						</View>
-						<Pressable
-							onPress={() => navigation.navigate("Settings")}
-							style={styles.settingsButton}
-						>
-							<Ionicons
-								color={COLORS.text}
-								name="settings-outline"
-								size={23}
+						<View style={styles.headerActions}>
+							<HeaderIconButton
+								accessibilityLabel="Global search"
+								icon="search-outline"
+								onPress={() =>
+									navigation.navigate("GlobalSearch")
+								}
 							/>
-						</Pressable>
+							<HeaderIconButton
+								accessibilityLabel="Settings"
+								icon="settings-outline"
+								onPress={() => navigation.navigate("Settings")}
+							/>
+						</View>
 					</View>
 					<SectionHeading
 						subtitle="Transactions, balances, planning and insight."
@@ -255,15 +260,9 @@ const styles = StyleSheet.create({
 		fontSize: 14,
 		marginTop: 2,
 	},
-	settingsButton: {
-		width: 48,
-		height: 48,
-		borderRadius: 17,
-		alignItems: "center",
-		justifyContent: "center",
-		backgroundColor: "rgba(255,255,255,0.06)",
-		borderWidth: 1,
-		borderColor: COLORS.border,
+	headerActions: {
+		flexDirection: "row",
+		gap: 8,
 	},
 	grid: {
 		flexDirection: "row",

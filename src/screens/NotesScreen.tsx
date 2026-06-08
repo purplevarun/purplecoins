@@ -7,12 +7,18 @@ import { Pressable, StyleSheet, View } from "react-native";
 
 import { EmptyState } from "@/components/EmptyState";
 import { FloatingAddButton } from "@/components/FloatingAddButton";
+import { FolderFilterChips } from "@/components/FolderFilterChips";
 import { GlassCard } from "@/components/GlassCard";
 import { Notice } from "@/components/Notice";
 import { ListHeader, ScreenList } from "@/components/ScreenList";
 import { TextField } from "@/components/TextField";
 import { COLORS } from "@/constants/colors";
+import {
+	FOLDER_FILTER_ALL,
+	FOLDER_FILTER_NONE,
+} from "@/constants/folderConstants";
 import { useDatabaseContext } from "@/hooks/useDatabaseContext";
+import { useFolders } from "@/hooks/useFolders";
 import { getNotes } from "@/services/noteService";
 import type { Note } from "@/types/Note";
 import type { RootStackParamList } from "@/types/RootStackParamList";
@@ -23,7 +29,9 @@ type NotesScreenProps = NativeStackScreenProps<RootStackParamList, "Notes">;
 
 const NotesScreen = ({ navigation }: NotesScreenProps): React.JSX.Element => {
 	const { database, dataVersion } = useDatabaseContext();
+	const { folders } = useFolders("NOTE");
 	const [notes, setNotes] = useState<readonly Note[]>([]);
+	const [selectedFolderId, setSelectedFolderId] = useState(FOLDER_FILTER_ALL);
 	const [search, setSearch] = useState("");
 	const [error, setError] = useState("");
 
@@ -46,12 +54,20 @@ const NotesScreen = ({ navigation }: NotesScreenProps): React.JSX.Element => {
 	const normalizedSearch = search.trim().toLowerCase();
 	const filteredNotes = useMemo(
 		() =>
-			notes.filter((note) =>
-				`${note.title} ${note.content} ${note.folderName ?? ""}`
+			notes.filter((note) => {
+				const matchesFolder =
+					selectedFolderId === FOLDER_FILTER_ALL ||
+					(selectedFolderId === FOLDER_FILTER_NONE &&
+						!note.folderId) ||
+					note.folderId === selectedFolderId;
+				if (!matchesFolder) {
+					return false;
+				}
+				return `${note.title} ${note.content} ${note.folderName ?? ""}`
 					.toLowerCase()
-					.includes(normalizedSearch),
-			),
-		[normalizedSearch, notes],
+					.includes(normalizedSearch);
+			}),
+		[normalizedSearch, notes, selectedFolderId],
 	);
 
 	const renderNote = useCallback(
@@ -96,6 +112,11 @@ const NotesScreen = ({ navigation }: NotesScreenProps): React.JSX.Element => {
 	const listHeader = useMemo(
 		() => (
 			<ListHeader>
+				<FolderFilterChips
+					folders={folders}
+					onSelectFolder={setSelectedFolderId}
+					selectedFolderId={selectedFolderId}
+				/>
 				<TextField
 					label="Search"
 					onChangeText={setSearch}
@@ -105,7 +126,7 @@ const NotesScreen = ({ navigation }: NotesScreenProps): React.JSX.Element => {
 				{error ? <Notice message={error} tone="danger" /> : null}
 			</ListHeader>
 		),
-		[error, search],
+		[error, folders, search, selectedFolderId],
 	);
 
 	const listEmpty = useMemo(

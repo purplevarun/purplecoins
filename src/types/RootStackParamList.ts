@@ -7,10 +7,16 @@ type RootStackParamList = {
 	TransactionForm: { transactionId?: string } | undefined;
 	Relations: { kind: RelationKind };
 	RelationForm: { kind: RelationKind; entityId?: string };
+	LinkedTransactions: {
+		kind: RelationKind;
+		entityId: string;
+		entityName: string;
+	};
 	Budgets: undefined;
 	BudgetForm: { budgetId?: string } | undefined;
 	Analysis: undefined;
 	ExchangeRates: undefined;
+	GlobalSearch: undefined;
 	Notes: undefined;
 	NoteForm: { noteId?: string } | undefined;
 	Todos: undefined;

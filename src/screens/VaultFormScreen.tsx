@@ -1,7 +1,7 @@
 import { CustomText } from "@/components/CustomText";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useEffect, useState } from "react";
-import { Alert, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 import { AppButton } from "@/components/AppButton";
 import { AttachmentField } from "@/components/AttachmentField";
@@ -10,6 +10,7 @@ import { Notice } from "@/components/Notice";
 import { ScreenContainer } from "@/components/ScreenContainer";
 import { TextField } from "@/components/TextField";
 import { COLORS } from "@/constants/colors";
+import { useAppDialog } from "@/hooks/useAppDialog";
 import { useAttachment } from "@/hooks/useAttachment";
 import { useDatabaseContext } from "@/hooks/useDatabaseContext";
 import { deleteCard, getCard, saveCard } from "@/services/cardService";
@@ -37,6 +38,7 @@ const VaultFormScreen = ({
 }: VaultFormScreenProps): React.JSX.Element => {
 	const { kind, entryId } = route.params;
 	const { database, refreshData } = useDatabaseContext();
+	const dialog = useAppDialog();
 	const attachmentOwnerType = kind === "CARD" ? "CARD" : "IDENTITY";
 	const attachment = useAttachment(attachmentOwnerType, entryId);
 	const [title, setTitle] = useState("");
@@ -144,13 +146,14 @@ const VaultFormScreen = ({
 		if (!entryId) {
 			return;
 		}
-		Alert.alert("Delete vault entry?", "This action cannot be undone.", [
-			{ text: "Cancel", style: "cancel" },
-			{
-				text: "Delete",
-				style: "destructive",
-				onPress: () => {
-					const processDelete = async (): Promise<void> => {
+		dialog.confirm({
+			title: "Delete vault entry?",
+			message: "This action cannot be undone.",
+			confirmLabel: "Delete",
+			variant: "danger",
+			onConfirm: () => {
+				const processDelete = async (): Promise<void> => {
+					try {
 						if (kind === "PASSWORD") {
 							await deletePassword(database, entryId);
 						} else if (kind === "CARD") {
@@ -160,11 +163,13 @@ const VaultFormScreen = ({
 						}
 						refreshData();
 						navigation.goBack();
-					};
-					void processDelete();
-				},
+					} catch (caughtError: unknown) {
+						setError(getErrorMessage(caughtError));
+					}
+				};
+				void processDelete();
 			},
-		]);
+		});
 	};
 
 	return (

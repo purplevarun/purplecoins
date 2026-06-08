@@ -1,7 +1,7 @@
 import { CustomText } from "@/components/CustomText";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useEffect, useState } from "react";
-import { Alert, StyleSheet, Switch, View } from "react-native";
+import { StyleSheet, Switch, View } from "react-native";
 
 import { AppButton } from "@/components/AppButton";
 import { AttachmentField } from "@/components/AttachmentField";
@@ -12,6 +12,7 @@ import { Notice } from "@/components/Notice";
 import { ScreenContainer } from "@/components/ScreenContainer";
 import { TextField } from "@/components/TextField";
 import { COLORS } from "@/constants/colors";
+import { useAppDialog } from "@/hooks/useAppDialog";
 import { useAttachment } from "@/hooks/useAttachment";
 import { useDatabaseContext } from "@/hooks/useDatabaseContext";
 import { useFolders } from "@/hooks/useFolders";
@@ -30,6 +31,7 @@ const TodoFormScreen = ({
 }: TodoFormScreenProps): React.JSX.Element => {
 	const todoId = route.params?.todoId;
 	const { database, refreshData } = useDatabaseContext();
+	const dialog = useAppDialog();
 	const { folders, handleCreateFolder } = useFolders("TODO");
 	const attachment = useAttachment("TODO", todoId);
 	const [title, setTitle] = useState("");
@@ -89,21 +91,24 @@ const TodoFormScreen = ({
 		if (!todoId) {
 			return;
 		}
-		Alert.alert("Delete todo?", "This action cannot be undone.", [
-			{ text: "Cancel", style: "cancel" },
-			{
-				text: "Delete",
-				style: "destructive",
-				onPress: () => {
-					const processDelete = async (): Promise<void> => {
+		dialog.confirm({
+			title: "Delete todo?",
+			message: "This action cannot be undone.",
+			confirmLabel: "Delete",
+			variant: "danger",
+			onConfirm: () => {
+				const processDelete = async (): Promise<void> => {
+					try {
 						await deleteTodo(database, todoId);
 						refreshData();
 						navigation.goBack();
-					};
-					void processDelete();
-				},
+					} catch (caughtError: unknown) {
+						setError(getErrorMessage(caughtError));
+					}
+				};
+				void processDelete();
 			},
-		]);
+		});
 	};
 
 	return (

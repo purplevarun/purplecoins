@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "gringotts",
+      "name": "purplecoins",
       "dependencies": {
         "@expo/vector-icons": "^15.0.2",
         "@react-native-community/datetimepicker": "9.1.0",
@@ -20,6 +20,7 @@
         "expo-font": "~56.0.5",
         "expo-linear-gradient": "~56.0.4",
         "expo-sharing": "~56.0.16",
+        "expo-splash-screen": "~56.0.10",
         "expo-sqlite": "~56.0.4",
         "expo-status-bar": "~56.0.4",
         "expo-system-ui": "^56.0.5",
@@ -821,6 +822,8 @@
     "expo-server": ["expo-server@56.0.5", "", {}, "sha512-SmM2p2g3Jrktpiazcst+OxhjSzOHXKAY4BPURHYHXvApzzoybMmrNF4IEZ8DKZ145BhSe4ydAmlEFCRTsdtgUQ=="],
 
     "expo-sharing": ["expo-sharing@56.0.16", "", { "dependencies": { "@expo/config-plugins": "^56.0.8", "@expo/config-types": "^56.0.5", "@expo/plist": "^0.7.0" }, "peerDependencies": { "expo": "*", "react": "*", "react-native": "*" } }, "sha512-tp29hiWunLkjIToDqiiJQo4Nfo//92DAg/pcRWENLlnTXy/qg58uxy1O5K6xVZ7sVZIJqwEDLzDedw3PlDmWmg=="],
+
+    "expo-splash-screen": ["expo-splash-screen@56.0.10", "", { "dependencies": { "@expo/config-plugins": "~56.0.8", "@expo/image-utils": "^0.10.1", "xml2js": "0.6.0" }, "peerDependencies": { "expo": "*" } }, "sha512-vDIlo8hzt9HlCZQ0kSY66v83D1WEXOJbVMeyPDfXDu9tbDdPMNUyDpi4WGJXikAjxnAKfbt5Mv5NnEbxINy+VA=="],
 
     "expo-sqlite": ["expo-sqlite@56.0.4", "", { "dependencies": { "await-lock": "^2.2.2" }, "peerDependencies": { "expo": "*", "react": "*", "react-native": "*" } }, "sha512-Ak8TUyrvK7C/J4BHBfcb8BacFrH8I+b+zqeSTKg5B02Z13lxljvuqI8UvKbRNa5BKprlxrqabZickGwacRkM9g=="],
 

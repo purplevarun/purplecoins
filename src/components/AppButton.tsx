@@ -9,13 +9,14 @@ import {
 } from "react-native";
 
 import { COLORS } from "@/constants/colors";
+import type { ButtonVariant } from "@/types/ButtonVariant";
 
 type IconName = ComponentProps<typeof Ionicons>["name"];
 
 type AppButtonProps = Readonly<{
 	label: string;
 	onPress: () => void;
-	variant?: "primary" | "secondary" | "danger" | "success";
+	variant?: ButtonVariant;
 	icon?: IconName;
 	isDisabled?: boolean;
 	isLoading?: boolean;

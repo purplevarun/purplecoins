@@ -1,23 +1,21 @@
-# Gringotts
+# Purplecoins
 
-Gringotts is a local-first Expo Android application for finance, utilities,
-and private vault records. Phase 1 has no account, user, guest, login, or cloud
-dependency. SQLite is the source of truth.
+Purplecoins is a local-first Expo Android application for finance, utilities,
+and private vault records. SQLite is the source of truth.
 
-## Phase 1
+## Highlights
 
 - General debit, credit, and transfer transactions
 - Investment debit and credit transactions
 - Exact decimal amounts stored as canonical decimal strings
 - Cross-currency transfers with independent `amount` and `to_amount`
 - Sources, categories, trips, investments, and calendar budgets
-- Category-driven monthly and yearly analysis
-- Native-currency and converted-INR reporting modes
-- Persisted manual and API-fetched exchange rates
+- Category-driven analysis with month, year, all-time, and custom periods
+- INR analysis backed by persisted manual and API-fetched exchange rates
 - Source validation based on the latest linked transaction timestamp
 - Notes, todos, folders, passwords, cards, and identity records
 - One SQLite-backed attachment per supported record, limited to 2 MB
-- Plain `.gringotts` SQLite backup export and restore
+- Plain `.purplecoins` SQLite backup export and restore
 
 ## Finance Rules
 
@@ -69,10 +67,9 @@ Expo dependency compatibility.
 ## Backups
 
 Settings can export the live database as
-`gringotts-YYYY-MM-DD.gringotts`. The file is a complete SQLite snapshot,
-including attachment BLOBs. Restore validates SQLite integrity and schema
-version before replacing local data.
+`purplecoins-YYYY-MM-DD.purplecoins`. The file is a complete SQLite snapshot,
+including attachment BLOBs. Restore checks the picked file before replacing
+local data.
 
-The PurpleCoins v2 migration is intentionally separate from Phase 1. Its
-converter can target the documented Gringotts schema without changing the app's
-runtime data model.
+The PurpleCoins v2 migration can target the documented Purplecoins schema
+without changing the app's runtime data model.

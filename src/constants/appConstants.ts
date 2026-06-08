@@ -1,6 +1,6 @@
-const APP_NAME = "Gringotts";
-const DATABASE_NAME = "gringotts.db";
-const BACKUP_EXTENSION = ".gringotts";
+const APP_NAME = "Purplecoins";
+const DATABASE_NAME = "purplecoins.db";
+const BACKUP_EXTENSION = ".purplecoins";
 const BACKUP_MIME_TYPE = "application/x-sqlite3";
 const ATTACHMENT_MAX_BYTES = 2 * 1024 * 1024;
 const DEFAULT_CURRENCY_CODE = "INR";
