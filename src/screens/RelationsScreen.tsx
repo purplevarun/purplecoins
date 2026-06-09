@@ -149,10 +149,6 @@ const RelationsScreen = ({
 	}, [database, getScreenData, isNativeCurrency]);
 
 	useLayoutEffect(() => {
-		if (kind !== "CATEGORY" && kind !== "INVESTMENT") {
-			navigation.setOptions({ headerRight: undefined });
-			return;
-		}
 		navigation.setOptions({
 			headerRight: () => (
 				<HeaderIconButton
@@ -350,6 +346,29 @@ const RelationsScreen = ({
 											source.currencyCode,
 										)}
 									</CustomText>
+									{isNativeCurrency &&
+									source.currencyCode !== "INR"
+										? (() => {
+												const inrVal = toInr(
+													source.balance,
+													source.currencyCode,
+												);
+												if (inrVal.isZero())
+													return null;
+												return (
+													<CustomText
+														style={
+															styles.convertedAmount
+														}
+													>
+														{formatMoney(
+															inrVal.toFixed(),
+															"INR",
+														)}
+													</CustomText>
+												);
+											})()
+										: null}
 								</View>
 							</View>
 							<View style={styles.actions}>
@@ -519,6 +538,37 @@ const RelationsScreen = ({
 										</CustomText>
 									)
 								) : null}
+								{item.kind === "TRIP" &&
+								isNativeCurrency &&
+								totals.some((t) => t.currencyCode !== "INR")
+									? (() => {
+											const inrTotal = totals.reduce(
+												(sum, t) =>
+													sum.plus(
+														toInr(
+															t.total,
+															t.currencyCode,
+														),
+													),
+												new Decimal(0),
+											);
+											return (
+												<CustomText
+													style={
+														styles.convertedAmount
+													}
+												>
+													≈{" "}
+													{formatMoney(
+														inrTotal
+															.abs()
+															.toFixed(),
+														"INR",
+													)}
+												</CustomText>
+											);
+										})()
+									: null}
 								{investmentTotals.map((total) => (
 									<View
 										key={total.currencyCode}
@@ -663,6 +713,11 @@ const styles = StyleSheet.create({
 		fontSize: 15,
 		fontWeight: "900",
 		marginTop: 3,
+	},
+	convertedAmount: {
+		color: COLORS.textMuted,
+		fontSize: 12,
+		fontWeight: "700",
 	},
 	validatedBadge: {
 		flexDirection: "row",
