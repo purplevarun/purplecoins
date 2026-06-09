@@ -1,8 +1,14 @@
 import { CustomText } from "@/components/CustomText";
 import { Ionicons } from "@expo/vector-icons";
-import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { useCallback, useLayoutEffect, useMemo, useState } from "react";
+import Decimal from "decimal.js";
+import {
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useState,
+} from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
 import { AppButton } from "@/components/AppButton";
@@ -21,6 +27,7 @@ import {
 	getInvestmentNetLabel,
 } from "@/services/analysisService";
 import { getCategories } from "@/services/categoryService";
+import { getExchangeRates } from "@/services/exchangeRateService";
 import { getInvestments } from "@/services/investmentService";
 import {
 	getNativeCurrencyDisplay,
@@ -31,6 +38,7 @@ import { getTrips } from "@/services/tripService";
 import { getTripTotals } from "@/services/tripTotalService";
 import type { AnalysisSummary } from "@/types/AnalysisSummary";
 import type { Category } from "@/types/Category";
+import type { ExchangeRate } from "@/types/ExchangeRate";
 import type { Investment } from "@/types/Investment";
 import type { RootStackParamList } from "@/types/RootStackParamList";
 import type { Source } from "@/types/Source";
@@ -68,13 +76,20 @@ const RelationsScreen = ({
 	const [investments, setInvestments] = useState<readonly Investment[]>([]);
 	const [analysis, setAnalysis] = useState<AnalysisSummary | null>(null);
 	const [isNativeCurrency, setIsNativeCurrency] = useState(true);
+	const [exchangeRates, setExchangeRates] = useState<readonly ExchangeRate[]>(
+		[],
+	);
 	const [error, setError] = useState("");
 
 	const getScreenData = useCallback(async (): Promise<void> => {
 		try {
 			setError("");
-			const nativeCurrency = await getNativeCurrencyDisplay(database);
+			const [nativeCurrency, loadedRates] = await Promise.all([
+				getNativeCurrencyDisplay(database),
+				getExchangeRates(database),
+			]);
 			setIsNativeCurrency(nativeCurrency);
+			setExchangeRates(loadedRates);
 			if (kind === "SOURCE") {
 				setAnalysis(null);
 				setTripTotals([]);
@@ -122,12 +137,9 @@ const RelationsScreen = ({
 		}
 	}, [database, kind]);
 
-	useFocusEffect(
-		useCallback(() => {
-			void dataVersion;
-			void getScreenData();
-		}, [dataVersion, getScreenData]),
-	);
+	useEffect(() => {
+		void getScreenData();
+	}, [dataVersion, getScreenData]);
 
 	const handleToggleCurrency = useCallback(async (): Promise<void> => {
 		const nextValue = !isNativeCurrency;
@@ -173,27 +185,113 @@ const RelationsScreen = ({
 		[database, dialog, refreshData],
 	);
 
+	const rateMap = useMemo((): Map<string, Decimal> => {
+		const map = new Map<string, Decimal>();
+		for (const rate of exchangeRates) {
+			map.set(rate.currencyCode, new Decimal(rate.rateToInr));
+		}
+		// INR to INR is always 1
+		map.set("INR", new Decimal(1));
+		return map;
+	}, [exchangeRates]);
+
+	const toInr = useCallback(
+		(amount: string, currencyCode: string): Decimal => {
+			const rate = rateMap.get(currencyCode);
+			if (!rate) {
+				// No rate: only count if already INR, else treat as 0
+				return currencyCode === "INR"
+					? new Decimal(amount)
+					: new Decimal(0);
+			}
+			return new Decimal(amount).times(rate);
+		},
+		[rateMap],
+	);
+
 	const listData = useMemo((): readonly RelationListItem[] => {
 		if (kind === "SOURCE") {
-			return sources.map((entity) => ({
-				kind: "SOURCE" as const,
-				entity,
-			}));
+			return [...sources]
+				.map((entity) => ({ kind: "SOURCE" as const, entity }))
+				.sort((a, b) =>
+					toInr(a.entity.balance, a.entity.currencyCode).comparedTo(
+						toInr(b.entity.balance, b.entity.currencyCode),
+					),
+				);
 		}
 		if (kind === "CATEGORY") {
-			return categories.map((entity) => ({
-				kind: "CATEGORY" as const,
-				entity,
-			}));
+			return [...categories]
+				.map((entity) => ({ kind: "CATEGORY" as const, entity }))
+				.sort((a, b) => {
+					const netA = (analysis?.categories ?? [])
+						.filter((row) => row.categoryId === a.entity.id)
+						.reduce(
+							(sum, row) =>
+								sum.plus(toInr(row.net, row.currencyCode)),
+							new Decimal(0),
+						);
+					const netB = (analysis?.categories ?? [])
+						.filter((row) => row.categoryId === b.entity.id)
+						.reduce(
+							(sum, row) =>
+								sum.plus(toInr(row.net, row.currencyCode)),
+							new Decimal(0),
+						);
+					return netA.comparedTo(netB);
+				});
 		}
 		if (kind === "TRIP") {
-			return trips.map((entity) => ({ kind: "TRIP" as const, entity }));
+			return [...trips]
+				.map((entity) => ({ kind: "TRIP" as const, entity }))
+				.sort((a, b) => {
+					const totalA = tripTotals
+						.filter((row) => row.tripId === a.entity.id)
+						.reduce(
+							(sum, row) =>
+								sum.plus(toInr(row.total, row.currencyCode)),
+							new Decimal(0),
+						);
+					const totalB = tripTotals
+						.filter((row) => row.tripId === b.entity.id)
+						.reduce(
+							(sum, row) =>
+								sum.plus(toInr(row.total, row.currencyCode)),
+							new Decimal(0),
+						);
+					// Trip totals are positive = spent; sort most spent first (descending)
+					return totalB.comparedTo(totalA);
+				});
 		}
-		return investments.map((entity) => ({
-			kind: "INVESTMENT" as const,
-			entity,
-		}));
-	}, [categories, investments, kind, sources, trips]);
+		return [...investments]
+			.map((entity) => ({ kind: "INVESTMENT" as const, entity }))
+			.sort((a, b) => {
+				const netA = (analysis?.investments ?? [])
+					.filter((row) => row.investmentId === a.entity.id)
+					.reduce(
+						(sum, row) =>
+							sum.plus(toInr(row.net, row.currencyCode)),
+						new Decimal(0),
+					);
+				const netB = (analysis?.investments ?? [])
+					.filter((row) => row.investmentId === b.entity.id)
+					.reduce(
+						(sum, row) =>
+							sum.plus(toInr(row.net, row.currencyCode)),
+						new Decimal(0),
+					);
+				// net = invested - redeemed; most invested (most positive net) first
+				return netB.comparedTo(netA);
+			});
+	}, [
+		analysis,
+		categories,
+		investments,
+		kind,
+		sources,
+		toInr,
+		tripTotals,
+		trips,
+	]);
 
 	const renderRelationItem = useCallback(
 		({ item }: { item: RelationListItem }): React.JSX.Element => {

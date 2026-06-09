@@ -1,7 +1,6 @@
 import { CustomText } from "@/components/CustomText";
-import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 
 import { AppButton } from "@/components/AppButton";
@@ -66,12 +65,9 @@ const BudgetsScreen = ({
 		}
 	}, [database]);
 
-	useFocusEffect(
-		useCallback(() => {
-			void dataVersion;
-			void getScreenData();
-		}, [dataVersion, getScreenData]),
-	);
+	useEffect(() => {
+		void getScreenData();
+	}, [dataVersion, getScreenData]);
 
 	const getSpent = useCallback(
 		(budget: Budget): string => {

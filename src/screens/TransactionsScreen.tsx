@@ -1,6 +1,5 @@
-import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 
 import { EmptyState } from "@/components/EmptyState";
@@ -47,12 +46,9 @@ const TransactionsScreen = ({
 		}
 	}, [database]);
 
-	useFocusEffect(
-		useCallback(() => {
-			void dataVersion;
-			void getScreenData();
-		}, [dataVersion, getScreenData]),
-	);
+	useEffect(() => {
+		void getScreenData();
+	}, [dataVersion, getScreenData]);
 
 	const filteredTransactions = useMemo(
 		() =>
