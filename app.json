@@ -26,6 +26,11 @@
 			"@react-native-community/datetimepicker",
 			"expo-font",
 			"expo-splash-screen"
-		]
+		],
+		"extra": {
+			"eas": {
+				"projectId": "995e42c6-ec42-4b63-94fc-8216ec91ba14"
+			}
+		}
 	}
 }
