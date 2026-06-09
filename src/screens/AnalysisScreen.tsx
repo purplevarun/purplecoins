@@ -262,7 +262,14 @@ const AnalysisScreen = ({
 	];
 
 	const renderMetric = (metric: SummaryMetricInput): React.JSX.Element => (
-		<View key={metric.label} style={styles.summaryTile}>
+		<View
+			key={metric.label}
+			style={[
+				styles.summaryTile,
+				metric.label === "Net after investments" &&
+					styles.summaryTileFull,
+			]}
+		>
 			<GlassCard accent={metric.accent}>
 				<CustomText style={styles.summaryLabel}>
 					{metric.label}
@@ -569,10 +576,14 @@ const styles = StyleSheet.create({
 	summaryGrid: {
 		flexDirection: "row",
 		flexWrap: "wrap",
-		gap: 10,
+		justifyContent: "space-between",
+		rowGap: 10,
 	},
 	summaryTile: {
 		width: "48.5%",
+	},
+	summaryTileFull: {
+		width: "100%",
 	},
 	summaryLabel: {
 		color: COLORS.textMuted,
@@ -582,7 +593,7 @@ const styles = StyleSheet.create({
 		letterSpacing: 0.7,
 	},
 	summaryValue: {
-		fontSize: 18,
+		fontSize: 14,
 		fontWeight: "900",
 		marginTop: 5,
 	},

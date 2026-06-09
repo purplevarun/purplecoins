@@ -59,6 +59,7 @@ const TransactionFormScreen = ({
 	route,
 }: TransactionFormScreenProps): React.JSX.Element => {
 	const transactionId = route.params?.transactionId;
+	const cloneFromTransactionId = route.params?.cloneFromTransactionId;
 	const { database, refreshData } = useDatabaseContext();
 	const dialog = useAppDialog();
 	const attachment = useAttachment("TRANSACTION", transactionId);
@@ -84,6 +85,7 @@ const TransactionFormScreen = ({
 	useEffect(() => {
 		const getFormData = async (): Promise<void> => {
 			try {
+				const sourceId = transactionId ?? cloneFromTransactionId;
 				const [
 					loadedSources,
 					loadedCategories,
@@ -95,8 +97,8 @@ const TransactionFormScreen = ({
 					getCategories(database),
 					getTrips(database),
 					getInvestments(database),
-					transactionId
-						? getTransaction(database, transactionId)
+					sourceId
+						? getTransaction(database, sourceId)
 						: Promise.resolve(null),
 				]);
 				setSources(loadedSources);
@@ -118,13 +120,16 @@ const TransactionFormScreen = ({
 				setTripId(existingTransaction.tripId ?? "");
 				setInvestmentId(existingTransaction.investmentId ?? "");
 				setReason(existingTransaction.reason);
-				setTransactionAt(existingTransaction.transactionAt);
+				// For clone mode: use today's date, not the original date
+				if (!cloneFromTransactionId) {
+					setTransactionAt(existingTransaction.transactionAt);
+				}
 			} catch (caughtError: unknown) {
 				setError(getErrorMessage(caughtError));
 			}
 		};
 		void getFormData();
-	}, [database, transactionId]);
+	}, [database, transactionId, cloneFromTransactionId]);
 
 	const selectedSource = sources.find((source) => source.id === sourceId);
 	const selectedDestination = sources.find(
@@ -252,7 +257,11 @@ const TransactionFormScreen = ({
 			<GlassCard>
 				<View style={styles.form}>
 					<CustomText style={styles.heading}>
-						{transactionId ? "Edit transaction" : "New transaction"}
+						{transactionId
+							? "Edit transaction"
+							: cloneFromTransactionId
+								? "Clone transaction"
+								: "New transaction"}
 					</CustomText>
 					<SegmentedControl
 						onChange={handleClassificationChange}

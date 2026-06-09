@@ -88,6 +88,8 @@ const GlobalSearchScreen = ({
 						)} · ${formatDate(transaction.transactionAt)}`,
 						icon: "swap-horizontal",
 						color: COLORS.primary,
+						// Extra searchable text: raw amount (no commas) + formatted amount
+						searchExtra: `${transaction.amount} ${formatMoney(transaction.amount, transaction.sourceCurrencyCode).replace(/,/g, "")} ${transaction.categoryName ?? ""} ${transaction.tripName ?? ""} ${transaction.investmentName ?? ""} ${transaction.destinationSourceName ?? ""}`,
 					}),
 				),
 				...sources.map(
@@ -202,7 +204,7 @@ const GlobalSearchScreen = ({
 			return [];
 		}
 		return results.filter((result) =>
-			`${result.title} ${result.subtitle} ${getKindLabel(result.kind)}`
+			`${result.title} ${result.subtitle} ${getKindLabel(result.kind)} ${result.searchExtra ?? ""}`
 				.toLowerCase()
 				.includes(normalizedSearch),
 		);
@@ -252,7 +254,7 @@ const GlobalSearchScreen = ({
 					autoCapitalize="none"
 					label="Global search"
 					onChangeText={setSearch}
-					placeholder="Search transactions, tools and vault"
+					placeholder="Search Everywhere"
 					value={search}
 				/>
 				{error ? <Notice message={error} tone="danger" /> : null}

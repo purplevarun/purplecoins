@@ -12,6 +12,7 @@ import { formatMoney } from "@/utils/money";
 type TransactionCardProps = Readonly<{
 	transaction: Transaction;
 	onPress: () => void;
+	onLongPress?: () => void;
 }>;
 
 const getTransactionColor = (transaction: Transaction): string => {
@@ -39,11 +40,12 @@ const getTransactionIcon = (
 const TransactionCard = ({
 	transaction,
 	onPress,
+	onLongPress,
 }: TransactionCardProps): React.JSX.Element => {
 	const color = getTransactionColor(transaction);
 
 	return (
-		<Pressable onPress={onPress}>
+		<Pressable onPress={onPress} onLongPress={onLongPress}>
 			<GlassCard>
 				<View style={styles.row}>
 					<View

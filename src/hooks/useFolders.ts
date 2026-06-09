@@ -1,12 +1,17 @@
 import { useEffect, useState } from "react";
 
 import { useDatabaseContext } from "@/hooks/useDatabaseContext";
-import { createFolder, getFolders } from "@/services/folderService";
+import {
+	createFolder,
+	deleteFolder,
+	getFolders,
+} from "@/services/folderService";
 import type { Folder } from "@/types/Folder";
 
 type UseFoldersResult = Readonly<{
 	folders: readonly Folder[];
 	handleCreateFolder: (name: string) => Promise<string>;
+	handleDeleteFolder: (id: string) => Promise<void>;
 }>;
 
 const useFolders = (type: "NOTE" | "TODO"): UseFoldersResult => {
@@ -27,7 +32,13 @@ const useFolders = (type: "NOTE" | "TODO"): UseFoldersResult => {
 		return id;
 	};
 
-	return { folders, handleCreateFolder };
+	const handleDeleteFolder = async (id: string): Promise<void> => {
+		await deleteFolder(database, id);
+		setFolders(await getFolders(database, type));
+		refreshData();
+	};
+
+	return { folders, handleCreateFolder, handleDeleteFolder };
 };
 
 export { useFolders };

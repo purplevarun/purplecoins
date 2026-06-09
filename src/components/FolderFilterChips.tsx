@@ -1,5 +1,6 @@
 import { CustomText } from "@/components/CustomText";
-import { Pressable, ScrollView, StyleSheet } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 
 import { COLORS } from "@/constants/colors";
 import {
@@ -12,17 +13,18 @@ type FolderFilterChipsProps = Readonly<{
 	folders: readonly Folder[];
 	selectedFolderId: string;
 	onSelectFolder: (folderId: string) => void;
+	onDeleteFolder?: (folder: Folder) => void;
 }>;
 
 const FolderFilterChips = ({
 	folders,
 	selectedFolderId,
 	onSelectFolder,
+	onDeleteFolder,
 }: FolderFilterChipsProps): React.JSX.Element => {
-	const chips = [
+	const staticChips = [
 		{ id: FOLDER_FILTER_ALL, name: "All" },
 		{ id: FOLDER_FILTER_NONE, name: "No folder" },
-		...folders,
 	] as const;
 
 	return (
@@ -31,7 +33,7 @@ const FolderFilterChips = ({
 			showsHorizontalScrollIndicator={false}
 			style={styles.scroller}
 		>
-			{chips.map((folder) => {
+			{staticChips.map((folder) => {
 				const isSelected = selectedFolderId === folder.id;
 				return (
 					<Pressable
@@ -47,6 +49,39 @@ const FolderFilterChips = ({
 						>
 							{folder.name}
 						</CustomText>
+					</Pressable>
+				);
+			})}
+			{folders.map((folder) => {
+				const isSelected = selectedFolderId === folder.id;
+				return (
+					<Pressable
+						key={folder.id}
+						onPress={() => onSelectFolder(folder.id)}
+						onLongPress={() => onDeleteFolder?.(folder)}
+						style={[styles.chip, isSelected && styles.selectedChip]}
+					>
+						<View style={styles.chipContent}>
+							<CustomText
+								style={[
+									styles.label,
+									isSelected && styles.selectedLabel,
+								]}
+							>
+								{folder.name}
+							</CustomText>
+							{onDeleteFolder ? (
+								<Ionicons
+									color={
+										isSelected
+											? COLORS.primaryBright
+											: COLORS.textDim
+									}
+									name="ellipsis-vertical"
+									size={10}
+								/>
+							) : null}
+						</View>
 					</Pressable>
 				);
 			})}
@@ -70,6 +105,11 @@ const styles = StyleSheet.create({
 	selectedChip: {
 		borderColor: COLORS.borderStrong,
 		backgroundColor: COLORS.primaryMuted,
+	},
+	chipContent: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 4,
 	},
 	label: {
 		color: COLORS.textMuted,

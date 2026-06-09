@@ -11,12 +11,12 @@ import { FolderFilterChips } from "@/components/FolderFilterChips";
 import { GlassCard } from "@/components/GlassCard";
 import { Notice } from "@/components/Notice";
 import { ListHeader, ScreenList } from "@/components/ScreenList";
-import { TextField } from "@/components/TextField";
 import { COLORS } from "@/constants/colors";
 import {
 	FOLDER_FILTER_ALL,
 	FOLDER_FILTER_NONE,
 } from "@/constants/folderConstants";
+import { useAppDialog } from "@/hooks/useAppDialog";
 import { useDatabaseContext } from "@/hooks/useDatabaseContext";
 import { useFolders } from "@/hooks/useFolders";
 import { getNotes } from "@/services/noteService";
@@ -29,7 +29,8 @@ type NotesScreenProps = NativeStackScreenProps<RootStackParamList, "Notes">;
 
 const NotesScreen = ({ navigation }: NotesScreenProps): React.JSX.Element => {
 	const { database, dataVersion } = useDatabaseContext();
-	const { folders } = useFolders("NOTE");
+	const dialog = useAppDialog();
+	const { folders, handleDeleteFolder } = useFolders("NOTE");
 	const [notes, setNotes] = useState<readonly Note[]>([]);
 	const [selectedFolderId, setSelectedFolderId] = useState(FOLDER_FILTER_ALL);
 	const [search, setSearch] = useState("");
@@ -109,24 +110,45 @@ const NotesScreen = ({ navigation }: NotesScreenProps): React.JSX.Element => {
 		[navigation],
 	);
 
+	const handleDeleteFolderWithConfirm = useCallback(
+		(folder: { id: string; name: string }): void => {
+			dialog.confirm({
+				title: `Delete "${folder.name}"?`,
+				message:
+					"Folders containing items cannot be deleted. Empty folders will be permanently removed.",
+				confirmLabel: "Delete",
+				variant: "danger",
+				onConfirm: () => {
+					const processDelete = async (): Promise<void> => {
+						try {
+							await handleDeleteFolder(folder.id);
+							if (selectedFolderId === folder.id) {
+								setSelectedFolderId(FOLDER_FILTER_ALL);
+							}
+						} catch (caughtError: unknown) {
+							setError(getErrorMessage(caughtError));
+						}
+					};
+					void processDelete();
+				},
+			});
+		},
+		[dialog, handleDeleteFolder, selectedFolderId],
+	);
+
 	const listHeader = useMemo(
 		() => (
 			<ListHeader>
 				<FolderFilterChips
 					folders={folders}
+					onDeleteFolder={handleDeleteFolderWithConfirm}
 					onSelectFolder={setSelectedFolderId}
 					selectedFolderId={selectedFolderId}
-				/>
-				<TextField
-					label="Search"
-					onChangeText={setSearch}
-					placeholder="Title, content or folder"
-					value={search}
 				/>
 				{error ? <Notice message={error} tone="danger" /> : null}
 			</ListHeader>
 		),
-		[error, folders, search, selectedFolderId],
+		[error, folders, handleDeleteFolderWithConfirm, selectedFolderId],
 	);
 
 	const listEmpty = useMemo(

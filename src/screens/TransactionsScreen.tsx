@@ -8,14 +8,10 @@ import { FloatingAddButton } from "@/components/FloatingAddButton";
 import { Notice } from "@/components/Notice";
 import { ListHeader, ScreenList } from "@/components/ScreenList";
 import { SegmentedControl } from "@/components/SegmentedControl";
-import { TextField } from "@/components/TextField";
 import { TransactionCard } from "@/components/TransactionCard";
 import { COLORS } from "@/constants/colors";
 import { useDatabaseContext } from "@/hooks/useDatabaseContext";
-import {
-	getTransactionDisplayReason,
-	getTransactions,
-} from "@/services/transactionService";
+import { getTransactions } from "@/services/transactionService";
 import type { RootStackParamList } from "@/types/RootStackParamList";
 import type { SelectOption } from "@/types/SelectOption";
 import type { Transaction } from "@/types/Transaction";
@@ -40,7 +36,6 @@ const TransactionsScreen = ({
 		[],
 	);
 	const [filter, setFilter] = useState("ALL");
-	const [search, setSearch] = useState("");
 	const [error, setError] = useState("");
 
 	const getScreenData = useCallback(async (): Promise<void> => {
@@ -59,32 +54,14 @@ const TransactionsScreen = ({
 		}, [dataVersion, getScreenData]),
 	);
 
-	const normalizedSearch = search.trim().toLowerCase();
 	const filteredTransactions = useMemo(
 		() =>
 			transactions.filter((transaction) => {
-				const matchesClassification =
-					filter === "ALL" || transaction.classification === filter;
-				if (!matchesClassification) {
-					return false;
-				}
-				if (!normalizedSearch) {
-					return true;
-				}
-				return [
-					getTransactionDisplayReason(transaction),
-					transaction.sourceName,
-					transaction.destinationSourceName ?? "",
-					transaction.categoryName ?? "",
-					transaction.tripName ?? "",
-					transaction.investmentName ?? "",
-					transaction.amount,
-				]
-					.join(" ")
-					.toLowerCase()
-					.includes(normalizedSearch);
+				return (
+					filter === "ALL" || transaction.classification === filter
+				);
 			}),
-		[filter, normalizedSearch, transactions],
+		[filter, transactions],
 	);
 
 	const renderTransaction = useCallback(
@@ -94,6 +71,11 @@ const TransactionsScreen = ({
 				onPress={() =>
 					navigation.navigate("TransactionForm", {
 						transactionId: transaction.id,
+					})
+				}
+				onLongPress={() =>
+					navigation.navigate("TransactionForm", {
+						cloneFromTransactionId: transaction.id,
 					})
 				}
 			/>
@@ -109,16 +91,10 @@ const TransactionsScreen = ({
 					options={FILTER_OPTIONS}
 					value={filter}
 				/>
-				<TextField
-					label="Search"
-					onChangeText={setSearch}
-					placeholder="Reason, source, category or amount"
-					value={search}
-				/>
 				{error ? <Notice message={error} tone="danger" /> : null}
 			</ListHeader>
 		),
-		[error, filter, search],
+		[error, filter],
 	);
 
 	const listEmpty = useMemo(

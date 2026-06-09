@@ -8,6 +8,7 @@ type GlobalSearchResult = Readonly<{
 	subtitle: string;
 	icon: IconName;
 	color: string;
+	searchExtra?: string;
 }>;
 
 export type { GlobalSearchResult };

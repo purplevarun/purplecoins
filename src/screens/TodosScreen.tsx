@@ -16,6 +16,7 @@ import {
 	FOLDER_FILTER_ALL,
 	FOLDER_FILTER_NONE,
 } from "@/constants/folderConstants";
+import { useAppDialog } from "@/hooks/useAppDialog";
 import { useDatabaseContext } from "@/hooks/useDatabaseContext";
 import { useFolders } from "@/hooks/useFolders";
 import { getTodos, toggleTodo } from "@/services/todoService";
@@ -28,7 +29,8 @@ type TodosScreenProps = NativeStackScreenProps<RootStackParamList, "Todos">;
 
 const TodosScreen = ({ navigation }: TodosScreenProps): React.JSX.Element => {
 	const { database, dataVersion, refreshData } = useDatabaseContext();
-	const { folders } = useFolders("TODO");
+	const dialog = useAppDialog();
+	const { folders, handleDeleteFolder } = useFolders("TODO");
 	const [todos, setTodos] = useState<readonly Todo[]>([]);
 	const [selectedFolderId, setSelectedFolderId] = useState(FOLDER_FILTER_ALL);
 	const [error, setError] = useState("");
@@ -144,18 +146,45 @@ const TodosScreen = ({ navigation }: TodosScreenProps): React.JSX.Element => {
 		[selectedFolderId, todos],
 	);
 
+	const handleDeleteFolderWithConfirm = useCallback(
+		(folder: { id: string; name: string }): void => {
+			dialog.confirm({
+				title: `Delete "${folder.name}"?`,
+				message:
+					"Folders containing items cannot be deleted. Empty folders will be permanently removed.",
+				confirmLabel: "Delete",
+				variant: "danger",
+				onConfirm: () => {
+					const processDelete = async (): Promise<void> => {
+						try {
+							await handleDeleteFolder(folder.id);
+							if (selectedFolderId === folder.id) {
+								setSelectedFolderId(FOLDER_FILTER_ALL);
+							}
+						} catch (caughtError: unknown) {
+							setError(getErrorMessage(caughtError));
+						}
+					};
+					void processDelete();
+				},
+			});
+		},
+		[dialog, handleDeleteFolder, selectedFolderId],
+	);
+
 	const listHeader = useMemo(
 		() => (
 			<ListHeader>
 				<FolderFilterChips
 					folders={folders}
+					onDeleteFolder={handleDeleteFolderWithConfirm}
 					onSelectFolder={setSelectedFolderId}
 					selectedFolderId={selectedFolderId}
 				/>
 				{error ? <Notice message={error} tone="danger" /> : null}
 			</ListHeader>
 		),
-		[error, folders, selectedFolderId],
+		[error, folders, handleDeleteFolderWithConfirm, selectedFolderId],
 	);
 
 	const listEmpty = useMemo(

@@ -4,7 +4,9 @@ import type { VaultKind } from "@/types/VaultKind";
 type RootStackParamList = {
 	Dashboard: undefined;
 	Transactions: undefined;
-	TransactionForm: { transactionId?: string } | undefined;
+	TransactionForm:
+		| { transactionId?: string; cloneFromTransactionId?: string }
+		| undefined;
 	Relations: { kind: RelationKind };
 	RelationForm: { kind: RelationKind; entityId?: string };
 	LinkedTransactions: {
