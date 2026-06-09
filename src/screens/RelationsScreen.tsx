@@ -154,11 +154,11 @@ const RelationsScreen = ({
 				<HeaderIconButton
 					accessibilityLabel={
 						isNativeCurrency
-							? "Show INR totals"
-							: "Show native currency totals"
+							? "Convert to INR"
+							: "Show native currencies"
 					}
 					icon="earth-outline"
-					isActive={isNativeCurrency}
+					isActive={!isNativeCurrency}
 					onPress={() => void handleToggleCurrency()}
 				/>
 			),
@@ -346,7 +346,7 @@ const RelationsScreen = ({
 											source.currencyCode,
 										)}
 									</CustomText>
-									{isNativeCurrency &&
+									{!isNativeCurrency &&
 									source.currencyCode !== "INR"
 										? (() => {
 												const inrVal = toInr(
@@ -355,14 +355,24 @@ const RelationsScreen = ({
 												);
 												if (inrVal.isZero())
 													return null;
+												const isPositive =
+													inrVal.gte(0);
 												return (
 													<CustomText
-														style={
-															styles.convertedAmount
-														}
+														style={[
+															styles.convertedAmount,
+															{
+																color: isPositive
+																	? COLORS.success
+																	: COLORS.danger,
+															},
+														]}
 													>
+														{"≈ "}
 														{formatMoney(
-															inrVal.toFixed(),
+															inrVal
+																.abs()
+																.toFixed(),
 															"INR",
 														)}
 													</CustomText>
@@ -451,6 +461,7 @@ const RelationsScreen = ({
 													},
 												]}
 											>
+												{!isNativeCurrency ? "≈ " : ""}
 												{formatMoney(
 													total.net,
 													total.currencyCode,
@@ -539,7 +550,7 @@ const RelationsScreen = ({
 									)
 								) : null}
 								{item.kind === "TRIP" &&
-								isNativeCurrency &&
+								!isNativeCurrency &&
 								totals.some((t) => t.currencyCode !== "INR")
 									? (() => {
 											const inrTotal = totals.reduce(
@@ -554,9 +565,16 @@ const RelationsScreen = ({
 											);
 											return (
 												<CustomText
-													style={
-														styles.convertedAmount
-													}
+													style={[
+														styles.convertedAmount,
+														{
+															color: inrTotal.gte(
+																0,
+															)
+																? COLORS.danger
+																: COLORS.success,
+														},
+													]}
 												>
 													≈{" "}
 													{formatMoney(
@@ -607,7 +625,10 @@ const RelationsScreen = ({
 												},
 											]}
 										>
-											{getInvestmentNetLabel(total.net)}{" "}
+											{!isNativeCurrency ? "≈ " : ""}
+											{getInvestmentNetLabel(
+												total.net,
+											)}{" "}
 											{formatMoney(
 												getInvestmentNetAmount(
 													total.net,
@@ -715,9 +736,9 @@ const styles = StyleSheet.create({
 		marginTop: 3,
 	},
 	convertedAmount: {
-		color: COLORS.textMuted,
-		fontSize: 12,
-		fontWeight: "700",
+		fontSize: 13,
+		fontWeight: "900",
+		marginTop: 1,
 	},
 	validatedBadge: {
 		flexDirection: "row",
