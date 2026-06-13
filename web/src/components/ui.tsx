@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent, type ReactNode } from "react";
+import { useMemo, useState, type ChangeEvent, type ReactNode } from "react";
 
 // ── Icons (inline SVG) ──────────────────────────────────────────────────────
 type IconProps = { size?: number; color?: string; className?: string };
@@ -418,24 +418,237 @@ export const TextInput = ({
 type SelectInputProps = {
 	value: string;
 	onChange: (v: string) => void;
-	options: readonly { label: string; value: string }[];
+	options: readonly { label: string; value: string; description?: string }[];
 	placeholder?: string;
 };
+
 export const SelectInput = ({
 	value,
 	onChange,
 	options,
 	placeholder,
-}: SelectInputProps) => (
-	<select value={value} onChange={(e) => onChange(e.target.value)}>
-		{placeholder && <option value="">{placeholder}</option>}
-		{options.map((opt) => (
-			<option key={opt.value} value={opt.value}>
-				{opt.label}
-			</option>
-		))}
-	</select>
-);
+}: SelectInputProps) => {
+	const [open, setOpen] = useState(false);
+	const [search, setSearch] = useState("");
+	const selected = options.find((o) => o.value === value);
+
+	const filtered = useMemo(() => {
+		const q = search.trim().toLowerCase();
+		if (!q) return options;
+		return options.filter(
+			(o) =>
+				o.label.toLowerCase().includes(q) ||
+				(o.description ?? "").toLowerCase().includes(q),
+		);
+	}, [options, search]);
+
+	const handleSelect = (v: string) => {
+		onChange(v);
+		setOpen(false);
+		setSearch("");
+	};
+
+	return (
+		<div style={{ position: "relative" }}>
+			<button
+				type="button"
+				onClick={() => {
+					setSearch("");
+					setOpen((o) => !o);
+				}}
+				style={{
+					width: "100%",
+					background: "rgba(255,255,255,0.04)",
+					border: `1px solid ${open ? "var(--border-strong)" : "var(--border)"}`,
+					borderRadius: "var(--radius-sm)",
+					padding: "10px 12px",
+					fontSize: 14,
+					color: selected ? "var(--text)" : "var(--text-dim)",
+					display: "flex",
+					alignItems: "center",
+					justifyContent: "space-between",
+					cursor: "pointer",
+					textAlign: "left",
+					transition: "border-color 0.15s",
+				}}
+			>
+				<span
+					style={{
+						overflow: "hidden",
+						textOverflow: "ellipsis",
+						whiteSpace: "nowrap",
+					}}
+				>
+					{selected?.label ?? placeholder ?? "Select..."}
+				</span>
+				<span
+					style={{
+						color: "var(--text-dim)",
+						fontSize: 10,
+						flexShrink: 0,
+						marginLeft: 6,
+					}}
+				>
+					▾
+				</span>
+			</button>
+
+			{open && (
+				<>
+					{/* backdrop */}
+					<div
+						style={{ position: "fixed", inset: 0, zIndex: 49 }}
+						onClick={() => {
+							setOpen(false);
+							setSearch("");
+						}}
+					/>
+					<div
+						style={{
+							position: "absolute",
+							top: "calc(100% + 4px)",
+							left: 0,
+							right: 0,
+							zIndex: 50,
+							background: "var(--bg-elevated)",
+							border: "1px solid var(--border-strong)",
+							borderRadius: "var(--radius)",
+							boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+							overflow: "hidden",
+							maxHeight: 320,
+							display: "flex",
+							flexDirection: "column",
+						}}
+					>
+						<div style={{ padding: "8px 8px 4px" }}>
+							<input
+								autoFocus
+								value={search}
+								onChange={(e) => setSearch(e.target.value)}
+								placeholder="Search..."
+								style={{
+									width: "100%",
+									background: "rgba(255,255,255,0.06)",
+									border: "1px solid var(--border)",
+									borderRadius: "var(--radius-sm)",
+									padding: "7px 10px",
+									fontSize: 13,
+									color: "var(--text)",
+									outline: "none",
+								}}
+							/>
+						</div>
+						<div style={{ overflowY: "auto", flex: 1 }}>
+							{placeholder && (
+								<button
+									type="button"
+									onClick={() => handleSelect("")}
+									style={{
+										width: "100%",
+										textAlign: "left",
+										padding: "9px 12px",
+										background: "none",
+										border: "none",
+										cursor: "pointer",
+										color: "var(--text-dim)",
+										fontSize: 13,
+									}}
+								>
+									{placeholder}
+								</button>
+							)}
+							{filtered.length === 0 ? (
+								<div
+									style={{
+										padding: "12px",
+										color: "var(--text-dim)",
+										fontSize: 13,
+										textAlign: "center",
+									}}
+								>
+									No results for "{search}"
+								</div>
+							) : null}
+							{filtered.map((opt) => (
+								<button
+									key={opt.value}
+									type="button"
+									onClick={() => handleSelect(opt.value)}
+									style={{
+										width: "100%",
+										textAlign: "left",
+										padding: "9px 12px",
+										background:
+											opt.value === value
+												? "var(--primary-muted)"
+												: "none",
+										border: "none",
+										cursor: "pointer",
+										display: "flex",
+										alignItems: "center",
+										justifyContent: "space-between",
+										gap: 8,
+										transition: "background 0.1s",
+									}}
+									onMouseEnter={(e) => {
+										if (opt.value !== value)
+											(
+												e.currentTarget as HTMLButtonElement
+											).style.background =
+												"rgba(255,255,255,0.05)";
+									}}
+									onMouseLeave={(e) => {
+										if (opt.value !== value)
+											(
+												e.currentTarget as HTMLButtonElement
+											).style.background = "none";
+									}}
+								>
+									<div>
+										<div
+											style={{
+												color:
+													opt.value === value
+														? "var(--primary-bright)"
+														: "var(--text)",
+												fontSize: 14,
+												fontWeight: 600,
+											}}
+										>
+											{opt.label}
+										</div>
+										{opt.description && (
+											<div
+												style={{
+													color: "var(--text-dim)",
+													fontSize: 11,
+													marginTop: 1,
+												}}
+											>
+												{opt.description}
+											</div>
+										)}
+									</div>
+									{opt.value === value && (
+										<span
+											style={{
+												color: "var(--primary-bright)",
+												fontSize: 13,
+												flexShrink: 0,
+											}}
+										>
+											✓
+										</span>
+									)}
+								</button>
+							))}
+						</div>
+					</div>
+				</>
+			)}
+		</div>
+	);
+};
 
 type TextareaInputProps = {
 	value: string;

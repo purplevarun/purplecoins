@@ -104,15 +104,17 @@ export const TransactionFormPage = ({ transactionId, cloneFromId }: Props) => {
 	}, [db, transactionId, cloneFromId, isClone]);
 
 	const sourceOpts = sources.map((s) => ({
-		label: `${s.name} (${s.currencyCode})`,
+		label: `${s.name}`,
 		value: s.id,
+		description: `${s.currencyCode} · ${s.balance}`,
 	}));
 	const categoryOpts = categories.map((c) => ({
-		label: `${c.name} ${c.isIncome ? "↑" : "↓"}`,
+		label: c.name,
 		value: c.id,
+		description: c.isIncome ? "Income ↑" : "Expense ↓",
 	}));
 	const tripOpts = [
-		{ label: "None", value: "" },
+		{ label: "None", value: "", description: "No trip" },
 		...trips.map((t) => ({ label: t.name, value: t.id })),
 	];
 	const investmentOpts = investments.map((i) => ({

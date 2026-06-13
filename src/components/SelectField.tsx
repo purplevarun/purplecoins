@@ -1,6 +1,7 @@
 import { CustomText } from "@/components/CustomText";
+import { CustomTextInput } from "@/components/CustomTextInput";
 import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Modal, Pressable, ScrollView, StyleSheet, View } from "react-native";
 
 import { COLORS } from "@/constants/colors";
@@ -24,16 +25,34 @@ const SelectField = ({
 	isOptional = false,
 }: SelectFieldProps): React.JSX.Element => {
 	const [isOpen, setIsOpen] = useState(false);
+	const [search, setSearch] = useState("");
 	const selectedOption = options.find((option) => option.value === value);
+
+	const filteredOptions = useMemo(() => {
+		const q = search.trim().toLowerCase();
+		if (!q) return options;
+		return options.filter(
+			(o) =>
+				o.label.toLowerCase().includes(q) ||
+				(o.description ?? "").toLowerCase().includes(q),
+		);
+	}, [options, search]);
+
+	const handleOpen = (): void => {
+		setSearch("");
+		setIsOpen(true);
+	};
+
 	const handleSelect = (selectedValue: string): void => {
 		onChange(selectedValue);
 		setIsOpen(false);
+		setSearch("");
 	};
 
 	return (
 		<View style={styles.container}>
 			<CustomText style={styles.label}>{label}</CustomText>
-			<Pressable onPress={() => setIsOpen(true)} style={styles.trigger}>
+			<Pressable onPress={handleOpen} style={styles.trigger}>
 				<CustomText
 					numberOfLines={1}
 					style={[
@@ -63,7 +82,14 @@ const SelectField = ({
 						<CustomText style={styles.sheetTitle}>
 							{label}
 						</CustomText>
-						<ScrollView>
+						<CustomTextInput
+							autoFocus
+							onChangeText={setSearch}
+							placeholder="Search..."
+							style={styles.searchInput}
+							value={search}
+						/>
+						<ScrollView keyboardShouldPersistTaps="handled">
 							{isOptional ? (
 								<Pressable
 									onPress={() => handleSelect("")}
@@ -74,7 +100,12 @@ const SelectField = ({
 									</CustomText>
 								</Pressable>
 							) : null}
-							{options.map((option) => (
+							{filteredOptions.length === 0 ? (
+								<CustomText style={styles.noResults}>
+									No results for "{search}"
+								</CustomText>
+							) : null}
+							{filteredOptions.map((option) => (
 								<Pressable
 									key={option.value}
 									onPress={() => handleSelect(option.value)}
@@ -163,6 +194,23 @@ const styles = StyleSheet.create({
 		fontSize: 20,
 		fontWeight: "800",
 		marginBottom: 12,
+	},
+	searchInput: {
+		backgroundColor: "rgba(255,255,255,0.06)",
+		borderWidth: 1,
+		borderColor: COLORS.border,
+		borderRadius: 12,
+		paddingHorizontal: 12,
+		paddingVertical: 10,
+		color: COLORS.text,
+		fontSize: 15,
+		marginBottom: 8,
+	},
+	noResults: {
+		color: COLORS.textDim,
+		fontSize: 13,
+		padding: 12,
+		textAlign: "center",
 	},
 	option: {
 		minHeight: 54,
