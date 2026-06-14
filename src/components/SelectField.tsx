@@ -178,11 +178,12 @@ const styles = StyleSheet.create({
 	overlay: {
 		flex: 1,
 		backgroundColor: "rgba(0,0,0,0.72)",
-		justifyContent: "flex-end",
+		justifyContent: "flex-start",
 		padding: 16,
+		paddingTop: 56,
 	},
 	sheet: {
-		maxHeight: "72%",
+		maxHeight: "85%",
 		borderRadius: 24,
 		backgroundColor: COLORS.glassStrong,
 		borderWidth: 1,
