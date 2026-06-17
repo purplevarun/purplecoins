@@ -41,6 +41,7 @@ const SegmentedControl = ({
 const styles = StyleSheet.create({
 	container: {
 		flexDirection: "row",
+		flexWrap: "wrap",
 		padding: 4,
 		borderRadius: 16,
 		borderWidth: 1,
@@ -49,7 +50,7 @@ const styles = StyleSheet.create({
 		gap: 4,
 	},
 	option: {
-		flex: 1,
+		width: "32%", // ~3 per row (accounting for gap)
 		minHeight: 42,
 		borderRadius: 12,
 		alignItems: "center",

@@ -18,6 +18,7 @@ import { useAttachment } from "@/hooks/useAttachment";
 import { useDatabaseContext } from "@/hooks/useDatabaseContext";
 import { getCategories } from "@/services/categoryService";
 import { getInvestments } from "@/services/investmentService";
+import { getDefaultTripId } from "@/services/settingsService";
 import { getSources } from "@/services/sourceService";
 import {
 	deleteTransaction,
@@ -92,6 +93,7 @@ const TransactionFormScreen = ({
 					loadedTrips,
 					loadedInvestments,
 					existingTransaction,
+					defaultTrip,
 				] = await Promise.all([
 					getSources(database),
 					getCategories(database),
@@ -100,12 +102,20 @@ const TransactionFormScreen = ({
 					sourceId
 						? getTransaction(database, sourceId)
 						: Promise.resolve(null),
+					// Only load default trip for new (non-edit, non-clone) txns
+					!sourceId
+						? getDefaultTripId(database)
+						: Promise.resolve(null),
 				]);
 				setSources(loadedSources);
 				setCategories(loadedCategories);
 				setTrips(loadedTrips);
 				setInvestments(loadedInvestments);
 				if (!existingTransaction) {
+					// Prefill default trip for new transactions
+					if (defaultTrip) {
+						setTripId(defaultTrip);
+					}
 					return;
 				}
 				setClassification(existingTransaction.classification);
@@ -297,17 +307,29 @@ const TransactionFormScreen = ({
 							value={destinationSourceId}
 						/>
 					) : null}
-					<TextField
-						keyboardType="decimal-pad"
-						label={
-							isTransfer && selectedSource
-								? `From amount (${selectedSource.currencyCode})`
-								: `Amount${selectedSource ? ` (${selectedSource.currencyCode})` : ""}`
-						}
-						onChangeText={setAmount}
-						placeholder="0.00"
-						value={amount}
-					/>
+					{/* Row 1: Amount + Date */}
+					<View style={styles.twoCol}>
+						<View style={styles.colLeft}>
+							<TextField
+								keyboardType="decimal-pad"
+								label={
+									isTransfer && selectedSource
+										? `From (${selectedSource.currencyCode})`
+										: `Amount${selectedSource ? ` (${selectedSource.currencyCode})` : ""}`
+								}
+								onChangeText={setAmount}
+								placeholder="0.00"
+								value={amount}
+							/>
+						</View>
+						<View style={styles.colRight}>
+							<DateField
+								label="Date"
+								onChange={setTransactionAt}
+								value={transactionAt}
+							/>
+						</View>
+					</View>
 					{isTransfer ? (
 						<TextField
 							isEditable={!isSameCurrencyTransfer}
@@ -318,24 +340,29 @@ const TransactionFormScreen = ({
 							value={effectiveToAmount}
 						/>
 					) : null}
+					{/* Row 2: Source+Category or Source+Investment */}
 					{classification === "GENERAL" && type !== "TRANSFER" ? (
-						<>
-							<SelectField
-								label="Category"
-								onChange={setCategoryId}
-								options={categoryOptions}
-								placeholder="Select category"
-								value={categoryId}
-							/>
-							<SelectField
-								isOptional
-								label="Trip"
-								onChange={setTripId}
-								options={tripOptions}
-								placeholder="No trip"
-								value={tripId}
-							/>
-						</>
+						<View style={styles.twoCol}>
+							<View style={styles.colLeft}>
+								<SelectField
+									label="Category"
+									onChange={setCategoryId}
+									options={categoryOptions}
+									placeholder="Select category"
+									value={categoryId}
+								/>
+							</View>
+							<View style={styles.colRight}>
+								<SelectField
+									isOptional
+									label="Trip"
+									onChange={setTripId}
+									options={tripOptions}
+									placeholder="No trip"
+									value={tripId}
+								/>
+							</View>
+						</View>
 					) : null}
 					{classification === "INVESTMENT" ? (
 						<SelectField
@@ -355,11 +382,6 @@ const TransactionFormScreen = ({
 								: "What was this for?"
 						}
 						value={reason}
-					/>
-					<DateField
-						label="Transaction date"
-						onChange={setTransactionAt}
-						value={transactionAt}
 					/>
 					<AttachmentField
 						existingAttachment={attachment.existingAttachment}
@@ -404,6 +426,16 @@ const styles = StyleSheet.create({
 		fontSize: 24,
 		fontWeight: "900",
 		letterSpacing: -0.5,
+	},
+	twoCol: {
+		flexDirection: "row",
+		gap: 10,
+	},
+	colLeft: {
+		flex: 1,
+	},
+	colRight: {
+		flex: 1,
 	},
 });
 

@@ -18,6 +18,7 @@ import { GlassCard } from "@/components/GlassCard";
 import { HeaderIconButton } from "@/components/HeaderIconButton";
 import { Notice } from "@/components/Notice";
 import { ListHeader, ScreenList } from "@/components/ScreenList";
+import { SearchBar } from "@/components/SearchBar";
 import { COLORS } from "@/constants/colors";
 import { useAppDialog } from "@/hooks/useAppDialog";
 import { useDatabaseContext } from "@/hooks/useDatabaseContext";
@@ -80,6 +81,9 @@ const RelationsScreen = ({
 		[],
 	);
 	const [error, setError] = useState("");
+	const [searchVisible, setSearchVisible] = useState(false);
+	const [searchQuery, setSearchQuery] = useState("");
+	const [searchDebounced, setSearchDebounced] = useState("");
 
 	const getScreenData = useCallback(async (): Promise<void> => {
 		try {
@@ -148,22 +152,49 @@ const RelationsScreen = ({
 		await getScreenData();
 	}, [database, getScreenData, isNativeCurrency]);
 
+	useEffect(() => {
+		const timer = setTimeout(() => setSearchDebounced(searchQuery), 250);
+		return () => clearTimeout(timer);
+	}, [searchQuery]);
+
 	useLayoutEffect(() => {
 		navigation.setOptions({
 			headerRight: () => (
-				<HeaderIconButton
-					accessibilityLabel={
-						isNativeCurrency
-							? "Convert to INR"
-							: "Show native currencies"
-					}
-					icon="earth-outline"
-					isActive={!isNativeCurrency}
-					onPress={() => void handleToggleCurrency()}
-				/>
+				<View style={{ flexDirection: "row", gap: 4 }}>
+					<HeaderIconButton
+						accessibilityLabel={
+							searchVisible ? "Close search" : "Search"
+						}
+						icon={
+							searchVisible ? "close-outline" : "search-outline"
+						}
+						isActive={searchVisible}
+						onPress={() => {
+							setSearchVisible((v) => !v);
+							setSearchQuery("");
+							setSearchDebounced("");
+						}}
+					/>
+					<HeaderIconButton
+						accessibilityLabel={
+							isNativeCurrency
+								? "Convert to INR"
+								: "Show native currencies"
+						}
+						icon="earth-outline"
+						isActive={!isNativeCurrency}
+						onPress={() => void handleToggleCurrency()}
+					/>
+				</View>
 			),
 		});
-	}, [handleToggleCurrency, isNativeCurrency, kind, navigation]);
+	}, [
+		handleToggleCurrency,
+		isNativeCurrency,
+		kind,
+		navigation,
+		searchVisible,
+	]);
 
 	const handleValidate = useCallback(
 		async (id: string): Promise<void> => {
@@ -288,6 +319,14 @@ const RelationsScreen = ({
 		tripTotals,
 		trips,
 	]);
+
+	const filteredListData = useMemo((): readonly RelationListItem[] => {
+		if (!searchDebounced.trim()) return listData;
+		const q = searchDebounced.trim().toLowerCase();
+		return listData.filter((item) =>
+			item.entity.name.toLowerCase().includes(q),
+		);
+	}, [listData, searchDebounced]);
 
 	const renderRelationItem = useCallback(
 		({ item }: { item: RelationListItem }): React.JSX.Element => {
@@ -652,6 +691,13 @@ const RelationsScreen = ({
 	const listHeader = useMemo(
 		() => (
 			<ListHeader>
+				{searchVisible ? (
+					<SearchBar
+						onChangeText={setSearchQuery}
+						placeholder={`Search ${relationLabels.plural}...`}
+						value={searchQuery}
+					/>
+				) : null}
 				{analysis?.missingCurrencies.length ? (
 					<Notice
 						message={`Missing INR rates: ${analysis.missingCurrencies.join(", ")}. Those amounts are excluded from converted totals.`}
@@ -661,7 +707,7 @@ const RelationsScreen = ({
 				{error ? <Notice message={error} tone="danger" /> : null}
 			</ListHeader>
 		),
-		[analysis, error],
+		[analysis, error, relationLabels.plural, searchQuery, searchVisible],
 	);
 
 	const listEmpty = useMemo(
@@ -680,8 +726,8 @@ const RelationsScreen = ({
 			<ScreenList
 				ListEmptyComponent={listEmpty}
 				ListHeaderComponent={listHeader}
-				data={listData}
-				extraData={[analysis, isNativeCurrency]}
+				data={filteredListData}
+				extraData={[analysis, isNativeCurrency, searchDebounced]}
 				keyExtractor={(item) => item.entity.id}
 				renderItem={renderRelationItem}
 			/>

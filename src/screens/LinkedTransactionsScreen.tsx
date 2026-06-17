@@ -61,7 +61,14 @@ const LinkedTransactionsScreen = ({
 	navigation,
 	route,
 }: LinkedTransactionsScreenProps): React.JSX.Element => {
-	const { entityId, entityName, kind } = route.params;
+	const {
+		entityId,
+		entityName,
+		kind,
+		dateRangeStart,
+		dateRangeEnd,
+		dateRangeLabel,
+	} = route.params;
 	const { database, dataVersion, refreshData } = useDatabaseContext();
 	const dialog = useAppDialog();
 	const [transactions, setTransactions] = useState<readonly Transaction[]>(
@@ -72,14 +79,25 @@ const LinkedTransactionsScreen = ({
 
 	const getScreenData = useCallback(async (): Promise<void> => {
 		try {
-			setTransactions(
-				await getLinkedTransactions(database, { entityId, kind }),
-			);
+			const all = await getLinkedTransactions(database, {
+				entityId,
+				kind,
+			});
+			// Filter by date range if provided (from Analysis screen drill-down)
+			const filtered =
+				dateRangeStart !== undefined && dateRangeEnd !== undefined
+					? all.filter(
+							(t) =>
+								t.transactionAt >= dateRangeStart &&
+								t.transactionAt <= dateRangeEnd,
+						)
+					: all;
+			setTransactions(filtered);
 			setError("");
 		} catch (caughtError: unknown) {
 			setError(getErrorMessage(caughtError));
 		}
-	}, [database, entityId, kind]);
+	}, [database, entityId, kind, dateRangeStart, dateRangeEnd]);
 
 	useEffect(() => {
 		void getScreenData();
@@ -142,6 +160,11 @@ const LinkedTransactionsScreen = ({
 							<CustomText style={styles.title}>
 								{entityName}
 							</CustomText>
+							{dateRangeLabel ? (
+								<CustomText style={styles.dateRange}>
+									{dateRangeLabel}
+								</CustomText>
+							) : null}
 							<CustomText style={styles.subtitle}>
 								{transactions.length} linked{" "}
 								{transactions.length === 1
@@ -176,6 +199,7 @@ const LinkedTransactionsScreen = ({
 			</ListHeader>
 		),
 		[
+			dateRangeLabel,
 			entityId,
 			entityName,
 			error,
@@ -249,6 +273,11 @@ const styles = StyleSheet.create({
 		color: COLORS.text,
 		fontSize: 18,
 		fontWeight: "900",
+	},
+	dateRange: {
+		color: COLORS.primaryBright,
+		fontSize: 11,
+		fontWeight: "700",
 	},
 	subtitle: {
 		color: COLORS.textMuted,

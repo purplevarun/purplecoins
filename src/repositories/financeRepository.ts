@@ -285,6 +285,13 @@ const deleteSimpleEntityRow = async (
 	await database.runAsync(`DELETE FROM ${tableName} WHERE id = ?;`, id);
 };
 
+const getTransactionMinMaxDate = async (
+	database: SQLiteDatabase,
+): Promise<{ minDate: number; maxDate: number } | null> =>
+	database.getFirstAsync<{ minDate: number; maxDate: number }>(
+		`SELECT MIN(transaction_at) AS minDate, MAX(transaction_at) AS maxDate FROM transactions;`,
+	);
+
 const getTransactionRows = async (
 	database: SQLiteDatabase,
 ): Promise<readonly Transaction[]> =>
@@ -522,6 +529,7 @@ export {
 	getInvestmentRows,
 	getSourceRow,
 	getSourceRows,
+	getTransactionMinMaxDate,
 	getTransactionRow,
 	getTransactionRows,
 	getTransactionRowsInRange,

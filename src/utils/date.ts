@@ -8,12 +8,56 @@ const DAY_END_MINUTES = 59;
 const DAY_END_SECONDS = 59;
 const DAY_END_MILLISECONDS = 999;
 
+const getFyDateRange = (anchorDate: Date, fyStartMonth: number): DateRange => {
+	// fyStartMonth is 1-based (4 = April)
+	const month0 = anchorDate.getMonth() + 1; // 1-based
+	const year = anchorDate.getFullYear();
+	// Determine which FY we're in
+	const fyStartYear = month0 >= fyStartMonth ? year : year - 1;
+	const fyEndMonth0 = fyStartMonth - 1; // 0-based month for end
+	const fyEndYear = fyStartYear + 1;
+	const start = new Date(fyStartYear, fyStartMonth - 1, 1).getTime();
+	const end = new Date(fyEndYear, fyEndMonth0, 1).getTime() - 1;
+	return { start, end };
+};
+
+const getYtdDateRange = (): DateRange => {
+	const now = new Date();
+	// Year to date: same date last year → today
+	const start = new Date(
+		now.getFullYear() - 1,
+		now.getMonth(),
+		now.getDate(),
+		0,
+		0,
+		0,
+		0,
+	).getTime();
+	const end = new Date(
+		now.getFullYear(),
+		now.getMonth(),
+		now.getDate(),
+		DAY_END_HOURS,
+		DAY_END_MINUTES,
+		DAY_END_SECONDS,
+		DAY_END_MILLISECONDS,
+	).getTime();
+	return { start, end };
+};
+
 const getAnalysisDateRange = (
 	period: AnalysisPeriod,
 	anchorDate: Date,
+	fyStartMonth = 4,
 ): DateRange => {
 	if (period === "ALL" || period === "CUSTOM") {
 		return { start: ALL_TIME_START, end: ALL_TIME_END };
+	}
+	if (period === "FY") {
+		return getFyDateRange(anchorDate, fyStartMonth);
+	}
+	if (period === "YTD") {
+		return getYtdDateRange();
 	}
 	const year = anchorDate.getFullYear();
 	const month = anchorDate.getMonth();
@@ -32,16 +76,56 @@ const shiftAnalysisAnchor = (
 	period: AnalysisPeriod,
 	anchorDate: Date,
 	direction: -1 | 1,
+	minDate?: number,
+	maxDate?: number,
 ): Date => {
 	const shiftedDate = new Date(anchorDate);
 	if (period === "MONTH") {
 		shiftedDate.setMonth(shiftedDate.getMonth() + direction);
+	} else if (period === "YEAR") {
+		shiftedDate.setFullYear(shiftedDate.getFullYear() + direction);
+	} else if (period === "FY") {
+		shiftedDate.setFullYear(shiftedDate.getFullYear() + direction);
+	} else {
 		return shiftedDate;
 	}
-	if (period !== "YEAR") {
-		return shiftedDate;
+
+	// Clamp: don't go before min or after max
+	if (direction === -1 && minDate !== undefined) {
+		const minAnchor = new Date(minDate);
+		if (
+			period === "MONTH" &&
+			(shiftedDate.getFullYear() < minAnchor.getFullYear() ||
+				(shiftedDate.getFullYear() === minAnchor.getFullYear() &&
+					shiftedDate.getMonth() < minAnchor.getMonth()))
+		) {
+			return anchorDate;
+		}
+		if (
+			(period === "YEAR" || period === "FY") &&
+			shiftedDate.getFullYear() < minAnchor.getFullYear()
+		) {
+			return anchorDate;
+		}
 	}
-	shiftedDate.setFullYear(shiftedDate.getFullYear() + direction);
+	if (direction === 1 && maxDate !== undefined) {
+		const maxAnchor = new Date(maxDate);
+		if (
+			period === "MONTH" &&
+			(shiftedDate.getFullYear() > maxAnchor.getFullYear() ||
+				(shiftedDate.getFullYear() === maxAnchor.getFullYear() &&
+					shiftedDate.getMonth() > maxAnchor.getMonth()))
+		) {
+			return anchorDate;
+		}
+		if (
+			(period === "YEAR" || period === "FY") &&
+			shiftedDate.getFullYear() > maxAnchor.getFullYear()
+		) {
+			return anchorDate;
+		}
+	}
+
 	return shiftedDate;
 };
 
@@ -79,5 +163,7 @@ export {
 	formatDateTime,
 	getAnalysisDateRange,
 	getCustomDateRange,
+	getFyDateRange,
+	getYtdDateRange,
 	shiftAnalysisAnchor,
 };

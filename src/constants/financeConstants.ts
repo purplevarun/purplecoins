@@ -1,7 +1,14 @@
 const TRANSACTION_CLASSIFICATIONS = ["GENERAL", "INVESTMENT"] as const;
 const TRANSACTION_TYPES = ["DEBIT", "CREDIT", "TRANSFER"] as const;
 const BUDGET_PERIODS = ["MONTHLY", "YEARLY"] as const;
-const ANALYSIS_PERIODS = ["MONTH", "YEAR", "ALL", "CUSTOM"] as const;
+const ANALYSIS_PERIODS = [
+	"MONTH",
+	"YEAR",
+	"ALL",
+	"CUSTOM",
+	"FY",
+	"YTD",
+] as const;
 const RELATION_KINDS = ["SOURCE", "CATEGORY", "TRIP", "INVESTMENT"] as const;
 const VAULT_KINDS = ["PASSWORD", "CARD", "IDENTITY"] as const;
 const ATTACHMENT_OWNER_TYPES = [

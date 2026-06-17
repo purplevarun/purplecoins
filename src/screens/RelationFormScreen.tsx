@@ -96,7 +96,10 @@ const RelationFormScreen = ({
 			} else {
 				await saveInvestment(database, entityId, name);
 			}
+			// Bump dataVersion first so RelationsScreen reloads when we pop back
 			refreshData();
+			// Small delay to ensure the state update propagates before navigation
+			await new Promise<void>((resolve) => setTimeout(resolve, 0));
 			navigation.goBack();
 		} catch (caughtError: unknown) {
 			setError(getErrorMessage(caughtError));

@@ -5,6 +5,7 @@ import {
 	createFolder,
 	deleteFolder,
 	getFolders,
+	renameFolder,
 } from "@/services/folderService";
 import type { Folder } from "@/types/Folder";
 
@@ -12,6 +13,7 @@ type UseFoldersResult = Readonly<{
 	folders: readonly Folder[];
 	handleCreateFolder: (name: string) => Promise<string>;
 	handleDeleteFolder: (id: string) => Promise<void>;
+	handleRenameFolder: (id: string, name: string) => Promise<void>;
 }>;
 
 const useFolders = (type: "NOTE" | "TODO"): UseFoldersResult => {
@@ -38,7 +40,21 @@ const useFolders = (type: "NOTE" | "TODO"): UseFoldersResult => {
 		refreshData();
 	};
 
-	return { folders, handleCreateFolder, handleDeleteFolder };
+	const handleRenameFolder = async (
+		id: string,
+		name: string,
+	): Promise<void> => {
+		await renameFolder(database, id, name);
+		setFolders(await getFolders(database, type));
+		refreshData();
+	};
+
+	return {
+		folders,
+		handleCreateFolder,
+		handleDeleteFolder,
+		handleRenameFolder,
+	};
 };
 
 export { useFolders };

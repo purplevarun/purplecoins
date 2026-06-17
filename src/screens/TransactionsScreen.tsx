@@ -1,20 +1,33 @@
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useState,
+} from "react";
 import { StyleSheet, View } from "react-native";
 
 import { EmptyState } from "@/components/EmptyState";
 import { FloatingAddButton } from "@/components/FloatingAddButton";
+import { HeaderIconButton } from "@/components/HeaderIconButton";
 import { Notice } from "@/components/Notice";
 import { ListHeader, ScreenList } from "@/components/ScreenList";
+import { SearchBar } from "@/components/SearchBar";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { TransactionCard } from "@/components/TransactionCard";
 import { COLORS } from "@/constants/colors";
 import { useDatabaseContext } from "@/hooks/useDatabaseContext";
-import { getTransactions } from "@/services/transactionService";
+import {
+	getTransactionDisplayReason,
+	getTransactions,
+} from "@/services/transactionService";
 import type { RootStackParamList } from "@/types/RootStackParamList";
 import type { SelectOption } from "@/types/SelectOption";
 import type { Transaction } from "@/types/Transaction";
+import { formatDate } from "@/utils/date";
 import { getErrorMessage } from "@/utils/error";
+import { formatMoney } from "@/utils/money";
 
 type TransactionsScreenProps = NativeStackScreenProps<
 	RootStackParamList,
@@ -36,6 +49,9 @@ const TransactionsScreen = ({
 	);
 	const [filter, setFilter] = useState("ALL");
 	const [error, setError] = useState("");
+	const [searchVisible, setSearchVisible] = useState(false);
+	const [searchQuery, setSearchQuery] = useState("");
+	const [searchDebounced, setSearchDebounced] = useState("");
 
 	const getScreenData = useCallback(async (): Promise<void> => {
 		try {
@@ -50,15 +66,55 @@ const TransactionsScreen = ({
 		void getScreenData();
 	}, [dataVersion, getScreenData]);
 
-	const filteredTransactions = useMemo(
-		() =>
-			transactions.filter((transaction) => {
+	useEffect(() => {
+		const timer = setTimeout(() => setSearchDebounced(searchQuery), 250);
+		return () => clearTimeout(timer);
+	}, [searchQuery]);
+
+	useLayoutEffect(() => {
+		navigation.setOptions({
+			headerRight: () => (
+				<HeaderIconButton
+					accessibilityLabel={
+						searchVisible ? "Close search" : "Search"
+					}
+					icon={searchVisible ? "close-outline" : "search-outline"}
+					isActive={searchVisible}
+					onPress={() => {
+						setSearchVisible((v) => !v);
+						setSearchQuery("");
+						setSearchDebounced("");
+					}}
+				/>
+			),
+		});
+	}, [navigation, searchVisible]);
+
+	const filteredTransactions = useMemo(() => {
+		let list = transactions;
+		if (filter !== "ALL") {
+			list = list.filter((t) => t.classification === filter);
+		}
+		if (searchDebounced.trim()) {
+			const q = searchDebounced.trim().toLowerCase().replace(/,/g, "");
+			list = list.filter((t) => {
+				const amount = t.amount.replace(/,/g, "");
 				return (
-					filter === "ALL" || transaction.classification === filter
+					getTransactionDisplayReason(t).toLowerCase().includes(q) ||
+					t.sourceName.toLowerCase().includes(q) ||
+					amount.includes(q) ||
+					(t.categoryName ?? "").toLowerCase().includes(q) ||
+					(t.tripName ?? "").toLowerCase().includes(q) ||
+					(t.investmentName ?? "").toLowerCase().includes(q) ||
+					formatDate(t.transactionAt).toLowerCase().includes(q) ||
+					formatMoney(t.amount, t.sourceCurrencyCode)
+						.replace(/,/g, "")
+						.includes(q)
 				);
-			}),
-		[filter, transactions],
-	);
+			});
+		}
+		return list;
+	}, [filter, transactions, searchDebounced]);
 
 	const renderTransaction = useCallback(
 		({ item: transaction }: { item: Transaction }): React.JSX.Element => (
@@ -87,10 +143,17 @@ const TransactionsScreen = ({
 					options={FILTER_OPTIONS}
 					value={filter}
 				/>
+				{searchVisible ? (
+					<SearchBar
+						onChangeText={setSearchQuery}
+						placeholder="Search transactions..."
+						value={searchQuery}
+					/>
+				) : null}
 				{error ? <Notice message={error} tone="danger" /> : null}
 			</ListHeader>
 		),
-		[error, filter],
+		[error, filter, searchQuery, searchVisible],
 	);
 
 	const listEmpty = useMemo(

@@ -8,22 +8,50 @@ import { AppButton } from "@/components/AppButton";
 import { GlassCard } from "@/components/GlassCard";
 import { Notice } from "@/components/Notice";
 import { ScreenContainer } from "@/components/ScreenContainer";
+import { SelectField } from "@/components/SelectField";
 import { APP_NAME } from "@/constants/appConstants";
 import { COLORS } from "@/constants/colors";
 import { useAppDialog } from "@/hooks/useAppDialog";
 import { useDatabaseContext } from "@/hooks/useDatabaseContext";
 import { exportBackup, restoreBackup } from "@/services/backupService";
 import {
+	getDefaultTripId,
+	getFyStartMonth,
 	getNativeCurrencyDisplay,
+	updateDefaultTripId,
+	updateFyStartMonth,
 	updateNativeCurrencyDisplay,
 } from "@/services/settingsService";
+import { getTrips } from "@/services/tripService";
 import type { RootStackParamList } from "@/types/RootStackParamList";
+import type { SelectOption } from "@/types/SelectOption";
+import type { Trip } from "@/types/Trip";
 import { getErrorMessage } from "@/utils/error";
 
 type SettingsScreenProps = NativeStackScreenProps<
 	RootStackParamList,
 	"Settings"
 >;
+
+const MONTH_OPTIONS: readonly SelectOption[] = [
+	{ label: "Jan", value: "1" },
+	{ label: "Feb", value: "2" },
+	{ label: "Mar", value: "3" },
+	{ label: "Apr", value: "4" },
+	{ label: "May", value: "5" },
+	{ label: "Jun", value: "6" },
+	{ label: "Jul", value: "7" },
+	{ label: "Aug", value: "8" },
+	{ label: "Sep", value: "9" },
+	{ label: "Oct", value: "10" },
+	{ label: "Nov", value: "11" },
+	{ label: "Dec", value: "12" },
+];
+
+const getFyEndMonthLabel = (startMonth: number): string => {
+	const endMonth = startMonth === 1 ? 12 : startMonth - 1;
+	return MONTH_OPTIONS[endMonth - 1]?.label ?? "Mar";
+};
 
 const SettingsScreen = (_props: SettingsScreenProps): React.JSX.Element => {
 	const { database, refreshData } = useDatabaseContext();
@@ -32,10 +60,22 @@ const SettingsScreen = (_props: SettingsScreenProps): React.JSX.Element => {
 	const [isWorking, setIsWorking] = useState(false);
 	const [error, setError] = useState("");
 	const [message, setMessage] = useState("");
+	const [fyStartMonth, setFyStartMonth] = useState(4);
+	const [defaultTripId, setDefaultTripId] = useState("");
+	const [trips, setTrips] = useState<readonly Trip[]>([]);
 
 	useEffect(() => {
 		const getSettings = async (): Promise<void> => {
-			setIsNativeCurrency(await getNativeCurrencyDisplay(database));
+			const [native, fy, tripId, loadedTrips] = await Promise.all([
+				getNativeCurrencyDisplay(database),
+				getFyStartMonth(database),
+				getDefaultTripId(database),
+				getTrips(database),
+			]);
+			setIsNativeCurrency(native);
+			setFyStartMonth(fy);
+			setDefaultTripId(tripId ?? "");
+			setTrips(loadedTrips);
 		};
 		void getSettings();
 	}, [database]);
@@ -43,6 +83,19 @@ const SettingsScreen = (_props: SettingsScreenProps): React.JSX.Element => {
 	const handleCurrencyToggle = async (value: boolean): Promise<void> => {
 		setIsNativeCurrency(value);
 		await updateNativeCurrencyDisplay(database, value);
+		refreshData();
+	};
+
+	const handleFyStartMonthChange = async (value: string): Promise<void> => {
+		const month = parseInt(value, 10);
+		setFyStartMonth(month);
+		await updateFyStartMonth(database, month);
+		refreshData();
+	};
+
+	const handleDefaultTripChange = async (value: string): Promise<void> => {
+		setDefaultTripId(value);
+		await updateDefaultTripId(database, value || null);
 		refreshData();
 	};
 
@@ -89,6 +142,11 @@ const SettingsScreen = (_props: SettingsScreenProps): React.JSX.Element => {
 		});
 	};
 
+	const tripOptions: readonly SelectOption[] = [
+		{ label: "None", value: "" },
+		...trips.map((t) => ({ label: t.name, value: t.id })),
+	];
+
 	return (
 		<ScreenContainer>
 			<GlassCard>
@@ -125,6 +183,37 @@ const SettingsScreen = (_props: SettingsScreenProps): React.JSX.Element => {
 							value={isNativeCurrency}
 						/>
 					</View>
+				</View>
+			</GlassCard>
+			<GlassCard>
+				<View style={styles.section}>
+					<CustomText style={styles.heading}>
+						Configuration
+					</CustomText>
+					<SelectField
+						label="Financial year start month"
+						onChange={handleFyStartMonthChange}
+						options={MONTH_OPTIONS}
+						value={String(fyStartMonth)}
+					/>
+					<CustomText style={styles.fyEndHint}>
+						FY ends in{" "}
+						<CustomText style={styles.fyEndValue}>
+							{getFyEndMonthLabel(fyStartMonth)}
+						</CustomText>
+					</CustomText>
+					<SelectField
+						isOptional
+						label="Default trip"
+						onChange={handleDefaultTripChange}
+						options={tripOptions}
+						placeholder="No default trip"
+						value={defaultTripId}
+					/>
+					<CustomText style={styles.switchDescription}>
+						When set, new transactions will have this trip
+						pre-filled.
+					</CustomText>
 				</View>
 			</GlassCard>
 			<GlassCard>
@@ -203,6 +292,15 @@ const styles = StyleSheet.create({
 		color: COLORS.textMuted,
 		fontSize: 11,
 		lineHeight: 16,
+	},
+	fyEndHint: {
+		color: COLORS.textMuted,
+		fontSize: 12,
+		marginTop: -6,
+	},
+	fyEndValue: {
+		color: COLORS.primaryBright,
+		fontWeight: "800",
 	},
 });
 

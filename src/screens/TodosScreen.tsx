@@ -2,7 +2,7 @@ import { CustomText } from "@/components/CustomText";
 import { Ionicons } from "@expo/vector-icons";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 
 import { EmptyState } from "@/components/EmptyState";
 import { FloatingAddButton } from "@/components/FloatingAddButton";
@@ -29,7 +29,8 @@ type TodosScreenProps = NativeStackScreenProps<RootStackParamList, "Todos">;
 const TodosScreen = ({ navigation }: TodosScreenProps): React.JSX.Element => {
 	const { database, dataVersion, refreshData } = useDatabaseContext();
 	const dialog = useAppDialog();
-	const { folders, handleDeleteFolder } = useFolders("TODO");
+	const { folders, handleDeleteFolder, handleRenameFolder } =
+		useFolders("TODO");
 	const [todos, setTodos] = useState<readonly Todo[]>([]);
 	const [selectedFolderId, setSelectedFolderId] = useState(FOLDER_FILTER_ALL);
 	const [error, setError] = useState("");
@@ -168,19 +169,92 @@ const TodosScreen = ({ navigation }: TodosScreenProps): React.JSX.Element => {
 		[dialog, handleDeleteFolder, selectedFolderId],
 	);
 
+	const handleRenameFolderWithModal = useCallback(
+		(folder: { id: string; name: string }, newName: string): void => {
+			const processRename = async (): Promise<void> => {
+				try {
+					await handleRenameFolder(folder.id, newName);
+				} catch (caughtError: unknown) {
+					setError(getErrorMessage(caughtError));
+				}
+			};
+			void processRename();
+		},
+		[handleRenameFolder],
+	);
+
+	// Top-4 folders by todo count for quick chips
+	const topFolderChips = useMemo(() => {
+		const countMap = new Map<string, number>();
+		for (const todo of todos) {
+			if (todo.folderId) {
+				countMap.set(
+					todo.folderId,
+					(countMap.get(todo.folderId) ?? 0) + 1,
+				);
+			}
+		}
+		return [...folders]
+			.sort(
+				(a, b) => (countMap.get(b.id) ?? 0) - (countMap.get(a.id) ?? 0),
+			)
+			.slice(0, 4);
+	}, [folders, todos]);
+
 	const listHeader = useMemo(
 		() => (
 			<ListHeader>
 				<FolderFilterChips
 					folders={folders}
 					onDeleteFolder={handleDeleteFolderWithConfirm}
+					onRenameFolder={handleRenameFolderWithModal}
 					onSelectFolder={setSelectedFolderId}
 					selectedFolderId={selectedFolderId}
 				/>
+				{topFolderChips.length > 0 ? (
+					<ScrollView
+						horizontal
+						showsHorizontalScrollIndicator={false}
+						style={styles.quickChipsRow}
+					>
+						{topFolderChips.map((folder) => {
+							const isSelected = selectedFolderId === folder.id;
+							return (
+								<Pressable
+									key={folder.id}
+									onPress={() =>
+										setSelectedFolderId(folder.id)
+									}
+									style={[
+										styles.quickChip,
+										isSelected && styles.quickChipSelected,
+									]}
+								>
+									<CustomText
+										style={[
+											styles.quickChipLabel,
+											isSelected &&
+												styles.quickChipLabelSelected,
+										]}
+									>
+										{folder.name}
+									</CustomText>
+								</Pressable>
+							);
+						})}
+					</ScrollView>
+				) : null}
 				{error ? <Notice message={error} tone="danger" /> : null}
 			</ListHeader>
 		),
-		[error, folders, handleDeleteFolderWithConfirm, selectedFolderId],
+		[
+			error,
+			folders,
+			handleDeleteFolderWithConfirm,
+			handleRenameFolderWithModal,
+			selectedFolderId,
+			topFolderChips,
+		],
 	);
 
 	const listEmpty = useMemo(
@@ -250,6 +324,31 @@ const styles = StyleSheet.create({
 	meta: {
 		color: COLORS.textDim,
 		fontSize: 10,
+	},
+	quickChipsRow: {
+		marginTop: 6,
+		marginHorizontal: -2,
+	},
+	quickChip: {
+		marginHorizontal: 2,
+		paddingHorizontal: 14,
+		paddingVertical: 7,
+		borderRadius: 999,
+		borderWidth: 1,
+		borderColor: COLORS.border,
+		backgroundColor: "rgba(255,255,255,0.03)",
+	},
+	quickChipSelected: {
+		borderColor: COLORS.borderStrong,
+		backgroundColor: COLORS.primaryMuted,
+	},
+	quickChipLabel: {
+		color: COLORS.textDim,
+		fontSize: 11,
+		fontWeight: "700",
+	},
+	quickChipLabelSelected: {
+		color: COLORS.primaryBright,
 	},
 });
 

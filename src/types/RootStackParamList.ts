@@ -13,6 +13,9 @@ type RootStackParamList = {
 		kind: RelationKind;
 		entityId: string;
 		entityName: string;
+		dateRangeStart?: number;
+		dateRangeEnd?: number;
+		dateRangeLabel?: string;
 	};
 	Budgets: undefined;
 	BudgetForm: { budgetId?: string } | undefined;
