@@ -8,6 +8,14 @@ const initializeDatabase = async (): Promise<SQLiteDatabase> => {
 	const database = await openDatabaseAsync(DATABASE_NAME);
 	await database.execAsync(SCHEMA_SQL);
 	await database.execAsync(`PRAGMA user_version = ${SCHEMA_VERSION};`);
+	// Safe column additions for existing installs (silently ignored if already present)
+	try {
+		await database.execAsync(
+			`ALTER TABLE cards ADD COLUMN card_type TEXT NOT NULL DEFAULT 'CREDIT_CARD';`,
+		);
+	} catch {
+		// Column already exists — safe to ignore
+	}
 	return database;
 };
 

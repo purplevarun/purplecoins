@@ -35,6 +35,7 @@ const saveCard = async (
 	entry: Readonly<{
 		id?: string;
 		name: string;
+		cardType: "CREDIT_CARD" | "DEBIT_CARD";
 		cardNumber: string;
 		expiry: string;
 		cvv: string;
@@ -56,6 +57,7 @@ const saveCard = async (
 	await upsertCardRow(database, {
 		id,
 		name,
+		cardType: entry.cardType,
 		cardNumber: entry.cardNumber.trim(),
 		expiry: entry.expiry.trim(),
 		cvv: entry.cvv.trim(),

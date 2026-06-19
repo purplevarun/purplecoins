@@ -23,6 +23,7 @@ import type { IdentityEntry } from "@/types/IdentityEntry";
 import type { PasswordEntry } from "@/types/PasswordEntry";
 import type { RootStackParamList } from "@/types/RootStackParamList";
 import type { VaultKind } from "@/types/VaultKind";
+import { formatDate } from "@/utils/date";
 import { getErrorMessage } from "@/utils/error";
 
 type VaultScreenProps = NativeStackScreenProps<RootStackParamList, "Vault">;
@@ -31,6 +32,41 @@ type VaultListItem =
 	| { kind: "PASSWORD"; entry: PasswordEntry }
 	| { kind: "CARD"; entry: CardEntry }
 	| { kind: "IDENTITY"; entry: IdentityEntry };
+
+const CARD_TYPE_LABEL: Record<string, string> = {
+	CREDIT_CARD: "Credit card",
+	DEBIT_CARD: "Debit card",
+};
+
+const CopyRow = ({
+	label,
+	value,
+	onCopy,
+}: {
+	label: string;
+	value: string;
+	onCopy: (value: string, label: string) => void;
+}): React.JSX.Element | null => {
+	if (!value) return null;
+	return (
+		<View style={styles.copyRow}>
+			<View style={styles.copyDetails}>
+				<CustomText style={styles.copyLabel}>{label}</CustomText>
+				<CustomText style={styles.copyValue}>{value}</CustomText>
+			</View>
+			<Pressable
+				onPress={() => onCopy(value, label)}
+				style={styles.copyBtn}
+			>
+				<Ionicons
+					color={COLORS.primaryBright}
+					name="copy-outline"
+					size={16}
+				/>
+			</Pressable>
+		</View>
+	);
+};
 
 const VaultScreen = ({
 	navigation,
@@ -116,7 +152,7 @@ const VaultScreen = ({
 		if (kind === "CARD") {
 			return cards
 				.filter((entry) =>
-					`${entry.name} ${entry.network} ${entry.cardNumber}`
+					`${entry.name} ${entry.network} ${entry.cardNumber} ${entry.cardType}`
 						.toLowerCase()
 						.includes(normalizedSearch),
 				)
@@ -160,13 +196,16 @@ const VaultScreen = ({
 											entry.website ||
 											"No username"}
 									</CustomText>
+									<CustomText style={styles.updatedAt}>
+										Updated {formatDate(entry.updatedAt)}
+									</CustomText>
 								</View>
 							</View>
 							<View style={styles.actions}>
 								<AppButton
 									icon="copy-outline"
 									isCompact
-									label="Copy"
+									label="Copy password"
 									onPress={() =>
 										void handleCopy(
 											entry.password,
@@ -216,8 +255,11 @@ const VaultScreen = ({
 										{entry.name}
 									</CustomText>
 									<CustomText style={styles.meta}>
-										{entry.network || "Card"} · ••••{" "}
-										{entry.cardNumber.slice(-4)}
+										{CARD_TYPE_LABEL[entry.cardType] ??
+											entry.cardType}
+										{entry.network
+											? ` · ${entry.network}`
+											: ""}
 									</CustomText>
 								</View>
 								{entry.hasAttachment ? (
@@ -228,19 +270,40 @@ const VaultScreen = ({
 									/>
 								) : null}
 							</View>
-							<View style={styles.actions}>
-								<AppButton
-									icon="copy-outline"
-									isCompact
-									label="Copy number"
-									onPress={() =>
-										void handleCopy(
-											entry.cardNumber,
-											"Card number",
-										)
-									}
-									variant="secondary"
+							<View style={styles.cardFields}>
+								<CopyRow
+									label="Card number"
+									onCopy={(v, l) => void handleCopy(v, l)}
+									value={entry.cardNumber}
 								/>
+								{entry.expiry ? (
+									<View style={styles.copyRow}>
+										<View style={styles.copyDetails}>
+											<CustomText
+												style={styles.copyLabel}
+											>
+												Expiry
+											</CustomText>
+											<CustomText
+												style={styles.copyValue}
+											>
+												{entry.expiry}
+											</CustomText>
+										</View>
+									</View>
+								) : null}
+								<CopyRow
+									label="CVV"
+									onCopy={(v, l) => void handleCopy(v, l)}
+									value={entry.cvv}
+								/>
+								<CopyRow
+									label="PIN"
+									onCopy={(v, l) => void handleCopy(v, l)}
+									value={entry.pin}
+								/>
+							</View>
+							<View style={styles.actions}>
 								<AppButton
 									icon="trash-outline"
 									isCompact
@@ -317,10 +380,6 @@ const VaultScreen = ({
 	const listHeader = useMemo(
 		() => (
 			<ListHeader>
-				<Notice
-					message="Vault data is stored locally on this phone. These fields are not encrypted."
-					tone="warning"
-				/>
 				<TextField
 					label="Search"
 					onChangeText={setSearch}
@@ -384,11 +443,45 @@ const styles = StyleSheet.create({
 		color: COLORS.textMuted,
 		fontSize: 12,
 	},
+	updatedAt: {
+		color: COLORS.textDim,
+		fontSize: 11,
+		marginTop: 2,
+	},
 	actions: {
 		flexDirection: "row",
 		justifyContent: "flex-end",
 		gap: 8,
 		marginTop: 13,
+	},
+	cardFields: {
+		marginTop: 12,
+		gap: 8,
+	},
+	copyRow: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 8,
+	},
+	copyDetails: {
+		flex: 1,
+		gap: 2,
+	},
+	copyLabel: {
+		color: COLORS.textDim,
+		fontSize: 10,
+		fontWeight: "700",
+		textTransform: "uppercase",
+		letterSpacing: 0.6,
+	},
+	copyValue: {
+		color: COLORS.text,
+		fontSize: 14,
+		fontWeight: "700",
+		fontVariant: ["tabular-nums"],
+	},
+	copyBtn: {
+		padding: 8,
 	},
 });
 

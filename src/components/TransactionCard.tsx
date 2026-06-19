@@ -64,7 +64,10 @@ const TransactionCard = ({
 					</View>
 					<View style={styles.details}>
 						<View style={styles.headingRow}>
-							<CustomText numberOfLines={1} style={styles.reason}>
+							<CustomText
+								numberOfLines={10}
+								style={styles.reason}
+							>
 								{getTransactionDisplayReason(transaction)}
 							</CustomText>
 							{transaction.hasAttachment ? (
@@ -165,7 +168,7 @@ const styles = StyleSheet.create({
 	amountColumn: {
 		alignItems: "flex-end",
 		gap: 3,
-		maxWidth: "35%",
+		flexShrink: 0,
 	},
 	amount: {
 		fontSize: 14,

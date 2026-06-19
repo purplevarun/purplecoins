@@ -1,5 +1,6 @@
 import { CustomText } from "@/components/CustomText";
 import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import Decimal from "decimal.js";
 import {
@@ -67,7 +68,7 @@ const RelationsScreen = ({
 	navigation,
 	route,
 }: RelationsScreenProps): React.JSX.Element => {
-	const { database, dataVersion, refreshData } = useDatabaseContext();
+	const { database, refreshData } = useDatabaseContext();
 	const dialog = useAppDialog();
 	const { kind } = route.params;
 	const [sources, setSources] = useState<readonly Source[]>([]);
@@ -141,9 +142,11 @@ const RelationsScreen = ({
 		}
 	}, [database, kind]);
 
-	useEffect(() => {
-		void getScreenData();
-	}, [dataVersion, getScreenData]);
+	useFocusEffect(
+		useCallback(() => {
+			void getScreenData();
+		}, [getScreenData]),
+	);
 
 	const handleToggleCurrency = useCallback(async (): Promise<void> => {
 		const nextValue = !isNativeCurrency;

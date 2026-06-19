@@ -270,6 +270,7 @@ const getCardRows = async (
 			card.id,
 			card.name,
 			card.card_number AS cardNumber,
+			card.card_type AS cardType,
 			card.expiry,
 			card.cvv,
 			card.pin,
@@ -296,6 +297,7 @@ const getCardRow = async (
 				card.id,
 				card.name,
 				card.card_number AS cardNumber,
+				card.card_type AS cardType,
 				card.expiry,
 				card.cvv,
 				card.pin,
@@ -321,12 +323,13 @@ const upsertCardRow = async (
 	await database.runAsync(
 		`
 			INSERT INTO cards (
-				id, name, card_number, expiry, cvv, pin, network, notes,
+				id, name, card_number, card_type, expiry, cvv, pin, network, notes,
 				created_at, updated_at
-			) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+			) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 			ON CONFLICT(id) DO UPDATE SET
 				name = excluded.name,
 				card_number = excluded.card_number,
+				card_type = excluded.card_type,
 				expiry = excluded.expiry,
 				cvv = excluded.cvv,
 				pin = excluded.pin,
@@ -337,6 +340,7 @@ const upsertCardRow = async (
 		entry.id,
 		entry.name,
 		entry.cardNumber,
+		entry.cardType,
 		entry.expiry,
 		entry.cvv,
 		entry.pin,

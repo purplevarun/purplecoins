@@ -8,6 +8,7 @@ import { AttachmentField } from "@/components/AttachmentField";
 import { GlassCard } from "@/components/GlassCard";
 import { Notice } from "@/components/Notice";
 import { ScreenContainer } from "@/components/ScreenContainer";
+import { SelectField } from "@/components/SelectField";
 import { TextField } from "@/components/TextField";
 import { COLORS } from "@/constants/colors";
 import { useAppDialog } from "@/hooks/useAppDialog";
@@ -46,6 +47,9 @@ const VaultFormScreen = ({
 	const [password, setPassword] = useState("");
 	const [website, setWebsite] = useState("");
 	const [cardNumber, setCardNumber] = useState("");
+	const [cardType, setCardType] = useState<"CREDIT_CARD" | "DEBIT_CARD">(
+		"CREDIT_CARD",
+	);
 	const [expiry, setExpiry] = useState("");
 	const [cvv, setCvv] = useState("");
 	const [pin, setPin] = useState("");
@@ -77,6 +81,7 @@ const VaultFormScreen = ({
 					if (entry) {
 						setTitle(entry.name);
 						setCardNumber(entry.cardNumber);
+						setCardType(entry.cardType ?? "CREDIT_CARD");
 						setExpiry(entry.expiry);
 						setCvv(entry.cvv);
 						setPin(entry.pin);
@@ -116,6 +121,7 @@ const VaultFormScreen = ({
 				savedId = await saveCard(database, {
 					id: entryId,
 					name: title,
+					cardType,
 					cardNumber,
 					expiry,
 					cvv,
@@ -216,6 +222,25 @@ const VaultFormScreen = ({
 					) : null}
 					{kind === "CARD" ? (
 						<>
+							<SelectField
+								label="Card type"
+								onChange={(v) =>
+									setCardType(
+										v as "CREDIT_CARD" | "DEBIT_CARD",
+									)
+								}
+								options={[
+									{
+										label: "Credit card",
+										value: "CREDIT_CARD",
+									},
+									{
+										label: "Debit card",
+										value: "DEBIT_CARD",
+									},
+								]}
+								value={cardType}
+							/>
 							<TextField
 								keyboardType="number-pad"
 								label="Card number"
