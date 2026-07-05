@@ -204,6 +204,9 @@ const RelationsScreen = ({
 			try {
 				await validateSource(database, id);
 				refreshData();
+				// Immediately reload screen data so the validated badge
+				// appears without needing to navigate away and back
+				await getScreenData();
 			} catch (caughtError: unknown) {
 				dialog.showMessage({
 					title: "Unable to validate",
@@ -212,7 +215,7 @@ const RelationsScreen = ({
 				});
 			}
 		},
-		[database, dialog, refreshData],
+		[database, dialog, getScreenData, refreshData],
 	);
 
 	const rateMap = useMemo((): Map<string, Decimal> => {

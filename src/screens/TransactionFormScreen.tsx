@@ -307,29 +307,22 @@ const TransactionFormScreen = ({
 							value={destinationSourceId}
 						/>
 					) : null}
-					{/* Row 1: Amount + Date */}
-					<View style={styles.twoCol}>
-						<View style={styles.colLeft}>
-							<TextField
-								keyboardType="decimal-pad"
-								label={
-									isTransfer && selectedSource
-										? `From (${selectedSource.currencyCode})`
-										: `Amount${selectedSource ? ` (${selectedSource.currencyCode})` : ""}`
-								}
-								onChangeText={setAmount}
-								placeholder="0.00"
-								value={amount}
-							/>
-						</View>
-						<View style={styles.colRight}>
-							<DateField
-								label="Date"
-								onChange={setTransactionAt}
-								value={transactionAt}
-							/>
-						</View>
-					</View>
+					<TextField
+						keyboardType="decimal-pad"
+						label={
+							isTransfer && selectedSource
+								? `From (${selectedSource.currencyCode})`
+								: `Amount${selectedSource ? ` (${selectedSource.currencyCode})` : ""}`
+						}
+						onChangeText={setAmount}
+						placeholder="0.00"
+						value={amount}
+					/>
+					<DateField
+						label="Date"
+						onChange={setTransactionAt}
+						value={transactionAt}
+					/>
 					{isTransfer ? (
 						<TextField
 							isEditable={!isSameCurrencyTransfer}
@@ -340,29 +333,25 @@ const TransactionFormScreen = ({
 							value={effectiveToAmount}
 						/>
 					) : null}
-					{/* Row 2: Source+Category or Source+Investment */}
+					{/* Category + Trip as individual rows */}
 					{classification === "GENERAL" && type !== "TRANSFER" ? (
-						<View style={styles.twoCol}>
-							<View style={styles.colLeft}>
-								<SelectField
-									label="Category"
-									onChange={setCategoryId}
-									options={categoryOptions}
-									placeholder="Select category"
-									value={categoryId}
-								/>
-							</View>
-							<View style={styles.colRight}>
-								<SelectField
-									isOptional
-									label="Trip"
-									onChange={setTripId}
-									options={tripOptions}
-									placeholder="No trip"
-									value={tripId}
-								/>
-							</View>
-						</View>
+						<>
+							<SelectField
+								label="Category"
+								onChange={setCategoryId}
+								options={categoryOptions}
+								placeholder="Select category"
+								value={categoryId}
+							/>
+							<SelectField
+								isOptional
+								label="Trip"
+								onChange={setTripId}
+								options={tripOptions}
+								placeholder="No trip"
+								value={tripId}
+							/>
+						</>
 					) : null}
 					{classification === "INVESTMENT" ? (
 						<SelectField
@@ -426,16 +415,6 @@ const styles = StyleSheet.create({
 		fontSize: 24,
 		fontWeight: "900",
 		letterSpacing: -0.5,
-	},
-	twoCol: {
-		flexDirection: "row",
-		gap: 10,
-	},
-	colLeft: {
-		flex: 1,
-	},
-	colRight: {
-		flex: 1,
 	},
 });
 

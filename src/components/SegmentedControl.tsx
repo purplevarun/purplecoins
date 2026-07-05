@@ -1,5 +1,5 @@
 import { CustomText } from "@/components/CustomText";
-import { Pressable, StyleSheet, View } from "react-native";
+import { DimensionValue, Pressable, StyleSheet, View } from "react-native";
 
 import { COLORS } from "@/constants/colors";
 import type { SelectOption } from "@/types/SelectOption";
@@ -14,34 +14,42 @@ const SegmentedControl = ({
 	value,
 	options,
 	onChange,
-}: SegmentedControlProps): React.JSX.Element => (
-	<View style={styles.container}>
-		{options.map((option) => {
-			const isSelected = option.value === value;
-			return (
-				<Pressable
-					key={option.value}
-					onPress={() => onChange(option.value)}
-					style={[styles.option, isSelected && styles.selectedOption]}
-				>
-					<CustomText
+}: SegmentedControlProps): React.JSX.Element => {
+	const width = `${100 / Math.min(options.length, 3)}%` as DimensionValue;
+
+	return (
+		<View style={styles.container}>
+			{options.map((option) => {
+				const isSelected = option.value === value;
+
+				return (
+					<Pressable
+						key={option.value}
+						onPress={() => onChange(option.value)}
 						style={[
-							styles.label,
-							isSelected && styles.selectedLabel,
+							styles.option,
+							{ width },
+							isSelected && styles.selectedOption,
 						]}
 					>
-						{option.label}
-					</CustomText>
-				</Pressable>
-			);
-		})}
-	</View>
-);
+						<CustomText
+							style={[
+								styles.label,
+								isSelected && styles.selectedLabel,
+							]}
+						>
+							{option.label}
+						</CustomText>
+					</Pressable>
+				);
+			})}
+		</View>
+	);
+};
 
 const styles = StyleSheet.create({
 	container: {
 		flexDirection: "row",
-		flexWrap: "wrap",
 		padding: 4,
 		borderRadius: 16,
 		borderWidth: 1,
@@ -50,7 +58,6 @@ const styles = StyleSheet.create({
 		gap: 4,
 	},
 	option: {
-		width: "32%", // ~3 per row (accounting for gap)
 		minHeight: 42,
 		borderRadius: 12,
 		alignItems: "center",
