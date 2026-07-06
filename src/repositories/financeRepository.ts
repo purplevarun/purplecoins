@@ -64,7 +64,10 @@ const getSourceRows = async (
 			ON txn.source_id = source.id
 			OR txn.destination_source_id = source.id
 		GROUP BY source.id
-		ORDER BY lower(source.name);
+		ORDER BY
+			COUNT(txn.id) DESC,
+			COALESCE(MAX(txn.created_at), 0) DESC,
+			lower(source.name) ASC;
 	`);
 
 const getSourceRow = async (
@@ -149,13 +152,18 @@ const getCategoryRows = async (
 ): Promise<readonly Category[]> =>
 	database.getAllAsync<Category>(`
 		SELECT
-			id,
-			name,
-			is_income AS isIncome,
-			created_at AS createdAt,
-			updated_at AS updatedAt
-		FROM categories
-		ORDER BY lower(name);
+			category.id,
+			category.name,
+			category.is_income AS isIncome,
+			category.created_at AS createdAt,
+			category.updated_at AS updatedAt
+		FROM categories category
+		LEFT JOIN transactions txn ON txn.category_id = category.id
+		GROUP BY category.id
+		ORDER BY
+			COUNT(txn.id) DESC,
+			COALESCE(MAX(txn.created_at), 0) DESC,
+			lower(category.name) ASC;
 	`);
 
 const getCategoryRow = async (
@@ -210,12 +218,17 @@ const getTripRows = async (
 ): Promise<readonly Trip[]> =>
 	database.getAllAsync<Trip>(`
 		SELECT
-			id,
-			name,
-			created_at AS createdAt,
-			updated_at AS updatedAt
-		FROM trips
-		ORDER BY lower(name);
+			trip.id,
+			trip.name,
+			trip.created_at AS createdAt,
+			trip.updated_at AS updatedAt
+		FROM trips trip
+		LEFT JOIN transactions txn ON txn.trip_id = trip.id
+		GROUP BY trip.id
+		ORDER BY
+			COUNT(txn.id) DESC,
+			COALESCE(MAX(txn.created_at), 0) DESC,
+			lower(trip.name) ASC;
 	`);
 
 const getTripRow = async (
@@ -236,12 +249,17 @@ const getInvestmentRows = async (
 ): Promise<readonly Investment[]> =>
 	database.getAllAsync<Investment>(`
 		SELECT
-			id,
-			name,
-			created_at AS createdAt,
-			updated_at AS updatedAt
-		FROM investments
-		ORDER BY lower(name);
+			investment.id,
+			investment.name,
+			investment.created_at AS createdAt,
+			investment.updated_at AS updatedAt
+		FROM investments investment
+		LEFT JOIN transactions txn ON txn.investment_id = investment.id
+		GROUP BY investment.id
+		ORDER BY
+			COUNT(txn.id) DESC,
+			COALESCE(MAX(txn.created_at), 0) DESC,
+			lower(investment.name) ASC;
 	`);
 
 const getInvestmentRow = async (
