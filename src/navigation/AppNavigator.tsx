@@ -7,9 +7,9 @@ import { AnalysisScreen } from "@/screens/AnalysisScreen";
 import { ArchivedRelationsScreen } from "@/screens/ArchivedRelationsScreen";
 import { BudgetFormScreen } from "@/screens/BudgetFormScreen";
 import { BudgetsScreen } from "@/screens/BudgetsScreen";
-import { DashboardScreen } from "@/screens/DashboardScreen";
 import { ExchangeRatesScreen } from "@/screens/ExchangeRatesScreen";
 import { GlobalSearchScreen } from "@/screens/GlobalSearchScreen";
+import { HomeScreen } from "@/screens/HomeScreen";
 import { LinkedTransactionsScreen } from "@/screens/LinkedTransactionsScreen";
 import { NoteFormScreen } from "@/screens/NoteFormScreen";
 import { NotesScreen } from "@/screens/NotesScreen";
@@ -42,7 +42,7 @@ const navigationTheme = {
 const AppNavigator = (): React.JSX.Element => (
 	<NavigationContainer theme={navigationTheme}>
 		<Stack.Navigator
-			initialRouteName="Dashboard"
+			initialRouteName="Home"
 			screenOptions={{
 				contentStyle: { backgroundColor: COLORS.background },
 				headerStyle: { backgroundColor: COLORS.backgroundElevated },
@@ -56,8 +56,8 @@ const AppNavigator = (): React.JSX.Element => (
 			}}
 		>
 			<Stack.Screen
-				component={DashboardScreen}
-				name="Dashboard"
+				component={HomeScreen}
+				name="Home"
 				options={{ headerShown: false }}
 			/>
 			<Stack.Screen
@@ -115,7 +115,11 @@ const AppNavigator = (): React.JSX.Element => (
 			<Stack.Screen
 				component={GlobalSearchScreen}
 				name="GlobalSearch"
-				options={{ title: "Search" }}
+				options={({ route }) => ({
+					title: `Search ${route.params.mode.charAt(0)}${route.params.mode
+						.slice(1)
+						.toLowerCase()}`,
+				})}
 			/>
 			<Stack.Screen
 				component={NotesScreen}

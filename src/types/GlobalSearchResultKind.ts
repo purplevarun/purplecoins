@@ -4,6 +4,8 @@ type GlobalSearchResultKind =
 	| "CATEGORY"
 	| "TRIP"
 	| "INVESTMENT"
+	| "BUDGET"
+	| "EXCHANGE_RATE"
 	| "NOTE"
 	| "TODO"
 	| "PASSWORD"

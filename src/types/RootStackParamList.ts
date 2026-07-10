@@ -1,8 +1,9 @@
+import type { HomeMode } from "@/types/HomeMode";
 import type { RelationKind } from "@/types/RelationKind";
 import type { VaultKind } from "@/types/VaultKind";
 
 type RootStackParamList = {
-	Dashboard: undefined;
+	Home: undefined;
 	Transactions: undefined;
 	TransactionForm:
 		| { transactionId?: string; cloneFromTransactionId?: string }
@@ -22,7 +23,7 @@ type RootStackParamList = {
 	BudgetForm: { budgetId?: string } | undefined;
 	Analysis: undefined;
 	ExchangeRates: undefined;
-	GlobalSearch: undefined;
+	GlobalSearch: { mode: HomeMode };
 	Notes: undefined;
 	NoteForm: { noteId?: string } | undefined;
 	Todos: undefined;

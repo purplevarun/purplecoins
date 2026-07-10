@@ -1,4 +1,4 @@
-import "react-native-gesture-handler";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
@@ -67,14 +67,14 @@ const App = (): React.JSX.Element => {
 	}
 
 	return (
-		<View style={styles.container}>
+		<GestureHandlerRootView style={styles.container}>
 			<StatusBar style="light" />
 			<DatabaseProvider database={databaseState.database}>
 				<AppDialogProvider>
 					<AppNavigator />
 				</AppDialogProvider>
 			</DatabaseProvider>
-		</View>
+		</GestureHandlerRootView>
 	);
 };
 

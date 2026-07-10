@@ -9,10 +9,13 @@ import { GlassCard } from "@/components/GlassCard";
 import { Notice } from "@/components/Notice";
 import { ListHeader, ScreenList } from "@/components/ScreenList";
 import { TextField } from "@/components/TextField";
+import { DEFAULT_CURRENCY_CODE } from "@/constants/appConstants";
 import { COLORS } from "@/constants/colors";
 import { useDatabaseContext } from "@/hooks/useDatabaseContext";
+import { getBudgets } from "@/services/budgetService";
 import { getCards } from "@/services/cardService";
 import { getCategories } from "@/services/categoryService";
+import { getExchangeRates } from "@/services/exchangeRateService";
 import { getIdentities } from "@/services/identityService";
 import { getInvestments } from "@/services/investmentService";
 import { getNotes } from "@/services/noteService";
@@ -26,6 +29,7 @@ import {
 import { getTrips } from "@/services/tripService";
 import type { GlobalSearchResult } from "@/types/GlobalSearchResult";
 import type { GlobalSearchResultKind } from "@/types/GlobalSearchResultKind";
+import type { HomeMode } from "@/types/HomeMode";
 import type { RootStackParamList } from "@/types/RootStackParamList";
 import { formatDate } from "@/utils/date";
 import { getErrorMessage } from "@/utils/error";
@@ -39,159 +43,211 @@ type GlobalSearchScreenProps = NativeStackScreenProps<
 const MINIMUM_SEARCH_LENGTH = 2;
 
 const getKindLabel = (kind: GlobalSearchResultKind): string =>
-	kind.charAt(0) + kind.slice(1).toLowerCase();
+	kind
+		.split("_")
+		.map((word) => word.charAt(0) + word.slice(1).toLowerCase())
+		.join(" ");
+
+const getModeLabel = (mode: HomeMode): string =>
+	mode.charAt(0) + mode.slice(1).toLowerCase();
 
 const GlobalSearchScreen = ({
 	navigation,
+	route,
 }: GlobalSearchScreenProps): React.JSX.Element => {
 	const { database, dataVersion } = useDatabaseContext();
+	const { mode } = route.params;
 	const [results, setResults] = useState<readonly GlobalSearchResult[]>([]);
 	const [search, setSearch] = useState("");
 	const [error, setError] = useState("");
 
 	const getScreenData = useCallback(async (): Promise<void> => {
 		try {
-			const [
-				transactions,
-				sources,
-				categories,
-				trips,
-				investments,
-				notes,
-				todos,
-				passwords,
-				cards,
-				identities,
-			] = await Promise.all([
-				getTransactions(database),
-				getSources(database),
-				getCategories(database),
-				getTrips(database),
-				getInvestments(database),
-				getNotes(database),
-				getTodos(database),
-				getPasswords(database),
-				getCards(database),
-				getIdentities(database),
-			]);
-
-			setResults([
-				...transactions.map(
-					(transaction): GlobalSearchResult => ({
-						id: transaction.id,
-						kind: "TRANSACTION",
-						title: getTransactionDisplayReason(transaction),
-						subtitle: `${transaction.sourceName} · ${formatMoney(
-							transaction.amount,
-							transaction.sourceCurrencyCode,
-						)} · ${formatDate(transaction.transactionAt)}`,
-						icon: "swap-horizontal",
-						color: COLORS.primary,
-						// Extra searchable text: raw amount (no commas) + formatted amount
-						searchExtra: `${transaction.amount} ${formatMoney(transaction.amount, transaction.sourceCurrencyCode).replace(/,/g, "")} ${transaction.categoryName ?? ""} ${transaction.tripName ?? ""} ${transaction.investmentName ?? ""} ${transaction.destinationSourceName ?? ""}`,
-					}),
-				),
-				...sources.map(
-					(source): GlobalSearchResult => ({
-						id: source.id,
-						kind: "SOURCE",
-						title: source.name,
-						subtitle: `Source · ${source.currencyCode}`,
-						icon: "wallet-outline",
-						color: COLORS.blue,
-					}),
-				),
-				...categories.map(
-					(category): GlobalSearchResult => ({
-						id: category.id,
-						kind: "CATEGORY",
-						title: category.name,
-						subtitle: category.isIncome
-							? "Income category"
-							: "Expense category",
-						icon: "pricetag-outline",
-						color: COLORS.warning,
-					}),
-				),
-				...trips.map(
-					(trip): GlobalSearchResult => ({
-						id: trip.id,
-						kind: "TRIP",
-						title: trip.name,
-						subtitle: "Trip",
-						icon: "airplane-outline",
-						color: "#68D5FF",
-					}),
-				),
-				...investments.map(
-					(investment): GlobalSearchResult => ({
-						id: investment.id,
-						kind: "INVESTMENT",
-						title: investment.name,
-						subtitle: "Investment",
-						icon: "trending-up",
-						color: COLORS.success,
-					}),
-				),
-				...notes.map(
-					(note): GlobalSearchResult => ({
-						id: note.id,
-						kind: "NOTE",
-						title: note.title,
-						subtitle: note.folderName ?? "Note",
-						icon: "document-text-outline",
-						color: COLORS.blue,
-					}),
-				),
-				...todos.map(
-					(todo): GlobalSearchResult => ({
-						id: todo.id,
-						kind: "TODO",
-						title: todo.title,
-						subtitle: todo.folderName ?? "Todo",
-						icon: "checkbox-outline",
-						color: COLORS.success,
-					}),
-				),
-				...passwords.map(
-					(password): GlobalSearchResult => ({
-						id: password.id,
-						kind: "PASSWORD",
-						title: password.title,
-						subtitle: password.username || password.website,
-						icon: "key-outline",
-						color: COLORS.warning,
-					}),
-				),
-				...cards.map(
-					(card): GlobalSearchResult => ({
-						id: card.id,
-						kind: "CARD",
-						title: card.name,
-						subtitle: card.network || "Card",
-						icon: "card-outline",
-						color: COLORS.danger,
-					}),
-				),
-				...identities.map(
-					(identity): GlobalSearchResult => ({
-						id: identity.id,
-						kind: "IDENTITY",
-						title: identity.title,
-						subtitle: identity.idNumber || "Identity",
-						icon: "person-circle-outline",
-						color: COLORS.blue,
-					}),
-				),
-			]);
+			if (mode === "TOOLS") {
+				const [notes, todos] = await Promise.all([
+					getNotes(database),
+					getTodos(database),
+				]);
+				setResults([
+					...notes.map(
+						(note): GlobalSearchResult => ({
+							id: note.id,
+							kind: "NOTE",
+							title: note.title,
+							subtitle: note.folderName ?? "Note",
+							icon: "document-text-outline",
+							color: COLORS.blue,
+						}),
+					),
+					...todos.map(
+						(todo): GlobalSearchResult => ({
+							id: todo.id,
+							kind: "TODO",
+							title: todo.title,
+							subtitle: todo.folderName ?? "Todo",
+							icon: "checkbox-outline",
+							color: COLORS.success,
+						}),
+					),
+				]);
+			} else if (mode === "FINANCE") {
+				const [
+					transactions,
+					sources,
+					categories,
+					trips,
+					investments,
+					budgets,
+					exchangeRates,
+				] = await Promise.all([
+					getTransactions(database),
+					getSources(database),
+					getCategories(database),
+					getTrips(database),
+					getInvestments(database),
+					getBudgets(database),
+					getExchangeRates(database),
+				]);
+				setResults([
+					...transactions.map(
+						(transaction): GlobalSearchResult => ({
+							id: transaction.id,
+							kind: "TRANSACTION",
+							title: getTransactionDisplayReason(transaction),
+							subtitle: `${transaction.sourceName} · ${formatMoney(
+								transaction.amount,
+								transaction.sourceCurrencyCode,
+							)} · ${formatDate(transaction.transactionAt)}`,
+							icon: "swap-horizontal",
+							color: COLORS.primary,
+							searchExtra: `${transaction.amount} ${formatMoney(transaction.amount, transaction.sourceCurrencyCode).replace(/,/g, "")} ${transaction.categoryName ?? ""} ${transaction.tripName ?? ""} ${transaction.investmentName ?? ""} ${transaction.destinationSourceName ?? ""}`,
+						}),
+					),
+					...sources.map(
+						(source): GlobalSearchResult => ({
+							id: source.id,
+							kind: "SOURCE",
+							title: source.name,
+							subtitle: `Source · ${source.currencyCode}`,
+							icon: "wallet-outline",
+							color: COLORS.blue,
+						}),
+					),
+					...categories.map(
+						(category): GlobalSearchResult => ({
+							id: category.id,
+							kind: "CATEGORY",
+							title: category.name,
+							subtitle: category.isIncome
+								? "Income category"
+								: "Expense category",
+							icon: "pricetag-outline",
+							color: COLORS.warning,
+						}),
+					),
+					...trips.map(
+						(trip): GlobalSearchResult => ({
+							id: trip.id,
+							kind: "TRIP",
+							title: trip.name,
+							subtitle: "Trip",
+							icon: "airplane-outline",
+							color: "#68D5FF",
+						}),
+					),
+					...investments.map(
+						(investment): GlobalSearchResult => ({
+							id: investment.id,
+							kind: "INVESTMENT",
+							title: investment.name,
+							subtitle: "Investment",
+							icon: "trending-up",
+							color: COLORS.success,
+						}),
+					),
+					...budgets.map(
+						(budget): GlobalSearchResult => ({
+							id: budget.id,
+							kind: "BUDGET",
+							title: budget.categoryName,
+							subtitle: `${
+								budget.period === "MONTHLY"
+									? "Monthly"
+									: "Yearly"
+							} budget · ${formatMoney(
+								budget.amount,
+								DEFAULT_CURRENCY_CODE,
+							)}`,
+							icon: "speedometer-outline",
+							color: "#FF8FA3",
+							searchExtra: `${budget.period} ${budget.amount}`,
+						}),
+					),
+					...exchangeRates.map(
+						(rate): GlobalSearchResult => ({
+							id: rate.currencyCode,
+							kind: "EXCHANGE_RATE",
+							title: rate.currencyCode,
+							subtitle: `Exchange rate · ${formatMoney(
+								rate.rateToInr,
+								DEFAULT_CURRENCY_CODE,
+							)}`,
+							icon: "earth-outline",
+							color: "#66E0C2",
+							searchExtra: `${rate.source} ${rate.rateToInr}`,
+						}),
+					),
+				]);
+			} else {
+				const [passwords, cards, identities] = await Promise.all([
+					getPasswords(database),
+					getCards(database),
+					getIdentities(database),
+				]);
+				setResults([
+					...passwords.map(
+						(password): GlobalSearchResult => ({
+							id: password.id,
+							kind: "PASSWORD",
+							title: password.title,
+							subtitle: password.username || password.website,
+							icon: "key-outline",
+							color: COLORS.warning,
+						}),
+					),
+					...cards.map(
+						(card): GlobalSearchResult => ({
+							id: card.id,
+							kind: "CARD",
+							title: card.name,
+							subtitle: card.network || "Card",
+							icon: "card-outline",
+							color: COLORS.danger,
+						}),
+					),
+					...identities.map(
+						(identity): GlobalSearchResult => ({
+							id: identity.id,
+							kind: "IDENTITY",
+							title: identity.title,
+							subtitle: identity.idNumber || "Identity",
+							icon: "person-circle-outline",
+							color: COLORS.blue,
+						}),
+					),
+				]);
+			}
 			setError("");
 		} catch (caughtError: unknown) {
 			setError(getErrorMessage(caughtError));
 		}
-	}, [database]);
+	}, [database, mode]);
 
 	useEffect(() => {
-		void getScreenData();
+		const timeoutId = setTimeout(() => {
+			void getScreenData();
+		}, 0);
+		return () => clearTimeout(timeoutId);
 	}, [dataVersion, getScreenData]);
 
 	const normalizedSearch = search.trim().toLowerCase();
@@ -227,6 +283,14 @@ const GlobalSearchScreen = ({
 				});
 				return;
 			}
+			if (result.kind === "BUDGET") {
+				navigation.navigate("BudgetForm", { budgetId: result.id });
+				return;
+			}
+			if (result.kind === "EXCHANGE_RATE") {
+				navigation.navigate("ExchangeRates");
+				return;
+			}
 			if (result.kind === "NOTE") {
 				navigation.navigate("NoteForm", { noteId: result.id });
 				return;
@@ -248,15 +312,15 @@ const GlobalSearchScreen = ({
 			<ListHeader>
 				<TextField
 					autoCapitalize="none"
-					label="Global search"
+					label={`${getModeLabel(mode)} search`}
 					onChangeText={setSearch}
-					placeholder="Search Everywhere"
+					placeholder={`Search ${getModeLabel(mode)}`}
 					value={search}
 				/>
 				{error ? <Notice message={error} tone="danger" /> : null}
 			</ListHeader>
 		),
-		[error, search],
+		[error, mode, search],
 	);
 
 	const listEmpty = useMemo(
@@ -268,10 +332,10 @@ const GlobalSearchScreen = ({
 						? "Type at least two characters."
 						: "No matching records found."
 				}
-				title="Search Purplecoins"
+				title={`Search ${getModeLabel(mode)}`}
 			/>
 		),
-		[normalizedSearch.length],
+		[mode, normalizedSearch.length],
 	);
 
 	const renderResult = useCallback(
@@ -313,7 +377,7 @@ const GlobalSearchScreen = ({
 				ListEmptyComponent={listEmpty}
 				ListHeaderComponent={listHeader}
 				data={filteredResults}
-				extraData={search}
+				extraData={[mode, search]}
 				keyExtractor={(result) => `${result.kind}:${result.id}`}
 				renderItem={renderResult}
 			/>
