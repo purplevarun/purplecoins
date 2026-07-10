@@ -2,9 +2,12 @@ import type { SQLiteDatabase } from "expo-sqlite";
 
 import { AppError } from "@/errors/AppError";
 import {
+	categoryNameExistsRow,
 	deleteCategoryRow,
+	getArchivedCategoryRows,
 	getCategoryRow,
 	getCategoryRows,
+	setCategoryArchivedRow,
 	upsertCategoryRow,
 } from "@/repositories/financeRepository";
 import type { Category } from "@/types/Category";
@@ -13,6 +16,7 @@ import { createId } from "@/utils/id";
 const mapCategory = (category: Category): Category => ({
 	...category,
 	isIncome: Boolean(category.isIncome),
+	archived: Boolean(category.archived),
 });
 
 const getCategories = async (
@@ -30,6 +34,13 @@ const getCategory = async (
 	return category ? mapCategory(category) : null;
 };
 
+const getArchivedCategories = async (
+	database: SQLiteDatabase,
+): Promise<readonly Category[]> => {
+	const categories = await getArchivedCategoryRows(database);
+	return categories.map(mapCategory);
+};
+
 const saveCategory = async (
 	database: SQLiteDatabase,
 	id: string | undefined,
@@ -43,6 +54,12 @@ const saveCategory = async (
 			"Category name is required.",
 		);
 	}
+	if (await categoryNameExistsRow(database, normalizedName, id)) {
+		throw new AppError(
+			"CATEGORY_NAME_DUPLICATE",
+			`A category named "${normalizedName}" already exists.`,
+		);
+	}
 	const now = Date.now();
 	const existingCategory = id ? await getCategoryRow(database, id) : null;
 	const categoryId = id ?? createId();
@@ -52,9 +69,16 @@ const saveCategory = async (
 		isIncome,
 		createdAt: existingCategory?.createdAt ?? now,
 		updatedAt: now,
+		archived: existingCategory?.archived ?? false,
 	});
 	return categoryId;
 };
+
+const setCategoryArchived = async (
+	database: SQLiteDatabase,
+	id: string,
+	archived: boolean,
+): Promise<void> => setCategoryArchivedRow(database, id, archived, Date.now());
 
 const deleteCategory = async (
 	database: SQLiteDatabase,
@@ -73,4 +97,11 @@ const deleteCategory = async (
 	}
 };
 
-export { deleteCategory, getCategories, getCategory, saveCategory };
+export {
+	deleteCategory,
+	getArchivedCategories,
+	getCategories,
+	getCategory,
+	saveCategory,
+	setCategoryArchived,
+};

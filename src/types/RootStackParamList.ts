@@ -9,6 +9,7 @@ type RootStackParamList = {
 		| undefined;
 	Relations: { kind: RelationKind };
 	RelationForm: { kind: RelationKind; entityId?: string };
+	ArchivedRelations: undefined;
 	LinkedTransactions: {
 		kind: RelationKind;
 		entityId: string;

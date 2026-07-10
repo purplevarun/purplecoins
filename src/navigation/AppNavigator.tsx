@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { COLORS } from "@/constants/colors";
 import { FONT_FAMILY } from "@/constants/typography";
 import { AnalysisScreen } from "@/screens/AnalysisScreen";
+import { ArchivedRelationsScreen } from "@/screens/ArchivedRelationsScreen";
 import { BudgetFormScreen } from "@/screens/BudgetFormScreen";
 import { BudgetsScreen } from "@/screens/BudgetsScreen";
 import { DashboardScreen } from "@/screens/DashboardScreen";
@@ -80,6 +81,11 @@ const AppNavigator = (): React.JSX.Element => (
 				component={RelationFormScreen}
 				name="RelationForm"
 				options={{ title: "Details" }}
+			/>
+			<Stack.Screen
+				component={ArchivedRelationsScreen}
+				name="ArchivedRelations"
+				options={{ title: "Archived relations" }}
 			/>
 			<Stack.Screen
 				component={LinkedTransactionsScreen}

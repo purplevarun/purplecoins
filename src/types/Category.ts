@@ -4,6 +4,7 @@ type Category = Readonly<{
 	isIncome: boolean;
 	createdAt: number;
 	updatedAt: number;
+	archived: boolean;
 }>;
 
 export type { Category };

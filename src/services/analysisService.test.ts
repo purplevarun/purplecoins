@@ -45,6 +45,7 @@ const CATEGORIES: readonly Category[] = [
 		isIncome: false,
 		createdAt: NOW,
 		updatedAt: NOW,
+		archived: false,
 	},
 	{
 		id: "company-trip",
@@ -52,6 +53,7 @@ const CATEGORIES: readonly Category[] = [
 		isIncome: false,
 		createdAt: NOW,
 		updatedAt: NOW,
+		archived: false,
 	},
 	{
 		id: "salary",
@@ -59,6 +61,7 @@ const CATEGORIES: readonly Category[] = [
 		isIncome: true,
 		createdAt: NOW,
 		updatedAt: NOW,
+		archived: false,
 	},
 ];
 
@@ -233,6 +236,7 @@ describe("investment analysis", () => {
 				name: "Mutual Fund",
 				createdAt: NOW,
 				updatedAt: NOW,
+				archived: false,
 			},
 		];
 		const transactions: readonly Transaction[] = [

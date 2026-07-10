@@ -7,6 +7,7 @@ type Source = Readonly<{
 	updatedAt: number;
 	latestTransactionCreatedAt: number | null;
 	balance: string;
+	archived: boolean;
 }>;
 
 export type { Source };

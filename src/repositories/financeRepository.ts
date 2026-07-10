@@ -58,16 +58,41 @@ const getSourceRows = async (
 			source.created_at AS createdAt,
 			source.updated_at AS updatedAt,
 			MAX(txn.created_at) AS latestTransactionCreatedAt,
+			COALESCE(source.archived, 0) AS archived,
 			'0' AS balance
 		FROM sources source
 		LEFT JOIN transactions txn
 			ON txn.source_id = source.id
 			OR txn.destination_source_id = source.id
+		WHERE COALESCE(source.archived, 0) = 0
 		GROUP BY source.id
 		ORDER BY
 			COUNT(txn.id) DESC,
 			COALESCE(MAX(txn.created_at), 0) DESC,
 			lower(source.name) ASC;
+	`);
+
+const getArchivedSourceRows = async (
+	database: SQLiteDatabase,
+): Promise<readonly Source[]> =>
+	database.getAllAsync<Source>(`
+		SELECT
+			source.id,
+			source.name,
+			source.currency_code AS currencyCode,
+			source.validated_at AS validatedAt,
+			source.created_at AS createdAt,
+			source.updated_at AS updatedAt,
+			MAX(txn.created_at) AS latestTransactionCreatedAt,
+			COALESCE(source.archived, 0) AS archived,
+			'0' AS balance
+		FROM sources source
+		LEFT JOIN transactions txn
+			ON txn.source_id = source.id
+			OR txn.destination_source_id = source.id
+		WHERE COALESCE(source.archived, 0) = 1
+		GROUP BY source.id
+		ORDER BY lower(source.name) ASC;
 	`);
 
 const getSourceRow = async (
@@ -84,6 +109,7 @@ const getSourceRow = async (
 				source.created_at AS createdAt,
 				source.updated_at AS updatedAt,
 				MAX(txn.created_at) AS latestTransactionCreatedAt,
+				COALESCE(source.archived, 0) AS archived,
 				'0' AS balance
 			FROM sources source
 			LEFT JOIN transactions txn
@@ -140,6 +166,49 @@ const validateSourceRow = async (
 	);
 };
 
+const setSourceArchivedRow = async (
+	database: SQLiteDatabase,
+	id: string,
+	archived: boolean,
+	updatedAt: number,
+): Promise<void> => {
+	await database.runAsync(
+		"UPDATE sources SET archived = ?, updated_at = ? WHERE id = ?;",
+		archived ? 1 : 0,
+		updatedAt,
+		id,
+	);
+};
+
+const sourceNameExistsRow = async (
+	database: SQLiteDatabase,
+	name: string,
+	excludeId?: string,
+): Promise<boolean> => {
+	const row = excludeId
+		? await database.getFirstAsync<{ id: string }>(
+				`
+					SELECT id FROM sources
+					WHERE lower(name) = lower(?)
+						AND COALESCE(archived, 0) = 0
+						AND id != ?
+					LIMIT 1;
+				`,
+				name,
+				excludeId,
+			)
+		: await database.getFirstAsync<{ id: string }>(
+				`
+					SELECT id FROM sources
+					WHERE lower(name) = lower(?)
+						AND COALESCE(archived, 0) = 0
+					LIMIT 1;
+				`,
+				name,
+			);
+	return row !== null;
+};
+
 const deleteSourceRow = async (
 	database: SQLiteDatabase,
 	id: string,
@@ -156,14 +225,32 @@ const getCategoryRows = async (
 			category.name,
 			category.is_income AS isIncome,
 			category.created_at AS createdAt,
-			category.updated_at AS updatedAt
+			category.updated_at AS updatedAt,
+			COALESCE(category.archived, 0) AS archived
 		FROM categories category
 		LEFT JOIN transactions txn ON txn.category_id = category.id
+		WHERE COALESCE(category.archived, 0) = 0
 		GROUP BY category.id
 		ORDER BY
 			COUNT(txn.id) DESC,
 			COALESCE(MAX(txn.created_at), 0) DESC,
 			lower(category.name) ASC;
+	`);
+
+const getArchivedCategoryRows = async (
+	database: SQLiteDatabase,
+): Promise<readonly Category[]> =>
+	database.getAllAsync<Category>(`
+		SELECT
+			id,
+			name,
+			is_income AS isIncome,
+			created_at AS createdAt,
+			updated_at AS updatedAt,
+			COALESCE(archived, 0) AS archived
+		FROM categories
+		WHERE COALESCE(archived, 0) = 1
+		ORDER BY lower(name) ASC;
 	`);
 
 const getCategoryRow = async (
@@ -177,7 +264,8 @@ const getCategoryRow = async (
 				name,
 				is_income AS isIncome,
 				created_at AS createdAt,
-				updated_at AS updatedAt
+				updated_at AS updatedAt,
+				COALESCE(archived, 0) AS archived
 			FROM categories
 			WHERE id = ?;
 		`,
@@ -213,6 +301,49 @@ const deleteCategoryRow = async (
 	await database.runAsync("DELETE FROM categories WHERE id = ?;", id);
 };
 
+const setCategoryArchivedRow = async (
+	database: SQLiteDatabase,
+	id: string,
+	archived: boolean,
+	updatedAt: number,
+): Promise<void> => {
+	await database.runAsync(
+		"UPDATE categories SET archived = ?, updated_at = ? WHERE id = ?;",
+		archived ? 1 : 0,
+		updatedAt,
+		id,
+	);
+};
+
+const categoryNameExistsRow = async (
+	database: SQLiteDatabase,
+	name: string,
+	excludeId?: string,
+): Promise<boolean> => {
+	const row = excludeId
+		? await database.getFirstAsync<{ id: string }>(
+				`
+					SELECT id FROM categories
+					WHERE lower(name) = lower(?)
+						AND COALESCE(archived, 0) = 0
+						AND id != ?
+					LIMIT 1;
+				`,
+				name,
+				excludeId,
+			)
+		: await database.getFirstAsync<{ id: string }>(
+				`
+					SELECT id FROM categories
+					WHERE lower(name) = lower(?)
+						AND COALESCE(archived, 0) = 0
+					LIMIT 1;
+				`,
+				name,
+			);
+	return row !== null;
+};
+
 const getTripRows = async (
 	database: SQLiteDatabase,
 ): Promise<readonly Trip[]> =>
@@ -221,14 +352,31 @@ const getTripRows = async (
 			trip.id,
 			trip.name,
 			trip.created_at AS createdAt,
-			trip.updated_at AS updatedAt
+			trip.updated_at AS updatedAt,
+			COALESCE(trip.archived, 0) AS archived
 		FROM trips trip
 		LEFT JOIN transactions txn ON txn.trip_id = trip.id
+		WHERE COALESCE(trip.archived, 0) = 0
 		GROUP BY trip.id
 		ORDER BY
 			COUNT(txn.id) DESC,
 			COALESCE(MAX(txn.created_at), 0) DESC,
 			lower(trip.name) ASC;
+	`);
+
+const getArchivedTripRows = async (
+	database: SQLiteDatabase,
+): Promise<readonly Trip[]> =>
+	database.getAllAsync<Trip>(`
+		SELECT
+			id,
+			name,
+			created_at AS createdAt,
+			updated_at AS updatedAt,
+			COALESCE(archived, 0) AS archived
+		FROM trips
+		WHERE COALESCE(archived, 0) = 1
+		ORDER BY lower(name) ASC;
 	`);
 
 const getTripRow = async (
@@ -237,7 +385,9 @@ const getTripRow = async (
 ): Promise<Trip | null> =>
 	database.getFirstAsync<Trip>(
 		`
-			SELECT id, name, created_at AS createdAt, updated_at AS updatedAt
+			SELECT
+				id, name, created_at AS createdAt, updated_at AS updatedAt,
+				COALESCE(archived, 0) AS archived
 			FROM trips
 			WHERE id = ?;
 		`,
@@ -252,14 +402,31 @@ const getInvestmentRows = async (
 			investment.id,
 			investment.name,
 			investment.created_at AS createdAt,
-			investment.updated_at AS updatedAt
+			investment.updated_at AS updatedAt,
+			COALESCE(investment.archived, 0) AS archived
 		FROM investments investment
 		LEFT JOIN transactions txn ON txn.investment_id = investment.id
+		WHERE COALESCE(investment.archived, 0) = 0
 		GROUP BY investment.id
 		ORDER BY
 			COUNT(txn.id) DESC,
 			COALESCE(MAX(txn.created_at), 0) DESC,
 			lower(investment.name) ASC;
+	`);
+
+const getArchivedInvestmentRows = async (
+	database: SQLiteDatabase,
+): Promise<readonly Investment[]> =>
+	database.getAllAsync<Investment>(`
+		SELECT
+			id,
+			name,
+			created_at AS createdAt,
+			updated_at AS updatedAt,
+			COALESCE(archived, 0) AS archived
+		FROM investments
+		WHERE COALESCE(archived, 0) = 1
+		ORDER BY lower(name) ASC;
 	`);
 
 const getInvestmentRow = async (
@@ -268,7 +435,9 @@ const getInvestmentRow = async (
 ): Promise<Investment | null> =>
 	database.getFirstAsync<Investment>(
 		`
-			SELECT id, name, created_at AS createdAt, updated_at AS updatedAt
+			SELECT
+				id, name, created_at AS createdAt, updated_at AS updatedAt,
+				COALESCE(archived, 0) AS archived
 			FROM investments
 			WHERE id = ?;
 		`,
@@ -301,6 +470,51 @@ const deleteSimpleEntityRow = async (
 	id: string,
 ): Promise<void> => {
 	await database.runAsync(`DELETE FROM ${tableName} WHERE id = ?;`, id);
+};
+
+const setSimpleEntityArchivedRow = async (
+	database: SQLiteDatabase,
+	tableName: "trips" | "investments",
+	id: string,
+	archived: boolean,
+	updatedAt: number,
+): Promise<void> => {
+	await database.runAsync(
+		`UPDATE ${tableName} SET archived = ?, updated_at = ? WHERE id = ?;`,
+		archived ? 1 : 0,
+		updatedAt,
+		id,
+	);
+};
+
+const simpleEntityNameExistsRow = async (
+	database: SQLiteDatabase,
+	tableName: "trips" | "investments",
+	name: string,
+	excludeId?: string,
+): Promise<boolean> => {
+	const row = excludeId
+		? await database.getFirstAsync<{ id: string }>(
+				`
+					SELECT id FROM ${tableName}
+					WHERE lower(name) = lower(?)
+						AND COALESCE(archived, 0) = 0
+						AND id != ?
+					LIMIT 1;
+				`,
+				name,
+				excludeId,
+			)
+		: await database.getFirstAsync<{ id: string }>(
+				`
+					SELECT id FROM ${tableName}
+					WHERE lower(name) = lower(?)
+						AND COALESCE(archived, 0) = 0
+					LIMIT 1;
+				`,
+				name,
+			);
+	return row !== null;
 };
 
 const getTransactionMinMaxDate = async (
@@ -531,6 +745,7 @@ const upsertExchangeRateRow = async (
 };
 
 export {
+	categoryNameExistsRow,
 	createSourceRow,
 	createTransactionRow,
 	deleteBudgetRow,
@@ -538,6 +753,10 @@ export {
 	deleteSimpleEntityRow,
 	deleteSourceRow,
 	deleteTransactionRow,
+	getArchivedCategoryRows,
+	getArchivedInvestmentRows,
+	getArchivedSourceRows,
+	getArchivedTripRows,
 	getBudgetRow,
 	getBudgetRows,
 	getCategoryRow,
@@ -553,6 +772,11 @@ export {
 	getTransactionRowsInRange,
 	getTripRow,
 	getTripRows,
+	setCategoryArchivedRow,
+	setSimpleEntityArchivedRow,
+	setSourceArchivedRow,
+	simpleEntityNameExistsRow,
+	sourceNameExistsRow,
 	updateSourceNameRow,
 	updateTransactionRow,
 	upsertBudgetRow,

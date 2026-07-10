@@ -53,7 +53,9 @@ const getFyEndMonthLabel = (startMonth: number): string => {
 	return MONTH_OPTIONS[endMonth - 1]?.label ?? "Mar";
 };
 
-const SettingsScreen = (_props: SettingsScreenProps): React.JSX.Element => {
+const SettingsScreen = ({
+	navigation,
+}: SettingsScreenProps): React.JSX.Element => {
 	const { database, refreshData } = useDatabaseContext();
 	const dialog = useAppDialog();
 	const [isNativeCurrency, setIsNativeCurrency] = useState(true);
@@ -214,6 +216,21 @@ const SettingsScreen = (_props: SettingsScreenProps): React.JSX.Element => {
 						When set, new transactions will have this trip
 						pre-filled.
 					</CustomText>
+				</View>
+			</GlassCard>
+			<GlassCard>
+				<View style={styles.section}>
+					<CustomText style={styles.heading}>Relations</CustomText>
+					<CustomText style={styles.description}>
+						Sources, categories, trips and investments that have
+						been archived can be found and restored here.
+					</CustomText>
+					<AppButton
+						icon="archive-outline"
+						label="Archived relations"
+						onPress={() => navigation.navigate("ArchivedRelations")}
+						variant="secondary"
+					/>
 				</View>
 			</GlassCard>
 			<GlassCard>

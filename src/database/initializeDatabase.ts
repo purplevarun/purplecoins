@@ -16,6 +16,34 @@ const initializeDatabase = async (): Promise<SQLiteDatabase> => {
 	} catch {
 		// Column already exists — safe to ignore
 	}
+	try {
+		await database.execAsync(
+			`ALTER TABLE sources ADD COLUMN archived INTEGER;`,
+		);
+	} catch {
+		// Column already exists — safe to ignore
+	}
+	try {
+		await database.execAsync(
+			`ALTER TABLE categories ADD COLUMN archived INTEGER;`,
+		);
+	} catch {
+		// Column already exists — safe to ignore
+	}
+	try {
+		await database.execAsync(
+			`ALTER TABLE trips ADD COLUMN archived INTEGER;`,
+		);
+	} catch {
+		// Column already exists — safe to ignore
+	}
+	try {
+		await database.execAsync(
+			`ALTER TABLE investments ADD COLUMN archived INTEGER;`,
+		);
+	} catch {
+		// Column already exists — safe to ignore
+	}
 	return database;
 };
 

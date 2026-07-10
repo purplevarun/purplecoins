@@ -8,12 +8,38 @@ const DAY_END_MINUTES = 59;
 const DAY_END_SECONDS = 59;
 const DAY_END_MILLISECONDS = 999;
 
+const getYtdDateRange = (): DateRange => {
+	const now = new Date();
+	const start = new Date(
+		now.getFullYear() - 1,
+		now.getMonth(),
+		now.getDate(),
+		0,
+		0,
+		0,
+		0,
+	).getTime();
+	const end = new Date(
+		now.getFullYear(),
+		now.getMonth(),
+		now.getDate(),
+		DAY_END_HOURS,
+		DAY_END_MINUTES,
+		DAY_END_SECONDS,
+		DAY_END_MILLISECONDS,
+	).getTime();
+	return { start, end };
+};
+
 const getAnalysisDateRange = (
 	period: AnalysisPeriod,
 	anchorDate: Date,
 ): DateRange => {
 	if (period === "ALL" || period === "CUSTOM") {
 		return { start: ALL_TIME_START, end: ALL_TIME_END };
+	}
+	if (period === "YTD") {
+		return getYtdDateRange();
 	}
 	const year = anchorDate.getFullYear();
 	const month = anchorDate.getMonth();
@@ -79,5 +105,6 @@ export {
 	formatDateTime,
 	getAnalysisDateRange,
 	getCustomDateRange,
+	getYtdDateRange,
 	shiftAnalysisAnchor,
 };

@@ -1,4 +1,5 @@
 import {
+	DateInput,
 	DonutChart,
 	GlassCard,
 	IconChevronLeft,
@@ -15,7 +16,12 @@ import {
 } from "@/services/analysisService";
 import type { AnalysisPeriod } from "@/types/AnalysisPeriod";
 import type { AnalysisSummary } from "@/types/AnalysisSummary";
-import { getAnalysisDateRange, shiftAnalysisAnchor } from "@/utils/date";
+import {
+	formatDate,
+	getAnalysisDateRange,
+	getCustomDateRange,
+	shiftAnalysisAnchor,
+} from "@/utils/date";
 import { getErrorMessage } from "@/utils/error";
 import {
 	absoluteMoney,
@@ -23,12 +29,20 @@ import {
 	formatMoney,
 	ZERO_AMOUNT,
 } from "@/utils/money";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+	useCallback,
+	useEffect,
+	useMemo,
+	useState,
+	type ReactElement,
+} from "react";
 
 const PERIOD_OPTS = [
 	{ label: "Month", value: "MONTH" },
 	{ label: "Year", value: "YEAR" },
+	{ label: "YTD", value: "YTD" },
 	{ label: "All", value: "ALL" },
+	{ label: "Custom", value: "CUSTOM" },
 ];
 
 const CHART_COLORS = [
@@ -42,19 +56,24 @@ const CHART_COLORS = [
 	"#FB923C",
 ];
 
-export const AnalysisPage = () => {
+export const AnalysisPage = (): ReactElement => {
 	const { db, dataVersion } = useDb();
 	const [period, setPeriod] = useState<AnalysisPeriod>("MONTH");
 	const [anchorDate, setAnchorDate] = useState(() => new Date());
+	const [customStartAt, setCustomStartAt] = useState(() => Date.now());
+	const [customEndAt, setCustomEndAt] = useState(() => Date.now());
 	const [analysis, setAnalysis] = useState<AnalysisSummary | null>(null);
 	const [error, setError] = useState("");
 
 	const dateRange = useMemo(
-		() => getAnalysisDateRange(period, anchorDate),
-		[period, anchorDate],
+		() =>
+			period === "CUSTOM"
+				? getCustomDateRange(customStartAt, customEndAt)
+				: getAnalysisDateRange(period, anchorDate),
+		[period, anchorDate, customStartAt, customEndAt],
 	);
 
-	const load = useCallback(async () => {
+	const load = useCallback(async (): Promise<void> => {
 		if (!db) return;
 		try {
 			setAnalysis(
@@ -69,7 +88,10 @@ export const AnalysisPage = () => {
 	}, [db, dateRange]);
 
 	useEffect(() => {
-		void load();
+		const timeoutId = window.setTimeout(() => {
+			void load();
+		}, 0);
+		return () => window.clearTimeout(timeoutId);
 	}, [dataVersion, load]);
 
 	const periodLabel =
@@ -80,12 +102,19 @@ export const AnalysisPage = () => {
 				})
 			: period === "YEAR"
 				? anchorDate.getFullYear().toString()
-				: "All time";
+				: period === "YTD"
+					? "Year to Date"
+					: period === "CUSTOM"
+						? "Custom period"
+						: "All time";
+
+	const hasArrows = period === "MONTH" || period === "YEAR";
 
 	const expenseCategories =
 		analysis?.categories.filter((c) => !c.isIncome) ?? [];
 	const incomeCategories =
 		analysis?.categories.filter((c) => c.isIncome) ?? [];
+	const investments = analysis?.investments ?? [];
 	const currencySummaries = analysis
 		? buildCategoryCurrencySummaries(analysis.categories)
 		: [];
@@ -111,7 +140,7 @@ export const AnalysisPage = () => {
 					value={period}
 					onChange={(v) => setPeriod(v as AnalysisPeriod)}
 				/>
-				{period !== "ALL" && (
+				{hasArrows && (
 					<div
 						style={{
 							display: "flex",
@@ -153,6 +182,61 @@ export const AnalysisPage = () => {
 					</div>
 				)}
 			</div>
+
+			{period === "YTD" || period === "CUSTOM" ? (
+				<div
+					style={{
+						display: "flex",
+						alignItems: "center",
+						gap: 12,
+						marginBottom: 16,
+						flexWrap: "wrap",
+					}}
+				>
+					<span
+						style={{
+							fontWeight: 700,
+							color: "var(--text-muted)",
+							fontSize: 13,
+						}}
+					>
+						{periodLabel}: {formatDate(dateRange.start)} –{" "}
+						{formatDate(dateRange.end)}
+					</span>
+				</div>
+			) : null}
+
+			{period === "CUSTOM" ? (
+				<GlassCard style={{ marginBottom: 16 }}>
+					<div
+						style={{
+							display: "grid",
+							gridTemplateColumns:
+								"repeat(auto-fit, minmax(180px, 1fr))",
+							gap: 12,
+						}}
+					>
+						<div className="field">
+							<label>From</label>
+							<DateInput
+								value={customStartAt}
+								onChange={setCustomStartAt}
+							/>
+						</div>
+						<div className="field">
+							<label>To</label>
+							<DateInput
+								value={customEndAt}
+								onChange={setCustomEndAt}
+							/>
+						</div>
+					</div>
+				</GlassCard>
+			) : null}
+
+			{period === "ALL" ? (
+				<Notice message="Showing every transaction and category stored locally." />
+			) : null}
 
 			{error && <Notice message={error} tone="danger" />}
 
@@ -347,7 +431,7 @@ export const AnalysisPage = () => {
 							</div>
 						</GlassCard>
 					)}
-					{(analysis?.investments.length ?? 0) > 0 && (
+					{investments.length > 0 && (
 						<GlassCard>
 							<div
 								style={{
@@ -368,7 +452,7 @@ export const AnalysisPage = () => {
 									gap: 6,
 								}}
 							>
-								{analysis!.investments.map((inv) => (
+								{investments.map((inv) => (
 									<div
 										key={`${inv.investmentId}-${inv.currencyCode}`}
 										style={{

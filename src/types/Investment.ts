@@ -3,6 +3,7 @@ type Investment = Readonly<{
 	name: string;
 	createdAt: number;
 	updatedAt: number;
+	archived: boolean;
 }>;
 
 export type { Investment };

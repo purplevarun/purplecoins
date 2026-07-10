@@ -3,20 +3,36 @@ import type { SQLiteDatabase } from "expo-sqlite";
 import { AppError } from "@/errors/AppError";
 import {
 	deleteSimpleEntityRow,
+	getArchivedTripRows,
 	getTripRow,
 	getTripRows,
+	setSimpleEntityArchivedRow,
+	simpleEntityNameExistsRow,
 	upsertSimpleEntityRow,
 } from "@/repositories/financeRepository";
 import type { Trip } from "@/types/Trip";
 import { createId } from "@/utils/id";
 
+const mapTrip = (trip: Trip): Trip => ({
+	...trip,
+	archived: Boolean(trip.archived),
+});
+
 const getTrips = async (database: SQLiteDatabase): Promise<readonly Trip[]> =>
-	getTripRows(database);
+	(await getTripRows(database)).map(mapTrip);
+
+const getArchivedTrips = async (
+	database: SQLiteDatabase,
+): Promise<readonly Trip[]> =>
+	(await getArchivedTripRows(database)).map(mapTrip);
 
 const getTrip = async (
 	database: SQLiteDatabase,
 	id: string,
-): Promise<Trip | null> => getTripRow(database, id);
+): Promise<Trip | null> => {
+	const trip = await getTripRow(database, id);
+	return trip ? mapTrip(trip) : null;
+};
 
 const saveTrip = async (
 	database: SQLiteDatabase,
@@ -26,6 +42,14 @@ const saveTrip = async (
 	const normalizedName = name.trim();
 	if (!normalizedName) {
 		throw new AppError("TRIP_NAME_REQUIRED", "Trip name is required.");
+	}
+	if (
+		await simpleEntityNameExistsRow(database, "trips", normalizedName, id)
+	) {
+		throw new AppError(
+			"TRIP_NAME_DUPLICATE",
+			`A trip named "${normalizedName}" already exists.`,
+		);
 	}
 	const now = Date.now();
 	const existingTrip = id ? await getTripRow(database, id) : null;
@@ -38,6 +62,13 @@ const saveTrip = async (
 	});
 	return tripId;
 };
+
+const setTripArchived = async (
+	database: SQLiteDatabase,
+	id: string,
+	archived: boolean,
+): Promise<void> =>
+	setSimpleEntityArchivedRow(database, "trips", id, archived, Date.now());
 
 const deleteTrip = async (
 	database: SQLiteDatabase,
@@ -56,4 +87,11 @@ const deleteTrip = async (
 	}
 };
 
-export { deleteTrip, getTrip, getTrips, saveTrip };
+export {
+	deleteTrip,
+	getArchivedTrips,
+	getTrip,
+	getTrips,
+	saveTrip,
+	setTripArchived,
+};

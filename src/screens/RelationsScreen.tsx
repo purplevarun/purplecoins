@@ -4,6 +4,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import Decimal from "decimal.js";
 import {
+	type ComponentProps,
 	useCallback,
 	useEffect,
 	useLayoutEffect,
@@ -12,7 +13,6 @@ import {
 } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
-import { AppButton } from "@/components/AppButton";
 import { EmptyState } from "@/components/EmptyState";
 import { FloatingAddButton } from "@/components/FloatingAddButton";
 import { GlassCard } from "@/components/GlassCard";
@@ -28,15 +28,22 @@ import {
 	getInvestmentNetAmount,
 	getInvestmentNetLabel,
 } from "@/services/analysisService";
-import { getCategories } from "@/services/categoryService";
+import { getCategories, setCategoryArchived } from "@/services/categoryService";
 import { getExchangeRates } from "@/services/exchangeRateService";
-import { getInvestments } from "@/services/investmentService";
+import {
+	getInvestments,
+	setInvestmentArchived,
+} from "@/services/investmentService";
 import {
 	getNativeCurrencyDisplay,
 	updateNativeCurrencyDisplay,
 } from "@/services/settingsService";
-import { getSources, validateSource } from "@/services/sourceService";
-import { getTrips } from "@/services/tripService";
+import {
+	getSources,
+	setSourceArchived,
+	validateSource,
+} from "@/services/sourceService";
+import { getTrips, setTripArchived } from "@/services/tripService";
 import { getTripTotals } from "@/services/tripTotalService";
 import type { AnalysisSummary } from "@/types/AnalysisSummary";
 import type { Category } from "@/types/Category";
@@ -63,6 +70,38 @@ type RelationListItem =
 
 const ALL_TIME_START = 0;
 const ALL_TIME_END = 8_640_000_000_000_000;
+
+type RowActionIconProps = Readonly<{
+	icon: ComponentProps<typeof Ionicons>["name"];
+	accessibilityLabel: string;
+	onPress: () => void;
+	tone?: "default" | "success";
+}>;
+
+const RowActionIcon = ({
+	icon,
+	accessibilityLabel,
+	onPress,
+	tone = "default",
+}: RowActionIconProps): React.JSX.Element => (
+	<Pressable
+		accessibilityLabel={accessibilityLabel}
+		accessibilityRole="button"
+		hitSlop={8}
+		onPress={onPress}
+		style={({ pressed }) => [
+			styles.actionIcon,
+			tone === "success" && styles.actionIconSuccess,
+			pressed && styles.actionIconPressed,
+		]}
+	>
+		<Ionicons
+			color={tone === "success" ? COLORS.success : COLORS.textMuted}
+			name={icon}
+			size={17}
+		/>
+	</Pressable>
+);
 
 const RelationsScreen = ({
 	navigation,
@@ -216,6 +255,55 @@ const RelationsScreen = ({
 			}
 		},
 		[database, dialog, getScreenData, refreshData],
+	);
+
+	const handleArchive = useCallback(
+		async (
+			targetKind: RelationListItem["kind"],
+			id: string,
+		): Promise<void> => {
+			try {
+				if (targetKind === "SOURCE") {
+					await setSourceArchived(database, id, true);
+				} else if (targetKind === "CATEGORY") {
+					await setCategoryArchived(database, id, true);
+				} else if (targetKind === "TRIP") {
+					await setTripArchived(database, id, true);
+				} else {
+					await setInvestmentArchived(database, id, true);
+				}
+				refreshData();
+				// Archived entities are excluded at the query level, so
+				// reloading immediately removes it from view without
+				// needing to navigate away and back
+				await getScreenData();
+			} catch (caughtError: unknown) {
+				dialog.showMessage({
+					title: "Unable to archive",
+					message: getErrorMessage(caughtError),
+					variant: "danger",
+				});
+			}
+		},
+		[database, dialog, getScreenData, refreshData],
+	);
+
+	const handleArchivePress = useCallback(
+		(
+			targetKind: RelationListItem["kind"],
+			id: string,
+			name: string,
+		): void => {
+			dialog.confirm({
+				title: `Archive "${name}"?`,
+				message:
+					"It will be hidden from lists and dropdowns everywhere. You can restore it anytime from Settings \u2192 Archived relations.",
+				confirmLabel: "Archive",
+				variant: "danger",
+				onConfirm: () => void handleArchive(targetKind, id),
+			});
+		},
+		[dialog, handleArchive],
 	);
 
 	const rateMap = useMemo((): Map<string, Decimal> => {
@@ -427,14 +515,24 @@ const RelationsScreen = ({
 								</View>
 							</View>
 							<View style={styles.actions}>
-								<AppButton
+								<RowActionIcon
+									accessibilityLabel="Validate"
 									icon="checkmark-done"
-									isCompact
-									label="Validate"
 									onPress={() =>
 										void handleValidate(source.id)
 									}
-									variant="success"
+									tone="success"
+								/>
+								<RowActionIcon
+									accessibilityLabel="Archive"
+									icon="archive-outline"
+									onPress={() =>
+										handleArchivePress(
+											"SOURCE",
+											source.id,
+											source.name,
+										)
+									}
 								/>
 							</View>
 						</GlassCard>
@@ -515,6 +613,19 @@ const RelationsScreen = ({
 										))
 									)}
 								</View>
+							</View>
+							<View style={styles.actions}>
+								<RowActionIcon
+									accessibilityLabel="Archive"
+									icon="archive-outline"
+									onPress={() =>
+										handleArchivePress(
+											"CATEGORY",
+											category.id,
+											category.name,
+										)
+									}
+								/>
 							</View>
 						</GlassCard>
 					</Pressable>
@@ -685,11 +796,24 @@ const RelationsScreen = ({
 								))}
 							</View>
 						</View>
+						<View style={styles.actions}>
+							<RowActionIcon
+								accessibilityLabel="Archive"
+								icon="archive-outline"
+								onPress={() =>
+									handleArchivePress(
+										item.kind,
+										entity.id,
+										entity.name,
+									)
+								}
+							/>
+						</View>
 					</GlassCard>
 				</Pressable>
 			);
 		},
-		[analysis, handleValidate, navigation, tripTotals],
+		[analysis, handleArchivePress, handleValidate, navigation, tripTotals],
 	);
 
 	const relationLabels = getRelationLabels(kind);
@@ -811,6 +935,23 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		justifyContent: "flex-end",
 		gap: 8,
+	},
+	actionIcon: {
+		width: 34,
+		height: 34,
+		borderRadius: 12,
+		alignItems: "center",
+		justifyContent: "center",
+		borderWidth: 1,
+		borderColor: COLORS.border,
+		backgroundColor: "rgba(255,255,255,0.055)",
+	},
+	actionIconSuccess: {
+		borderColor: "rgba(82, 214, 163, 0.36)",
+		backgroundColor: COLORS.successMuted,
+	},
+	actionIconPressed: {
+		transform: [{ scale: 0.92 }],
 	},
 	investmentTotals: {
 		marginTop: 5,

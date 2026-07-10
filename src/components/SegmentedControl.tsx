@@ -1,5 +1,5 @@
 import { CustomText } from "@/components/CustomText";
-import { DimensionValue, Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View, type DimensionValue } from "react-native";
 
 import { COLORS } from "@/constants/colors";
 import type { SelectOption } from "@/types/SelectOption";
@@ -15,7 +15,8 @@ const SegmentedControl = ({
 	options,
 	onChange,
 }: SegmentedControlProps): React.JSX.Element => {
-	const width = `${100 / Math.min(options.length, 3)}%` as DimensionValue;
+	const columnCount = Math.min(Math.max(options.length, 1), 3);
+	const basis = `${100 / columnCount - 3}%` as DimensionValue;
 
 	return (
 		<View style={styles.container}>
@@ -28,11 +29,12 @@ const SegmentedControl = ({
 						onPress={() => onChange(option.value)}
 						style={[
 							styles.option,
-							{ width },
+							{ flexBasis: basis },
 							isSelected && styles.selectedOption,
 						]}
 					>
 						<CustomText
+							numberOfLines={1}
 							style={[
 								styles.label,
 								isSelected && styles.selectedLabel,
@@ -50,6 +52,7 @@ const SegmentedControl = ({
 const styles = StyleSheet.create({
 	container: {
 		flexDirection: "row",
+		flexWrap: "wrap",
 		padding: 4,
 		borderRadius: 16,
 		borderWidth: 1,
@@ -58,6 +61,8 @@ const styles = StyleSheet.create({
 		gap: 4,
 	},
 	option: {
+		flexGrow: 1,
+		minWidth: 0,
 		minHeight: 42,
 		borderRadius: 12,
 		alignItems: "center",

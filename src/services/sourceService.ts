@@ -4,9 +4,12 @@ import { AppError } from "@/errors/AppError";
 import {
 	createSourceRow,
 	deleteSourceRow,
+	getArchivedSourceRows,
 	getSourceRow,
 	getSourceRows,
 	getTransactionRows,
+	setSourceArchivedRow,
+	sourceNameExistsRow,
 	updateSourceNameRow,
 	validateSourceRow,
 } from "@/repositories/financeRepository";
@@ -65,6 +68,22 @@ const getSources = async (
 	const balances = getBalanceBySourceId(transactions);
 	return sources.map((source) => ({
 		...source,
+		archived: Boolean(source.archived),
+		balance: balances.get(source.id) ?? ZERO_AMOUNT,
+	}));
+};
+
+const getArchivedSources = async (
+	database: SQLiteDatabase,
+): Promise<readonly Source[]> => {
+	const [sources, transactions] = await Promise.all([
+		getArchivedSourceRows(database),
+		getTransactionRows(database),
+	]);
+	const balances = getBalanceBySourceId(transactions);
+	return sources.map((source) => ({
+		...source,
+		archived: Boolean(source.archived),
 		balance: balances.get(source.id) ?? ZERO_AMOUNT,
 	}));
 };
@@ -72,7 +91,10 @@ const getSources = async (
 const getSource = async (
 	database: SQLiteDatabase,
 	id: string,
-): Promise<Source | null> => getSourceRow(database, id);
+): Promise<Source | null> => {
+	const source = await getSourceRow(database, id);
+	return source ? { ...source, archived: Boolean(source.archived) } : null;
+};
 
 const createSource = async (
 	database: SQLiteDatabase,
@@ -82,6 +104,12 @@ const createSource = async (
 	const normalizedName = name.trim();
 	if (!normalizedName) {
 		throw new AppError("SOURCE_NAME_REQUIRED", "Source name is required.");
+	}
+	if (await sourceNameExistsRow(database, normalizedName)) {
+		throw new AppError(
+			"SOURCE_NAME_DUPLICATE",
+			`A source named "${normalizedName}" already exists.`,
+		);
 	}
 	const now = Date.now();
 	const id = createId();
@@ -94,6 +122,7 @@ const createSource = async (
 		updatedAt: now,
 		latestTransactionCreatedAt: null,
 		balance: ZERO_AMOUNT,
+		archived: false,
 	});
 	return id;
 };
@@ -107,6 +136,12 @@ const updateSourceName = async (
 	if (!normalizedName) {
 		throw new AppError("SOURCE_NAME_REQUIRED", "Source name is required.");
 	}
+	if (await sourceNameExistsRow(database, normalizedName, id)) {
+		throw new AppError(
+			"SOURCE_NAME_DUPLICATE",
+			`A source named "${normalizedName}" already exists.`,
+		);
+	}
 	await updateSourceNameRow(database, id, normalizedName, Date.now());
 };
 
@@ -114,6 +149,12 @@ const validateSource = async (
 	database: SQLiteDatabase,
 	id: string,
 ): Promise<void> => validateSourceRow(database, id, Date.now());
+
+const setSourceArchived = async (
+	database: SQLiteDatabase,
+	id: string,
+	archived: boolean,
+): Promise<void> => setSourceArchivedRow(database, id, archived, Date.now());
 
 const deleteSource = async (
 	database: SQLiteDatabase,
@@ -135,8 +176,10 @@ const deleteSource = async (
 export {
 	createSource,
 	deleteSource,
+	getArchivedSources,
 	getSource,
 	getSources,
+	setSourceArchived,
 	updateSourceName,
 	validateSource,
 };
