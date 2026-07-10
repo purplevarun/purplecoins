@@ -1,15 +1,16 @@
+import analysisService from "@/services/analysisService";
+
 import { describe, expect, it } from "vitest";
 
-import type { Category } from "@/types/Category";
-import type { Investment } from "@/types/Investment";
-import type { Transaction } from "@/types/Transaction";
+import type Category from "@/types/Category";
+import type Investment from "@/types/Investment";
+import type Transaction from "@/types/Transaction";
 
-import {
+const {
 	buildCategoryAnalysis,
 	buildCategoryCurrencySummaries,
 	buildInvestmentAnalysis,
-} from "@/services/analysisService";
-
+} = analysisService;
 const NOW = 1_780_754_481_000;
 
 const createTransaction = (overrides: Partial<Transaction>): Transaction => ({

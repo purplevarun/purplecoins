@@ -1,32 +1,38 @@
-import { version } from "@/../package.json";
-import { CustomText } from "@/components/CustomText";
+import appConstants from "@/constants/appConstants";
+
+import packageJson from "@/../package.json";
+import CustomText from "@/components/CustomText";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useEffect, useState } from "react";
 import { StyleSheet, Switch, View } from "react-native";
 
-import { AppButton } from "@/components/AppButton";
-import { GlassCard } from "@/components/GlassCard";
-import { Notice } from "@/components/Notice";
-import { ScreenContainer } from "@/components/ScreenContainer";
-import { SelectField } from "@/components/SelectField";
-import { APP_NAME } from "@/constants/appConstants";
-import { COLORS } from "@/constants/colors";
-import { useAppDialog } from "@/hooks/useAppDialog";
-import { useDatabaseContext } from "@/hooks/useDatabaseContext";
-import { exportBackup, restoreBackup } from "@/services/backupService";
-import {
+import AppButton from "@/components/AppButton";
+import GlassCard from "@/components/GlassCard";
+import Notice from "@/components/Notice";
+import ScreenContainer from "@/components/ScreenContainer";
+import SelectField from "@/components/SelectField";
+import COLORS from "@/constants/colors";
+import useAppDialog from "@/hooks/useAppDialog";
+import useDatabaseContext from "@/hooks/useDatabaseContext";
+import backupService from "@/services/backupService";
+import settingsService from "@/services/settingsService";
+import tripService from "@/services/tripService";
+import type RootStackParamList from "@/types/RootStackParamList";
+import type SelectOption from "@/types/SelectOption";
+import type Trip from "@/types/Trip";
+import getErrorMessage from "@/utils/error";
+const { APP_NAME } = appConstants;
+const { version } = packageJson;
+const { exportBackup, restoreBackup } = backupService;
+const {
 	getDefaultTripId,
 	getFyStartMonth,
 	getNativeCurrencyDisplay,
 	updateDefaultTripId,
 	updateFyStartMonth,
 	updateNativeCurrencyDisplay,
-} from "@/services/settingsService";
-import { getTrips } from "@/services/tripService";
-import type { RootStackParamList } from "@/types/RootStackParamList";
-import type { SelectOption } from "@/types/SelectOption";
-import type { Trip } from "@/types/Trip";
-import { getErrorMessage } from "@/utils/error";
+} = settingsService;
+const { getTrips } = tripService;
 
 type SettingsScreenProps = NativeStackScreenProps<
 	RootStackParamList,
@@ -194,7 +200,9 @@ const SettingsScreen = ({
 					</CustomText>
 					<SelectField
 						label="Financial year start month"
-						onChange={handleFyStartMonthChange}
+						onChange={(value) =>
+							void handleFyStartMonthChange(value)
+						}
 						options={MONTH_OPTIONS}
 						value={String(fyStartMonth)}
 					/>
@@ -207,7 +215,9 @@ const SettingsScreen = ({
 					<SelectField
 						isOptional
 						label="Default trip"
-						onChange={handleDefaultTripChange}
+						onChange={(value) =>
+							void handleDefaultTripChange(value)
+						}
 						options={tripOptions}
 						placeholder="No default trip"
 						value={defaultTripId}
@@ -321,4 +331,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { SettingsScreen };
+export default SettingsScreen;

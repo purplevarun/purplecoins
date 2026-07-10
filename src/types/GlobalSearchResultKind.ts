@@ -12,4 +12,4 @@ type GlobalSearchResultKind =
 	| "CARD"
 	| "IDENTITY";
 
-export type { GlobalSearchResultKind };
+export type { GlobalSearchResultKind as default };

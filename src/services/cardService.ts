@@ -1,14 +1,11 @@
+import AppError from "@/errors/AppError";
+import contentRepository from "@/repositories/contentRepository";
+import type CardEntry from "@/types/CardEntry";
+import createId from "@/utils/id";
 import type { SQLiteDatabase } from "expo-sqlite";
 
-import { AppError } from "@/errors/AppError";
-import {
-	deleteContentRow,
-	getCardRow,
-	getCardRows,
-	upsertCardRow,
-} from "@/repositories/contentRepository";
-import type { CardEntry } from "@/types/CardEntry";
-import { createId } from "@/utils/id";
+const { deleteContentRow, getCardRow, getCardRows, upsertCardRow } =
+	contentRepository;
 
 const mapCard = (card: CardEntry): CardEntry => ({
 	...card,
@@ -76,4 +73,11 @@ const deleteCard = async (
 	id: string,
 ): Promise<void> => deleteContentRow(database, "cards", "CARD", id);
 
-export { deleteCard, getCard, getCards, saveCard };
+const cardService = {
+	deleteCard,
+	getCard,
+	getCards,
+	saveCard,
+};
+
+export default cardService;

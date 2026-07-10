@@ -1,8 +1,8 @@
-import { CustomText } from "@/components/CustomText";
+import CustomText from "@/components/CustomText";
 import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet, View } from "react-native";
 
-import { COLORS } from "@/constants/colors";
+import COLORS from "@/constants/colors";
 
 type NoticeProps = Readonly<{
 	message: string;
@@ -51,4 +51,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { Notice };
+export default Notice;

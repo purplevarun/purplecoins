@@ -1,4 +1,5 @@
-import { CustomText } from "@/components/CustomText";
+import CustomText from "@/components/CustomText";
+
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -11,35 +12,31 @@ import {
 } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
-import { EmptyState } from "@/components/EmptyState";
-import { GlassCard } from "@/components/GlassCard";
-import { Notice } from "@/components/Notice";
-import { ListHeader, ScreenList } from "@/components/ScreenList";
-import { SearchBar } from "@/components/SearchBar";
-import { COLORS } from "@/constants/colors";
-import { useAppDialog } from "@/hooks/useAppDialog";
-import { useDatabaseContext } from "@/hooks/useDatabaseContext";
-import {
-	getArchivedCategories,
-	setCategoryArchived,
-} from "@/services/categoryService";
-import {
-	getArchivedInvestments,
-	setInvestmentArchived,
-} from "@/services/investmentService";
-import {
-	getArchivedSources,
-	setSourceArchived,
-} from "@/services/sourceService";
-import { getArchivedTrips, setTripArchived } from "@/services/tripService";
-import type { Category } from "@/types/Category";
-import type { Investment } from "@/types/Investment";
-import type { RelationKind } from "@/types/RelationKind";
-import type { RootStackParamList } from "@/types/RootStackParamList";
-import type { Source } from "@/types/Source";
-import type { Trip } from "@/types/Trip";
-import { getErrorMessage } from "@/utils/error";
-import { getRelationLabels } from "@/utils/relation";
+import EmptyState from "@/components/EmptyState";
+import GlassCard from "@/components/GlassCard";
+import ListHeader from "@/components/ListHeader";
+import Notice from "@/components/Notice";
+import ScreenList from "@/components/ScreenList";
+import SearchBar from "@/components/SearchBar";
+import COLORS from "@/constants/colors";
+import useAppDialog from "@/hooks/useAppDialog";
+import useDatabaseContext from "@/hooks/useDatabaseContext";
+import categoryService from "@/services/categoryService";
+import investmentService from "@/services/investmentService";
+import sourceService from "@/services/sourceService";
+import tripService from "@/services/tripService";
+import type Category from "@/types/Category";
+import type Investment from "@/types/Investment";
+import type RelationKind from "@/types/RelationKind";
+import type RootStackParamList from "@/types/RootStackParamList";
+import type Source from "@/types/Source";
+import type Trip from "@/types/Trip";
+import getErrorMessage from "@/utils/error";
+import getRelationLabels from "@/utils/relation";
+const { getArchivedCategories, setCategoryArchived } = categoryService;
+const { getArchivedInvestments, setInvestmentArchived } = investmentService;
+const { getArchivedSources, setSourceArchived } = sourceService;
+const { getArchivedTrips, setTripArchived } = tripService;
 
 type ArchivedRelationsScreenProps = NativeStackScreenProps<
 	RootStackParamList,
@@ -328,4 +325,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { ArchivedRelationsScreen };
+export default ArchivedRelationsScreen;

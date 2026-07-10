@@ -1,11 +1,11 @@
-import { CustomText } from "@/components/CustomText";
+import CustomText from "@/components/CustomText";
 import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet, View } from "react-native";
 
-import { AppButton } from "@/components/AppButton";
-import { COLORS } from "@/constants/colors";
-import type { AttachmentInput } from "@/types/AttachmentInput";
-import type { AttachmentMetadata } from "@/types/AttachmentMetadata";
+import AppButton from "@/components/AppButton";
+import COLORS from "@/constants/colors";
+import type AttachmentInput from "@/types/AttachmentInput";
+import type AttachmentMetadata from "@/types/AttachmentMetadata";
 
 type AttachmentFieldProps = Readonly<{
 	existingAttachment: AttachmentMetadata | null;
@@ -134,4 +134,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { AttachmentField };
+export default AttachmentField;

@@ -1,4 +1,8 @@
 import * as DocumentPicker from "expo-document-picker";
+
+import appConstants from "@/constants/appConstants";
+import SCHEMA_SQL from "@/database/schema";
+import AppError from "@/errors/AppError";
 import { File, Paths } from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import {
@@ -7,13 +11,7 @@ import {
 	type SQLiteDatabase,
 } from "expo-sqlite";
 
-import {
-	APP_NAME,
-	BACKUP_EXTENSION,
-	BACKUP_MIME_TYPE,
-} from "@/constants/appConstants";
-import { SCHEMA_SQL } from "@/database/schema";
-import { AppError } from "@/errors/AppError";
+const { APP_NAME, BACKUP_EXTENSION, BACKUP_MIME_TYPE } = appConstants;
 
 const createBackupFileName = (): string => {
 	const date = new Date().toISOString().slice(0, 10);
@@ -94,4 +92,9 @@ const restoreBackup = async (database: SQLiteDatabase): Promise<boolean> => {
 	}
 };
 
-export { exportBackup, restoreBackup };
+const backupService = {
+	exportBackup,
+	restoreBackup,
+};
+
+export default backupService;

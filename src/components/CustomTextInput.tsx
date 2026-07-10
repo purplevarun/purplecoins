@@ -1,6 +1,6 @@
 import { TextInput as RNTextInput, type TextInputProps } from "react-native";
 
-import { applyAppFontStyle } from "@/utils/appFontStyle";
+import applyAppFontStyle from "@/utils/appFontStyle";
 
 const CustomTextInput = ({
 	style,
@@ -9,4 +9,4 @@ const CustomTextInput = ({
 	<RNTextInput style={applyAppFontStyle(style)} {...props} />
 );
 
-export { CustomTextInput };
+export default CustomTextInput;

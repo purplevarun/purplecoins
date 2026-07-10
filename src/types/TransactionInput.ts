@@ -1,5 +1,5 @@
-import type { TransactionClassification } from "@/types/TransactionClassification";
-import type { TransactionType } from "@/types/TransactionType";
+import type TransactionClassification from "@/types/TransactionClassification";
+import type TransactionType from "@/types/TransactionType";
 
 type TransactionInput = Readonly<{
 	id?: string;
@@ -16,4 +16,4 @@ type TransactionInput = Readonly<{
 	transactionAt: number;
 }>;
 
-export type { TransactionInput };
+export type { TransactionInput as default };

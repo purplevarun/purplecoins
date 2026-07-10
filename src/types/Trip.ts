@@ -6,4 +6,4 @@ type Trip = Readonly<{
 	archived: boolean;
 }>;
 
-export type { Trip };
+export type { Trip as default };

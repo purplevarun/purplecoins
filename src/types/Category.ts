@@ -7,4 +7,4 @@ type Category = Readonly<{
 	archived: boolean;
 }>;
 
-export type { Category };
+export type { Category as default };

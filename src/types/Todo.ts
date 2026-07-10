@@ -11,4 +11,4 @@ type Todo = Readonly<{
 	hasAttachment: boolean;
 }>;
 
-export type { Todo };
+export type { Todo as default };

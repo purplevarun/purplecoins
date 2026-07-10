@@ -1,6 +1,5 @@
-const HOME_MODES = ["TOOLS", "FINANCE", "VAULT"] as const;
+import type HOME_MODES from "@/constants/homeModes";
 
 type HomeMode = (typeof HOME_MODES)[number];
 
-export { HOME_MODES };
-export type { HomeMode };
+export type { HomeMode as default };

@@ -9,4 +9,4 @@ type Note = Readonly<{
 	hasAttachment: boolean;
 }>;
 
-export type { Note };
+export type { Note as default };

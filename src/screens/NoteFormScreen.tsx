@@ -1,23 +1,25 @@
-import { CustomText } from "@/components/CustomText";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import CustomText from "@/components/CustomText";
+
 import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 
-import { AppButton } from "@/components/AppButton";
-import { AttachmentField } from "@/components/AttachmentField";
-import { FolderPicker } from "@/components/FolderPicker";
-import { GlassCard } from "@/components/GlassCard";
-import { Notice } from "@/components/Notice";
-import { ScreenContainer } from "@/components/ScreenContainer";
-import { TextField } from "@/components/TextField";
-import { COLORS } from "@/constants/colors";
-import { useAppDialog } from "@/hooks/useAppDialog";
-import { useAttachment } from "@/hooks/useAttachment";
-import { useDatabaseContext } from "@/hooks/useDatabaseContext";
-import { useFolders } from "@/hooks/useFolders";
-import { deleteNote, getNote, saveNote } from "@/services/noteService";
-import type { RootStackParamList } from "@/types/RootStackParamList";
-import { getErrorMessage } from "@/utils/error";
+import AppButton from "@/components/AppButton";
+import AttachmentField from "@/components/AttachmentField";
+import FolderPicker from "@/components/FolderPicker";
+import GlassCard from "@/components/GlassCard";
+import Notice from "@/components/Notice";
+import ScreenContainer from "@/components/ScreenContainer";
+import TextField from "@/components/TextField";
+import COLORS from "@/constants/colors";
+import useAppDialog from "@/hooks/useAppDialog";
+import useAttachment from "@/hooks/useAttachment";
+import useDatabaseContext from "@/hooks/useDatabaseContext";
+import useFolders from "@/hooks/useFolders";
+import noteService from "@/services/noteService";
+import type RootStackParamList from "@/types/RootStackParamList";
+import getErrorMessage from "@/utils/error";
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+const { deleteNote, getNote, saveNote } = noteService;
 
 type NoteFormScreenProps = NativeStackScreenProps<
 	RootStackParamList,
@@ -167,4 +169,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { NoteFormScreen };
+export default NoteFormScreen;

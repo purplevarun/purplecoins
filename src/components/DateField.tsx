@@ -1,11 +1,13 @@
-import { CustomText } from "@/components/CustomText";
+import CustomText from "@/components/CustomText";
+
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useState } from "react";
 import { Platform, Pressable, StyleSheet, View } from "react-native";
 
-import { COLORS } from "@/constants/colors";
-import { formatDate } from "@/utils/date";
+import COLORS from "@/constants/colors";
+import dateUtils from "@/utils/date";
+const { formatDate } = dateUtils;
 
 type DateFieldProps = Readonly<{
 	label: string;
@@ -82,4 +84,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { DateField };
+export default DateField;

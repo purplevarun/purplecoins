@@ -1,14 +1,14 @@
 import type { SQLiteDatabase } from "expo-sqlite";
 
-import type { Budget } from "@/types/Budget";
-import type { Category } from "@/types/Category";
-import type { ExchangeRate } from "@/types/ExchangeRate";
-import type { Investment } from "@/types/Investment";
-import type { SimpleEntity } from "@/types/SimpleEntity";
-import type { Source } from "@/types/Source";
-import type { Transaction } from "@/types/Transaction";
-import type { TransactionInput } from "@/types/TransactionInput";
-import type { Trip } from "@/types/Trip";
+import type Budget from "@/types/Budget";
+import type Category from "@/types/Category";
+import type ExchangeRate from "@/types/ExchangeRate";
+import type Investment from "@/types/Investment";
+import type SimpleEntity from "@/types/SimpleEntity";
+import type Source from "@/types/Source";
+import type Transaction from "@/types/Transaction";
+import type TransactionInput from "@/types/TransactionInput";
+import type Trip from "@/types/Trip";
 
 const TRANSACTION_SELECT = `
 	SELECT
@@ -744,7 +744,7 @@ const upsertExchangeRateRow = async (
 	);
 };
 
-export {
+const financeRepository = {
 	categoryNameExistsRow,
 	createSourceRow,
 	createTransactionRow,
@@ -785,3 +785,5 @@ export {
 	upsertSimpleEntityRow,
 	validateSourceRow,
 };
+
+export default financeRepository;

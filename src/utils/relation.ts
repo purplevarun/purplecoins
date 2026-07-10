@@ -1,5 +1,5 @@
-import type { RelationKind } from "@/types/RelationKind";
-import type { RelationLabels } from "@/types/RelationLabels";
+import type RelationKind from "@/types/RelationKind";
+import type RelationLabels from "@/types/RelationLabels";
 
 const getRelationLabels = (kind: RelationKind): RelationLabels => {
 	if (kind === "SOURCE") {
@@ -22,4 +22,4 @@ const getRelationLabels = (kind: RelationKind): RelationLabels => {
 	};
 };
 
-export { getRelationLabels };
+export default getRelationLabels;

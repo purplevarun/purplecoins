@@ -5,4 +5,4 @@ type SimpleEntity = Readonly<{
 	updatedAt: number;
 }>;
 
-export type { SimpleEntity };
+export type { SimpleEntity as default };

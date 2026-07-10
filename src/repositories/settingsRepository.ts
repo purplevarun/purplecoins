@@ -31,4 +31,9 @@ const upsertSettingRow = async (
 	);
 };
 
-export { getSettingRow, upsertSettingRow };
+const settingsRepository = {
+	getSettingRow,
+	upsertSettingRow,
+};
+
+export default settingsRepository;

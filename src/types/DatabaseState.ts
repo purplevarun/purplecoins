@@ -5,4 +5,4 @@ type DatabaseState = Readonly<{
 	error: string | null;
 }>;
 
-export type { DatabaseState };
+export type { DatabaseState as default };

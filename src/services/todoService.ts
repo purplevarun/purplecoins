@@ -1,14 +1,11 @@
+import AppError from "@/errors/AppError";
+import contentRepository from "@/repositories/contentRepository";
+import type Todo from "@/types/Todo";
+import createId from "@/utils/id";
 import type { SQLiteDatabase } from "expo-sqlite";
 
-import { AppError } from "@/errors/AppError";
-import {
-	deleteContentRow,
-	getTodoRow,
-	getTodoRows,
-	upsertTodoRow,
-} from "@/repositories/contentRepository";
-import type { Todo } from "@/types/Todo";
-import { createId } from "@/utils/id";
+const { deleteContentRow, getTodoRow, getTodoRows, upsertTodoRow } =
+	contentRepository;
 
 const mapTodo = (todo: Todo): Todo => ({
 	...todo,
@@ -85,4 +82,12 @@ const deleteTodo = async (
 	id: string,
 ): Promise<void> => deleteContentRow(database, "todos", "TODO", id);
 
-export { deleteTodo, getTodo, getTodos, saveTodo, toggleTodo };
+const todoService = {
+	deleteTodo,
+	getTodo,
+	getTodos,
+	saveTodo,
+	toggleTodo,
+};
+
+export default todoService;

@@ -1,7 +1,10 @@
+import AppError from "@/errors/AppError";
+import financeRepository from "@/repositories/financeRepository";
+import type Investment from "@/types/Investment";
+import createId from "@/utils/id";
 import type { SQLiteDatabase } from "expo-sqlite";
 
-import { AppError } from "@/errors/AppError";
-import {
+const {
 	deleteSimpleEntityRow,
 	getArchivedInvestmentRows,
 	getInvestmentRow,
@@ -9,9 +12,7 @@ import {
 	setSimpleEntityArchivedRow,
 	simpleEntityNameExistsRow,
 	upsertSimpleEntityRow,
-} from "@/repositories/financeRepository";
-import type { Investment } from "@/types/Investment";
-import { createId } from "@/utils/id";
+} = financeRepository;
 
 const mapInvestment = (investment: Investment): Investment => ({
 	...investment,
@@ -103,7 +104,7 @@ const deleteInvestment = async (
 	}
 };
 
-export {
+const investmentService = {
 	deleteInvestment,
 	getArchivedInvestments,
 	getInvestment,
@@ -111,3 +112,5 @@ export {
 	saveInvestment,
 	setInvestmentArchived,
 };
+
+export default investmentService;

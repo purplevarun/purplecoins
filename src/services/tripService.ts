@@ -1,7 +1,10 @@
+import AppError from "@/errors/AppError";
+import financeRepository from "@/repositories/financeRepository";
+import type Trip from "@/types/Trip";
+import createId from "@/utils/id";
 import type { SQLiteDatabase } from "expo-sqlite";
 
-import { AppError } from "@/errors/AppError";
-import {
+const {
 	deleteSimpleEntityRow,
 	getArchivedTripRows,
 	getTripRow,
@@ -9,9 +12,7 @@ import {
 	setSimpleEntityArchivedRow,
 	simpleEntityNameExistsRow,
 	upsertSimpleEntityRow,
-} from "@/repositories/financeRepository";
-import type { Trip } from "@/types/Trip";
-import { createId } from "@/utils/id";
+} = financeRepository;
 
 const mapTrip = (trip: Trip): Trip => ({
 	...trip,
@@ -87,7 +88,7 @@ const deleteTrip = async (
 	}
 };
 
-export {
+const tripService = {
 	deleteTrip,
 	getArchivedTrips,
 	getTrip,
@@ -95,3 +96,5 @@ export {
 	saveTrip,
 	setTripArchived,
 };
+
+export default tripService;

@@ -1,22 +1,25 @@
+import appConstants from "@/constants/appConstants";
+import financeRepository from "@/repositories/financeRepository";
+import type AnalysisSummary from "@/types/AnalysisSummary";
+import type Category from "@/types/Category";
+import type CategoryAnalysis from "@/types/CategoryAnalysis";
+import type CategoryCurrencySummary from "@/types/CategoryCurrencySummary";
+import type DateRange from "@/types/DateRange";
+import type ExchangeRate from "@/types/ExchangeRate";
+import type Investment from "@/types/Investment";
+import type InvestmentAnalysis from "@/types/InvestmentAnalysis";
+import type Transaction from "@/types/Transaction";
+import moneyUtils from "@/utils/money";
 import type { SQLiteDatabase } from "expo-sqlite";
 
-import { DEFAULT_CURRENCY_CODE } from "@/constants/appConstants";
-import {
+const { DEFAULT_CURRENCY_CODE } = appConstants;
+const {
 	getCategoryRows,
 	getExchangeRateRows,
 	getInvestmentRows,
 	getTransactionRowsInRange,
-} from "@/repositories/financeRepository";
-import type { AnalysisSummary } from "@/types/AnalysisSummary";
-import type { Category } from "@/types/Category";
-import type { CategoryAnalysis } from "@/types/CategoryAnalysis";
-import type { CategoryCurrencySummary } from "@/types/CategoryCurrencySummary";
-import type { DateRange } from "@/types/DateRange";
-import type { ExchangeRate } from "@/types/ExchangeRate";
-import type { Investment } from "@/types/Investment";
-import type { InvestmentAnalysis } from "@/types/InvestmentAnalysis";
-import type { Transaction } from "@/types/Transaction";
-import {
+} = financeRepository;
+const {
 	absoluteMoney,
 	addMoney,
 	compareMoney,
@@ -24,7 +27,7 @@ import {
 	subtractMoney,
 	sumMoney,
 	ZERO_AMOUNT,
-} from "@/utils/money";
+} = moneyUtils;
 
 type AnalysisOptions = Readonly<{
 	dateRange: DateRange;
@@ -289,7 +292,7 @@ const getInvestmentNetLabel = (net: string): string => {
 
 const getInvestmentNetAmount = (net: string): string => absoluteMoney(net);
 
-export {
+const analysisService = {
 	buildCategoryAnalysis,
 	buildCategoryCurrencySummaries,
 	buildInvestmentAnalysis,
@@ -297,3 +300,5 @@ export {
 	getInvestmentNetAmount,
 	getInvestmentNetLabel,
 };
+
+export default analysisService;

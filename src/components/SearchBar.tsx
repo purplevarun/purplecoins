@@ -1,8 +1,8 @@
-import { CustomTextInput } from "@/components/CustomTextInput";
+import CustomTextInput from "@/components/CustomTextInput";
 import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet, View } from "react-native";
 
-import { COLORS } from "@/constants/colors";
+import COLORS from "@/constants/colors";
 
 type SearchBarProps = Readonly<{
 	value: string;
@@ -56,4 +56,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { SearchBar };
+export default SearchBar;

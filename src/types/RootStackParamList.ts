@@ -1,6 +1,6 @@
-import type { HomeMode } from "@/types/HomeMode";
-import type { RelationKind } from "@/types/RelationKind";
-import type { VaultKind } from "@/types/VaultKind";
+import type HomeMode from "@/types/HomeMode";
+import type RelationKind from "@/types/RelationKind";
+import type VaultKind from "@/types/VaultKind";
 
 type RootStackParamList = {
 	Home: undefined;
@@ -33,4 +33,4 @@ type RootStackParamList = {
 	Settings: undefined;
 };
 
-export type { RootStackParamList };
+export type { RootStackParamList as default };

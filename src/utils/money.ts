@@ -1,6 +1,6 @@
 import Decimal from "decimal.js";
 
-import { AppError } from "@/errors/AppError";
+import AppError from "@/errors/AppError";
 
 const MONEY_PATTERN = /^\d+(?:\.\d+)?$/;
 const ZERO_AMOUNT = "0";
@@ -55,7 +55,7 @@ const formatMoney = (amount: string, currencyCode: string): string => {
 	}
 };
 
-export {
+const moneyUtils = {
 	absoluteMoney,
 	addMoney,
 	compareMoney,
@@ -66,3 +66,5 @@ export {
 	sumMoney,
 	ZERO_AMOUNT,
 };
+
+export default moneyUtils;

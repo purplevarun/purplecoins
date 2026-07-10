@@ -1,4 +1,4 @@
-import type { ButtonVariant } from "@/types/ButtonVariant";
+import type ButtonVariant from "@/types/ButtonVariant";
 
 type AppDialogMessageOptions = Readonly<{
 	title: string;
@@ -7,4 +7,4 @@ type AppDialogMessageOptions = Readonly<{
 	variant?: ButtonVariant;
 }>;
 
-export type { AppDialogMessageOptions };
+export type { AppDialogMessageOptions as default };

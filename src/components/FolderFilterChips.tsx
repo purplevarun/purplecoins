@@ -1,16 +1,15 @@
-import { CustomText } from "@/components/CustomText";
-import { CustomTextInput } from "@/components/CustomTextInput";
+import CustomText from "@/components/CustomText";
+
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { Modal, Pressable, ScrollView, StyleSheet, View } from "react-native";
 
-import { AppButton } from "@/components/AppButton";
-import { COLORS } from "@/constants/colors";
-import {
-	FOLDER_FILTER_ALL,
-	FOLDER_FILTER_NONE,
-} from "@/constants/folderConstants";
-import type { Folder } from "@/types/Folder";
+import AppButton from "@/components/AppButton";
+import CustomTextInput from "@/components/CustomTextInput";
+import COLORS from "@/constants/colors";
+import folderConstants from "@/constants/folderConstants";
+import type Folder from "@/types/Folder";
+const { FOLDER_FILTER_ALL, FOLDER_FILTER_NONE } = folderConstants;
 
 type FolderFilterChipsProps = Readonly<{
 	folders: readonly Folder[];
@@ -293,4 +292,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { FolderFilterChips };
+export default FolderFilterChips;

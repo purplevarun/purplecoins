@@ -1,40 +1,44 @@
-import { CustomText } from "@/components/CustomText";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import CustomText from "@/components/CustomText";
+
 import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 
-import { AppButton } from "@/components/AppButton";
-import { AttachmentField } from "@/components/AttachmentField";
-import { DateField } from "@/components/DateField";
-import { GlassCard } from "@/components/GlassCard";
-import { Notice } from "@/components/Notice";
-import { ScreenContainer } from "@/components/ScreenContainer";
-import { SegmentedControl } from "@/components/SegmentedControl";
-import { SelectField } from "@/components/SelectField";
-import { TextField } from "@/components/TextField";
-import { COLORS } from "@/constants/colors";
-import { useAppDialog } from "@/hooks/useAppDialog";
-import { useAttachment } from "@/hooks/useAttachment";
-import { useDatabaseContext } from "@/hooks/useDatabaseContext";
-import { getCategories } from "@/services/categoryService";
-import { getInvestments } from "@/services/investmentService";
-import { getDefaultTripId } from "@/services/settingsService";
-import { getSources } from "@/services/sourceService";
-import {
-	deleteTransaction,
-	getTransaction,
-	saveTransaction,
-} from "@/services/transactionService";
-import { getTrips } from "@/services/tripService";
-import type { Category } from "@/types/Category";
-import type { Investment } from "@/types/Investment";
-import type { RootStackParamList } from "@/types/RootStackParamList";
-import type { SelectOption } from "@/types/SelectOption";
-import type { Source } from "@/types/Source";
-import type { TransactionClassification } from "@/types/TransactionClassification";
-import type { TransactionType } from "@/types/TransactionType";
-import type { Trip } from "@/types/Trip";
-import { getErrorMessage } from "@/utils/error";
+import AppButton from "@/components/AppButton";
+import AttachmentField from "@/components/AttachmentField";
+import DateField from "@/components/DateField";
+import GlassCard from "@/components/GlassCard";
+import Notice from "@/components/Notice";
+import ScreenContainer from "@/components/ScreenContainer";
+import SegmentedControl from "@/components/SegmentedControl";
+import SelectField from "@/components/SelectField";
+import TextField from "@/components/TextField";
+import COLORS from "@/constants/colors";
+import useAppDialog from "@/hooks/useAppDialog";
+import useAttachment from "@/hooks/useAttachment";
+import useDatabaseContext from "@/hooks/useDatabaseContext";
+import categoryService from "@/services/categoryService";
+import investmentService from "@/services/investmentService";
+import settingsService from "@/services/settingsService";
+import sourceService from "@/services/sourceService";
+import transactionService from "@/services/transactionService";
+import tripService from "@/services/tripService";
+import type Category from "@/types/Category";
+import type Investment from "@/types/Investment";
+import type RootStackParamList from "@/types/RootStackParamList";
+import type SelectOption from "@/types/SelectOption";
+import type Source from "@/types/Source";
+import type TransactionClassification from "@/types/TransactionClassification";
+import type TransactionType from "@/types/TransactionType";
+import type Trip from "@/types/Trip";
+import getErrorMessage from "@/utils/error";
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+const { getCategories } = categoryService;
+const { getInvestments } = investmentService;
+const { getDefaultTripId } = settingsService;
+const { getSources } = sourceService;
+const { deleteTransaction, getTransaction, saveTransaction } =
+	transactionService;
+const { getTrips } = tripService;
 
 type TransactionFormScreenProps = NativeStackScreenProps<
 	RootStackParamList,
@@ -418,4 +422,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { TransactionFormScreen };
+export default TransactionFormScreen;

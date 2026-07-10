@@ -1,25 +1,29 @@
-import { CustomText } from "@/components/CustomText";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import CustomText from "@/components/CustomText";
+
 import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 
-import { AppButton } from "@/components/AppButton";
-import { GlassCard } from "@/components/GlassCard";
-import { Notice } from "@/components/Notice";
-import { ScreenContainer } from "@/components/ScreenContainer";
-import { SegmentedControl } from "@/components/SegmentedControl";
-import { SelectField } from "@/components/SelectField";
-import { TextField } from "@/components/TextField";
-import { DEFAULT_CURRENCY_CODE } from "@/constants/appConstants";
-import { COLORS } from "@/constants/colors";
-import { useDatabaseContext } from "@/hooks/useDatabaseContext";
-import { getBudget, saveBudget } from "@/services/budgetService";
-import { getCategories } from "@/services/categoryService";
-import type { BudgetPeriod } from "@/types/BudgetPeriod";
-import type { Category } from "@/types/Category";
-import type { RootStackParamList } from "@/types/RootStackParamList";
-import type { SelectOption } from "@/types/SelectOption";
-import { getErrorMessage } from "@/utils/error";
+import AppButton from "@/components/AppButton";
+import GlassCard from "@/components/GlassCard";
+import Notice from "@/components/Notice";
+import ScreenContainer from "@/components/ScreenContainer";
+import SegmentedControl from "@/components/SegmentedControl";
+import SelectField from "@/components/SelectField";
+import TextField from "@/components/TextField";
+import appConstants from "@/constants/appConstants";
+import COLORS from "@/constants/colors";
+import useDatabaseContext from "@/hooks/useDatabaseContext";
+import budgetService from "@/services/budgetService";
+import categoryService from "@/services/categoryService";
+import type BudgetPeriod from "@/types/BudgetPeriod";
+import type Category from "@/types/Category";
+import type RootStackParamList from "@/types/RootStackParamList";
+import type SelectOption from "@/types/SelectOption";
+import getErrorMessage from "@/utils/error";
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+const { DEFAULT_CURRENCY_CODE } = appConstants;
+const { getBudget, saveBudget } = budgetService;
+const { getCategories } = categoryService;
 
 type BudgetFormScreenProps = NativeStackScreenProps<
 	RootStackParamList,
@@ -142,4 +146,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { BudgetFormScreen };
+export default BudgetFormScreen;

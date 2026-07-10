@@ -5,4 +5,4 @@ type CategoryCurrencySummary = Readonly<{
 	netProfit: string;
 }>;
 
-export type { CategoryCurrencySummary };
+export type { CategoryCurrencySummary as default };

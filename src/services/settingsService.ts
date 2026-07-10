@@ -1,9 +1,7 @@
+import settingsRepository from "@/repositories/settingsRepository";
 import type { SQLiteDatabase } from "expo-sqlite";
 
-import {
-	getSettingRow,
-	upsertSettingRow,
-} from "@/repositories/settingsRepository";
+const { getSettingRow, upsertSettingRow } = settingsRepository;
 
 const NATIVE_CURRENCY_KEY = "native_currency_display";
 const FY_START_MONTH_KEY = "fy_start_month";
@@ -55,7 +53,7 @@ const updateDefaultTripId = async (
 ): Promise<void> =>
 	upsertSettingRow(database, DEFAULT_TRIP_ID_KEY, tripId ?? "", Date.now());
 
-export {
+const settingsService = {
 	getDefaultTripId,
 	getFyStartMonth,
 	getNativeCurrencyDisplay,
@@ -63,3 +61,5 @@ export {
 	updateFyStartMonth,
 	updateNativeCurrencyDisplay,
 };
+
+export default settingsService;

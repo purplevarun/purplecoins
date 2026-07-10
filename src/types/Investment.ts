@@ -6,4 +6,4 @@ type Investment = Readonly<{
 	archived: boolean;
 }>;
 
-export type { Investment };
+export type { Investment as default };

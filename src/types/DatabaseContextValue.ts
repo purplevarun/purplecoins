@@ -6,4 +6,4 @@ type DatabaseContextValue = Readonly<{
 	refreshData: () => void;
 }>;
 
-export type { DatabaseContextValue };
+export type { DatabaseContextValue as default };

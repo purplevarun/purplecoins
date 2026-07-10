@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import type { ComponentProps } from "react";
 import { Pressable, StyleSheet } from "react-native";
 
-import { COLORS } from "@/constants/colors";
+import COLORS from "@/constants/colors";
 
 type HeaderIconButtonProps = Readonly<{
 	icon: ComponentProps<typeof Ionicons>["name"];
@@ -55,4 +55,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { HeaderIconButton };
+export default HeaderIconButton;

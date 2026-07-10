@@ -1,13 +1,10 @@
+import AppError from "@/errors/AppError";
+import contentRepository from "@/repositories/contentRepository";
+import type Folder from "@/types/Folder";
+import createId from "@/utils/id";
 import type { SQLiteDatabase } from "expo-sqlite";
 
-import { AppError } from "@/errors/AppError";
-import {
-	deleteFolderRow,
-	getFolderRows,
-	upsertFolderRow,
-} from "@/repositories/contentRepository";
-import type { Folder } from "@/types/Folder";
-import { createId } from "@/utils/id";
+const { deleteFolderRow, getFolderRows, upsertFolderRow } = contentRepository;
 
 const getFolders = async (
 	database: SQLiteDatabase,
@@ -75,4 +72,11 @@ const renameFolder = async (
 	});
 };
 
-export { createFolder, deleteFolder, getFolders, renameFolder };
+const folderService = {
+	createFolder,
+	deleteFolder,
+	getFolders,
+	renameFolder,
+};
+
+export default folderService;

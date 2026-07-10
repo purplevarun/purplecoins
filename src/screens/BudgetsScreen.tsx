@@ -1,31 +1,34 @@
-import { CustomText } from "@/components/CustomText";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import CustomText from "@/components/CustomText";
+
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 
-import { AppButton } from "@/components/AppButton";
-import { EmptyState } from "@/components/EmptyState";
-import { FloatingAddButton } from "@/components/FloatingAddButton";
-import { GlassCard } from "@/components/GlassCard";
-import { Notice } from "@/components/Notice";
-import { ListHeader, ScreenList } from "@/components/ScreenList";
-import { DEFAULT_CURRENCY_CODE } from "@/constants/appConstants";
-import { COLORS } from "@/constants/colors";
-import { useAppDialog } from "@/hooks/useAppDialog";
-import { useDatabaseContext } from "@/hooks/useDatabaseContext";
-import { getAnalysisSummary } from "@/services/analysisService";
-import { deleteBudget, getBudgets } from "@/services/budgetService";
-import type { AnalysisSummary } from "@/types/AnalysisSummary";
-import type { Budget } from "@/types/Budget";
-import type { RootStackParamList } from "@/types/RootStackParamList";
-import { getAnalysisDateRange } from "@/utils/date";
-import { getErrorMessage } from "@/utils/error";
-import {
-	compareMoney,
-	formatMoney,
-	subtractMoney,
-	ZERO_AMOUNT,
-} from "@/utils/money";
+import AppButton from "@/components/AppButton";
+import EmptyState from "@/components/EmptyState";
+import FloatingAddButton from "@/components/FloatingAddButton";
+import GlassCard from "@/components/GlassCard";
+import ListHeader from "@/components/ListHeader";
+import Notice from "@/components/Notice";
+import ScreenList from "@/components/ScreenList";
+import appConstants from "@/constants/appConstants";
+import COLORS from "@/constants/colors";
+import useAppDialog from "@/hooks/useAppDialog";
+import useDatabaseContext from "@/hooks/useDatabaseContext";
+import analysisService from "@/services/analysisService";
+import budgetService from "@/services/budgetService";
+import type AnalysisSummary from "@/types/AnalysisSummary";
+import type Budget from "@/types/Budget";
+import type RootStackParamList from "@/types/RootStackParamList";
+import dateUtils from "@/utils/date";
+import getErrorMessage from "@/utils/error";
+import moneyUtils from "@/utils/money";
+import runAfterRender from "@/utils/runAfterRender";
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+const { DEFAULT_CURRENCY_CODE } = appConstants;
+const { getAnalysisSummary } = analysisService;
+const { deleteBudget, getBudgets } = budgetService;
+const { getAnalysisDateRange } = dateUtils;
+const { compareMoney, formatMoney, subtractMoney, ZERO_AMOUNT } = moneyUtils;
 
 type BudgetsScreenProps = NativeStackScreenProps<RootStackParamList, "Budgets">;
 
@@ -65,9 +68,13 @@ const BudgetsScreen = ({
 		}
 	}, [database]);
 
-	useEffect(() => {
-		void getScreenData();
-	}, [dataVersion, getScreenData]);
+	useEffect(
+		() =>
+			runAfterRender(() => {
+				void getScreenData();
+			}),
+		[dataVersion, getScreenData],
+	);
 
 	const getSpent = useCallback(
 		(budget: Budget): string => {
@@ -288,4 +295,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { BudgetsScreen };
+export default BudgetsScreen;

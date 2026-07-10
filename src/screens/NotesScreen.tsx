@@ -1,28 +1,31 @@
-import { CustomText } from "@/components/CustomText";
+import CustomText from "@/components/CustomText";
+
 import { Ionicons } from "@expo/vector-icons";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 
-import { EmptyState } from "@/components/EmptyState";
-import { FloatingAddButton } from "@/components/FloatingAddButton";
-import { FolderFilterChips } from "@/components/FolderFilterChips";
-import { GlassCard } from "@/components/GlassCard";
-import { Notice } from "@/components/Notice";
-import { ListHeader, ScreenList } from "@/components/ScreenList";
-import { COLORS } from "@/constants/colors";
-import {
-	FOLDER_FILTER_ALL,
-	FOLDER_FILTER_NONE,
-} from "@/constants/folderConstants";
-import { useAppDialog } from "@/hooks/useAppDialog";
-import { useDatabaseContext } from "@/hooks/useDatabaseContext";
-import { useFolders } from "@/hooks/useFolders";
-import { getNotes } from "@/services/noteService";
-import type { Note } from "@/types/Note";
-import type { RootStackParamList } from "@/types/RootStackParamList";
-import { formatDateTime } from "@/utils/date";
-import { getErrorMessage } from "@/utils/error";
+import EmptyState from "@/components/EmptyState";
+import FloatingAddButton from "@/components/FloatingAddButton";
+import FolderFilterChips from "@/components/FolderFilterChips";
+import GlassCard from "@/components/GlassCard";
+import ListHeader from "@/components/ListHeader";
+import Notice from "@/components/Notice";
+import ScreenList from "@/components/ScreenList";
+import COLORS from "@/constants/colors";
+import folderConstants from "@/constants/folderConstants";
+import useAppDialog from "@/hooks/useAppDialog";
+import useDatabaseContext from "@/hooks/useDatabaseContext";
+import useFolders from "@/hooks/useFolders";
+import noteService from "@/services/noteService";
+import type Note from "@/types/Note";
+import type RootStackParamList from "@/types/RootStackParamList";
+import dateUtils from "@/utils/date";
+import getErrorMessage from "@/utils/error";
+import runAfterRender from "@/utils/runAfterRender";
+const { FOLDER_FILTER_ALL, FOLDER_FILTER_NONE } = folderConstants;
+const { getNotes } = noteService;
+const { formatDateTime } = dateUtils;
 
 type NotesScreenProps = NativeStackScreenProps<RootStackParamList, "Notes">;
 
@@ -33,7 +36,6 @@ const NotesScreen = ({ navigation }: NotesScreenProps): React.JSX.Element => {
 		useFolders("NOTE");
 	const [notes, setNotes] = useState<readonly Note[]>([]);
 	const [selectedFolderId, setSelectedFolderId] = useState(FOLDER_FILTER_ALL);
-	const [search, setSearch] = useState("");
 	const [error, setError] = useState("");
 
 	const getScreenData = useCallback(async (): Promise<void> => {
@@ -45,11 +47,14 @@ const NotesScreen = ({ navigation }: NotesScreenProps): React.JSX.Element => {
 		}
 	}, [database]);
 
-	useEffect(() => {
-		void getScreenData();
-	}, [dataVersion, getScreenData]);
+	useEffect(
+		() =>
+			runAfterRender(() => {
+				void getScreenData();
+			}),
+		[dataVersion, getScreenData],
+	);
 
-	const normalizedSearch = search.trim().toLowerCase();
 	const filteredNotes = useMemo(
 		() =>
 			notes.filter((note) => {
@@ -61,11 +66,9 @@ const NotesScreen = ({ navigation }: NotesScreenProps): React.JSX.Element => {
 				if (!matchesFolder) {
 					return false;
 				}
-				return `${note.title} ${note.content} ${note.folderName ?? ""}`
-					.toLowerCase()
-					.includes(normalizedSearch);
+				return true;
 			}),
-		[normalizedSearch, notes, selectedFolderId],
+		[notes, selectedFolderId],
 	);
 
 	const renderNote = useCallback(
@@ -308,4 +311,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { NotesScreen };
+export default NotesScreen;

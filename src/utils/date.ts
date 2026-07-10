@@ -1,5 +1,5 @@
-import type { AnalysisPeriod } from "@/types/AnalysisPeriod";
-import type { DateRange } from "@/types/DateRange";
+import type AnalysisPeriod from "@/types/AnalysisPeriod";
+import type DateRange from "@/types/DateRange";
 
 const ALL_TIME_START = 0;
 const ALL_TIME_END = 8_640_000_000_000_000;
@@ -158,7 +158,7 @@ const formatDateTime = (timestamp: number): string =>
 		minute: "2-digit",
 	});
 
-export {
+const dateUtils = {
 	formatDate,
 	formatDateTime,
 	getAnalysisDateRange,
@@ -167,3 +167,5 @@ export {
 	getYtdDateRange,
 	shiftAnalysisAnchor,
 };
+
+export default dateUtils;

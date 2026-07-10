@@ -1,32 +1,28 @@
-import { CustomText } from "@/components/CustomText";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import CustomText from "@/components/CustomText";
+
 import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 
-import { AppButton } from "@/components/AppButton";
-import { AttachmentField } from "@/components/AttachmentField";
-import { GlassCard } from "@/components/GlassCard";
-import { Notice } from "@/components/Notice";
-import { ScreenContainer } from "@/components/ScreenContainer";
-import { SelectField } from "@/components/SelectField";
-import { TextField } from "@/components/TextField";
-import { COLORS } from "@/constants/colors";
-import { useAppDialog } from "@/hooks/useAppDialog";
-import { useAttachment } from "@/hooks/useAttachment";
-import { useDatabaseContext } from "@/hooks/useDatabaseContext";
-import { deleteCard, getCard, saveCard } from "@/services/cardService";
-import {
-	deleteIdentity,
-	getIdentity,
-	saveIdentity,
-} from "@/services/identityService";
-import {
-	deletePassword,
-	getPassword,
-	savePassword,
-} from "@/services/passwordService";
-import type { RootStackParamList } from "@/types/RootStackParamList";
-import { getErrorMessage } from "@/utils/error";
+import AppButton from "@/components/AppButton";
+import AttachmentField from "@/components/AttachmentField";
+import GlassCard from "@/components/GlassCard";
+import Notice from "@/components/Notice";
+import ScreenContainer from "@/components/ScreenContainer";
+import SelectField from "@/components/SelectField";
+import TextField from "@/components/TextField";
+import COLORS from "@/constants/colors";
+import useAppDialog from "@/hooks/useAppDialog";
+import useAttachment from "@/hooks/useAttachment";
+import useDatabaseContext from "@/hooks/useDatabaseContext";
+import cardService from "@/services/cardService";
+import identityService from "@/services/identityService";
+import passwordService from "@/services/passwordService";
+import type RootStackParamList from "@/types/RootStackParamList";
+import getErrorMessage from "@/utils/error";
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+const { deleteCard, getCard, saveCard } = cardService;
+const { deleteIdentity, getIdentity, saveIdentity } = identityService;
+const { deletePassword, getPassword, savePassword } = passwordService;
 
 type VaultFormScreenProps = NativeStackScreenProps<
 	RootStackParamList,
@@ -81,7 +77,7 @@ const VaultFormScreen = ({
 					if (entry) {
 						setTitle(entry.name);
 						setCardNumber(entry.cardNumber);
-						setCardType(entry.cardType ?? "CREDIT_CARD");
+						setCardType(entry.cardType);
 						setExpiry(entry.expiry);
 						setCvv(entry.cvv);
 						setPin(entry.pin);
@@ -334,4 +330,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { VaultFormScreen };
+export default VaultFormScreen;

@@ -3,4 +3,4 @@ import type { ComponentProps } from "react";
 
 type IconName = ComponentProps<typeof Ionicons>["name"];
 
-export type { IconName };
+export type { IconName as default };

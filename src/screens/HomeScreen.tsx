@@ -1,4 +1,5 @@
-import { CustomText } from "@/components/CustomText";
+import CustomText from "@/components/CustomText";
+
 import { Ionicons } from "@expo/vector-icons";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { LinearGradient } from "expo-linear-gradient";
@@ -7,18 +8,15 @@ import { Animated, Modal, Pressable, StyleSheet, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { GlassCard } from "@/components/GlassCard";
-import { HeaderIconButton } from "@/components/HeaderIconButton";
-import { ScreenContainer } from "@/components/ScreenContainer";
-import {
-	ALLOW_CLICK_SWITCH,
-	ALLOW_SWIPE_SWITCH,
-	APP_NAME,
-} from "@/constants/appConstants";
-import { COLORS } from "@/constants/colors";
-import type { HomeMode } from "@/types/HomeMode";
-import { HOME_MODES } from "@/types/HomeMode";
-import type { RootStackParamList } from "@/types/RootStackParamList";
+import GlassCard from "@/components/GlassCard";
+import HeaderIconButton from "@/components/HeaderIconButton";
+import ScreenContainer from "@/components/ScreenContainer";
+import appConstants from "@/constants/appConstants";
+import COLORS from "@/constants/colors";
+import HOME_MODES from "@/constants/homeModes";
+import type HomeMode from "@/types/HomeMode";
+import type RootStackParamList from "@/types/RootStackParamList";
+const { ALLOW_CLICK_SWITCH, ALLOW_SWIPE_SWITCH, APP_NAME } = appConstants;
 
 type HomeScreenProps = NativeStackScreenProps<RootStackParamList, "Home">;
 
@@ -610,4 +608,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { HomeScreen };
+export default HomeScreen;

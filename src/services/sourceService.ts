@@ -1,7 +1,12 @@
+import AppError from "@/errors/AppError";
+import financeRepository from "@/repositories/financeRepository";
+import type Source from "@/types/Source";
+import type Transaction from "@/types/Transaction";
+import createId from "@/utils/id";
+import moneyUtils from "@/utils/money";
 import type { SQLiteDatabase } from "expo-sqlite";
 
-import { AppError } from "@/errors/AppError";
-import {
+const {
 	createSourceRow,
 	deleteSourceRow,
 	getArchivedSourceRows,
@@ -12,11 +17,8 @@ import {
 	sourceNameExistsRow,
 	updateSourceNameRow,
 	validateSourceRow,
-} from "@/repositories/financeRepository";
-import type { Source } from "@/types/Source";
-import type { Transaction } from "@/types/Transaction";
-import { createId } from "@/utils/id";
-import { addMoney, subtractMoney, ZERO_AMOUNT } from "@/utils/money";
+} = financeRepository;
+const { addMoney, subtractMoney, ZERO_AMOUNT } = moneyUtils;
 
 const normalizeCurrencyCode = (currencyCode: string): string => {
 	const normalizedCode = currencyCode.trim().toUpperCase();
@@ -173,7 +175,7 @@ const deleteSource = async (
 	}
 };
 
-export {
+const sourceService = {
 	createSource,
 	deleteSource,
 	getArchivedSources,
@@ -183,3 +185,5 @@ export {
 	updateSourceName,
 	validateSource,
 };
+
+export default sourceService;

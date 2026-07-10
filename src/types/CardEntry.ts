@@ -1,4 +1,4 @@
-type CardType = "CREDIT_CARD" | "DEBIT_CARD";
+import type CardType from "@/types/CardType";
 
 type CardEntry = Readonly<{
 	id: string;
@@ -15,4 +15,4 @@ type CardEntry = Readonly<{
 	hasAttachment: boolean;
 }>;
 
-export type { CardEntry, CardType };
+export type { CardEntry as default };

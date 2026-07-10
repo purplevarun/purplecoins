@@ -1,28 +1,36 @@
+import categoryService from "@/services/categoryService";
+
 import { Ionicons } from "@expo/vector-icons";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 
-import { AppButton } from "@/components/AppButton";
-import { CustomText } from "@/components/CustomText";
-import { EmptyState } from "@/components/EmptyState";
-import { GlassCard } from "@/components/GlassCard";
-import { Notice } from "@/components/Notice";
-import { ListHeader, ScreenList } from "@/components/ScreenList";
-import { TransactionCard } from "@/components/TransactionCard";
-import { COLORS } from "@/constants/colors";
-import { useAppDialog } from "@/hooks/useAppDialog";
-import { useDatabaseContext } from "@/hooks/useDatabaseContext";
-import { deleteCategory } from "@/services/categoryService";
-import { deleteInvestment } from "@/services/investmentService";
-import { deleteSource } from "@/services/sourceService";
-import { getLinkedTransactions } from "@/services/transactionService";
-import { deleteTrip } from "@/services/tripService";
-import type { RelationKind } from "@/types/RelationKind";
-import type { RootStackParamList } from "@/types/RootStackParamList";
-import type { Transaction } from "@/types/Transaction";
-import { getErrorMessage } from "@/utils/error";
-import { getRelationLabels } from "@/utils/relation";
+import AppButton from "@/components/AppButton";
+import CustomText from "@/components/CustomText";
+import EmptyState from "@/components/EmptyState";
+import GlassCard from "@/components/GlassCard";
+import ListHeader from "@/components/ListHeader";
+import Notice from "@/components/Notice";
+import ScreenList from "@/components/ScreenList";
+import TransactionCard from "@/components/TransactionCard";
+import COLORS from "@/constants/colors";
+import useAppDialog from "@/hooks/useAppDialog";
+import useDatabaseContext from "@/hooks/useDatabaseContext";
+import investmentService from "@/services/investmentService";
+import sourceService from "@/services/sourceService";
+import transactionService from "@/services/transactionService";
+import tripService from "@/services/tripService";
+import type RelationKind from "@/types/RelationKind";
+import type RootStackParamList from "@/types/RootStackParamList";
+import type Transaction from "@/types/Transaction";
+import getErrorMessage from "@/utils/error";
+import getRelationLabels from "@/utils/relation";
+import runAfterRender from "@/utils/runAfterRender";
+const { deleteCategory } = categoryService;
+const { deleteInvestment } = investmentService;
+const { deleteSource } = sourceService;
+const { getLinkedTransactions } = transactionService;
+const { deleteTrip } = tripService;
 
 type LinkedTransactionsScreenProps = NativeStackScreenProps<
 	RootStackParamList,
@@ -99,9 +107,13 @@ const LinkedTransactionsScreen = ({
 		}
 	}, [database, entityId, kind, dateRangeStart, dateRangeEnd]);
 
-	useEffect(() => {
-		void getScreenData();
-	}, [dataVersion, getScreenData]);
+	useEffect(
+		() =>
+			runAfterRender(() => {
+				void getScreenData();
+			}),
+		[dataVersion, getScreenData],
+	);
 
 	const processDelete = useCallback(async (): Promise<void> => {
 		try {
@@ -291,4 +303,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { LinkedTransactionsScreen };
+export default LinkedTransactionsScreen;

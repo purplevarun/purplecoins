@@ -1,16 +1,14 @@
+import AppError from "@/errors/AppError";
+import financeRepository from "@/repositories/financeRepository";
+import type Budget from "@/types/Budget";
+import type BudgetPeriod from "@/types/BudgetPeriod";
+import createId from "@/utils/id";
+import moneyUtils from "@/utils/money";
 import type { SQLiteDatabase } from "expo-sqlite";
 
-import { AppError } from "@/errors/AppError";
-import {
-	deleteBudgetRow,
-	getBudgetRow,
-	getBudgetRows,
-	upsertBudgetRow,
-} from "@/repositories/financeRepository";
-import type { Budget } from "@/types/Budget";
-import type { BudgetPeriod } from "@/types/BudgetPeriod";
-import { createId } from "@/utils/id";
-import { normalizeMoney } from "@/utils/money";
+const { deleteBudgetRow, getBudgetRow, getBudgetRows, upsertBudgetRow } =
+	financeRepository;
+const { normalizeMoney } = moneyUtils;
 
 const getBudgets = async (
 	database: SQLiteDatabase,
@@ -61,4 +59,11 @@ const deleteBudget = async (
 	id: string,
 ): Promise<void> => deleteBudgetRow(database, id);
 
-export { deleteBudget, getBudget, getBudgets, saveBudget };
+const budgetService = {
+	deleteBudget,
+	getBudget,
+	getBudgets,
+	saveBudget,
+};
+
+export default budgetService;

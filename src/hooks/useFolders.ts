@@ -1,13 +1,10 @@
+import folderService from "@/services/folderService";
+
 import { useEffect, useState } from "react";
 
-import { useDatabaseContext } from "@/hooks/useDatabaseContext";
-import {
-	createFolder,
-	deleteFolder,
-	getFolders,
-	renameFolder,
-} from "@/services/folderService";
-import type { Folder } from "@/types/Folder";
+import useDatabaseContext from "@/hooks/useDatabaseContext";
+import type Folder from "@/types/Folder";
+const { createFolder, deleteFolder, getFolders, renameFolder } = folderService;
 
 type UseFoldersResult = Readonly<{
 	folders: readonly Folder[];
@@ -57,4 +54,4 @@ const useFolders = (type: "NOTE" | "TODO"): UseFoldersResult => {
 	};
 };
 
-export { useFolders };
+export default useFolders;

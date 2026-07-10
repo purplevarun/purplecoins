@@ -1,14 +1,11 @@
+import AppError from "@/errors/AppError";
+import contentRepository from "@/repositories/contentRepository";
+import type Note from "@/types/Note";
+import createId from "@/utils/id";
 import type { SQLiteDatabase } from "expo-sqlite";
 
-import { AppError } from "@/errors/AppError";
-import {
-	deleteContentRow,
-	getNoteRow,
-	getNoteRows,
-	upsertNoteRow,
-} from "@/repositories/contentRepository";
-import type { Note } from "@/types/Note";
-import { createId } from "@/utils/id";
+const { deleteContentRow, getNoteRow, getNoteRows, upsertNoteRow } =
+	contentRepository;
 
 const mapNote = (note: Note): Note => ({
 	...note,
@@ -60,4 +57,11 @@ const deleteNote = async (
 	id: string,
 ): Promise<void> => deleteContentRow(database, "notes", "NOTE", id);
 
-export { deleteNote, getNote, getNotes, saveNote };
+const noteService = {
+	deleteNote,
+	getNote,
+	getNotes,
+	saveNote,
+};
+
+export default noteService;

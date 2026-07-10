@@ -1,5 +1,5 @@
-import type { RELATION_KINDS } from "@/constants/financeConstants";
+import type financeConstants from "@/constants/financeConstants";
 
-type RelationKind = (typeof RELATION_KINDS)[number];
+type RelationKind = (typeof financeConstants.RELATION_KINDS)[number];
 
-export type { RelationKind };
+export type { RelationKind as default };

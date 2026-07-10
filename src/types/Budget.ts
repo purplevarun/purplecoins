@@ -1,4 +1,4 @@
-import type { BudgetPeriod } from "@/types/BudgetPeriod";
+import type BudgetPeriod from "@/types/BudgetPeriod";
 
 type Budget = Readonly<{
 	id: string;
@@ -10,4 +10,4 @@ type Budget = Readonly<{
 	updatedAt: number;
 }>;
 
-export type { Budget };
+export type { Budget as default };

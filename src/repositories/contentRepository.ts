@@ -1,11 +1,11 @@
 import type { SQLiteDatabase } from "expo-sqlite";
 
-import type { CardEntry } from "@/types/CardEntry";
-import type { Folder } from "@/types/Folder";
-import type { IdentityEntry } from "@/types/IdentityEntry";
-import type { Note } from "@/types/Note";
-import type { PasswordEntry } from "@/types/PasswordEntry";
-import type { Todo } from "@/types/Todo";
+import type CardEntry from "@/types/CardEntry";
+import type Folder from "@/types/Folder";
+import type IdentityEntry from "@/types/IdentityEntry";
+import type Note from "@/types/Note";
+import type PasswordEntry from "@/types/PasswordEntry";
+import type Todo from "@/types/Todo";
 
 const getFolderRows = async (
 	database: SQLiteDatabase,
@@ -437,7 +437,7 @@ const deleteContentRow = async (
 	});
 };
 
-export {
+const contentRepository = {
 	deleteContentRow,
 	deleteFolderRow,
 	getCardRow,
@@ -458,3 +458,5 @@ export {
 	upsertPasswordRow,
 	upsertTodoRow,
 };
+
+export default contentRepository;

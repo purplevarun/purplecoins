@@ -1,30 +1,37 @@
-import { CustomText } from "@/components/CustomText";
+import CustomText from "@/components/CustomText";
+
 import { Ionicons } from "@expo/vector-icons";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import * as Clipboard from "expo-clipboard";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
-import { AppButton } from "@/components/AppButton";
-import { EmptyState } from "@/components/EmptyState";
-import { FloatingAddButton } from "@/components/FloatingAddButton";
-import { GlassCard } from "@/components/GlassCard";
-import { Notice } from "@/components/Notice";
-import { ListHeader, ScreenList } from "@/components/ScreenList";
-import { TextField } from "@/components/TextField";
-import { COLORS } from "@/constants/colors";
-import { useAppDialog } from "@/hooks/useAppDialog";
-import { useDatabaseContext } from "@/hooks/useDatabaseContext";
-import { deleteCard, getCards } from "@/services/cardService";
-import { deleteIdentity, getIdentities } from "@/services/identityService";
-import { deletePassword, getPasswords } from "@/services/passwordService";
-import type { CardEntry } from "@/types/CardEntry";
-import type { IdentityEntry } from "@/types/IdentityEntry";
-import type { PasswordEntry } from "@/types/PasswordEntry";
-import type { RootStackParamList } from "@/types/RootStackParamList";
-import type { VaultKind } from "@/types/VaultKind";
-import { formatDate } from "@/utils/date";
-import { getErrorMessage } from "@/utils/error";
+import AppButton from "@/components/AppButton";
+import EmptyState from "@/components/EmptyState";
+import FloatingAddButton from "@/components/FloatingAddButton";
+import GlassCard from "@/components/GlassCard";
+import ListHeader from "@/components/ListHeader";
+import Notice from "@/components/Notice";
+import ScreenList from "@/components/ScreenList";
+import TextField from "@/components/TextField";
+import COLORS from "@/constants/colors";
+import useAppDialog from "@/hooks/useAppDialog";
+import useDatabaseContext from "@/hooks/useDatabaseContext";
+import cardService from "@/services/cardService";
+import identityService from "@/services/identityService";
+import passwordService from "@/services/passwordService";
+import type CardEntry from "@/types/CardEntry";
+import type IdentityEntry from "@/types/IdentityEntry";
+import type PasswordEntry from "@/types/PasswordEntry";
+import type RootStackParamList from "@/types/RootStackParamList";
+import type VaultKind from "@/types/VaultKind";
+import dateUtils from "@/utils/date";
+import getErrorMessage from "@/utils/error";
+import runAfterRender from "@/utils/runAfterRender";
+const { deleteCard, getCards } = cardService;
+const { deleteIdentity, getIdentities } = identityService;
+const { deletePassword, getPasswords } = passwordService;
+const { formatDate } = dateUtils;
 
 type VaultScreenProps = NativeStackScreenProps<RootStackParamList, "Vault">;
 
@@ -97,9 +104,13 @@ const VaultScreen = ({
 		}
 	}, [database, kind]);
 
-	useEffect(() => {
-		void getScreenData();
-	}, [dataVersion, getScreenData]);
+	useEffect(
+		() =>
+			runAfterRender(() => {
+				void getScreenData();
+			}),
+		[dataVersion, getScreenData],
+	);
 
 	const handleCopy = useCallback(
 		async (value: string, label: string): Promise<void> => {
@@ -485,4 +496,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { VaultScreen };
+export default VaultScreen;

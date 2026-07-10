@@ -1,9 +1,9 @@
-import { CustomText } from "@/components/CustomText";
+import CustomText from "@/components/CustomText";
 import { Ionicons } from "@expo/vector-icons";
 import type { ComponentProps } from "react";
 import { StyleSheet, View } from "react-native";
 
-import { COLORS } from "@/constants/colors";
+import COLORS from "@/constants/colors";
 
 type EmptyStateProps = Readonly<{
 	icon: ComponentProps<typeof Ionicons>["name"];
@@ -56,4 +56,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { EmptyState };
+export default EmptyState;

@@ -1,13 +1,13 @@
-import { CustomText } from "@/components/CustomText";
+import CustomText from "@/components/CustomText";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 
-import { AppButton } from "@/components/AppButton";
-import { SelectField } from "@/components/SelectField";
-import { TextField } from "@/components/TextField";
-import { COLORS } from "@/constants/colors";
-import type { Folder } from "@/types/Folder";
-import type { SelectOption } from "@/types/SelectOption";
+import AppButton from "@/components/AppButton";
+import SelectField from "@/components/SelectField";
+import TextField from "@/components/TextField";
+import COLORS from "@/constants/colors";
+import type Folder from "@/types/Folder";
+import type SelectOption from "@/types/SelectOption";
 
 type FolderPickerProps = Readonly<{
 	value: string;
@@ -102,4 +102,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { FolderPicker };
+export default FolderPicker;

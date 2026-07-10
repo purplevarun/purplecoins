@@ -1,4 +1,4 @@
-import { CustomText } from "@/components/CustomText";
+import CustomText from "@/components/CustomText";
 import { Ionicons } from "@expo/vector-icons";
 import type { ComponentProps } from "react";
 import {
@@ -8,8 +8,8 @@ import {
 	type ViewStyle,
 } from "react-native";
 
-import { COLORS } from "@/constants/colors";
-import type { ButtonVariant } from "@/types/ButtonVariant";
+import COLORS from "@/constants/colors";
+import type ButtonVariant from "@/types/ButtonVariant";
 
 type IconName = ComponentProps<typeof Ionicons>["name"];
 
@@ -134,4 +134,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { AppButton };
+export default AppButton;

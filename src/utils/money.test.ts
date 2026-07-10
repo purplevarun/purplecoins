@@ -1,12 +1,8 @@
+import moneyUtils from "@/utils/money";
+
 import { describe, expect, it } from "vitest";
 
-import {
-	addMoney,
-	multiplyMoney,
-	normalizeMoney,
-	subtractMoney,
-} from "@/utils/money";
-
+const { addMoney, multiplyMoney, normalizeMoney, subtractMoney } = moneyUtils;
 describe("money utilities", () => {
 	it("adds decimal amounts without floating-point drift", () => {
 		expect(addMoney("0.1", "0.2")).toBe("0.3");

@@ -1,7 +1,7 @@
 import { useContext } from "react";
 
-import { AppDialogContext } from "@/providers/AppDialogProvider";
-import type { AppDialogContextValue } from "@/types/AppDialogContextValue";
+import AppDialogContext from "@/providers/AppDialogContext";
+import type AppDialogContextValue from "@/types/AppDialogContextValue";
 
 const useAppDialog = (): AppDialogContextValue => {
 	const context = useContext(AppDialogContext);
@@ -11,4 +11,4 @@ const useAppDialog = (): AppDialogContextValue => {
 	return context;
 };
 
-export { useAppDialog };
+export default useAppDialog;

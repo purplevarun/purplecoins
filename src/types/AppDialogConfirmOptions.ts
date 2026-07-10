@@ -1,4 +1,4 @@
-import type { ButtonVariant } from "@/types/ButtonVariant";
+import type ButtonVariant from "@/types/ButtonVariant";
 
 type AppDialogConfirmOptions = Readonly<{
 	title: string;
@@ -9,4 +9,4 @@ type AppDialogConfirmOptions = Readonly<{
 	onConfirm: () => void;
 }>;
 
-export type { AppDialogConfirmOptions };
+export type { AppDialogConfirmOptions as default };

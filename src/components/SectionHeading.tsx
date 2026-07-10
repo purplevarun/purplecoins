@@ -1,7 +1,7 @@
-import { CustomText } from "@/components/CustomText";
+import CustomText from "@/components/CustomText";
 import { StyleSheet, View } from "react-native";
 
-import { COLORS } from "@/constants/colors";
+import COLORS from "@/constants/colors";
 
 type SectionHeadingProps = Readonly<{
 	title: string;
@@ -37,4 +37,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { SectionHeading };
+export default SectionHeading;

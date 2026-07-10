@@ -1,19 +1,21 @@
+import AppError from "@/errors/AppError";
+import financeRepository from "@/repositories/financeRepository";
+import type LinkedTransactionFilter from "@/types/LinkedTransactionFilter";
+import type Transaction from "@/types/Transaction";
+import type TransactionInput from "@/types/TransactionInput";
+import createId from "@/utils/id";
+import moneyUtils from "@/utils/money";
 import type { SQLiteDatabase } from "expo-sqlite";
 
-import { AppError } from "@/errors/AppError";
-import {
+const {
 	createTransactionRow,
 	deleteTransactionRow,
 	getSourceRow,
 	getTransactionRow,
 	getTransactionRows,
 	updateTransactionRow,
-} from "@/repositories/financeRepository";
-import type { LinkedTransactionFilter } from "@/types/LinkedTransactionFilter";
-import type { Transaction } from "@/types/Transaction";
-import type { TransactionInput } from "@/types/TransactionInput";
-import { createId } from "@/utils/id";
-import { compareMoney, normalizeMoney } from "@/utils/money";
+} = financeRepository;
+const { compareMoney, normalizeMoney } = moneyUtils;
 
 const mapTransaction = (transaction: Transaction): Transaction => ({
 	...transaction,
@@ -190,7 +192,7 @@ const getTransactionDisplayReason = (transaction: Transaction): string => {
 	return "Transaction";
 };
 
-export {
+const transactionService = {
 	deleteTransaction,
 	getLinkedTransactions,
 	getTransaction,
@@ -198,3 +200,5 @@ export {
 	getTransactions,
 	saveTransaction,
 };
+
+export default transactionService;

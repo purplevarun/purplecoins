@@ -1,29 +1,31 @@
+import typographyConstants from "@/constants/typography";
+
 import { DarkTheme, NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-import { COLORS } from "@/constants/colors";
-import { FONT_FAMILY } from "@/constants/typography";
-import { AnalysisScreen } from "@/screens/AnalysisScreen";
-import { ArchivedRelationsScreen } from "@/screens/ArchivedRelationsScreen";
-import { BudgetFormScreen } from "@/screens/BudgetFormScreen";
-import { BudgetsScreen } from "@/screens/BudgetsScreen";
-import { ExchangeRatesScreen } from "@/screens/ExchangeRatesScreen";
-import { GlobalSearchScreen } from "@/screens/GlobalSearchScreen";
-import { HomeScreen } from "@/screens/HomeScreen";
-import { LinkedTransactionsScreen } from "@/screens/LinkedTransactionsScreen";
-import { NoteFormScreen } from "@/screens/NoteFormScreen";
-import { NotesScreen } from "@/screens/NotesScreen";
-import { RelationFormScreen } from "@/screens/RelationFormScreen";
-import { RelationsScreen } from "@/screens/RelationsScreen";
-import { SettingsScreen } from "@/screens/SettingsScreen";
-import { TodoFormScreen } from "@/screens/TodoFormScreen";
-import { TodosScreen } from "@/screens/TodosScreen";
-import { TransactionFormScreen } from "@/screens/TransactionFormScreen";
-import { TransactionsScreen } from "@/screens/TransactionsScreen";
-import { VaultFormScreen } from "@/screens/VaultFormScreen";
-import { VaultScreen } from "@/screens/VaultScreen";
-import type { RootStackParamList } from "@/types/RootStackParamList";
-import { getRelationLabels } from "@/utils/relation";
+import COLORS from "@/constants/colors";
+import AnalysisScreen from "@/screens/AnalysisScreen";
+import ArchivedRelationsScreen from "@/screens/ArchivedRelationsScreen";
+import BudgetFormScreen from "@/screens/BudgetFormScreen";
+import BudgetsScreen from "@/screens/BudgetsScreen";
+import ExchangeRatesScreen from "@/screens/ExchangeRatesScreen";
+import GlobalSearchScreen from "@/screens/GlobalSearchScreen";
+import HomeScreen from "@/screens/HomeScreen";
+import LinkedTransactionsScreen from "@/screens/LinkedTransactionsScreen";
+import NoteFormScreen from "@/screens/NoteFormScreen";
+import NotesScreen from "@/screens/NotesScreen";
+import RelationFormScreen from "@/screens/RelationFormScreen";
+import RelationsScreen from "@/screens/RelationsScreen";
+import SettingsScreen from "@/screens/SettingsScreen";
+import TodoFormScreen from "@/screens/TodoFormScreen";
+import TodosScreen from "@/screens/TodosScreen";
+import TransactionFormScreen from "@/screens/TransactionFormScreen";
+import TransactionsScreen from "@/screens/TransactionsScreen";
+import VaultFormScreen from "@/screens/VaultFormScreen";
+import VaultScreen from "@/screens/VaultScreen";
+import type RootStackParamList from "@/types/RootStackParamList";
+import getRelationLabels from "@/utils/relation";
+const { FONT_FAMILY } = typographyConstants;
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -167,4 +169,4 @@ const AppNavigator = (): React.JSX.Element => (
 	</NavigationContainer>
 );
 
-export { AppNavigator };
+export default AppNavigator;

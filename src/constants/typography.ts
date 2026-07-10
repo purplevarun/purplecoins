@@ -5,4 +5,9 @@ const APP_FONTS = {
 	[FONT_FAMILY]: require(`../../assets/fonts/${FONT_FAMILY}.ttf`) as number,
 } as const;
 
-export { APP_FONTS, FONT_FAMILY };
+const typographyConstants = {
+	APP_FONTS,
+	FONT_FAMILY,
+};
+
+export default typographyConstants;

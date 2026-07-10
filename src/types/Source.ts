@@ -10,4 +10,4 @@ type Source = Readonly<{
 	archived: boolean;
 }>;
 
-export type { Source };
+export type { Source as default };

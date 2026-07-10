@@ -1,7 +1,7 @@
-import { CustomText } from "@/components/CustomText";
+import CustomText from "@/components/CustomText";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 
-import { COLORS } from "@/constants/colors";
+import COLORS from "@/constants/colors";
 
 type LoadingScreenProps = Readonly<{
 	error?: string | null;
@@ -53,4 +53,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { LoadingScreen };
+export default LoadingScreen;

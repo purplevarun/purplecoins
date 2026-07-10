@@ -1,28 +1,33 @@
-import { CustomText } from "@/components/CustomText";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import CustomText from "@/components/CustomText";
+
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 
-import { AppButton } from "@/components/AppButton";
-import { EmptyState } from "@/components/EmptyState";
-import { GlassCard } from "@/components/GlassCard";
-import { Notice } from "@/components/Notice";
-import { ListHeader, ScreenList } from "@/components/ScreenList";
-import { TextField } from "@/components/TextField";
-import { DEFAULT_CURRENCY_CODE } from "@/constants/appConstants";
-import { COLORS } from "@/constants/colors";
-import { useDatabaseContext } from "@/hooks/useDatabaseContext";
-import {
-	fetchExchangeRates,
-	getExchangeRates,
-	saveManualExchangeRate,
-} from "@/services/exchangeRateService";
-import { getSources } from "@/services/sourceService";
-import type { ExchangeRate } from "@/types/ExchangeRate";
-import type { RootStackParamList } from "@/types/RootStackParamList";
-import { formatDateTime } from "@/utils/date";
-import { getErrorMessage } from "@/utils/error";
-import { formatMoney } from "@/utils/money";
+import AppButton from "@/components/AppButton";
+import EmptyState from "@/components/EmptyState";
+import GlassCard from "@/components/GlassCard";
+import ListHeader from "@/components/ListHeader";
+import Notice from "@/components/Notice";
+import ScreenList from "@/components/ScreenList";
+import TextField from "@/components/TextField";
+import appConstants from "@/constants/appConstants";
+import COLORS from "@/constants/colors";
+import useDatabaseContext from "@/hooks/useDatabaseContext";
+import exchangeRateService from "@/services/exchangeRateService";
+import sourceService from "@/services/sourceService";
+import type ExchangeRate from "@/types/ExchangeRate";
+import type RootStackParamList from "@/types/RootStackParamList";
+import dateUtils from "@/utils/date";
+import getErrorMessage from "@/utils/error";
+import moneyUtils from "@/utils/money";
+import runAfterRender from "@/utils/runAfterRender";
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+const { DEFAULT_CURRENCY_CODE } = appConstants;
+const { fetchExchangeRates, getExchangeRates, saveManualExchangeRate } =
+	exchangeRateService;
+const { getSources } = sourceService;
+const { formatDateTime } = dateUtils;
+const { formatMoney } = moneyUtils;
 
 type ExchangeRatesScreenProps = NativeStackScreenProps<
 	RootStackParamList,
@@ -72,9 +77,13 @@ const ExchangeRatesScreen = (
 		}
 	}, [database]);
 
-	useEffect(() => {
-		void getScreenData();
-	}, [dataVersion, getScreenData]);
+	useEffect(
+		() =>
+			runAfterRender(() => {
+				void getScreenData();
+			}),
+		[dataVersion, getScreenData],
+	);
 
 	const handleFetch = useCallback(async (): Promise<void> => {
 		setIsFetching(true);
@@ -238,4 +247,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { ExchangeRatesScreen };
+export default ExchangeRatesScreen;

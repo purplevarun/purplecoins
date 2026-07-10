@@ -1,3 +1,5 @@
+import typographyConstants from "@/constants/typography";
+
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { useFonts } from "expo-font";
@@ -6,13 +8,13 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 
-import { LoadingScreen } from "@/components/LoadingScreen";
-import { APP_FONTS } from "@/constants/typography";
-import { initializeDatabase } from "@/database/initializeDatabase";
-import { AppNavigator } from "@/navigation/AppNavigator";
-import { AppDialogProvider } from "@/providers/AppDialogProvider";
-import { DatabaseProvider } from "@/providers/DatabaseProvider";
-import type { DatabaseState } from "@/types/DatabaseState";
+import LoadingScreen from "@/components/LoadingScreen";
+import initializeDatabase from "@/database/initializeDatabase";
+import AppNavigator from "@/navigation/AppNavigator";
+import AppDialogProvider from "@/providers/AppDialogProvider";
+import DatabaseProvider from "@/providers/DatabaseProvider";
+import type DatabaseState from "@/types/DatabaseState";
+const { APP_FONTS } = typographyConstants;
 
 void SplashScreen.preventAutoHideAsync();
 
@@ -85,4 +87,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { App };
+export default App;

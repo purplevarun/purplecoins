@@ -9,4 +9,4 @@ type PasswordEntry = Readonly<{
 	updatedAt: number;
 }>;
 
-export type { PasswordEntry };
+export type { PasswordEntry as default };

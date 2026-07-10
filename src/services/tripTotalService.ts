@@ -1,9 +1,11 @@
+import financeRepository from "@/repositories/financeRepository";
+import type Transaction from "@/types/Transaction";
+import type TripTotal from "@/types/TripTotal";
+import moneyUtils from "@/utils/money";
 import type { SQLiteDatabase } from "expo-sqlite";
 
-import { getTransactionRows } from "@/repositories/financeRepository";
-import type { Transaction } from "@/types/Transaction";
-import type { TripTotal } from "@/types/TripTotal";
-import { addMoney, subtractMoney, ZERO_AMOUNT } from "@/utils/money";
+const { getTransactionRows } = financeRepository;
+const { addMoney, subtractMoney, ZERO_AMOUNT } = moneyUtils;
 
 const getTripTotalKey = (tripId: string, currencyCode: string): string =>
 	`${tripId}:${currencyCode}`;
@@ -59,4 +61,9 @@ const getTripTotals = async (
 	return buildTripTotals(transactions);
 };
 
-export { buildTripTotals, getTripTotals };
+const tripTotalService = {
+	buildTripTotals,
+	getTripTotals,
+};
+
+export default tripTotalService;

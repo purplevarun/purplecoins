@@ -20,7 +20,7 @@ const ATTACHMENT_OWNER_TYPES = [
 ] as const;
 const RATE_SOURCES = ["API", "MANUAL"] as const;
 
-export {
+const financeConstants = {
 	ANALYSIS_PERIODS,
 	ATTACHMENT_OWNER_TYPES,
 	BUDGET_PERIODS,
@@ -30,3 +30,5 @@ export {
 	TRANSACTION_TYPES,
 	VAULT_KINDS,
 };
+
+export default financeConstants;

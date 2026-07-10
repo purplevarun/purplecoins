@@ -4,4 +4,4 @@ type RelationLabels = Readonly<{
 	title: string;
 }>;
 
-export type { RelationLabels };
+export type { RelationLabels as default };

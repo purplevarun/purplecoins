@@ -4,4 +4,4 @@ type SelectOption = Readonly<{
 	description?: string;
 }>;
 
-export type { SelectOption };
+export type { SelectOption as default };

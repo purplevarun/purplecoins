@@ -1,4 +1,5 @@
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+
 import {
 	useCallback,
 	useEffect,
@@ -8,26 +9,28 @@ import {
 } from "react";
 import { StyleSheet, View } from "react-native";
 
-import { EmptyState } from "@/components/EmptyState";
-import { FloatingAddButton } from "@/components/FloatingAddButton";
-import { HeaderIconButton } from "@/components/HeaderIconButton";
-import { Notice } from "@/components/Notice";
-import { ListHeader, ScreenList } from "@/components/ScreenList";
-import { SearchBar } from "@/components/SearchBar";
-import { SegmentedControl } from "@/components/SegmentedControl";
-import { TransactionCard } from "@/components/TransactionCard";
-import { COLORS } from "@/constants/colors";
-import { useDatabaseContext } from "@/hooks/useDatabaseContext";
-import {
-	getTransactionDisplayReason,
-	getTransactions,
-} from "@/services/transactionService";
-import type { RootStackParamList } from "@/types/RootStackParamList";
-import type { SelectOption } from "@/types/SelectOption";
-import type { Transaction } from "@/types/Transaction";
-import { formatDate } from "@/utils/date";
-import { getErrorMessage } from "@/utils/error";
-import { formatMoney } from "@/utils/money";
+import EmptyState from "@/components/EmptyState";
+import FloatingAddButton from "@/components/FloatingAddButton";
+import HeaderIconButton from "@/components/HeaderIconButton";
+import ListHeader from "@/components/ListHeader";
+import Notice from "@/components/Notice";
+import ScreenList from "@/components/ScreenList";
+import SearchBar from "@/components/SearchBar";
+import SegmentedControl from "@/components/SegmentedControl";
+import TransactionCard from "@/components/TransactionCard";
+import COLORS from "@/constants/colors";
+import useDatabaseContext from "@/hooks/useDatabaseContext";
+import transactionService from "@/services/transactionService";
+import type RootStackParamList from "@/types/RootStackParamList";
+import type SelectOption from "@/types/SelectOption";
+import type Transaction from "@/types/Transaction";
+import dateUtils from "@/utils/date";
+import getErrorMessage from "@/utils/error";
+import moneyUtils from "@/utils/money";
+import runAfterRender from "@/utils/runAfterRender";
+const { getTransactionDisplayReason, getTransactions } = transactionService;
+const { formatDate } = dateUtils;
+const { formatMoney } = moneyUtils;
 
 type TransactionsScreenProps = NativeStackScreenProps<
 	RootStackParamList,
@@ -62,9 +65,13 @@ const TransactionsScreen = ({
 		}
 	}, [database]);
 
-	useEffect(() => {
-		void getScreenData();
-	}, [dataVersion, getScreenData]);
+	useEffect(
+		() =>
+			runAfterRender(() => {
+				void getScreenData();
+			}),
+		[dataVersion, getScreenData],
+	);
 
 	useEffect(() => {
 		const timer = setTimeout(() => setSearchDebounced(searchQuery), 250);
@@ -190,4 +197,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { TransactionsScreen };
+export default TransactionsScreen;

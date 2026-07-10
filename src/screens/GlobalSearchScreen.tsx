@@ -1,39 +1,53 @@
-import { CustomText } from "@/components/CustomText";
+import CustomText from "@/components/CustomText";
+
 import { Ionicons } from "@expo/vector-icons";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
-import { EmptyState } from "@/components/EmptyState";
-import { GlassCard } from "@/components/GlassCard";
-import { Notice } from "@/components/Notice";
-import { ListHeader, ScreenList } from "@/components/ScreenList";
-import { TextField } from "@/components/TextField";
-import { DEFAULT_CURRENCY_CODE } from "@/constants/appConstants";
-import { COLORS } from "@/constants/colors";
-import { useDatabaseContext } from "@/hooks/useDatabaseContext";
-import { getBudgets } from "@/services/budgetService";
-import { getCards } from "@/services/cardService";
-import { getCategories } from "@/services/categoryService";
-import { getExchangeRates } from "@/services/exchangeRateService";
-import { getIdentities } from "@/services/identityService";
-import { getInvestments } from "@/services/investmentService";
-import { getNotes } from "@/services/noteService";
-import { getPasswords } from "@/services/passwordService";
-import { getSources } from "@/services/sourceService";
-import { getTodos } from "@/services/todoService";
-import {
-	getTransactionDisplayReason,
-	getTransactions,
-} from "@/services/transactionService";
-import { getTrips } from "@/services/tripService";
-import type { GlobalSearchResult } from "@/types/GlobalSearchResult";
-import type { GlobalSearchResultKind } from "@/types/GlobalSearchResultKind";
-import type { HomeMode } from "@/types/HomeMode";
-import type { RootStackParamList } from "@/types/RootStackParamList";
-import { formatDate } from "@/utils/date";
-import { getErrorMessage } from "@/utils/error";
-import { formatMoney } from "@/utils/money";
+import EmptyState from "@/components/EmptyState";
+import GlassCard from "@/components/GlassCard";
+import ListHeader from "@/components/ListHeader";
+import Notice from "@/components/Notice";
+import ScreenList from "@/components/ScreenList";
+import TextField from "@/components/TextField";
+import appConstants from "@/constants/appConstants";
+import COLORS from "@/constants/colors";
+import useDatabaseContext from "@/hooks/useDatabaseContext";
+import budgetService from "@/services/budgetService";
+import cardService from "@/services/cardService";
+import categoryService from "@/services/categoryService";
+import exchangeRateService from "@/services/exchangeRateService";
+import identityService from "@/services/identityService";
+import investmentService from "@/services/investmentService";
+import noteService from "@/services/noteService";
+import passwordService from "@/services/passwordService";
+import sourceService from "@/services/sourceService";
+import todoService from "@/services/todoService";
+import transactionService from "@/services/transactionService";
+import tripService from "@/services/tripService";
+import type GlobalSearchResult from "@/types/GlobalSearchResult";
+import type GlobalSearchResultKind from "@/types/GlobalSearchResultKind";
+import type HomeMode from "@/types/HomeMode";
+import type RootStackParamList from "@/types/RootStackParamList";
+import dateUtils from "@/utils/date";
+import getErrorMessage from "@/utils/error";
+import moneyUtils from "@/utils/money";
+const { DEFAULT_CURRENCY_CODE } = appConstants;
+const { getBudgets } = budgetService;
+const { getCards } = cardService;
+const { getCategories } = categoryService;
+const { getExchangeRates } = exchangeRateService;
+const { getIdentities } = identityService;
+const { getInvestments } = investmentService;
+const { getNotes } = noteService;
+const { getPasswords } = passwordService;
+const { getSources } = sourceService;
+const { getTodos } = todoService;
+const { getTransactionDisplayReason, getTransactions } = transactionService;
+const { getTrips } = tripService;
+const { formatDate } = dateUtils;
+const { formatMoney } = moneyUtils;
 
 type GlobalSearchScreenProps = NativeStackScreenProps<
 	RootStackParamList,
@@ -417,4 +431,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { GlobalSearchScreen };
+export default GlobalSearchScreen;

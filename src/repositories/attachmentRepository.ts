@@ -1,8 +1,8 @@
 import type { SQLiteDatabase } from "expo-sqlite";
 
-import type { AttachmentInput } from "@/types/AttachmentInput";
-import type { AttachmentMetadata } from "@/types/AttachmentMetadata";
-import type { AttachmentOwnerType } from "@/types/AttachmentOwnerType";
+import type AttachmentInput from "@/types/AttachmentInput";
+import type AttachmentMetadata from "@/types/AttachmentMetadata";
+import type AttachmentOwnerType from "@/types/AttachmentOwnerType";
 
 const getAttachmentMetadataRow = async (
 	database: SQLiteDatabase,
@@ -89,9 +89,11 @@ const deleteAttachmentRow = async (
 	);
 };
 
-export {
+const attachmentRepository = {
 	deleteAttachmentRow,
 	getAttachmentContentRow,
 	getAttachmentMetadataRow,
 	upsertAttachmentRow,
 };
+
+export default attachmentRepository;

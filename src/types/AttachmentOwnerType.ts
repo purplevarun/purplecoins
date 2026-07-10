@@ -1,5 +1,6 @@
-import type { ATTACHMENT_OWNER_TYPES } from "@/constants/financeConstants";
+import type financeConstants from "@/constants/financeConstants";
 
-type AttachmentOwnerType = (typeof ATTACHMENT_OWNER_TYPES)[number];
+type AttachmentOwnerType =
+	(typeof financeConstants.ATTACHMENT_OWNER_TYPES)[number];
 
-export type { AttachmentOwnerType };
+export type { AttachmentOwnerType as default };

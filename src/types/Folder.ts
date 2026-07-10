@@ -6,4 +6,4 @@ type Folder = Readonly<{
 	updatedAt: number;
 }>;
 
-export type { Folder };
+export type { Folder as default };

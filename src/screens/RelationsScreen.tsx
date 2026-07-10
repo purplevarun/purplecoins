@@ -1,4 +1,5 @@
-import { CustomText } from "@/components/CustomText";
+import CustomText from "@/components/CustomText";
+
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -13,49 +14,47 @@ import {
 } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
-import { EmptyState } from "@/components/EmptyState";
-import { FloatingAddButton } from "@/components/FloatingAddButton";
-import { GlassCard } from "@/components/GlassCard";
-import { HeaderIconButton } from "@/components/HeaderIconButton";
-import { Notice } from "@/components/Notice";
-import { ListHeader, ScreenList } from "@/components/ScreenList";
-import { SearchBar } from "@/components/SearchBar";
-import { COLORS } from "@/constants/colors";
-import { useAppDialog } from "@/hooks/useAppDialog";
-import { useDatabaseContext } from "@/hooks/useDatabaseContext";
-import {
-	getAnalysisSummary,
-	getInvestmentNetAmount,
-	getInvestmentNetLabel,
-} from "@/services/analysisService";
-import { getCategories, setCategoryArchived } from "@/services/categoryService";
-import { getExchangeRates } from "@/services/exchangeRateService";
-import {
-	getInvestments,
-	setInvestmentArchived,
-} from "@/services/investmentService";
-import {
-	getNativeCurrencyDisplay,
-	updateNativeCurrencyDisplay,
-} from "@/services/settingsService";
-import {
-	getSources,
-	setSourceArchived,
-	validateSource,
-} from "@/services/sourceService";
-import { getTrips, setTripArchived } from "@/services/tripService";
-import { getTripTotals } from "@/services/tripTotalService";
-import type { AnalysisSummary } from "@/types/AnalysisSummary";
-import type { Category } from "@/types/Category";
-import type { ExchangeRate } from "@/types/ExchangeRate";
-import type { Investment } from "@/types/Investment";
-import type { RootStackParamList } from "@/types/RootStackParamList";
-import type { Source } from "@/types/Source";
-import type { Trip } from "@/types/Trip";
-import type { TripTotal } from "@/types/TripTotal";
-import { getErrorMessage } from "@/utils/error";
-import { compareMoney, formatMoney, ZERO_AMOUNT } from "@/utils/money";
-import { getRelationLabels } from "@/utils/relation";
+import EmptyState from "@/components/EmptyState";
+import FloatingAddButton from "@/components/FloatingAddButton";
+import GlassCard from "@/components/GlassCard";
+import HeaderIconButton from "@/components/HeaderIconButton";
+import ListHeader from "@/components/ListHeader";
+import Notice from "@/components/Notice";
+import ScreenList from "@/components/ScreenList";
+import SearchBar from "@/components/SearchBar";
+import COLORS from "@/constants/colors";
+import useAppDialog from "@/hooks/useAppDialog";
+import useDatabaseContext from "@/hooks/useDatabaseContext";
+import analysisService from "@/services/analysisService";
+import categoryService from "@/services/categoryService";
+import exchangeRateService from "@/services/exchangeRateService";
+import investmentService from "@/services/investmentService";
+import settingsService from "@/services/settingsService";
+import sourceService from "@/services/sourceService";
+import tripService from "@/services/tripService";
+import tripTotalService from "@/services/tripTotalService";
+import type AnalysisSummary from "@/types/AnalysisSummary";
+import type Category from "@/types/Category";
+import type ExchangeRate from "@/types/ExchangeRate";
+import type Investment from "@/types/Investment";
+import type RootStackParamList from "@/types/RootStackParamList";
+import type Source from "@/types/Source";
+import type Trip from "@/types/Trip";
+import type TripTotal from "@/types/TripTotal";
+import getErrorMessage from "@/utils/error";
+import moneyUtils from "@/utils/money";
+import getRelationLabels from "@/utils/relation";
+const { getAnalysisSummary, getInvestmentNetAmount, getInvestmentNetLabel } =
+	analysisService;
+const { getCategories, setCategoryArchived } = categoryService;
+const { getExchangeRates } = exchangeRateService;
+const { getInvestments, setInvestmentArchived } = investmentService;
+const { getNativeCurrencyDisplay, updateNativeCurrencyDisplay } =
+	settingsService;
+const { getSources, setSourceArchived, validateSource } = sourceService;
+const { getTrips, setTripArchived } = tripService;
+const { getTripTotals } = tripTotalService;
+const { compareMoney, formatMoney, ZERO_AMOUNT } = moneyUtils;
 
 type RelationsScreenProps = NativeStackScreenProps<
 	RootStackParamList,
@@ -813,7 +812,15 @@ const RelationsScreen = ({
 				</Pressable>
 			);
 		},
-		[analysis, handleArchivePress, handleValidate, navigation, tripTotals],
+		[
+			analysis,
+			handleArchivePress,
+			handleValidate,
+			isNativeCurrency,
+			navigation,
+			toInr,
+			tripTotals,
+		],
 	);
 
 	const relationLabels = getRelationLabels(kind);
@@ -959,4 +966,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { RelationsScreen };
+export default RelationsScreen;

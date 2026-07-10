@@ -1,10 +1,10 @@
-import { CustomText } from "@/components/CustomText";
-import { CustomTextInput } from "@/components/CustomTextInput";
+import CustomText from "@/components/CustomText";
+import CustomTextInput from "@/components/CustomTextInput";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
-import { COLORS } from "@/constants/colors";
+import COLORS from "@/constants/colors";
 
 type TextFieldProps = Readonly<{
 	label: string;
@@ -115,4 +115,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { TextField };
+export default TextField;

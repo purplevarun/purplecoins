@@ -1,8 +1,8 @@
-import { CustomText } from "@/components/CustomText";
+import CustomText from "@/components/CustomText";
 import { Pressable, StyleSheet, View, type DimensionValue } from "react-native";
 
-import { COLORS } from "@/constants/colors";
-import type { SelectOption } from "@/types/SelectOption";
+import COLORS from "@/constants/colors";
+import type SelectOption from "@/types/SelectOption";
 
 type SegmentedControlProps = Readonly<{
 	value: string;
@@ -84,4 +84,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { SegmentedControl };
+export default SegmentedControl;

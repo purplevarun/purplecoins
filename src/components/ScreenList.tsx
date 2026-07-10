@@ -1,10 +1,10 @@
 import { FlashList, type FlashListProps } from "@shopify/flash-list";
 import { LinearGradient } from "expo-linear-gradient";
-import type { ReactElement, ReactNode } from "react";
+import type { ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { COLORS } from "@/constants/colors";
+import COLORS from "@/constants/colors";
 
 type ScreenListProps<T> = Readonly<
 	Omit<FlashListProps<T>, "contentContainerStyle">
@@ -34,12 +34,6 @@ const ScreenList = <T,>({
 	);
 };
 
-const ListHeader = ({
-	children,
-}: Readonly<{ children: ReactNode }>): ReactElement => (
-	<View style={styles.header}>{children}</View>
-);
-
 const styles = StyleSheet.create({
 	gradient: {
 		flex: 1,
@@ -51,14 +45,9 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 16,
 		paddingBottom: 120,
 	},
-	header: {
-		gap: 14,
-		paddingTop: 16,
-		paddingBottom: 14,
-	},
 	separator: {
 		height: 14,
 	},
 });
 
-export { ListHeader, ScreenList };
+export default ScreenList;

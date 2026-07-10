@@ -1,4 +1,4 @@
-import type { RateSource } from "@/types/RateSource";
+import type RateSource from "@/types/RateSource";
 
 type ExchangeRate = Readonly<{
 	currencyCode: string;
@@ -8,4 +8,4 @@ type ExchangeRate = Readonly<{
 	updatedAt: number;
 }>;
 
-export type { ExchangeRate };
+export type { ExchangeRate as default };

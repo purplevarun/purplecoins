@@ -4,4 +4,4 @@ type ChartDatum = Readonly<{
 	color: string;
 }>;
 
-export type { ChartDatum };
+export type { ChartDatum as default };

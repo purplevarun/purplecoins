@@ -1,19 +1,17 @@
 import Decimal from "decimal.js";
+
+import appConstants from "@/constants/appConstants";
+import AppError from "@/errors/AppError";
+import financeRepository from "@/repositories/financeRepository";
+import type ExchangeRate from "@/types/ExchangeRate";
+import moneyUtils from "@/utils/money";
 import type { SQLiteDatabase } from "expo-sqlite";
 import { z } from "zod";
 
-import {
-	DEFAULT_CURRENCY_CODE,
-	EXCHANGE_RATE_API_URL,
-} from "@/constants/appConstants";
-import { AppError } from "@/errors/AppError";
-import {
-	getExchangeRateRows,
-	getSourceRows,
-	upsertExchangeRateRow,
-} from "@/repositories/financeRepository";
-import type { ExchangeRate } from "@/types/ExchangeRate";
-import { normalizeMoney } from "@/utils/money";
+const { DEFAULT_CURRENCY_CODE, EXCHANGE_RATE_API_URL } = appConstants;
+const { getExchangeRateRows, getSourceRows, upsertExchangeRateRow } =
+	financeRepository;
+const { normalizeMoney } = moneyUtils;
 
 const exchangeRateResponseSchema = z.array(
 	z.object({
@@ -98,4 +96,10 @@ const fetchExchangeRates = async (
 	return parsedResponse.data.length;
 };
 
-export { fetchExchangeRates, getExchangeRates, saveManualExchangeRate };
+const exchangeRateService = {
+	fetchExchangeRates,
+	getExchangeRates,
+	saveManualExchangeRate,
+};
+
+export default exchangeRateService;

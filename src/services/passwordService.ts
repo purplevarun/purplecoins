@@ -1,14 +1,11 @@
+import AppError from "@/errors/AppError";
+import contentRepository from "@/repositories/contentRepository";
+import type PasswordEntry from "@/types/PasswordEntry";
+import createId from "@/utils/id";
 import type { SQLiteDatabase } from "expo-sqlite";
 
-import { AppError } from "@/errors/AppError";
-import {
-	deleteContentRow,
-	getPasswordRow,
-	getPasswordRows,
-	upsertPasswordRow,
-} from "@/repositories/contentRepository";
-import type { PasswordEntry } from "@/types/PasswordEntry";
-import { createId } from "@/utils/id";
+const { deleteContentRow, getPasswordRow, getPasswordRows, upsertPasswordRow } =
+	contentRepository;
 
 const getPasswords = async (
 	database: SQLiteDatabase,
@@ -61,4 +58,11 @@ const deletePassword = async (
 	id: string,
 ): Promise<void> => deleteContentRow(database, "passwords", null, id);
 
-export { deletePassword, getPassword, getPasswords, savePassword };
+const passwordService = {
+	deletePassword,
+	getPassword,
+	getPasswords,
+	savePassword,
+};
+
+export default passwordService;

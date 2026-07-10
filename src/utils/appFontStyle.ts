@@ -1,3 +1,5 @@
+import typographyConstants from "@/constants/typography";
+
 import {
 	Platform,
 	StyleSheet,
@@ -5,8 +7,7 @@ import {
 	type TextStyle,
 } from "react-native";
 
-import { FONT_FAMILY } from "@/constants/typography";
-
+const { FONT_FAMILY } = typographyConstants;
 const applyAppFontStyle = (style?: StyleProp<TextStyle>): TextStyle => {
 	const merged: TextStyle = {
 		fontFamily: FONT_FAMILY,
@@ -20,4 +21,4 @@ const applyAppFontStyle = (style?: StyleProp<TextStyle>): TextStyle => {
 	return merged;
 };
 
-export { applyAppFontStyle };
+export default applyAppFontStyle;

@@ -7,4 +7,4 @@ type InvestmentAnalysis = Readonly<{
 	net: string;
 }>;
 
-export type { InvestmentAnalysis };
+export type { InvestmentAnalysis as default };

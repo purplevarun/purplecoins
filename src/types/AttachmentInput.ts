@@ -5,4 +5,4 @@ type AttachmentInput = Readonly<{
 	content: Uint8Array;
 }>;
 
-export type { AttachmentInput };
+export type { AttachmentInput as default };

@@ -1,13 +1,17 @@
-import { CustomText } from "@/components/CustomText";
+import CustomText from "@/components/CustomText";
+
 import { Ionicons } from "@expo/vector-icons";
 import { Pressable, StyleSheet, View } from "react-native";
 
-import { GlassCard } from "@/components/GlassCard";
-import { COLORS } from "@/constants/colors";
-import { getTransactionDisplayReason } from "@/services/transactionService";
-import type { Transaction } from "@/types/Transaction";
-import { formatDate } from "@/utils/date";
-import { formatMoney } from "@/utils/money";
+import GlassCard from "@/components/GlassCard";
+import COLORS from "@/constants/colors";
+import transactionService from "@/services/transactionService";
+import type Transaction from "@/types/Transaction";
+import dateUtils from "@/utils/date";
+import moneyUtils from "@/utils/money";
+const { getTransactionDisplayReason } = transactionService;
+const { formatDate } = dateUtils;
+const { formatMoney } = moneyUtils;
 
 type TransactionCardProps = Readonly<{
 	transaction: Transaction;
@@ -182,4 +186,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { TransactionCard };
+export default TransactionCard;

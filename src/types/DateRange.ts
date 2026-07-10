@@ -3,4 +3,4 @@ type DateRange = Readonly<{
 	end: number;
 }>;
 
-export type { DateRange };
+export type { DateRange as default };

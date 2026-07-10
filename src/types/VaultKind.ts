@@ -1,5 +1,5 @@
-import type { VAULT_KINDS } from "@/constants/financeConstants";
+import type financeConstants from "@/constants/financeConstants";
 
-type VaultKind = (typeof VAULT_KINDS)[number];
+type VaultKind = (typeof financeConstants.VAULT_KINDS)[number];
 
-export type { VaultKind };
+export type { VaultKind as default };

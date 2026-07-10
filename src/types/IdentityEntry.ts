@@ -8,4 +8,4 @@ type IdentityEntry = Readonly<{
 	hasAttachment: boolean;
 }>;
 
-export type { IdentityEntry };
+export type { IdentityEntry as default };

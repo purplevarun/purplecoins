@@ -1,9 +1,9 @@
-import { CustomText } from "@/components/CustomText";
+import CustomText from "@/components/CustomText";
 import { StyleSheet, View } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 
-import { COLORS } from "@/constants/colors";
-import type { ChartDatum } from "@/types/ChartDatum";
+import COLORS from "@/constants/colors";
+import type ChartDatum from "@/types/ChartDatum";
 
 type DonutChartProps = Readonly<{
 	data: readonly ChartDatum[];
@@ -140,4 +140,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { DonutChart };
+export default DonutChart;

@@ -1,5 +1,5 @@
-import type { ANALYSIS_PERIODS } from "@/constants/financeConstants";
+import type financeConstants from "@/constants/financeConstants";
 
-type AnalysisPeriod = (typeof ANALYSIS_PERIODS)[number];
+type AnalysisPeriod = (typeof financeConstants.ANALYSIS_PERIODS)[number];
 
-export type { AnalysisPeriod };
+export type { AnalysisPeriod as default };

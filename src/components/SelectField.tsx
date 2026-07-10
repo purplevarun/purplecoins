@@ -1,11 +1,11 @@
-import { CustomText } from "@/components/CustomText";
-import { CustomTextInput } from "@/components/CustomTextInput";
+import CustomText from "@/components/CustomText";
+import CustomTextInput from "@/components/CustomTextInput";
 import { Ionicons } from "@expo/vector-icons";
 import { useMemo, useState } from "react";
 import { Modal, Pressable, ScrollView, StyleSheet, View } from "react-native";
 
-import { COLORS } from "@/constants/colors";
-import type { SelectOption } from "@/types/SelectOption";
+import COLORS from "@/constants/colors";
+import type SelectOption from "@/types/SelectOption";
 
 type SelectFieldProps = Readonly<{
 	label: string;
@@ -102,7 +102,7 @@ const SelectField = ({
 							) : null}
 							{filteredOptions.length === 0 ? (
 								<CustomText style={styles.noResults}>
-									No results for "{search}"
+									{`No results for "${search}"`}
 								</CustomText>
 							) : null}
 							{filteredOptions.map((option) => (
@@ -240,4 +240,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { SelectField };
+export default SelectField;

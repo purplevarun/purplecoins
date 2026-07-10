@@ -1,14 +1,11 @@
+import AppError from "@/errors/AppError";
+import contentRepository from "@/repositories/contentRepository";
+import type IdentityEntry from "@/types/IdentityEntry";
+import createId from "@/utils/id";
 import type { SQLiteDatabase } from "expo-sqlite";
 
-import { AppError } from "@/errors/AppError";
-import {
-	deleteContentRow,
-	getIdentityRow,
-	getIdentityRows,
-	upsertIdentityRow,
-} from "@/repositories/contentRepository";
-import type { IdentityEntry } from "@/types/IdentityEntry";
-import { createId } from "@/utils/id";
+const { deleteContentRow, getIdentityRow, getIdentityRows, upsertIdentityRow } =
+	contentRepository;
 
 const mapIdentity = (identity: IdentityEntry): IdentityEntry => ({
 	...identity,
@@ -66,4 +63,11 @@ const deleteIdentity = async (
 	id: string,
 ): Promise<void> => deleteContentRow(database, "identities", "IDENTITY", id);
 
-export { deleteIdentity, getIdentities, getIdentity, saveIdentity };
+const identityService = {
+	deleteIdentity,
+	getIdentities,
+	getIdentity,
+	saveIdentity,
+};
+
+export default identityService;

@@ -1,23 +1,23 @@
 import * as DocumentPicker from "expo-document-picker";
+
+import appConstants from "@/constants/appConstants";
+import AppError from "@/errors/AppError";
+import attachmentRepository from "@/repositories/attachmentRepository";
+import type AttachmentInput from "@/types/AttachmentInput";
+import type AttachmentMetadata from "@/types/AttachmentMetadata";
+import type AttachmentOwnerType from "@/types/AttachmentOwnerType";
+import createId from "@/utils/id";
 import { File, Paths } from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import type { SQLiteDatabase } from "expo-sqlite";
 
-import {
-	ATTACHMENT_MAX_BYTES,
-	BACKUP_MIME_TYPE,
-} from "@/constants/appConstants";
-import { AppError } from "@/errors/AppError";
-import {
+const { ATTACHMENT_MAX_BYTES, BACKUP_MIME_TYPE } = appConstants;
+const {
 	deleteAttachmentRow,
 	getAttachmentContentRow,
 	getAttachmentMetadataRow,
 	upsertAttachmentRow,
-} from "@/repositories/attachmentRepository";
-import type { AttachmentInput } from "@/types/AttachmentInput";
-import type { AttachmentMetadata } from "@/types/AttachmentMetadata";
-import type { AttachmentOwnerType } from "@/types/AttachmentOwnerType";
-import { createId } from "@/utils/id";
+} = attachmentRepository;
 
 const pickAttachment = async (): Promise<AttachmentInput | null> => {
 	const result = await DocumentPicker.getDocumentAsync({
@@ -115,10 +115,12 @@ const openAttachment = async (
 	});
 };
 
-export {
+const attachmentService = {
 	deleteAttachment,
 	getAttachmentMetadata,
 	openAttachment,
 	pickAttachment,
 	saveAttachment,
 };
+
+export default attachmentService;

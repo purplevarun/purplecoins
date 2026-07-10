@@ -23,4 +23,4 @@ const COLORS = {
 	white: "#FFFFFF",
 } as const;
 
-export { COLORS };
+export default COLORS;

@@ -2,7 +2,7 @@ import { BlurView } from "expo-blur";
 import type { PropsWithChildren, ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
 
-import { COLORS } from "@/constants/colors";
+import COLORS from "@/constants/colors";
 
 type GlassCardProps = PropsWithChildren<
 	Readonly<{
@@ -54,4 +54,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { GlassCard };
+export default GlassCard;

@@ -207,4 +207,4 @@ CREATE INDEX IF NOT EXISTS idx_attachments_owner
 	ON attachments(owner_type, owner_id);
 `;
 
-export { SCHEMA_SQL };
+export default SCHEMA_SQL;

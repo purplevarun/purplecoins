@@ -1,5 +1,6 @@
-import type { TRANSACTION_CLASSIFICATIONS } from "@/constants/financeConstants";
+import type financeConstants from "@/constants/financeConstants";
 
-type TransactionClassification = (typeof TRANSACTION_CLASSIFICATIONS)[number];
+type TransactionClassification =
+	(typeof financeConstants.TRANSACTION_CLASSIFICATIONS)[number];
 
-export type { TransactionClassification };
+export type { TransactionClassification as default };

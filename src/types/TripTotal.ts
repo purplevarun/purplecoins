@@ -6,4 +6,4 @@ type TripTotal = Readonly<{
 	total: string;
 }>;
 
-export type { TripTotal };
+export type { TripTotal as default };

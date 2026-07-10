@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Pressable, StyleSheet } from "react-native";
 
-import { COLORS } from "@/constants/colors";
+import COLORS from "@/constants/colors";
 
 type FloatingAddButtonProps = Readonly<{
 	onPress: () => void;
@@ -43,4 +43,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { FloatingAddButton };
+export default FloatingAddButton;

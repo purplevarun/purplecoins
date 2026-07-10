@@ -1,3 +1,3 @@
 type ButtonVariant = "primary" | "secondary" | "danger" | "success";
 
-export type { ButtonVariant };
+export type { ButtonVariant as default };

@@ -1,5 +1,5 @@
-import type { RATE_SOURCES } from "@/constants/financeConstants";
+import type financeConstants from "@/constants/financeConstants";
 
-type RateSource = (typeof RATE_SOURCES)[number];
+type RateSource = (typeof financeConstants.RATE_SOURCES)[number];
 
-export type { RateSource };
+export type { RateSource as default };

@@ -1,16 +1,18 @@
+import attachmentService from "@/services/attachmentService";
+
 import { useEffect, useState } from "react";
 
-import { useDatabaseContext } from "@/hooks/useDatabaseContext";
-import {
+import useDatabaseContext from "@/hooks/useDatabaseContext";
+import type AttachmentInput from "@/types/AttachmentInput";
+import type AttachmentMetadata from "@/types/AttachmentMetadata";
+import type AttachmentOwnerType from "@/types/AttachmentOwnerType";
+const {
 	deleteAttachment,
 	getAttachmentMetadata,
 	openAttachment,
 	pickAttachment,
 	saveAttachment,
-} from "@/services/attachmentService";
-import type { AttachmentInput } from "@/types/AttachmentInput";
-import type { AttachmentMetadata } from "@/types/AttachmentMetadata";
-import type { AttachmentOwnerType } from "@/types/AttachmentOwnerType";
+} = attachmentService;
 
 type UseAttachmentResult = Readonly<{
 	existingAttachment: AttachmentMetadata | null;
@@ -92,4 +94,4 @@ const useAttachment = (
 	};
 };
 
-export { useAttachment };
+export default useAttachment;

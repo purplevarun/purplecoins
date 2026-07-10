@@ -17,7 +17,7 @@ const HOMEPAGE_SWITCH_FLAGS: Readonly<{
 };
 const { ALLOW_CLICK_SWITCH, ALLOW_SWIPE_SWITCH } = HOMEPAGE_SWITCH_FLAGS;
 
-export {
+const appConstants = {
 	ALLOW_CLICK_SWITCH,
 	ALLOW_SWIPE_SWITCH,
 	APP_NAME,
@@ -31,3 +31,5 @@ export {
 	MILLISECONDS_PER_DAY,
 	SCHEMA_VERSION,
 };
+
+export default appConstants;

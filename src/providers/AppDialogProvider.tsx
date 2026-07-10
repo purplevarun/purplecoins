@@ -1,7 +1,6 @@
-import { CustomText } from "@/components/CustomText";
+import CustomText from "@/components/CustomText";
 import { Ionicons } from "@expo/vector-icons";
 import {
-	createContext,
 	useCallback,
 	useMemo,
 	useState,
@@ -10,13 +9,14 @@ import {
 } from "react";
 import { Modal, Pressable, StyleSheet, View } from "react-native";
 
-import { AppButton } from "@/components/AppButton";
-import { GlassCard } from "@/components/GlassCard";
-import { COLORS } from "@/constants/colors";
-import type { AppDialogConfirmOptions } from "@/types/AppDialogConfirmOptions";
-import type { AppDialogContextValue } from "@/types/AppDialogContextValue";
-import type { AppDialogMessageOptions } from "@/types/AppDialogMessageOptions";
-import type { ButtonVariant } from "@/types/ButtonVariant";
+import AppButton from "@/components/AppButton";
+import GlassCard from "@/components/GlassCard";
+import COLORS from "@/constants/colors";
+import AppDialogContext from "@/providers/AppDialogContext";
+import type AppDialogConfirmOptions from "@/types/AppDialogConfirmOptions";
+import type AppDialogContextValue from "@/types/AppDialogContextValue";
+import type AppDialogMessageOptions from "@/types/AppDialogMessageOptions";
+import type ButtonVariant from "@/types/ButtonVariant";
 
 type ActiveDialog =
 	| Readonly<{
@@ -33,8 +33,6 @@ type DialogAccent = "default" | "success" | "danger" | "warning";
 const DEFAULT_CANCEL_LABEL = "Cancel";
 const DEFAULT_CLOSE_LABEL = "Close";
 const WARNING_ICON_COLOR = COLORS.warning;
-
-const AppDialogContext = createContext<AppDialogContextValue | null>(null);
 
 const getDialogAccent = (variant?: ButtonVariant): DialogAccent => {
 	if (variant === "danger") {
@@ -227,4 +225,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { AppDialogContext, AppDialogProvider };
+export default AppDialogProvider;

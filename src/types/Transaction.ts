@@ -1,5 +1,5 @@
-import type { TransactionClassification } from "@/types/TransactionClassification";
-import type { TransactionType } from "@/types/TransactionType";
+import type TransactionClassification from "@/types/TransactionClassification";
+import type TransactionType from "@/types/TransactionType";
 
 type Transaction = Readonly<{
 	id: string;
@@ -26,4 +26,4 @@ type Transaction = Readonly<{
 	hasAttachment: boolean;
 }>;
 
-export type { Transaction };
+export type { Transaction as default };

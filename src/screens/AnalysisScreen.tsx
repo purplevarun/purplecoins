@@ -1,41 +1,46 @@
-import { CustomText } from "@/components/CustomText";
+import CustomText from "@/components/CustomText";
+
 import { Ionicons } from "@expo/vector-icons";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
-import { DateField } from "@/components/DateField";
-import { DonutChart } from "@/components/DonutChart";
-import { EmptyState } from "@/components/EmptyState";
-import { GlassCard } from "@/components/GlassCard";
-import { Notice } from "@/components/Notice";
-import { ScreenContainer } from "@/components/ScreenContainer";
-import { SectionHeading } from "@/components/SectionHeading";
-import { SegmentedControl } from "@/components/SegmentedControl";
-import { DEFAULT_CURRENCY_CODE } from "@/constants/appConstants";
-import { COLORS } from "@/constants/colors";
-import { useDatabaseContext } from "@/hooks/useDatabaseContext";
-import { getTransactionMinMaxDate } from "@/repositories/financeRepository";
-import {
-	getAnalysisSummary,
-	getInvestmentNetAmount,
-	getInvestmentNetLabel,
-} from "@/services/analysisService";
-import { getFyStartMonth } from "@/services/settingsService";
-import type { AnalysisPeriod } from "@/types/AnalysisPeriod";
-import type { AnalysisSummary } from "@/types/AnalysisSummary";
-import type { ChartDatum } from "@/types/ChartDatum";
-import type { DateRange } from "@/types/DateRange";
-import type { RootStackParamList } from "@/types/RootStackParamList";
-import type { SelectOption } from "@/types/SelectOption";
-import {
+import DateField from "@/components/DateField";
+import DonutChart from "@/components/DonutChart";
+import EmptyState from "@/components/EmptyState";
+import GlassCard from "@/components/GlassCard";
+import Notice from "@/components/Notice";
+import ScreenContainer from "@/components/ScreenContainer";
+import SectionHeading from "@/components/SectionHeading";
+import SegmentedControl from "@/components/SegmentedControl";
+import appConstants from "@/constants/appConstants";
+import COLORS from "@/constants/colors";
+import useDatabaseContext from "@/hooks/useDatabaseContext";
+import financeRepository from "@/repositories/financeRepository";
+import analysisService from "@/services/analysisService";
+import settingsService from "@/services/settingsService";
+import type AnalysisPeriod from "@/types/AnalysisPeriod";
+import type AnalysisSummary from "@/types/AnalysisSummary";
+import type ChartDatum from "@/types/ChartDatum";
+import type DateRange from "@/types/DateRange";
+import type RootStackParamList from "@/types/RootStackParamList";
+import type SelectOption from "@/types/SelectOption";
+import dateUtils from "@/utils/date";
+import getErrorMessage from "@/utils/error";
+import moneyUtils from "@/utils/money";
+import runAfterRender from "@/utils/runAfterRender";
+const { DEFAULT_CURRENCY_CODE } = appConstants;
+const { getTransactionMinMaxDate } = financeRepository;
+const { getAnalysisSummary, getInvestmentNetAmount, getInvestmentNetLabel } =
+	analysisService;
+const { getFyStartMonth } = settingsService;
+const {
 	formatDate,
 	getAnalysisDateRange,
 	getCustomDateRange,
 	shiftAnalysisAnchor,
-} from "@/utils/date";
-import { getErrorMessage } from "@/utils/error";
-import {
+} = dateUtils;
+const {
 	absoluteMoney,
 	addMoney,
 	compareMoney,
@@ -43,7 +48,7 @@ import {
 	subtractMoney,
 	sumMoney,
 	ZERO_AMOUNT,
-} from "@/utils/money";
+} = moneyUtils;
 
 type AnalysisScreenProps = NativeStackScreenProps<
 	RootStackParamList,
@@ -198,9 +203,13 @@ const AnalysisScreen = ({
 		}
 	}, [database, dateRange]);
 
-	useEffect(() => {
-		void getScreenData();
-	}, [dataVersion, getScreenData]);
+	useEffect(
+		() =>
+			runAfterRender(() => {
+				void getScreenData();
+			}),
+		[dataVersion, getScreenData],
+	);
 
 	const handlePeriodChange = (value: string): void => {
 		setPeriod(value as AnalysisPeriod);
@@ -776,4 +785,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { AnalysisScreen };
+export default AnalysisScreen;

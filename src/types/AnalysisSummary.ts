@@ -1,5 +1,5 @@
-import type { CategoryAnalysis } from "@/types/CategoryAnalysis";
-import type { InvestmentAnalysis } from "@/types/InvestmentAnalysis";
+import type CategoryAnalysis from "@/types/CategoryAnalysis";
+import type InvestmentAnalysis from "@/types/InvestmentAnalysis";
 
 type AnalysisSummary = Readonly<{
 	categories: readonly CategoryAnalysis[];
@@ -10,4 +10,4 @@ type AnalysisSummary = Readonly<{
 	missingCurrencies: readonly string[];
 }>;
 
-export type { AnalysisSummary };
+export type { AnalysisSummary as default };

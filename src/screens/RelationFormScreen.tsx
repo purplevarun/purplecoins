@@ -1,27 +1,29 @@
-import { CustomText } from "@/components/CustomText";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import CustomText from "@/components/CustomText";
+
 import { useEffect, useState } from "react";
 import { StyleSheet, Switch, View } from "react-native";
 
-import { AppButton } from "@/components/AppButton";
-import { GlassCard } from "@/components/GlassCard";
-import { Notice } from "@/components/Notice";
-import { ScreenContainer } from "@/components/ScreenContainer";
-import { TextField } from "@/components/TextField";
-import { DEFAULT_CURRENCY_CODE } from "@/constants/appConstants";
-import { COLORS } from "@/constants/colors";
-import { useAppDialog } from "@/hooks/useAppDialog";
-import { useDatabaseContext } from "@/hooks/useDatabaseContext";
-import { getCategory, saveCategory } from "@/services/categoryService";
-import { getInvestment, saveInvestment } from "@/services/investmentService";
-import {
-	createSource,
-	getSource,
-	updateSourceName,
-} from "@/services/sourceService";
-import { getTrip, saveTrip } from "@/services/tripService";
-import type { RootStackParamList } from "@/types/RootStackParamList";
-import { getErrorMessage } from "@/utils/error";
+import AppButton from "@/components/AppButton";
+import GlassCard from "@/components/GlassCard";
+import Notice from "@/components/Notice";
+import ScreenContainer from "@/components/ScreenContainer";
+import TextField from "@/components/TextField";
+import appConstants from "@/constants/appConstants";
+import COLORS from "@/constants/colors";
+import useAppDialog from "@/hooks/useAppDialog";
+import useDatabaseContext from "@/hooks/useDatabaseContext";
+import categoryService from "@/services/categoryService";
+import investmentService from "@/services/investmentService";
+import sourceService from "@/services/sourceService";
+import tripService from "@/services/tripService";
+import type RootStackParamList from "@/types/RootStackParamList";
+import getErrorMessage from "@/utils/error";
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+const { DEFAULT_CURRENCY_CODE } = appConstants;
+const { getCategory, saveCategory } = categoryService;
+const { getInvestment, saveInvestment } = investmentService;
+const { createSource, getSource, updateSourceName } = sourceService;
+const { getTrip, saveTrip } = tripService;
 
 type RelationFormScreenProps = NativeStackScreenProps<
 	RootStackParamList,
@@ -233,4 +235,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export { RelationFormScreen };
+export default RelationFormScreen;

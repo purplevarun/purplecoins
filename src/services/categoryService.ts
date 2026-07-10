@@ -1,7 +1,10 @@
+import AppError from "@/errors/AppError";
+import financeRepository from "@/repositories/financeRepository";
+import type Category from "@/types/Category";
+import createId from "@/utils/id";
 import type { SQLiteDatabase } from "expo-sqlite";
 
-import { AppError } from "@/errors/AppError";
-import {
+const {
 	categoryNameExistsRow,
 	deleteCategoryRow,
 	getArchivedCategoryRows,
@@ -9,9 +12,7 @@ import {
 	getCategoryRows,
 	setCategoryArchivedRow,
 	upsertCategoryRow,
-} from "@/repositories/financeRepository";
-import type { Category } from "@/types/Category";
-import { createId } from "@/utils/id";
+} = financeRepository;
 
 const mapCategory = (category: Category): Category => ({
 	...category,
@@ -97,7 +98,7 @@ const deleteCategory = async (
 	}
 };
 
-export {
+const categoryService = {
 	deleteCategory,
 	getArchivedCategories,
 	getCategories,
@@ -105,3 +106,5 @@ export {
 	saveCategory,
 	setCategoryArchived,
 };
+
+export default categoryService;

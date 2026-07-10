@@ -8,4 +8,4 @@ type CategoryAnalysis = Readonly<{
 	net: string;
 }>;
 
-export type { CategoryAnalysis };
+export type { CategoryAnalysis as default };

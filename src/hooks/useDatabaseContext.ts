@@ -1,8 +1,8 @@
 import { useContext } from "react";
 
-import { AppError } from "@/errors/AppError";
-import { DatabaseContext } from "@/providers/DatabaseProvider";
-import type { DatabaseContextValue } from "@/types/DatabaseContextValue";
+import AppError from "@/errors/AppError";
+import DatabaseContext from "@/providers/DatabaseContext";
+import type DatabaseContextValue from "@/types/DatabaseContextValue";
 
 const useDatabaseContext = (): DatabaseContextValue => {
 	const context = useContext(DatabaseContext);
@@ -15,4 +15,4 @@ const useDatabaseContext = (): DatabaseContextValue => {
 	return context;
 };
 
-export { useDatabaseContext };
+export default useDatabaseContext;
