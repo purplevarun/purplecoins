@@ -10,6 +10,5 @@
 			"@/*": ["./src/*"]
 		}
 	},
-	"include": ["**/*.ts", "**/*.tsx"],
-	"exclude": ["web"]
+	"include": ["**/*.ts", "**/*.tsx"]
 }
