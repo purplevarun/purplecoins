@@ -10,6 +10,7 @@ import AppButton from "@/components/AppButton";
 import GlassCard from "@/components/GlassCard";
 import Notice from "@/components/Notice";
 import ScreenContainer from "@/components/ScreenContainer";
+import SegmentedControl from "@/components/SegmentedControl";
 import SelectField from "@/components/SelectField";
 import COLORS from "@/constants/colors";
 import useAppDialog from "@/hooks/useAppDialog";
@@ -17,6 +18,7 @@ import useDatabaseContext from "@/hooks/useDatabaseContext";
 import backupService from "@/services/backupService";
 import settingsService from "@/services/settingsService";
 import tripService from "@/services/tripService";
+import type HomeMode from "@/types/HomeMode";
 import type RootStackParamList from "@/types/RootStackParamList";
 import type SelectOption from "@/types/SelectOption";
 import type Trip from "@/types/Trip";
@@ -25,9 +27,11 @@ const { APP_NAME } = appConstants;
 const { version } = packageJson;
 const { exportBackup, restoreBackup } = backupService;
 const {
+	getDefaultHomeMode,
 	getDefaultTripId,
 	getFyStartMonth,
 	getNativeCurrencyDisplay,
+	updateDefaultHomeMode,
 	updateDefaultTripId,
 	updateFyStartMonth,
 	updateNativeCurrencyDisplay,
@@ -38,6 +42,12 @@ type SettingsScreenProps = NativeStackScreenProps<
 	RootStackParamList,
 	"Settings"
 >;
+
+const HOME_MODE_OPTIONS: readonly SelectOption[] = [
+	{ label: "Tools", value: "TOOLS" },
+	{ label: "Finance", value: "FINANCE" },
+	{ label: "Vault", value: "VAULT" },
+];
 
 const MONTH_OPTIONS: readonly SelectOption[] = [
 	{ label: "Jan", value: "1" },
@@ -70,19 +80,23 @@ const SettingsScreen = ({
 	const [message, setMessage] = useState("");
 	const [fyStartMonth, setFyStartMonth] = useState(4);
 	const [defaultTripId, setDefaultTripId] = useState("");
+	const [defaultHomeMode, setDefaultHomeMode] = useState<HomeMode>("TOOLS");
 	const [trips, setTrips] = useState<readonly Trip[]>([]);
 
 	useEffect(() => {
 		const getSettings = async (): Promise<void> => {
-			const [native, fy, tripId, loadedTrips] = await Promise.all([
-				getNativeCurrencyDisplay(database),
-				getFyStartMonth(database),
-				getDefaultTripId(database),
-				getTrips(database),
-			]);
+			const [native, fy, tripId, homeMode, loadedTrips] =
+				await Promise.all([
+					getNativeCurrencyDisplay(database),
+					getFyStartMonth(database),
+					getDefaultTripId(database),
+					getDefaultHomeMode(database),
+					getTrips(database),
+				]);
 			setIsNativeCurrency(native);
 			setFyStartMonth(fy);
 			setDefaultTripId(tripId ?? "");
+			setDefaultHomeMode(homeMode);
 			setTrips(loadedTrips);
 		};
 		void getSettings();
@@ -104,6 +118,15 @@ const SettingsScreen = ({
 	const handleDefaultTripChange = async (value: string): Promise<void> => {
 		setDefaultTripId(value);
 		await updateDefaultTripId(database, value || null);
+		refreshData();
+	};
+
+	const handleDefaultHomeModeChange = async (
+		value: string,
+	): Promise<void> => {
+		const mode = value as HomeMode;
+		setDefaultHomeMode(mode);
+		await updateDefaultHomeMode(database, mode);
 		refreshData();
 	};
 
@@ -167,6 +190,22 @@ const SettingsScreen = ({
 						Local-first finance, tools and vault. No account and no
 						cloud dependency.
 					</CustomText>
+				</View>
+			</GlassCard>
+			<GlassCard>
+				<View style={styles.section}>
+					<CustomText style={styles.heading}>Home screen</CustomText>
+					<CustomText style={styles.description}>
+						Choose which homepage the app opens to by default. You
+						can still switch homepages anytime from the home screen.
+					</CustomText>
+					<SegmentedControl
+						onChange={(value) =>
+							void handleDefaultHomeModeChange(value)
+						}
+						options={HOME_MODE_OPTIONS}
+						value={defaultHomeMode}
+					/>
 				</View>
 			</GlassCard>
 			<GlassCard>
