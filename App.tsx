@@ -13,6 +13,7 @@ import initializeDatabase from "@/database/initializeDatabase";
 import AppNavigator from "@/navigation/AppNavigator";
 import AppDialogProvider from "@/providers/AppDialogProvider";
 import DatabaseProvider from "@/providers/DatabaseProvider";
+import NotificationProvider from "@/providers/NotificationProvider";
 import type DatabaseState from "@/types/DatabaseState";
 const { APP_FONTS } = typographyConstants;
 
@@ -72,9 +73,11 @@ const App = (): React.JSX.Element => {
 		<GestureHandlerRootView style={styles.container}>
 			<StatusBar style="light" />
 			<DatabaseProvider database={databaseState.database}>
-				<AppDialogProvider>
-					<AppNavigator />
-				</AppDialogProvider>
+				<NotificationProvider>
+					<AppDialogProvider>
+						<AppNavigator />
+					</AppDialogProvider>
+				</NotificationProvider>
 			</DatabaseProvider>
 		</GestureHandlerRootView>
 	);

@@ -11,10 +11,14 @@ const {
 	getDefaultTripId,
 	getFyStartMonth,
 	getNativeCurrencyDisplay,
+	getTodoReminderSettings,
 	updateDefaultHomeMode,
 	updateDefaultTripId,
 	updateFyStartMonth,
 	updateNativeCurrencyDisplay,
+	updateTodoReminderDaysBeforeDue,
+	updateTodoReminderRepeatHours,
+	updateTodoRemindersEnabled,
 } = settingsService;
 const { upsertSettingRow } = settingsRepository;
 
@@ -102,6 +106,47 @@ describe("settingsService", () => {
 				1,
 			);
 			expect(await getDefaultHomeMode(database)).toBe("TOOLS");
+		});
+	});
+
+	describe("todo reminder settings", () => {
+		it("defaults to enabled with a 2 day / 12 hour cadence", async () => {
+			expect(await getTodoReminderSettings(database)).toEqual({
+				enabled: true,
+				daysBeforeDue: 2,
+				repeatHours: 12,
+			});
+		});
+
+		it("round-trips reminder settings", async () => {
+			await updateTodoRemindersEnabled(database, false);
+			await updateTodoReminderDaysBeforeDue(database, 5);
+			await updateTodoReminderRepeatHours(database, 6);
+			expect(await getTodoReminderSettings(database)).toEqual({
+				enabled: false,
+				daysBeforeDue: 5,
+				repeatHours: 6,
+			});
+		});
+
+		it("clamps invalid reminder values back into supported ranges", async () => {
+			await upsertSettingRow(
+				database,
+				"todo_reminder_days_before_due",
+				"999",
+				1,
+			);
+			await upsertSettingRow(
+				database,
+				"todo_reminder_repeat_hours",
+				"0",
+				1,
+			);
+			expect(await getTodoReminderSettings(database)).toEqual({
+				enabled: true,
+				daysBeforeDue: 30,
+				repeatHours: 1,
+			});
 		});
 	});
 });

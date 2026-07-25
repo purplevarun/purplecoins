@@ -17,6 +17,7 @@ import useAppDialog from "@/hooks/useAppDialog";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import backupService from "@/services/backupService";
 import settingsService from "@/services/settingsService";
+import todoReminderService from "@/services/todoReminderService";
 import tripService from "@/services/tripService";
 import type HomeMode from "@/types/HomeMode";
 import type RootStackParamList from "@/types/RootStackParamList";
@@ -31,11 +32,16 @@ const {
 	getDefaultTripId,
 	getFyStartMonth,
 	getNativeCurrencyDisplay,
+	getTodoReminderSettings,
 	updateDefaultHomeMode,
 	updateDefaultTripId,
 	updateFyStartMonth,
 	updateNativeCurrencyDisplay,
+	updateTodoReminderDaysBeforeDue,
+	updateTodoReminderRepeatHours,
+	updateTodoRemindersEnabled,
 } = settingsService;
+const { syncTodoReminders } = todoReminderService;
 const { getTrips } = tripService;
 
 type SettingsScreenProps = NativeStackScreenProps<
@@ -64,6 +70,26 @@ const MONTH_OPTIONS: readonly SelectOption[] = [
 	{ label: "Dec", value: "12" },
 ];
 
+const TODO_REMINDER_DAYS_OPTIONS: readonly SelectOption[] = Array.from(
+	{ length: 31 },
+	(_, index) => ({
+		label:
+			index === 0
+				? "Same day"
+				: index === 1
+					? "1 day before"
+					: `${index} days before`,
+		value: String(index),
+	}),
+);
+
+const TODO_REMINDER_REPEAT_HOURS_OPTIONS: readonly SelectOption[] = [
+	1, 2, 3, 4, 6, 8, 12, 24,
+].map((hours) => ({
+	label: hours === 1 ? "Every hour" : `Every ${hours} hours`,
+	value: String(hours),
+}));
+
 const getFyEndMonthLabel = (startMonth: number): string => {
 	const endMonth = startMonth === 1 ? 12 : startMonth - 1;
 	return MONTH_OPTIONS[endMonth - 1]?.label ?? "Mar";
@@ -81,26 +107,60 @@ const SettingsScreen = ({
 	const [fyStartMonth, setFyStartMonth] = useState(4);
 	const [defaultTripId, setDefaultTripId] = useState("");
 	const [defaultHomeMode, setDefaultHomeMode] = useState<HomeMode>("TOOLS");
+	const [todoRemindersEnabled, setTodoRemindersEnabled] = useState(true);
+	const [todoReminderDaysBeforeDue, setTodoReminderDaysBeforeDue] =
+		useState(2);
+	const [todoReminderRepeatHours, setTodoReminderRepeatHours] = useState(12);
 	const [trips, setTrips] = useState<readonly Trip[]>([]);
+	const [reminderNotice, setReminderNotice] = useState("");
 
 	useEffect(() => {
 		const getSettings = async (): Promise<void> => {
-			const [native, fy, tripId, homeMode, loadedTrips] =
+			const [native, fy, tripId, homeMode, reminderSettings, loadedTrips] =
 				await Promise.all([
 					getNativeCurrencyDisplay(database),
 					getFyStartMonth(database),
 					getDefaultTripId(database),
 					getDefaultHomeMode(database),
+					getTodoReminderSettings(database),
 					getTrips(database),
 				]);
 			setIsNativeCurrency(native);
 			setFyStartMonth(fy);
 			setDefaultTripId(tripId ?? "");
 			setDefaultHomeMode(homeMode);
+			setTodoRemindersEnabled(reminderSettings.enabled);
+			setTodoReminderDaysBeforeDue(reminderSettings.daysBeforeDue);
+			setTodoReminderRepeatHours(reminderSettings.repeatHours);
 			setTrips(loadedTrips);
 		};
 		void getSettings();
 	}, [database]);
+
+	const syncReminderSettings = async (): Promise<void> => {
+		const result = await syncTodoReminders(database);
+		if (result.permissionState === "denied") {
+			setReminderNotice(
+				"Allow notifications from system settings to receive todo reminders.",
+			);
+			return;
+		}
+		if (result.permissionState === "unavailable") {
+			setReminderNotice(
+				"Notifications dependency is not installed locally yet. Reinstall dependencies and rebuild the app to enable reminders.",
+			);
+			return;
+		}
+		if (result.permissionState === "disabled") {
+			setReminderNotice("Todo reminders are turned off.");
+			return;
+		}
+		setReminderNotice(
+			result.scheduledCount > 0
+				? `Scheduled ${result.scheduledCount} upcoming todo reminder${result.scheduledCount === 1 ? "" : "s"}.`
+				: "No upcoming due-date reminders to schedule right now.",
+		);
+	};
 
 	const handleCurrencyToggle = async (value: boolean): Promise<void> => {
 		setIsNativeCurrency(value);
@@ -109,7 +169,7 @@ const SettingsScreen = ({
 	};
 
 	const handleFyStartMonthChange = async (value: string): Promise<void> => {
-		const month = parseInt(value, 10);
+		const month = Number.parseInt(value, 10);
 		setFyStartMonth(month);
 		await updateFyStartMonth(database, month);
 		refreshData();
@@ -128,6 +188,32 @@ const SettingsScreen = ({
 		setDefaultHomeMode(mode);
 		await updateDefaultHomeMode(database, mode);
 		refreshData();
+	};
+
+	const handleTodoRemindersEnabledChange = async (
+		value: boolean,
+	): Promise<void> => {
+		setTodoRemindersEnabled(value);
+		await updateTodoRemindersEnabled(database, value);
+		await syncReminderSettings();
+	};
+
+	const handleTodoReminderDaysBeforeDueChange = async (
+		value: string,
+	): Promise<void> => {
+		const days = Number.parseInt(value, 10);
+		setTodoReminderDaysBeforeDue(days);
+		await updateTodoReminderDaysBeforeDue(database, days);
+		await syncReminderSettings();
+	};
+
+	const handleTodoReminderRepeatHoursChange = async (
+		value: string,
+	): Promise<void> => {
+		const hours = Number.parseInt(value, 10);
+		setTodoReminderRepeatHours(hours);
+		await updateTodoReminderRepeatHours(database, hours);
+		await syncReminderSettings();
 	};
 
 	const handleExport = async (): Promise<void> => {
@@ -265,6 +351,54 @@ const SettingsScreen = ({
 						When set, new transactions will have this trip
 						pre-filled.
 					</CustomText>
+				</View>
+			</GlassCard>
+			<GlassCard>
+				<View style={styles.section}>
+					<CustomText style={styles.heading}>Todo reminders</CustomText>
+					<CustomText style={styles.description}>
+						Due-date reminders are scheduled locally on this device. The
+						first reminder goes out at 9:00 AM on the chosen start day,
+						then repeats every few hours until the due date ends.
+					</CustomText>
+					<View style={styles.switchRow}>
+						<View style={styles.switchDetails}>
+							<CustomText style={styles.switchTitle}>
+								Enable todo reminders
+							</CustomText>
+							<CustomText style={styles.switchDescription}>
+								Todos without a due date, completed todos and overdue todos
+								are skipped automatically.
+							</CustomText>
+						</View>
+						<Switch
+							onValueChange={(value) =>
+								void handleTodoRemindersEnabledChange(value)
+							}
+							value={todoRemindersEnabled}
+						/>
+					</View>
+					<SelectField
+						label="Start reminders"
+						onChange={(value) =>
+							void handleTodoReminderDaysBeforeDueChange(value)
+						}
+						options={TODO_REMINDER_DAYS_OPTIONS}
+						value={String(todoReminderDaysBeforeDue)}
+					/>
+					<SelectField
+						label="Repeat cadence"
+						onChange={(value) =>
+							void handleTodoReminderRepeatHoursChange(value)
+						}
+						options={TODO_REMINDER_REPEAT_HOURS_OPTIONS}
+						value={String(todoReminderRepeatHours)}
+					/>
+					<CustomText style={styles.switchDescription}>
+						Keep opening the app occasionally so future reminders can be
+						refreshed within the device&apos;s pending-notification limit.
+					</CustomText>
+					{reminderNotice ? <Notice message={reminderNotice} /> : null}
 				</View>
 			</GlassCard>
 			<GlassCard>

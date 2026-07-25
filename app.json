@@ -2,7 +2,7 @@
 	"expo": {
 		"name": "Purplecoins",
 		"slug": "purplecoins_2026",
-		"version": "5.1",
+		"version": "5.2",
 		"orientation": "portrait",
 		"icon": "./assets/icon.png",
 		"userInterfaceStyle": "dark",
@@ -22,6 +22,7 @@
 		},
 		"plugins": [
 			"expo-sqlite",
+			"expo-notifications",
 			"expo-sharing",
 			"@react-native-community/datetimepicker",
 			"expo-font",

@@ -3,6 +3,7 @@ import type { SQLiteDatabase } from "expo-sqlite";
 
 import HOME_MODES from "@/constants/homeModes";
 import type HomeMode from "@/types/HomeMode";
+import type TodoReminderSettings from "@/types/TodoReminderSettings";
 
 const { getSettingRow, upsertSettingRow } = settingsRepository;
 
@@ -10,9 +11,43 @@ const NATIVE_CURRENCY_KEY = "native_currency_display";
 const FY_START_MONTH_KEY = "fy_start_month";
 const DEFAULT_TRIP_ID_KEY = "default_trip_id";
 const DEFAULT_HOME_MODE_KEY = "default_home_mode";
+const TODO_REMINDERS_ENABLED_KEY = "todo_reminders_enabled";
+const TODO_REMINDER_DAYS_BEFORE_DUE_KEY = "todo_reminder_days_before_due";
+const TODO_REMINDER_REPEAT_HOURS_KEY = "todo_reminder_repeat_hours";
+
+const DEFAULT_TODO_REMINDER_SETTINGS: TodoReminderSettings = {
+	enabled: true,
+	daysBeforeDue: 2,
+	repeatHours: 12,
+};
+const TODO_REMINDER_DAYS_MIN = 0;
+const TODO_REMINDER_DAYS_MAX = 30;
+const TODO_REMINDER_REPEAT_HOURS_MIN = 1;
+const TODO_REMINDER_REPEAT_HOURS_MAX = 24;
 
 const isHomeMode = (value: string | null): value is HomeMode =>
 	value !== null && (HOME_MODES as readonly string[]).includes(value);
+
+const clampInteger = (
+	value: number,
+	minimum: number,
+	maximum: number,
+): number => Math.min(maximum, Math.max(minimum, Math.round(value)));
+
+const parseIntegerSetting = (
+	value: string | null,
+	fallback: number,
+	minimum: number,
+	maximum: number,
+): number => {
+	if (!value) {
+		return fallback;
+	}
+	const parsed = Number.parseInt(value, 10);
+	return Number.isNaN(parsed)
+		? fallback
+		: clampInteger(parsed, minimum, maximum);
+};
 
 const getNativeCurrencyDisplay = async (
 	database: SQLiteDatabase,
@@ -36,8 +71,8 @@ const updateNativeCurrencyDisplay = async (
 const getFyStartMonth = async (database: SQLiteDatabase): Promise<number> => {
 	const value = await getSettingRow(database, FY_START_MONTH_KEY);
 	if (!value) return 4;
-	const parsed = parseInt(value, 10);
-	return isNaN(parsed) ? 4 : parsed;
+	const parsed = Number.parseInt(value, 10);
+	return Number.isNaN(parsed) ? 4 : parsed;
 };
 
 const updateFyStartMonth = async (
@@ -74,15 +109,93 @@ const updateDefaultHomeMode = async (
 ): Promise<void> =>
 	upsertSettingRow(database, DEFAULT_HOME_MODE_KEY, mode, Date.now());
 
+const getTodoReminderSettings = async (
+	database: SQLiteDatabase,
+): Promise<TodoReminderSettings> => {
+	const [enabledValue, daysValue, repeatValue] = await Promise.all([
+		getSettingRow(database, TODO_REMINDERS_ENABLED_KEY),
+		getSettingRow(database, TODO_REMINDER_DAYS_BEFORE_DUE_KEY),
+		getSettingRow(database, TODO_REMINDER_REPEAT_HOURS_KEY),
+	]);
+
+	return {
+		enabled:
+			enabledValue === null
+				? DEFAULT_TODO_REMINDER_SETTINGS.enabled
+				: enabledValue === "true",
+		daysBeforeDue: parseIntegerSetting(
+			daysValue,
+			DEFAULT_TODO_REMINDER_SETTINGS.daysBeforeDue,
+			TODO_REMINDER_DAYS_MIN,
+			TODO_REMINDER_DAYS_MAX,
+		),
+		repeatHours: parseIntegerSetting(
+			repeatValue,
+			DEFAULT_TODO_REMINDER_SETTINGS.repeatHours,
+			TODO_REMINDER_REPEAT_HOURS_MIN,
+			TODO_REMINDER_REPEAT_HOURS_MAX,
+		),
+	};
+};
+
+const updateTodoRemindersEnabled = async (
+	database: SQLiteDatabase,
+	enabled: boolean,
+): Promise<void> =>
+	upsertSettingRow(
+		database,
+		TODO_REMINDERS_ENABLED_KEY,
+		String(enabled),
+		Date.now(),
+	);
+
+const updateTodoReminderDaysBeforeDue = async (
+	database: SQLiteDatabase,
+	daysBeforeDue: number,
+): Promise<void> =>
+	upsertSettingRow(
+		database,
+		TODO_REMINDER_DAYS_BEFORE_DUE_KEY,
+		String(
+			clampInteger(
+				daysBeforeDue,
+				TODO_REMINDER_DAYS_MIN,
+				TODO_REMINDER_DAYS_MAX,
+			),
+		),
+		Date.now(),
+	);
+
+const updateTodoReminderRepeatHours = async (
+	database: SQLiteDatabase,
+	repeatHours: number,
+): Promise<void> =>
+	upsertSettingRow(
+		database,
+		TODO_REMINDER_REPEAT_HOURS_KEY,
+		String(
+			clampInteger(
+				repeatHours,
+				TODO_REMINDER_REPEAT_HOURS_MIN,
+				TODO_REMINDER_REPEAT_HOURS_MAX,
+			),
+		),
+		Date.now(),
+	);
+
 const settingsService = {
 	getDefaultHomeMode,
 	getDefaultTripId,
 	getFyStartMonth,
 	getNativeCurrencyDisplay,
+	getTodoReminderSettings,
 	updateDefaultHomeMode,
 	updateDefaultTripId,
 	updateFyStartMonth,
 	updateNativeCurrencyDisplay,
+	updateTodoReminderDaysBeforeDue,
+	updateTodoReminderRepeatHours,
+	updateTodoRemindersEnabled,
 };
 
 export default settingsService;
