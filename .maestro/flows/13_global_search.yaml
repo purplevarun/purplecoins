@@ -1,0 +1,56 @@
+appId: com.purple.coins
+---
+# Global search: create one item per mode, then verify the search box
+# gates on a 2-character minimum and finds the right item per mode.
+
+- launchApp:
+      clearState: true
+
+# Tools: a note to search for.
+- tapOn: "Notes"
+- tapOn: "Add"
+- tapOn: "Note title"
+- inputText: "Vacation planning"
+- tapOn: "Save note"
+- back
+
+- tapOn: "Search Tools"
+- tapOn: "Search Tools"
+- inputText: "a"
+- assertVisible: "Type at least two characters."
+- inputText: "vacation"
+- assertVisible: "Vacation planning"
+- back
+
+# Finance: a source to search for.
+- tapOn: "Switch homepage"
+- tapOn: "Finance"
+- tapOn: "Sources"
+- tapOn: "Add"
+- tapOn: "Source name"
+- inputText: "Zenith Bank"
+- tapOn: "Save"
+- back
+
+- tapOn: "Search Finance"
+- tapOn: "Search Finance"
+- inputText: "zenith"
+- assertVisible: "Zenith Bank"
+- back
+
+# Vault: a password to search for.
+- tapOn: "Switch homepage"
+- tapOn: "Vault"
+- tapOn: "Passwords"
+- tapOn: "Add"
+- tapOn: "Entry title"
+- inputText: "Streaming service"
+- tapOn: "Password"
+- inputText: "hunter2"
+- tapOn: "Save entry"
+- back
+
+- tapOn: "Search Vault"
+- tapOn: "Search Vault"
+- inputText: "streaming"
+- assertVisible: "Streaming service"

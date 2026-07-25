@@ -1,0 +1,74 @@
+appId: com.purple.coins
+---
+# Sources: create (INR + USD), list ordering, rename, validate, archive,
+# restore from Settings > Archived relations, and the duplicate-name guard.
+
+- launchApp:
+      clearState: true
+- tapOn: "Switch homepage"
+- tapOn: "Finance"
+- tapOn: "Sources"
+
+# Create the first source (default currency INR).
+- tapOn: "Add"
+- assertVisible: "New source"
+- tapOn: "Source name"
+- inputText: "Everyday Bank"
+- assertVisible: "INR"
+- tapOn: "Save"
+- assertVisible: "Everyday Bank"
+
+# Create a second source with a different currency.
+- tapOn: "Add"
+- tapOn: "Source name"
+- inputText: "Travel Card"
+- tapOn: "INR"
+- eraseText
+- inputText: "USD"
+- tapOn: "Save"
+- assertVisible: "Travel Card"
+- assertVisible: "Everyday Bank"
+
+# Duplicate name is rejected.
+- tapOn: "Add"
+- tapOn: "Source name"
+- inputText: "Everyday Bank"
+- tapOn: "Save"
+- assertVisible:
+      text: ".*already exists.*"
+      optional: true
+- back
+
+# Validate the first source (adds a "Validated" badge).
+- tapOn:
+      text: "Validate"
+      below: "Everyday Bank"
+- assertVisible: "Validated"
+
+# Rename it — currency becomes read-only once created.
+- tapOn: "Everyday Bank"
+- tapOn: "Edit"
+- assertVisible: "Currency is fixed after a source is created."
+- tapOn: "Everyday Bank"
+- eraseText
+- inputText: "Primary Bank"
+- tapOn: "Save"
+- back
+- assertVisible: "Primary Bank"
+
+# Archive it, confirm it disappears from the active list, then restore it
+# from Settings > Archived relations.
+- tapOn:
+      text: "Archive"
+      below: "Primary Bank"
+- tapOn: "Archive"
+- assertNotVisible: "Primary Bank"
+- assertVisible: "Travel Card"
+
+- back
+- tapOn: "Settings"
+- tapOn: "Archived relations"
+- assertVisible: "Primary Bank"
+- tapOn: "Primary Bank"
+- tapOn: "Restore"
+- assertNotVisible: "Primary Bank"

@@ -1,0 +1,106 @@
+appId: com.purple.coins
+---
+# Transactions: full CRUD across DEBIT / CREDIT / TRANSFER, category
+# selection, the classification/type filter, search, and clone-via-
+# long-press. Creates its own prerequisite sources + category.
+
+- launchApp:
+      clearState: true
+- tapOn: "Switch homepage"
+- tapOn: "Finance"
+
+# --- Prerequisites: two sources + one category ---
+- tapOn: "Sources"
+- tapOn: "Add"
+- tapOn: "Source name"
+- inputText: "Bank"
+- tapOn: "Save"
+- tapOn: "Add"
+- tapOn: "Source name"
+- inputText: "Wallet"
+- tapOn: "Save"
+- back
+
+- tapOn: "Categories"
+- tapOn: "Add"
+- tapOn: "Category name"
+- inputText: "Food"
+- tapOn: "Save"
+- back
+
+# --- DEBIT transaction against a category ---
+- tapOn: "Transactions"
+- tapOn: "Add"
+- assertVisible: "New transaction"
+- tapOn: "Select source"
+- tapOn: "Bank"
+- tapOn: "0.00"
+- inputText: "250"
+- tapOn: "Select category"
+- tapOn: "Food"
+- tapOn: "What was this for?"
+- inputText: "Lunch"
+- tapOn: "Save transaction"
+- assertVisible: "Lunch"
+
+# --- CREDIT transaction ---
+- tapOn: "Add"
+- tapOn: "Credit"
+- tapOn: "Select source"
+- tapOn: "Bank"
+- tapOn: "0.00"
+- inputText: "50000"
+- tapOn: "Select category"
+- tapOn: "Food"
+- tapOn: "What was this for?"
+- inputText: "Refund"
+- tapOn: "Save transaction"
+- assertVisible: "Refund"
+
+# --- TRANSFER between the two sources ---
+- tapOn: "Add"
+- tapOn: "Transfer"
+- tapOn: "Select source"
+- tapOn: "Bank"
+- tapOn: "Select destination"
+- tapOn: "Wallet"
+- tapOn: "0.00"
+- inputText: "1000"
+- tapOn: "Save transaction"
+- assertVisible: "Bank to Wallet"
+
+# --- Filter by classification ---
+- tapOn: "General"
+- assertVisible: "Lunch"
+- tapOn: "Investment"
+- assertVisible: "No matching records found."
+- tapOn: "All"
+- assertVisible: "Lunch"
+
+# --- Search ---
+- tapOn: "Search"
+- tapOn: "Search transactions..."
+- inputText: "Lunch"
+- assertVisible: "Lunch"
+- assertNotVisible: "Refund"
+- tapOn: "Close search"
+
+# --- Edit the Lunch transaction ---
+- tapOn: "Lunch"
+- assertVisible: "Edit transaction"
+- tapOn: "Lunch"
+- eraseText
+- inputText: "Lunch with team"
+- tapOn: "Save transaction"
+- assertVisible: "Lunch with team"
+
+# --- Clone via long-press ---
+- longPressOn: "Lunch with team"
+- assertVisible: "Clone transaction"
+- tapOn: "Save transaction"
+
+# --- Delete the refund transaction ---
+- tapOn: "Refund"
+- tapOn: "Delete transaction"
+- tapOn: "Delete"
+- assertNotVisible: "Refund"

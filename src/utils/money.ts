@@ -13,6 +13,12 @@ const normalizeMoney = (value: string): string => {
 
 	const amount = new Decimal(trimmedValue);
 	if (!amount.isPositive()) {
+		// NOTE: currently unreachable through this function. MONEY_PATTERN
+		// only accepts unsigned digits (no "-" sign), and decimal.js treats
+		// zero's sign as non-negative, so `isPositive()` is always true for
+		// any value that passes the regex above. Kept as a defensive
+		// safety net in case MONEY_PATTERN is ever loosened to allow
+		// negative numbers.
 		throw new AppError(
 			"INVALID_AMOUNT",
 			"Amount must be greater than zero.",

@@ -1,0 +1,49 @@
+appId: com.purple.coins
+---
+# Smoke test covering app launch, home navigation, and the Tools / Finance /
+# Vault mode switcher. This is the fastest flow to run and is a good
+# first check that a build is healthy before running the deeper flows.
+
+- launchApp:
+      clearState: true
+
+# Home screen defaults to the "Tools" mode.
+- assertVisible: "Purplecoins"
+- assertVisible: "Tools"
+- assertVisible: "Notes"
+- assertVisible: "Todos"
+
+# Switch to Finance via the mode-switcher modal.
+- tapOn: "Switch homepage"
+- assertVisible: "Finance"
+- tapOn: "Finance"
+- assertVisible: "Transactions"
+- assertVisible: "Sources"
+- assertVisible: "Categories"
+- assertVisible: "Trips"
+- assertVisible: "Investments"
+- assertVisible: "Budgets"
+- assertVisible: "Analysis"
+- assertVisible: "Exchange rates"
+
+# Switch to Vault.
+- tapOn: "Switch homepage"
+- tapOn: "Vault"
+- assertVisible: "Passwords"
+- assertVisible: "Cards"
+- assertVisible: "Identity"
+
+# Back to Tools for the next flow / a clean starting point.
+- tapOn: "Switch homepage"
+- tapOn: "Tools"
+- assertVisible: "Notes"
+
+# Settings screen is reachable from every mode.
+- tapOn: "Settings"
+- assertVisible: "Home screen"
+- back
+
+# Global search is reachable from every mode.
+- tapOn: "Search Tools"
+- assertVisible: "Type at least two characters."
+- back

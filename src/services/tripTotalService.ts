@@ -23,6 +23,12 @@ const buildTripTotals = (
 	transactions.filter(shouldIncludeTransaction).forEach((transaction) => {
 		const tripId = transaction.tripId;
 		if (!tripId) {
+			// NOTE: currently unreachable. `shouldIncludeTransaction` above
+			// already requires `Boolean(transaction.tripId)`, so every
+			// transaction reaching this point has a truthy tripId. Kept as
+			// a defensive safety net (and to satisfy TypeScript's string
+			// narrowing for the `getTripTotalKey` call below) in case the
+			// filter is ever relaxed.
 			return;
 		}
 		const key = getTripTotalKey(tripId, transaction.sourceCurrencyCode);

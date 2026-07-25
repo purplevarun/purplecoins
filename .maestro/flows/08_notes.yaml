@@ -1,0 +1,44 @@
+appId: com.purple.coins
+---
+# Notes: create a folder inline from the note form, create a note in it,
+# edit it, then delete it.
+
+- launchApp:
+      clearState: true
+- tapOn: "Switch homepage"
+- tapOn: "Tools"
+- tapOn: "Notes"
+
+- tapOn: "Add"
+- assertVisible: "New note"
+- tapOn: "Note title"
+- inputText: "Grocery list"
+- tapOn: "Write something useful..."
+- inputText: "Milk, eggs, bread"
+
+# Create a folder inline via the FolderPicker.
+- tapOn: "New folder"
+- tapOn: "Folder name"
+- inputText: "Personal"
+- tapOn: "Create"
+- assertVisible: "Personal"
+
+- tapOn: "Save note"
+- assertVisible: "Grocery list"
+- assertVisible: "Personal"
+
+# Edit the note.
+- tapOn: "Grocery list"
+- assertVisible: "Edit note"
+- tapOn: "Grocery list"
+- eraseText
+- inputText: "Weekend grocery list"
+- tapOn: "Save note"
+- assertVisible: "Weekend grocery list"
+
+# Delete the note.
+- tapOn: "Weekend grocery list"
+- tapOn: "Delete note"
+- assertVisible: "Delete note?"
+- tapOn: "Delete"
+- assertNotVisible: "Weekend grocery list"

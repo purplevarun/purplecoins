@@ -64,6 +64,20 @@ bun run check
 The check command verifies formatting, ESLint, strict TypeScript, Vitest, and
 Expo dependency compatibility.
 
+## Testing
+
+See [`TESTING.md`](TESTING.md) for the full strategy. In short:
+
+```powershell
+bun run test           # unit tests (services, repositories, utils)
+bun run test:coverage  # unit tests with a coverage report
+bun run test:e2e       # Maestro end-to-end flows (needs a running build)
+```
+
+Formatting, linting, type-checking, and the unit suite run automatically
+in CI on every push and pull request (see
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml)).
+
 ## Backups
 
 Settings can export the live database as
@@ -73,3 +87,18 @@ local data.
 
 The PurpleCoins v2 migration can target the documented Purplecoins schema
 without changing the app's runtime data model.
+
+
+## SDK DIR
+
+### MAC
+
+```bash
+echo "sdk.dir=/Users/$(whoami)/Library/Android/sdk" > android/local.properties
+```
+
+### Windows
+
+```bash
+echo "sdk.dir=C:\\Users\\$(whoami)\\AppData\\Local\\Android\\Sdk" > android/local.properties
+```

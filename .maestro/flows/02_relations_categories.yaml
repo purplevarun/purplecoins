@@ -1,0 +1,50 @@
+appId: com.purple.coins
+---
+# Categories: create an expense + income category, toggle the income
+# switch, verify the reclassification warning dialog, then archive.
+
+- launchApp:
+      clearState: true
+- tapOn: "Switch homepage"
+- tapOn: "Finance"
+- tapOn: "Categories"
+
+- tapOn: "Add"
+- assertVisible: "New category"
+- tapOn: "Category name"
+- inputText: "Groceries"
+- assertVisible: "Income category"
+- tapOn: "Save"
+- assertVisible: "Groceries"
+- assertVisible: "Expense category"
+
+- tapOn: "Add"
+- tapOn: "Category name"
+- inputText: "Salary"
+# The "Income category" text and its Switch are separate sibling elements
+# in the same row (label left, switch right) — target the switch via its
+# position relative to the label rather than the label text itself.
+- tapOn:
+      rightOf: "Income category"
+- tapOn: "Save"
+- assertVisible: "Salary"
+- assertVisible: "Income category"
+
+# Editing an existing category's income flag prompts a confirmation
+# because it reclassifies historical analysis.
+- tapOn: "Groceries"
+- tapOn: "Edit"
+- tapOn:
+      rightOf: "Income category"
+- tapOn: "Save"
+- assertVisible: "Change analysis classification?"
+- tapOn: "Change"
+- back
+- assertVisible: "Income category"
+
+# Archive the Salary category.
+- tapOn:
+      text: "Archive"
+      below: "Salary"
+- tapOn: "Archive"
+- assertNotVisible: "Salary"

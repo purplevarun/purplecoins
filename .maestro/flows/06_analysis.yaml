@@ -1,0 +1,50 @@
+appId: com.purple.coins
+---
+# Analysis: create a category + transaction so a non-empty breakdown
+# renders, then cycle through the period selector and reach exchange
+# rates via the in-screen link.
+
+- launchApp:
+      clearState: true
+- tapOn: "Switch homepage"
+- tapOn: "Finance"
+
+- tapOn: "Sources"
+- tapOn: "Add"
+- tapOn: "Source name"
+- inputText: "Bank"
+- tapOn: "Save"
+- back
+
+- tapOn: "Categories"
+- tapOn: "Add"
+- tapOn: "Category name"
+- inputText: "Food"
+- tapOn: "Save"
+- back
+
+- tapOn: "Transactions"
+- tapOn: "Add"
+- tapOn: "Select source"
+- tapOn: "Bank"
+- tapOn: "0.00"
+- inputText: "500"
+- tapOn: "Select category"
+- tapOn: "Food"
+- tapOn: "What was this for?"
+- inputText: "Groceries"
+- tapOn: "Save transaction"
+- back
+
+- tapOn: "Analysis"
+- assertVisible: "Month"
+- assertVisible: "Food"
+- tapOn: "Year"
+- assertVisible: "Food"
+- tapOn: "All"
+- assertVisible: "Food"
+- tapOn: "FY"
+- tapOn: "YTD"
+
+- tapOn: "Manage exchange rates"
+- assertVisible: "Fetch latest rates"

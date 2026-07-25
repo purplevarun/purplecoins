@@ -1,0 +1,38 @@
+appId: com.purple.coins
+---
+# Budgets: create an expense category + monthly budget, verify it lists,
+# edit the amount, then delete it.
+
+- launchApp:
+      clearState: true
+- tapOn: "Switch homepage"
+- tapOn: "Finance"
+
+- tapOn: "Categories"
+- tapOn: "Add"
+- tapOn: "Category name"
+- inputText: "Rent"
+- tapOn: "Save"
+- back
+
+- tapOn: "Budgets"
+- assertVisible: "Budgets use INR and reset on calendar month or calendar year boundaries."
+- tapOn: "Add"
+- assertVisible: "New budget"
+- tapOn: "Select category"
+- tapOn: "Rent"
+- tapOn: "0.00"
+- inputText: "20000"
+- assertVisible: "Monthly"
+- tapOn: "Save budget"
+- assertVisible: "Rent"
+
+- tapOn: "Edit"
+- assertVisible: "Edit budget"
+- tapOn: "Yearly"
+- tapOn: "Save budget"
+
+- tapOn: "Delete"
+- assertVisible: "Delete budget?"
+- tapOn: "Delete"
+- assertNotVisible: "Rent"

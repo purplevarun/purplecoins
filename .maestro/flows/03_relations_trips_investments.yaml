@@ -1,0 +1,35 @@
+appId: com.purple.coins
+---
+# Trips and Investments: simple create + duplicate-name guard for both
+# "simple entity" relation kinds (no extra fields beyond name).
+
+- launchApp:
+      clearState: true
+- tapOn: "Switch homepage"
+- tapOn: "Finance"
+
+- tapOn: "Trips"
+- tapOn: "Add"
+- assertVisible: "New trip"
+- tapOn: "Trip name"
+- inputText: "Goa Getaway"
+- tapOn: "Save"
+- assertVisible: "Goa Getaway"
+
+- tapOn: "Add"
+- tapOn: "Trip name"
+- inputText: "Goa Getaway"
+- tapOn: "Save"
+- assertVisible:
+      text: ".*already exists.*"
+      optional: true
+- back
+- back
+
+- tapOn: "Investments"
+- tapOn: "Add"
+- assertVisible: "New investment"
+- tapOn: "Investment name"
+- inputText: "Index Fund"
+- tapOn: "Save"
+- assertVisible: "Index Fund"

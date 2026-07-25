@@ -1,0 +1,35 @@
+appId: com.purple.coins
+---
+# Vault > Identity: create, edit, delete. Identities have no copy buttons.
+
+- launchApp:
+      clearState: true
+- tapOn: "Switch homepage"
+- tapOn: "Vault"
+- tapOn: "Identity"
+
+- tapOn: "Add"
+- assertVisible: "New identity"
+- tapOn: "Entry title"
+- inputText: "Passport"
+- tapOn: "Document number"
+- inputText: "P1234567"
+- tapOn: "Optional notes"
+- inputText: "Expires 2030"
+- tapOn: "Save entry"
+- assertVisible: "Passport"
+- assertVisible: "P1234567"
+
+- tapOn: "Passport"
+- assertVisible: "Edit identity"
+- tapOn: "Passport"
+- eraseText
+- inputText: "Passport (renewed)"
+- tapOn: "Save entry"
+- assertVisible: "Passport (renewed)"
+
+- tapOn: "Passport (renewed)"
+- tapOn: "Delete entry"
+- assertVisible: "Delete vault entry?"
+- tapOn: "Delete"
+- assertNotVisible: "Passport (renewed)"

@@ -1,0 +1,49 @@
+appId: com.purple.coins
+---
+# Todos: create with a due date, toggle completed via the form switch,
+# edit, then delete.
+
+- launchApp:
+      clearState: true
+- tapOn: "Switch homepage"
+- tapOn: "Tools"
+- tapOn: "Todos"
+
+- tapOn: "Add"
+- assertVisible: "New todo"
+- tapOn: "What needs doing?"
+- inputText: "Renew passport"
+- tapOn: "Optional details"
+- inputText: "Book an appointment first"
+
+# Enable the due date switch and accept today's default date.
+- tapOn:
+      rightOf: "Due date"
+- assertVisible: "Due"
+
+- tapOn: "Save todo"
+- assertVisible: "Renew passport"
+- assertVisible: "Book an appointment first"
+
+# Toggle "Completed" via the edit form (the list's quick-toggle checkbox
+# has no accessible label, so this is the reliable path for E2E).
+- tapOn: "Renew passport"
+- assertVisible: "Edit todo"
+- tapOn:
+      rightOf: "Completed"
+- tapOn: "Save todo"
+
+# Edit the title.
+- tapOn: "Renew passport"
+- tapOn: "Renew passport"
+- eraseText
+- inputText: "Renew passport (urgent)"
+- tapOn: "Save todo"
+- assertVisible: "Renew passport (urgent)"
+
+# Delete it.
+- tapOn: "Renew passport (urgent)"
+- tapOn: "Delete todo"
+- assertVisible: "Delete todo?"
+- tapOn: "Delete"
+- assertNotVisible: "Renew passport (urgent)"

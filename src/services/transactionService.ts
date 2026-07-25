@@ -142,6 +142,11 @@ const prepareTransactionInput = async (
 		source.currencyCode === destination.currencyCode &&
 		compareMoney(amount, toAmount) !== 0
 	) {
+		// NOTE: currently unreachable. When currencies match, `toAmount`
+		// above is always set to `amount` itself, so this comparison can
+		// never differ. Kept as a defensive safety net in case the
+		// same-currency branch above is ever changed to derive `toAmount`
+		// from `input.toAmount` instead.
 		throw new AppError(
 			"TRANSFER_AMOUNT_MISMATCH",
 			"Same-currency transfer amounts must match.",

@@ -1,0 +1,54 @@
+appId: com.purple.coins
+---
+# Vault > Cards: create a credit card, copy its number/CVV/PIN (icon-only
+# buttons with no accessible label, targeted via relative position), edit,
+# then delete.
+
+- launchApp:
+      clearState: true
+- tapOn: "Switch homepage"
+- tapOn: "Vault"
+- tapOn: "Cards"
+
+- tapOn: "Add"
+- assertVisible: "New card"
+- tapOn: "Personal Visa"
+- inputText: "Everyday Visa"
+- assertVisible: "Credit card"
+- tapOn: "Card number"
+- inputText: "4111111111111111"
+- tapOn: "Visa, Mastercard, RuPay..."
+- inputText: "Visa"
+- tapOn: "MM/YY"
+- inputText: "12/30"
+- tapOn: "CVV"
+- inputText: "123"
+- tapOn: "PIN"
+- inputText: "4321"
+- tapOn: "Save entry"
+- assertVisible: "Everyday Visa"
+- assertVisible: "Visa"
+
+- tapOn:
+      rightOf: "Card number"
+- assertVisible: "Card number copied."
+- tapOn:
+      rightOf: "CVV"
+- assertVisible: "CVV copied."
+- tapOn:
+      rightOf: "PIN"
+- assertVisible: "PIN copied."
+
+# Switch card type to Debit while editing.
+- tapOn: "Everyday Visa"
+- assertVisible: "Edit card"
+- tapOn: "Credit card"
+- tapOn: "Debit card"
+- tapOn: "Save entry"
+- assertVisible: "Debit card"
+
+- tapOn: "Everyday Visa"
+- tapOn: "Delete entry"
+- assertVisible: "Delete vault entry?"
+- tapOn: "Delete"
+- assertNotVisible: "Everyday Visa"
