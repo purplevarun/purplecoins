@@ -4,7 +4,7 @@ import packageJson from "@/../package.json";
 import CustomText from "@/components/CustomText";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useEffect, useState } from "react";
-import { StyleSheet, Switch, View } from "react-native";
+import { Platform, StyleSheet, Switch, View } from "react-native";
 
 import AppButton from "@/components/AppButton";
 import GlassCard from "@/components/GlassCard";
@@ -19,6 +19,7 @@ import backupService from "@/services/backupService";
 import settingsService from "@/services/settingsService";
 import todoReminderService from "@/services/todoReminderService";
 import tripService from "@/services/tripService";
+import upiDetectionService from "@/services/upiDetectionService";
 import type HomeMode from "@/types/HomeMode";
 import type RootStackParamList from "@/types/RootStackParamList";
 import type SelectOption from "@/types/SelectOption";
@@ -42,6 +43,12 @@ const {
 	updateTodoRemindersEnabled,
 } = settingsService;
 const { syncTodoReminders } = todoReminderService;
+const {
+	getDetectionEnabled,
+	isNotificationAccessEnabled,
+	openNotificationAccessSettings,
+	setDetectionEnabled,
+} = upiDetectionService;
 const { getTrips } = tripService;
 
 type SettingsScreenProps = NativeStackScreenProps<
@@ -116,6 +123,9 @@ const SettingsScreen = ({
 	const [todoReminderRepeatHours, setTodoReminderRepeatHours] = useState(12);
 	const [trips, setTrips] = useState<readonly Trip[]>([]);
 	const [reminderNotice, setReminderNotice] = useState("");
+	const [upiDetectionEnabled, setUpiDetectionEnabled] = useState(false);
+	const [hasNotificationAccess, setHasNotificationAccess] = useState(false);
+	const [upiDetectionNotice, setUpiDetectionNotice] = useState("");
 
 	useEffect(() => {
 		const getSettings = async (): Promise<void> => {
@@ -139,6 +149,32 @@ const SettingsScreen = ({
 		};
 		void getSettings();
 	}, [database]);
+
+	useEffect(() => {
+		const getUpiDetectionSettings = async (): Promise<void> => {
+			if (Platform.OS !== "android") {
+				return;
+			}
+			try {
+				const [enabled, access] = await Promise.all([
+					getDetectionEnabled(),
+					isNotificationAccessEnabled(),
+				]);
+				setUpiDetectionEnabled(enabled);
+				setHasNotificationAccess(access);
+				setUpiDetectionNotice(
+					access
+						? "Detection is active in background for transaction notifications."
+						: "Grant notification access so PurpleCoins can detect UPI/card alerts from all apps.",
+				);
+			} catch {
+				setUpiDetectionNotice(
+					"Unable to read detection status on this build.",
+				);
+			}
+		};
+		void getUpiDetectionSettings();
+	}, []);
 
 	const syncReminderSettings = async (): Promise<void> => {
 		const result = await syncTodoReminders(database);
@@ -166,6 +202,28 @@ const SettingsScreen = ({
 			return;
 		}
 		setReminderNotice("No upcoming due-date reminders to schedule right now.");
+	};
+
+	const handleUpiDetectionToggle = (value: boolean): void => {
+		setUpiDetectionEnabled(value);
+		setDetectionEnabled(value);
+		setUpiDetectionNotice(
+			value
+				? hasNotificationAccess
+					? "Detection enabled. PurpleCoins will prompt when UPI/card notifications look like transactions."
+					: "Detection enabled, but notification access is still required."
+				: "Detection disabled.",
+		);
+	};
+
+	const handleOpenNotificationAccess = (): void => {
+		openNotificationAccessSettings();
+		// Delay a quick status refresh for users who return immediately.
+		setTimeout(() => {
+			void (async () => {
+				setHasNotificationAccess(await isNotificationAccessEnabled());
+			})();
+		}, 1000);
 	};
 
 	const handleCurrencyToggle = async (value: boolean): Promise<void> => {
@@ -407,6 +465,47 @@ const SettingsScreen = ({
 					{reminderNotice ? <Notice message={reminderNotice} /> : null}
 				</View>
 			</GlassCard>
+			{Platform.OS === "android" ? (
+				<GlassCard>
+					<View style={styles.section}>
+						<CustomText style={styles.heading}>
+							UPI/card background detection
+						</CustomText>
+						<CustomText style={styles.description}>
+							PurpleCoins watches transaction-style notifications from UPI
+							and bank/card apps, then asks if you want to add the
+							transaction.
+						</CustomText>
+						<View style={styles.switchRow}>
+							<View style={styles.switchDetails}>
+								<CustomText style={styles.switchTitle}>
+									Enable background detection
+								</CustomText>
+								<CustomText style={styles.switchDescription}>
+									Works best when notification access is granted.
+								</CustomText>
+							</View>
+							<Switch
+								onValueChange={handleUpiDetectionToggle}
+								value={upiDetectionEnabled}
+							/>
+						</View>
+						<Notice
+							message={`Notification access: ${hasNotificationAccess ? "Granted" : "Not granted"}`}
+							tone={hasNotificationAccess ? "info" : "warning"}
+						/>
+						<AppButton
+							icon="notifications-outline"
+							label="Open notification access"
+							onPress={handleOpenNotificationAccess}
+							variant="secondary"
+						/>
+						{upiDetectionNotice ? (
+							<Notice message={upiDetectionNotice} />
+						) : null}
+					</View>
+				</GlassCard>
+			) : null}
 			<GlassCard>
 				<View style={styles.section}>
 					<CustomText style={styles.heading}>Relations</CustomText>
