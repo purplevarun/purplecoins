@@ -12,6 +12,7 @@ import ExchangeRatesScreen from "@/screens/ExchangeRatesScreen";
 import GlobalSearchScreen from "@/screens/GlobalSearchScreen";
 import HomeScreen from "@/screens/HomeScreen";
 import LinkedTransactionsScreen from "@/screens/LinkedTransactionsScreen";
+import MergeCategoriesScreen from "@/screens/MergeCategoriesScreen";
 import NoteFormScreen from "@/screens/NoteFormScreen";
 import NotesScreen from "@/screens/NotesScreen";
 import RelationFormScreen from "@/screens/RelationFormScreen";
@@ -159,6 +160,11 @@ const AppNavigator = (): React.JSX.Element => (
 				component={VaultFormScreen}
 				name="VaultForm"
 				options={{ title: "Vault entry" }}
+			/>
+			<Stack.Screen
+				component={MergeCategoriesScreen}
+				name="MergeCategories"
+				options={{ title: "Merge categories" }}
 			/>
 			<Stack.Screen
 				component={SettingsScreen}

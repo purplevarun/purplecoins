@@ -10,13 +10,15 @@ import type { SQLiteDatabase } from "expo-sqlite";
 const {
 	deleteCategory,
 	getArchivedCategories,
+	mergeCategories,
 	getCategories,
 	getCategory,
 	saveCategory,
 	setCategoryArchived,
 } = categoryService;
 const { insertCategory, insertSource } = dbFixtures;
-const { createTransactionRow, upsertBudgetRow } = financeRepository;
+const { createTransactionRow, getBudgetRows, getTransactionRows, upsertBudgetRow } =
+	financeRepository;
 
 const NOW = 1_780_000_000_000;
 
@@ -186,6 +188,186 @@ describe("categoryService", () => {
 
 			expect(rejection).not.toMatchObject({ code: "CATEGORY_IN_USE" });
 			expect((rejection as Error).message).not.toContain("FOREIGN KEY");
+		});
+	});
+
+	describe("mergeCategories", () => {
+		it("creates a new category, moves linked transactions and deletes both old categories", async () => {
+			const source = await insertSource(database);
+			const groceries = await insertCategory(database, {
+				name: "Groceries",
+			});
+			const vegetables = await insertCategory(database, {
+				name: "Vegetables",
+			});
+			await createTransactionRow(
+				database,
+				{
+					classification: "GENERAL",
+					type: "DEBIT",
+					sourceId: source.id,
+					amount: "25",
+					categoryId: groceries.id,
+					reason: "Weekly groceries",
+					transactionAt: NOW,
+				},
+				"txn-merge-1",
+				NOW,
+			);
+			await createTransactionRow(
+				database,
+				{
+					classification: "GENERAL",
+					type: "DEBIT",
+					sourceId: source.id,
+					amount: "12",
+					categoryId: vegetables.id,
+					reason: "Veggies",
+					transactionAt: NOW + 1,
+				},
+				"txn-merge-2",
+				NOW,
+			);
+
+			const mergedId = await mergeCategories(
+				database,
+				groceries.id,
+				vegetables.id,
+				"Food",
+			);
+
+			expect(await getCategory(database, groceries.id)).toBeNull();
+			expect(await getCategory(database, vegetables.id)).toBeNull();
+			expect(await getCategory(database, mergedId)).toMatchObject({
+				name: "Food",
+				isIncome: false,
+			});
+
+			const transactions = await getTransactionRows(database);
+			expect(transactions.map((transaction) => transaction.categoryId)).toEqual([
+				mergedId,
+				mergedId,
+			]);
+			expect(
+				new Set(transactions.map((transaction) => transaction.categoryName)),
+			).toEqual(new Set(["Food"]));
+		});
+
+		it("combines monthly and yearly budgets when both source categories have them", async () => {
+			const rent = await insertCategory(database, { name: "Rent" });
+			const utilities = await insertCategory(database, { name: "Utilities" });
+			await upsertBudgetRow(database, {
+				id: "budget-rent-monthly",
+				categoryId: rent.id,
+				categoryName: rent.name,
+				amount: "1000",
+				period: "MONTHLY",
+				createdAt: NOW,
+				updatedAt: NOW,
+			});
+			await upsertBudgetRow(database, {
+				id: "budget-utilities-monthly",
+				categoryId: utilities.id,
+				categoryName: utilities.name,
+				amount: "250",
+				period: "MONTHLY",
+				createdAt: NOW + 1,
+				updatedAt: NOW + 1,
+			});
+			await upsertBudgetRow(database, {
+				id: "budget-utilities-yearly",
+				categoryId: utilities.id,
+				categoryName: utilities.name,
+				amount: "1200",
+				period: "YEARLY",
+				createdAt: NOW + 2,
+				updatedAt: NOW + 2,
+			});
+
+			const mergedId = await mergeCategories(
+				database,
+				rent.id,
+				utilities.id,
+				"Housing",
+			);
+
+			const budgets = await getBudgetRows(database);
+			expect(budgets).toHaveLength(2);
+			expect(budgets).toEqual(
+				expect.arrayContaining([
+					expect.objectContaining({
+						categoryId: mergedId,
+						categoryName: "Housing",
+						period: "MONTHLY",
+						amount: "1250",
+					}),
+					expect.objectContaining({
+						categoryId: mergedId,
+						categoryName: "Housing",
+						period: "YEARLY",
+						amount: "1200",
+					}),
+				]),
+			);
+		});
+
+		it("allows reusing one of the source category names for the merged category", async () => {
+			const groceries = await insertCategory(database, {
+				name: "Groceries",
+			});
+			const vegetables = await insertCategory(database, {
+				name: "Vegetables",
+			});
+
+			const mergedId = await mergeCategories(
+				database,
+				groceries.id,
+				vegetables.id,
+				"Groceries",
+			);
+
+			expect(await getCategory(database, mergedId)).toMatchObject({
+				name: "Groceries",
+			});
+		});
+
+		it("rejects selecting the same category twice", async () => {
+			const groceries = await insertCategory(database, {
+				name: "Groceries",
+			});
+
+			await expect(
+				mergeCategories(database, groceries.id, groceries.id, "Food"),
+			).rejects.toMatchObject({ code: "CATEGORY_MERGE_SELECTION_INVALID" });
+		});
+
+		it("rejects mixing income and expense categories", async () => {
+			const income = await insertCategory(database, {
+				name: "Salary",
+				isIncome: true,
+			});
+			const expense = await insertCategory(database, {
+				name: "Groceries",
+				isIncome: false,
+			});
+
+			await expect(
+				mergeCategories(database, income.id, expense.id, "Merged"),
+			).rejects.toMatchObject({ code: "CATEGORY_MERGE_TYPE_MISMATCH" });
+		});
+
+		it("rejects a merged name that already belongs to a third active category", async () => {
+			const groceries = await insertCategory(database, {
+				name: "Groceries",
+			});
+			const vegetables = await insertCategory(database, {
+				name: "Vegetables",
+			});
+			await insertCategory(database, { name: "Food" });
+
+			await expect(
+				mergeCategories(database, groceries.id, vegetables.id, "Food"),
+			).rejects.toMatchObject({ code: "CATEGORY_NAME_DUPLICATE" });
 		});
 	});
 });

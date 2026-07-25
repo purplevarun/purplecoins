@@ -29,6 +29,7 @@ type RootStackParamList = {
 	TodoForm: { todoId?: string } | undefined;
 	Vault: { kind: VaultKind };
 	VaultForm: { kind: VaultKind; entryId?: string };
+	MergeCategories: undefined;
 	Settings: undefined;
 };
 

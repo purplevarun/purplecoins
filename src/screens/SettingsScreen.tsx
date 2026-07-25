@@ -72,15 +72,18 @@ const MONTH_OPTIONS: readonly SelectOption[] = [
 
 const TODO_REMINDER_DAYS_OPTIONS: readonly SelectOption[] = Array.from(
 	{ length: 31 },
-	(_, index) => ({
-		label:
-			index === 0
-				? "Same day"
-				: index === 1
-					? "1 day before"
-					: `${index} days before`,
-		value: String(index),
-	}),
+	(_, index) => {
+		let label = `${index} days before`;
+		if (index === 0) {
+			label = "Same day";
+		} else if (index === 1) {
+			label = "1 day before";
+		}
+		return {
+			label,
+			value: String(index),
+		};
+	},
 );
 
 const TODO_REMINDER_REPEAT_HOURS_OPTIONS: readonly SelectOption[] = [
@@ -155,11 +158,14 @@ const SettingsScreen = ({
 			setReminderNotice("Todo reminders are turned off.");
 			return;
 		}
-		setReminderNotice(
-			result.scheduledCount > 0
-				? `Scheduled ${result.scheduledCount} upcoming todo reminder${result.scheduledCount === 1 ? "" : "s"}.`
-				: "No upcoming due-date reminders to schedule right now.",
-		);
+		if (result.scheduledCount > 0) {
+			const reminderSuffix = result.scheduledCount === 1 ? "" : "s";
+			setReminderNotice(
+				`Scheduled ${result.scheduledCount} upcoming todo reminder${reminderSuffix}.`,
+			);
+			return;
+		}
+		setReminderNotice("No upcoming due-date reminders to schedule right now.");
 	};
 
 	const handleCurrencyToggle = async (value: boolean): Promise<void> => {
@@ -405,9 +411,14 @@ const SettingsScreen = ({
 				<View style={styles.section}>
 					<CustomText style={styles.heading}>Relations</CustomText>
 					<CustomText style={styles.description}>
-						Sources, categories, trips and investments that have
-						been archived can be found and restored here.
+						Archive recovery and category maintenance tools live here.
 					</CustomText>
+					<AppButton
+						icon="shuffle-outline"
+						label="Merge categories"
+						onPress={() => navigation.navigate("MergeCategories")}
+						variant="secondary"
+					/>
 					<AppButton
 						icon="archive-outline"
 						label="Archived relations"
