@@ -15,6 +15,7 @@ import LinkedTransactionsScreen from "@/screens/LinkedTransactionsScreen";
 import MergeCategoriesScreen from "@/screens/MergeCategoriesScreen";
 import NoteFormScreen from "@/screens/NoteFormScreen";
 import NotesScreen from "@/screens/NotesScreen";
+import navigationRef from "@/navigation/navigationRef";
 import RelationFormScreen from "@/screens/RelationFormScreen";
 import RelationsScreen from "@/screens/RelationsScreen";
 import SettingsScreen from "@/screens/SettingsScreen";
@@ -43,7 +44,7 @@ const navigationTheme = {
 };
 
 const AppNavigator = (): React.JSX.Element => (
-	<NavigationContainer theme={navigationTheme}>
+	<NavigationContainer ref={navigationRef} theme={navigationTheme}>
 		<Stack.Navigator
 			initialRouteName="Home"
 			screenOptions={{

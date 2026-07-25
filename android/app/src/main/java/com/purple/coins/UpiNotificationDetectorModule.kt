@@ -4,6 +4,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.provider.Settings
+import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
@@ -16,6 +17,10 @@ class UpiNotificationDetectorModule(
   companion object {
     private const val PREFERENCES_NAME = "purplecoins_upi_detection"
     private const val ENABLED_KEY = "enabled"
+    private const val TYPE_KEY = "purplecoins_detected_transaction_type"
+    private const val AMOUNT_KEY = "purplecoins_detected_transaction_amount"
+    private const val SOURCE_KEY = "purplecoins_detected_transaction_source"
+    private const val DETECTED_AT_KEY = "purplecoins_detected_transaction_at"
   }
 
   override fun getName(): String = "UpiNotificationDetector"
@@ -67,5 +72,25 @@ class UpiNotificationDetectorModule(
     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     reactApplicationContext.startActivity(intent)
   }
+
+  @ReactMethod
+  fun consumeDetectedTransaction(promise: Promise) {
+    val payload = MainActivity.consumePendingDetectedTransaction()
+    if (payload == null) {
+      promise.resolve(null)
+      return
+    }
+
+    val result = Arguments.createMap()
+    result.putString("type", payload.getString(TYPE_KEY))
+    result.putString("amount", payload.getString(AMOUNT_KEY))
+    result.putString("source", payload.getString(SOURCE_KEY))
+    result.putDouble(
+      "detectedAt",
+      payload.getLong(DETECTED_AT_KEY, System.currentTimeMillis()).toDouble()
+    )
+    promise.resolve(result)
+  }
 }
+
 

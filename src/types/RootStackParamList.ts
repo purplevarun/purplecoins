@@ -1,12 +1,21 @@
 import type HomeMode from "@/types/HomeMode";
 import type RelationKind from "@/types/RelationKind";
+import type TransactionType from "@/types/TransactionType";
 import type VaultKind from "@/types/VaultKind";
 
 type RootStackParamList = {
 	Home: undefined;
 	Transactions: undefined;
 	TransactionForm:
-		{ transactionId?: string; cloneFromTransactionId?: string } | undefined;
+		| {
+				transactionId?: string;
+				cloneFromTransactionId?: string;
+				prefillType?: TransactionType;
+				prefillAmount?: string;
+				prefillReason?: string;
+				prefillTransactionAt?: number;
+		  }
+		| undefined;
 	Relations: { kind: RelationKind };
 	RelationForm: { kind: RelationKind; entityId?: string };
 	ArchivedRelations: undefined;

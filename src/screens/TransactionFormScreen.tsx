@@ -59,12 +59,26 @@ const INVESTMENT_TYPE_OPTIONS: readonly SelectOption[] = [
 	{ label: "Credit", value: "CREDIT" },
 ];
 
+const getDefaultCategoryForType = (
+	allCategories: readonly Category[],
+	type: TransactionType,
+): string => {
+	if (type === "CREDIT") {
+		return allCategories.find((category) => category.isIncome)?.id ?? "";
+	}
+	return allCategories.find((category) => !category.isIncome)?.id ?? "";
+};
+
 const TransactionFormScreen = ({
 	navigation,
 	route,
 }: TransactionFormScreenProps): React.JSX.Element => {
 	const transactionId = route.params?.transactionId;
 	const cloneFromTransactionId = route.params?.cloneFromTransactionId;
+	const prefillType = route.params?.prefillType;
+	const prefillAmount = route.params?.prefillAmount;
+	const prefillReason = route.params?.prefillReason;
+	const prefillTransactionAt = route.params?.prefillTransactionAt;
 	const { database, refreshData } = useDatabaseContext();
 	const dialog = useAppDialog();
 	const attachment = useAttachment("TRANSACTION", transactionId);
@@ -116,6 +130,30 @@ const TransactionFormScreen = ({
 				setTrips(loadedTrips);
 				setInvestments(loadedInvestments);
 				if (!existingTransaction) {
+					if (!sourceId) {
+						if (prefillType === "CREDIT" || prefillType === "DEBIT") {
+							setType(prefillType);
+							const matchedCategoryId = getDefaultCategoryForType(
+								loadedCategories,
+								prefillType,
+							);
+							if (matchedCategoryId) {
+								setCategoryId(matchedCategoryId);
+							}
+						}
+						if (prefillAmount) {
+							setAmount(prefillAmount);
+						}
+						if (prefillReason) {
+							setReason(prefillReason);
+						}
+						if (
+							typeof prefillTransactionAt === "number" &&
+							Number.isFinite(prefillTransactionAt)
+						) {
+							setTransactionAt(prefillTransactionAt);
+						}
+					}
 					// Prefill default trip for new transactions
 					if (defaultTrip) {
 						setTripId(defaultTrip);
@@ -143,7 +181,15 @@ const TransactionFormScreen = ({
 			}
 		};
 		void getFormData();
-	}, [database, transactionId, cloneFromTransactionId]);
+	}, [
+		database,
+		transactionId,
+		cloneFromTransactionId,
+		prefillType,
+		prefillAmount,
+		prefillReason,
+		prefillTransactionAt,
+	]);
 
 	const selectedSource = sources.find((source) => source.id === sourceId);
 	const selectedDestination = sources.find(
