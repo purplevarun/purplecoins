@@ -12,6 +12,7 @@ const {
 	getArchivedCategories,
 	mergeCategories,
 	getCategories,
+	getCategoryMergeImpact,
 	getCategory,
 	saveCategory,
 	setCategoryArchived,
@@ -368,6 +369,104 @@ describe("categoryService", () => {
 			await expect(
 				mergeCategories(database, groceries.id, vegetables.id, "Food"),
 			).rejects.toMatchObject({ code: "CATEGORY_NAME_DUPLICATE" });
+		});
+	});
+
+	describe("getCategoryMergeImpact", () => {
+		it("counts linked transactions and budgets for both selected categories", async () => {
+			const source = await insertSource(database);
+			const first = await insertCategory(database, { name: "A" });
+			const second = await insertCategory(database, { name: "B" });
+			const third = await insertCategory(database, { name: "C" });
+
+			await createTransactionRow(
+				database,
+				{
+					classification: "GENERAL",
+					type: "DEBIT",
+					sourceId: source.id,
+					amount: "10",
+					categoryId: first.id,
+					reason: "a",
+					transactionAt: NOW,
+				},
+				"txn-impact-1",
+				NOW,
+			);
+			await createTransactionRow(
+				database,
+				{
+					classification: "GENERAL",
+					type: "DEBIT",
+					sourceId: source.id,
+					amount: "20",
+					categoryId: second.id,
+					reason: "b",
+					transactionAt: NOW + 1,
+				},
+				"txn-impact-2",
+				NOW,
+			);
+			await createTransactionRow(
+				database,
+				{
+					classification: "GENERAL",
+					type: "DEBIT",
+					sourceId: source.id,
+					amount: "30",
+					categoryId: third.id,
+					reason: "c",
+					transactionAt: NOW + 2,
+				},
+				"txn-impact-3",
+				NOW,
+			);
+
+			await upsertBudgetRow(database, {
+				id: "budget-impact-1",
+				categoryId: first.id,
+				categoryName: first.name,
+				amount: "100",
+				period: "MONTHLY",
+				createdAt: NOW,
+				updatedAt: NOW,
+			});
+			await upsertBudgetRow(database, {
+				id: "budget-impact-2",
+				categoryId: second.id,
+				categoryName: second.name,
+				amount: "200",
+				period: "YEARLY",
+				createdAt: NOW,
+				updatedAt: NOW,
+			});
+			await upsertBudgetRow(database, {
+				id: "budget-impact-3",
+				categoryId: third.id,
+				categoryName: third.name,
+				amount: "300",
+				period: "MONTHLY",
+				createdAt: NOW,
+				updatedAt: NOW,
+			});
+
+			await expect(
+				getCategoryMergeImpact(database, first.id, second.id),
+			).resolves.toEqual({
+				transactionCount: 2,
+				budgetCount: 2,
+			});
+		});
+
+		it("returns zero counts for invalid selections", async () => {
+			const first = await insertCategory(database, { name: "A" });
+
+			expect(
+				await getCategoryMergeImpact(database, first.id, first.id),
+			).toEqual({
+				transactionCount: 0,
+				budgetCount: 0,
+			});
 		});
 	});
 });

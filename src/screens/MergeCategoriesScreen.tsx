@@ -19,7 +19,7 @@ import type SelectOption from "@/types/SelectOption";
 import getErrorMessage from "@/utils/error";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-const { getCategories, mergeCategories } = categoryService;
+const { getCategories, getCategoryMergeImpact, mergeCategories } = categoryService;
 
 type MergeCategoriesScreenProps = NativeStackScreenProps<
 	RootStackParamList,
@@ -35,6 +35,7 @@ const MergeCategoriesScreen = ({
 	const [firstCategoryId, setFirstCategoryId] = useState("");
 	const [secondCategoryId, setSecondCategoryId] = useState("");
 	const [newCategoryName, setNewCategoryName] = useState("");
+	const [impact, setImpact] = useState({ transactionCount: 0, budgetCount: 0 });
 	const [isSaving, setIsSaving] = useState(false);
 	const [error, setError] = useState("");
 
@@ -49,6 +50,27 @@ const MergeCategoriesScreen = ({
 		};
 		void loadCategories();
 	}, [database]);
+
+	useEffect(() => {
+		const loadMergeImpact = async (): Promise<void> => {
+			if (!firstCategoryId || !secondCategoryId || firstCategoryId === secondCategoryId) {
+				setImpact({ transactionCount: 0, budgetCount: 0 });
+				return;
+			}
+			try {
+				setImpact(
+					await getCategoryMergeImpact(
+						database,
+						firstCategoryId,
+						secondCategoryId,
+					),
+				);
+			} catch {
+				setImpact({ transactionCount: 0, budgetCount: 0 });
+			}
+		};
+		void loadMergeImpact();
+	}, [database, firstCategoryId, secondCategoryId]);
 
 	const firstCategory = categories.find(
 		(category) => category.id === firstCategoryId,
@@ -118,10 +140,11 @@ const MergeCategoriesScreen = ({
 			setError("Select two categories and enter a new category name.");
 			return;
 		}
+		const transactionSuffix = impact.transactionCount === 1 ? "" : "s";
+		const budgetSuffix = impact.budgetCount === 1 ? "" : "s";
 		dialog.confirm({
 			title: "Merge categories?",
-			message:
-				"Transactions and budgets from both categories will move to the new category, and the two old categories will be deleted.",
+			message: `${impact.transactionCount} transaction${transactionSuffix} and ${impact.budgetCount} budget${budgetSuffix} will move to the new category, and the two old categories will be deleted.`,
 			confirmLabel: "Merge",
 			variant: "danger",
 			onConfirm: () => void processMerge(),
@@ -167,6 +190,11 @@ const MergeCategoriesScreen = ({
 						<Notice
 							message="Both selected categories must be either income or expense categories."
 							tone="warning"
+						/>
+					) : null}
+					{firstCategoryId && secondCategoryId && !hasTypeMismatch ? (
+						<Notice
+							message={`This merge will affect ${impact.transactionCount} transaction${impact.transactionCount === 1 ? "" : "s"} and ${impact.budgetCount} budget${impact.budgetCount === 1 ? "" : "s"}.`}
 						/>
 					) : null}
 					{error ? <Notice message={error} tone="danger" /> : null}

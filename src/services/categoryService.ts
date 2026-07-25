@@ -14,6 +14,7 @@ const {
 	getArchivedCategoryRows,
 	getCategoryRow,
 	getCategoryRows,
+	getTransactionRows,
 	setCategoryArchivedRow,
 	upsertBudgetRow,
 	upsertCategoryRow,
@@ -222,6 +223,38 @@ const mergeCategories = async (
 	return mergedCategoryId;
 };
 
+const getCategoryMergeImpact = async (
+	database: SQLiteDatabase,
+	firstCategoryId: string,
+	secondCategoryId: string,
+): Promise<
+	Readonly<{
+		transactionCount: number;
+		budgetCount: number;
+	}>
+> => {
+	if (!firstCategoryId || !secondCategoryId || firstCategoryId === secondCategoryId) {
+		return { transactionCount: 0, budgetCount: 0 };
+	}
+
+	const sourceCategoryIds = new Set([firstCategoryId, secondCategoryId]);
+	const [transactions, budgets] = await Promise.all([
+		getTransactionRows(database),
+		getBudgetRows(database),
+	]);
+
+	const transactionCount = transactions.filter(
+		(transaction) =>
+			transaction.categoryId !== null &&
+			sourceCategoryIds.has(transaction.categoryId),
+	).length;
+	const budgetCount = budgets.filter((budget) =>
+		sourceCategoryIds.has(budget.categoryId),
+	).length;
+
+	return { transactionCount, budgetCount };
+};
+
 const setCategoryArchived = async (
 	database: SQLiteDatabase,
 	id: string,
@@ -249,6 +282,7 @@ const categoryService = {
 	deleteCategory,
 	getArchivedCategories,
 	getCategories,
+	getCategoryMergeImpact,
 	getCategory,
 	mergeCategories,
 	saveCategory,
