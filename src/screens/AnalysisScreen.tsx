@@ -29,6 +29,7 @@ import dateUtils from "@/utils/date";
 import getErrorMessage from "@/utils/error";
 import moneyUtils from "@/utils/money";
 import runAfterRender from "@/utils/runAfterRender";
+
 const { DEFAULT_CURRENCY_CODE } = appConstants;
 const { getTransactionMinMaxDate } = financeRepository;
 const { getAnalysisSummary, getInvestmentNetAmount, getInvestmentNetLabel } =

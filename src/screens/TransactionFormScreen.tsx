@@ -131,7 +131,10 @@ const TransactionFormScreen = ({
 				setInvestments(loadedInvestments);
 				if (!existingTransaction) {
 					if (!sourceId) {
-						if (prefillType === "CREDIT" || prefillType === "DEBIT") {
+						if (
+							prefillType === "CREDIT" ||
+							prefillType === "DEBIT"
+						) {
 							setType(prefillType);
 							const matchedCategoryId = getDefaultCategoryForType(
 								loadedCategories,

@@ -129,15 +129,21 @@ const SettingsScreen = ({
 
 	useEffect(() => {
 		const getSettings = async (): Promise<void> => {
-			const [native, fy, tripId, homeMode, reminderSettings, loadedTrips] =
-				await Promise.all([
-					getNativeCurrencyDisplay(database),
-					getFyStartMonth(database),
-					getDefaultTripId(database),
-					getDefaultHomeMode(database),
-					getTodoReminderSettings(database),
-					getTrips(database),
-				]);
+			const [
+				native,
+				fy,
+				tripId,
+				homeMode,
+				reminderSettings,
+				loadedTrips,
+			] = await Promise.all([
+				getNativeCurrencyDisplay(database),
+				getFyStartMonth(database),
+				getDefaultTripId(database),
+				getDefaultHomeMode(database),
+				getTodoReminderSettings(database),
+				getTrips(database),
+			]);
 			setIsNativeCurrency(native);
 			setFyStartMonth(fy);
 			setDefaultTripId(tripId ?? "");
@@ -201,7 +207,9 @@ const SettingsScreen = ({
 			);
 			return;
 		}
-		setReminderNotice("No upcoming due-date reminders to schedule right now.");
+		setReminderNotice(
+			"No upcoming due-date reminders to schedule right now.",
+		);
 	};
 
 	const handleUpiDetectionToggle = (value: boolean): void => {
@@ -419,11 +427,14 @@ const SettingsScreen = ({
 			</GlassCard>
 			<GlassCard>
 				<View style={styles.section}>
-					<CustomText style={styles.heading}>Todo reminders</CustomText>
+					<CustomText style={styles.heading}>
+						Todo reminders
+					</CustomText>
 					<CustomText style={styles.description}>
-						Due-date reminders are scheduled locally on this device. The
-						first reminder goes out at 9:00 AM on the chosen start day,
-						then repeats every few hours until the due date ends.
+						Due-date reminders are scheduled locally on this device.
+						The first reminder goes out at 9:00 AM on the chosen
+						start day, then repeats every few hours until the due
+						date ends.
 					</CustomText>
 					<View style={styles.switchRow}>
 						<View style={styles.switchDetails}>
@@ -431,8 +442,8 @@ const SettingsScreen = ({
 								Enable todo reminders
 							</CustomText>
 							<CustomText style={styles.switchDescription}>
-								Todos without a due date, completed todos and overdue todos
-								are skipped automatically.
+								Todos without a due date, completed todos and
+								overdue todos are skipped automatically.
 							</CustomText>
 						</View>
 						<Switch
@@ -459,10 +470,13 @@ const SettingsScreen = ({
 						value={String(todoReminderRepeatHours)}
 					/>
 					<CustomText style={styles.switchDescription}>
-						Keep opening the app occasionally so future reminders can be
-						refreshed within the device&apos;s pending-notification limit.
+						Keep opening the app occasionally so future reminders
+						can be refreshed within the device&apos;s
+						pending-notification limit.
 					</CustomText>
-					{reminderNotice ? <Notice message={reminderNotice} /> : null}
+					{reminderNotice ? (
+						<Notice message={reminderNotice} />
+					) : null}
 				</View>
 			</GlassCard>
 			{Platform.OS === "android" ? (
@@ -472,9 +486,9 @@ const SettingsScreen = ({
 							UPI/card background detection
 						</CustomText>
 						<CustomText style={styles.description}>
-							PurpleCoins watches transaction-style notifications from UPI
-							and bank/card apps, then asks if you want to add the
-							transaction.
+							PurpleCoins watches transaction-style notifications
+							from UPI and bank/card apps, then asks if you want
+							to add the transaction.
 						</CustomText>
 						<View style={styles.switchRow}>
 							<View style={styles.switchDetails}>
@@ -482,7 +496,8 @@ const SettingsScreen = ({
 									Enable background detection
 								</CustomText>
 								<CustomText style={styles.switchDescription}>
-									Works best when notification access is granted.
+									Works best when notification access is
+									granted.
 								</CustomText>
 							</View>
 							<Switch
@@ -510,7 +525,8 @@ const SettingsScreen = ({
 				<View style={styles.section}>
 					<CustomText style={styles.heading}>Relations</CustomText>
 					<CustomText style={styles.description}>
-						Archive recovery and category maintenance tools live here.
+						Archive recovery and category maintenance tools live
+						here.
 					</CustomText>
 					<AppButton
 						icon="shuffle-outline"

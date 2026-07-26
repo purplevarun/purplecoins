@@ -120,7 +120,11 @@ const mergeCategories = async (
 	secondCategoryId: string,
 	newCategoryName: string,
 ): Promise<string> => {
-	if (!firstCategoryId || !secondCategoryId || firstCategoryId === secondCategoryId) {
+	if (
+		!firstCategoryId ||
+		!secondCategoryId ||
+		firstCategoryId === secondCategoryId
+	) {
 		throw new AppError(
 			"CATEGORY_MERGE_SELECTION_INVALID",
 			"Select two different categories to merge.",
@@ -233,7 +237,11 @@ const getCategoryMergeImpact = async (
 		budgetCount: number;
 	}>
 > => {
-	if (!firstCategoryId || !secondCategoryId || firstCategoryId === secondCategoryId) {
+	if (
+		!firstCategoryId ||
+		!secondCategoryId ||
+		firstCategoryId === secondCategoryId
+	) {
 		return { transactionCount: 0, budgetCount: 0 };
 	}
 

@@ -20,10 +20,36 @@ work end-to-end.
 
 ## Prerequisites
 
-1. Install the Maestro CLI (macOS/Linux):
+1. Install Java 17 or newer, then install the Maestro CLI:
+
+    macOS/Linux:
+
     ```sh
-    curl -Ls "https://get.maestro.mobile.dev" | bash
+    curl -fsSL "https://get.maestro.mobile.dev" | bash
     ```
+
+    macOS with Homebrew:
+
+    ```sh
+    brew tap mobile-dev-inc/tap
+    brew trust --formula mobile-dev-inc/tap/maestro
+    brew install mobile-dev-inc/tap/maestro
+    ```
+
+    Windows:
+
+    ```powershell
+    Invoke-WebRequest https://github.com/mobile-dev-inc/maestro/releases/latest/download/maestro.zip -OutFile maestro.zip
+    Expand-Archive .\maestro.zip C:\maestro
+    setx PATH "$env:PATH;C:\maestro\bin"
+    ```
+
+    Restart the terminal after installing, then verify:
+
+    ```sh
+    maestro --help
+    ```
+
 2. Have a **development build** of the app installed on a running
    iOS simulator, Android emulator, or physical device — Maestro drives
    the installed app, it does not build it. From the repository root:
@@ -46,6 +72,11 @@ maestro test .maestro/flows/04_transactions.yaml
 # Interactive mode — great for writing/debugging a flow
 maestro studio
 ```
+
+If `bun run test:e2e` fails with `bun: command not found: maestro`, the
+Maestro CLI is not installed or its `bin` directory is not on `PATH`.
+Install it with the steps above, restart the terminal, and run
+`maestro --help` before trying the suite again.
 
 ## Design notes
 

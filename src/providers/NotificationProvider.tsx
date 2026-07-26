@@ -1,4 +1,9 @@
-import { useCallback, useEffect, type PropsWithChildren, type ReactNode } from "react";
+import {
+	useCallback,
+	useEffect,
+	type PropsWithChildren,
+	type ReactNode,
+} from "react";
 import { AppState, Platform } from "react-native";
 
 import useDatabaseContext from "@/hooks/useDatabaseContext";
@@ -47,21 +52,22 @@ const NotificationProvider = ({ children }: PropsWithChildren): ReactNode => {
 		await syncTodoReminders(database);
 	}, [database]);
 
-	const handleDetectedTransactionLaunch = useCallback(async (): Promise<void> => {
-		if (Platform.OS !== "android" || !navigationRef.isReady()) {
-			return;
-		}
-		const payload = await consumeDetectedTransaction();
-		if (!payload?.amount) {
-			return;
-		}
-		navigationRef.navigate("TransactionForm", {
-			prefillAmount: payload.amount,
-			prefillReason: `Detected from ${getReadableSource(payload.source)}`,
-			prefillTransactionAt: payload.detectedAt,
-			prefillType: getTransactionType(payload.type),
-		});
-	}, []);
+	const handleDetectedTransactionLaunch =
+		useCallback(async (): Promise<void> => {
+			if (Platform.OS !== "android" || !navigationRef.isReady()) {
+				return;
+			}
+			const payload = await consumeDetectedTransaction();
+			if (!payload?.amount) {
+				return;
+			}
+			navigationRef.navigate("TransactionForm", {
+				prefillAmount: payload.amount,
+				prefillReason: `Detected from ${getReadableSource(payload.source)}`,
+				prefillTransactionAt: payload.detectedAt,
+				prefillType: getTransactionType(payload.type),
+			});
+		}, []);
 
 	useEffect(() => {
 		void syncReminders();
@@ -93,4 +99,3 @@ const NotificationProvider = ({ children }: PropsWithChildren): ReactNode => {
 };
 
 export default NotificationProvider;
-

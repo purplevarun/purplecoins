@@ -19,7 +19,8 @@ import type SelectOption from "@/types/SelectOption";
 import getErrorMessage from "@/utils/error";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-const { getCategories, getCategoryMergeImpact, mergeCategories } = categoryService;
+const { getCategories, getCategoryMergeImpact, mergeCategories } =
+	categoryService;
 
 type MergeCategoriesScreenProps = NativeStackScreenProps<
 	RootStackParamList,
@@ -35,7 +36,10 @@ const MergeCategoriesScreen = ({
 	const [firstCategoryId, setFirstCategoryId] = useState("");
 	const [secondCategoryId, setSecondCategoryId] = useState("");
 	const [newCategoryName, setNewCategoryName] = useState("");
-	const [impact, setImpact] = useState({ transactionCount: 0, budgetCount: 0 });
+	const [impact, setImpact] = useState({
+		transactionCount: 0,
+		budgetCount: 0,
+	});
 	const [isSaving, setIsSaving] = useState(false);
 	const [error, setError] = useState("");
 
@@ -53,7 +57,11 @@ const MergeCategoriesScreen = ({
 
 	useEffect(() => {
 		const loadMergeImpact = async (): Promise<void> => {
-			if (!firstCategoryId || !secondCategoryId || firstCategoryId === secondCategoryId) {
+			if (
+				!firstCategoryId ||
+				!secondCategoryId ||
+				firstCategoryId === secondCategoryId
+			) {
 				setImpact({ transactionCount: 0, budgetCount: 0 });
 				return;
 			}
@@ -155,10 +163,12 @@ const MergeCategoriesScreen = ({
 		<ScreenContainer>
 			<GlassCard>
 				<View style={styles.form}>
-					<CustomText style={styles.heading}>Merge categories</CustomText>
+					<CustomText style={styles.heading}>
+						Merge categories
+					</CustomText>
 					<CustomText style={styles.description}>
-						Create one new category from two existing categories. Monthly and
-						yearly budgets are combined by period.
+						Create one new category from two existing categories.
+						Monthly and yearly budgets are combined by period.
 					</CustomText>
 					<SelectField
 						label="Category 1"
@@ -229,5 +239,3 @@ const styles = StyleSheet.create({
 });
 
 export default MergeCategoriesScreen;
-
-

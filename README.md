@@ -88,7 +88,6 @@ local data.
 The PurpleCoins v2 migration can target the documented Purplecoins schema
 without changing the app's runtime data model.
 
-
 ## SDK DIR
 
 ### MAC

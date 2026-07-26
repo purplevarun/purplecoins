@@ -1,4 +1,4 @@
-package com.purple.coins
+package com.purple.coins.experimental
 
 import com.facebook.react.ReactPackage
 import com.facebook.react.bridge.NativeModule

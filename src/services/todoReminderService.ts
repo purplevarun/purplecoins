@@ -1,9 +1,9 @@
-import type * as ExpoNotifications from "expo-notifications";
 import settingsService from "@/services/settingsService";
 import todoService from "@/services/todoService";
 import type Todo from "@/types/Todo";
 import type TodoReminderSettings from "@/types/TodoReminderSettings";
 import dateUtils from "@/utils/date";
+import type * as ExpoNotifications from "expo-notifications";
 import type { SQLiteDatabase } from "expo-sqlite";
 
 const { formatDate } = dateUtils;
@@ -22,10 +22,7 @@ let notificationHandlerConfigured = false;
 type NotificationsModule = typeof ExpoNotifications;
 
 type TodoReminderPermissionState =
-	| "granted"
-	| "denied"
-	| "disabled"
-	| "unavailable";
+	"granted" | "denied" | "disabled" | "unavailable";
 
 type TodoReminderRequest = Readonly<{
 	todoId: string;
@@ -97,7 +94,10 @@ const buildTodoReminderRequestsForTodo = (
 	}
 
 	const repeatIntervalMs = getRepeatIntervalMs(settings.repeatHours);
-	const startAt = getReminderWindowStartAt(todo.dueAt, settings.daysBeforeDue);
+	const startAt = getReminderWindowStartAt(
+		todo.dueAt,
+		settings.daysBeforeDue,
+	);
 	const firstReminderAt = getFirstReminderAt(
 		startAt,
 		dueEndAt,
@@ -130,7 +130,9 @@ const buildTodoReminderSchedule = (
 	now: number,
 ): readonly TodoReminderRequest[] =>
 	[...todos]
-		.flatMap((todo) => buildTodoReminderRequestsForTodo(todo, settings, now))
+		.flatMap((todo) =>
+			buildTodoReminderRequestsForTodo(todo, settings, now),
+		)
 		.sort(
 			(left, right) =>
 				left.triggerAt - right.triggerAt ||
@@ -138,13 +140,14 @@ const buildTodoReminderSchedule = (
 		)
 		.slice(0, MAX_PENDING_TODO_REMINDERS);
 
-const loadNotificationsModule = async (): Promise<NotificationsModule | null> => {
-	try {
-		return await import("expo-notifications");
-	} catch {
-		return null;
-	}
-};
+const loadNotificationsModule =
+	async (): Promise<NotificationsModule | null> => {
+		try {
+			return await import("expo-notifications");
+		} catch {
+			return null;
+		}
+	};
 
 const getPlatformOs = async (): Promise<string | null> => {
 	try {
@@ -164,10 +167,10 @@ const ensureNotificationHandlerConfigured = (
 	notifications.setNotificationHandler({
 		handleNotification: () =>
 			Promise.resolve({
-			shouldPlaySound: true,
-			shouldSetBadge: false,
-			shouldShowBanner: true,
-			shouldShowList: true,
+				shouldPlaySound: true,
+				shouldSetBadge: false,
+				shouldShowBanner: true,
+				shouldShowList: true,
 			}),
 	});
 	notificationHandlerConfigured = true;
@@ -183,7 +186,6 @@ const ensureAndroidChannel = async (
 		name: "Todo reminders",
 		importance: notifications.AndroidImportance.HIGH,
 		lightColor: "#A87CFF",
-		sound: "default",
 		vibrationPattern: [0, 250, 250, 250],
 	});
 };
@@ -262,7 +264,7 @@ const syncTodoReminders = async (
 						todoId: request.todoId,
 						triggerAt: request.triggerAt,
 					},
-					sound: "default",
+					sound: true,
 				},
 				trigger: new Date(request.triggerAt),
 			}),
@@ -278,6 +280,3 @@ const todoReminderService = {
 
 export type { TodoReminderSyncResult };
 export default todoReminderService;
-
-
-

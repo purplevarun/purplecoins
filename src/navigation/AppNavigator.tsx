@@ -4,6 +4,7 @@ import { DarkTheme, NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import COLORS from "@/constants/colors";
+import navigationRef from "@/navigation/navigationRef";
 import AnalysisScreen from "@/screens/AnalysisScreen";
 import ArchivedRelationsScreen from "@/screens/ArchivedRelationsScreen";
 import BudgetFormScreen from "@/screens/BudgetFormScreen";
@@ -15,7 +16,6 @@ import LinkedTransactionsScreen from "@/screens/LinkedTransactionsScreen";
 import MergeCategoriesScreen from "@/screens/MergeCategoriesScreen";
 import NoteFormScreen from "@/screens/NoteFormScreen";
 import NotesScreen from "@/screens/NotesScreen";
-import navigationRef from "@/navigation/navigationRef";
 import RelationFormScreen from "@/screens/RelationFormScreen";
 import RelationsScreen from "@/screens/RelationsScreen";
 import SettingsScreen from "@/screens/SettingsScreen";

@@ -18,8 +18,12 @@ const {
 	setCategoryArchived,
 } = categoryService;
 const { insertCategory, insertSource } = dbFixtures;
-const { createTransactionRow, getBudgetRows, getTransactionRows, upsertBudgetRow } =
-	financeRepository;
+const {
+	createTransactionRow,
+	getBudgetRows,
+	getTransactionRows,
+	upsertBudgetRow,
+} = financeRepository;
 
 const NOW = 1_780_000_000_000;
 
@@ -245,18 +249,21 @@ describe("categoryService", () => {
 			});
 
 			const transactions = await getTransactionRows(database);
-			expect(transactions.map((transaction) => transaction.categoryId)).toEqual([
-				mergedId,
-				mergedId,
-			]);
 			expect(
-				new Set(transactions.map((transaction) => transaction.categoryName)),
+				transactions.map((transaction) => transaction.categoryId),
+			).toEqual([mergedId, mergedId]);
+			expect(
+				new Set(
+					transactions.map((transaction) => transaction.categoryName),
+				),
 			).toEqual(new Set(["Food"]));
 		});
 
 		it("combines monthly and yearly budgets when both source categories have them", async () => {
 			const rent = await insertCategory(database, { name: "Rent" });
-			const utilities = await insertCategory(database, { name: "Utilities" });
+			const utilities = await insertCategory(database, {
+				name: "Utilities",
+			});
 			await upsertBudgetRow(database, {
 				id: "budget-rent-monthly",
 				categoryId: rent.id,
@@ -339,7 +346,9 @@ describe("categoryService", () => {
 
 			await expect(
 				mergeCategories(database, groceries.id, groceries.id, "Food"),
-			).rejects.toMatchObject({ code: "CATEGORY_MERGE_SELECTION_INVALID" });
+			).rejects.toMatchObject({
+				code: "CATEGORY_MERGE_SELECTION_INVALID",
+			});
 		});
 
 		it("rejects mixing income and expense categories", async () => {

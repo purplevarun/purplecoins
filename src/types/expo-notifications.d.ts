@@ -42,9 +42,7 @@ declare module "expo-notifications" {
 		HIGH: number;
 	}>;
 
-	export const setNotificationHandler: (
-		handler: NotificationHandler,
-	) => void;
+	export const setNotificationHandler: (handler: NotificationHandler) => void;
 	export const getPermissionsAsync: () => Promise<NotificationPermissionsStatus>;
 	export const requestPermissionsAsync: () => Promise<NotificationPermissionsStatus>;
 	export const getAllScheduledNotificationsAsync: () => Promise<
@@ -67,4 +65,3 @@ declare module "expo-notifications" {
 		}>,
 	) => Promise<void>;
 }
-

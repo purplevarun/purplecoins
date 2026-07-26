@@ -1,6 +1,6 @@
 {
 	"expo": {
-		"name": "Purplecoins",
+		"name": "Purplecoins_Experimental",
 		"slug": "purplecoins_2026",
 		"version": "5.4",
 		"orientation": "portrait",
@@ -15,7 +15,7 @@
 				"backgroundColor": "#080B14"
 			},
 			"predictiveBackGestureEnabled": false,
-			"package": "com.purple.coins"
+			"package": "com.purple.coins.experimental"
 		},
 		"web": {
 			"favicon": "./assets/icon.png"

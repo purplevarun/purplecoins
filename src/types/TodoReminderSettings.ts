@@ -5,4 +5,3 @@ type TodoReminderSettings = Readonly<{
 }>;
 
 export type { TodoReminderSettings as default };
-

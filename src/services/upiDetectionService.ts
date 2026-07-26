@@ -78,7 +78,3 @@ const upiDetectionService = {
 
 export type { DetectedTransactionPayload };
 export default upiDetectionService;
-
-
-
-

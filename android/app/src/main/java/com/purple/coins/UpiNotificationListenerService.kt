@@ -1,4 +1,4 @@
-package com.purple.coins
+package com.purple.coins.experimental
 
 import android.app.Notification
 import android.app.NotificationChannel

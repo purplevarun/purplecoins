@@ -1,4 +1,4 @@
-package com.purple.coins
+package com.purple.coins.experimental
 
 import android.app.Application
 import android.content.res.Configuration
