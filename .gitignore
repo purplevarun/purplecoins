@@ -49,3 +49,5 @@ coverage/
 bun.lock
 package-lock.json
 yarn.lock
+/build/eas-archive-inspect/
+/build/eas-archive-inspect-2/

@@ -1,7 +1,7 @@
 {
 	"expo": {
 		"name": "Purplecoins_Experimental",
-		"slug": "purplecoins_2026",
+		"slug": "purplecoins_2026_experimental",
 		"version": "5.4",
 		"orientation": "portrait",
 		"icon": "./assets/icon.png",
@@ -30,7 +30,7 @@
 		],
 		"extra": {
 			"eas": {
-				"projectId": "995e42c6-ec42-4b63-94fc-8216ec91ba14"
+				"projectId": "c3afb791-d834-4d79-962e-c4cf0f274210"
 			}
 		}
 	}

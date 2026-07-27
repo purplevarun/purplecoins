@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+
+# Git and local editor state
+.git/
+.idea/
+.vscode/
+
+# Expo and generated app outputs
+.expo/
+.expo-export-test/
+dist/
+web-build/
+build/
+*.apk
+
+# Android local/generated state
+/android/.gradle/
+/android/.kotlin/
+/android/build/
+/android/app/.cxx/
+/android/app/build/
+/android/local.properties
+
+# Native credentials and local files
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.pem
+.env*.local
+
+# Test and compiler output
+coverage/
+*.tsbuildinfo
+
+# Logs
+npm-debug.*
+yarn-debug.*
+yarn-error.*
