@@ -1,0 +1,54 @@
+name: Android APK Build
+
+on:
+    push:
+        paths:
+            - app.json
+    workflow_dispatch:
+        inputs:
+            profile:
+                description: EAS build profile
+                required: false
+                default: preview
+                type: choice
+                options:
+                    - preview
+                    - production
+
+jobs:
+    build-android:
+        name: Build Android APK (EAS)
+        runs-on: ubuntu-latest
+        env:
+            EXPO_TOKEN: ${{ secrets.EXPO_KEY }}
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+                  cache: npm
+
+            - name: Install dependencies
+              run: npm install
+
+            - name: Install EAS CLI
+              run: npm install -g eas-cli
+
+            - name: Verify Expo auth
+              run: eas whoami
+
+            - name: Trigger Android build
+              run: |
+                  PROFILE="${{ github.event.inputs.profile || 'preview' }}"
+                  eas build --platform android --profile "$PROFILE" --non-interactive --no-wait
+
+            - name: Build summary
+              run: |
+                  app_version=$(node -e "const fs=require('fs');const j=JSON.parse(fs.readFileSync('app.json','utf8'));console.log(j.expo?.version ?? '')")
+                  pkg_version=$(node -e "const fs=require('fs');const j=JSON.parse(fs.readFileSync('package.json','utf8'));console.log(j.version ?? '')")
+                  echo "Triggered Android EAS build"
+                  echo "app.json version: $app_version"
+                  echo "package.json version: $pkg_version"
