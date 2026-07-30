@@ -89,16 +89,19 @@ installed.
 
 ### Continuous integration
 
-- [`.github/workflows/unit-tests.yml`](.github/workflows/unit-tests.yml)
-  runs the Vitest suite with coverage on every push (any branch) and
-  uploads the coverage report as a build artifact.
-- [`.github/workflows/e2e-tests.yml`](.github/workflows/e2e-tests.yml)
-  runs the full Maestro suite against a real Android emulator on every
-  push (any branch), records a video of the run, and uploads both the
-  JUnit report and the video as build artifacts.
-- [`.github/workflows/android-apk-on-version.yml`](.github/workflows/android-apk-on-version.yml)
-  triggers an EAS Android build whenever `app.json` changes, plus a
-  manual trigger with a selectable build profile.
+- [`.github/workflows/release.yml`](.github/workflows/release.yml) runs
+  whenever `app.json` changes (or via manual trigger). It runs sequentially:
+    1. **Sanity checks** — typecheck, lint, and the Vitest suite with
+       coverage (uploaded as a build artifact).
+    2. **Build** — assembles a signed release APK locally with Gradle
+       (`./gradlew assembleRelease`), no EAS/external build service involved.
+    3. **E2E verify** — installs that exact APK on an Android emulator and
+       runs the full Maestro suite against it (JUnit report uploaded as an
+       artifact).
+    4. **Release** — if every prior stage passes, creates a GitHub release
+       tagged with the `app.json` version and branch name, with the APK
+       attached. The release is created as non-latest; promote it manually
+       once verified.
 
 ### Unit tests
 
