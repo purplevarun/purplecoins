@@ -65,7 +65,6 @@
 		"test:coverage": "vitest run --coverage",
 		"test:e2e": "maestro test .maestro/flows",
 		"check": "bun run format:check && bun run lint && bun run typecheck && bun run test && bun run expo-check",
-		"build": "eas build --profile preview --platform android",
 		"expo-check": "npx expo install --check"
 	},
 	"private": true
