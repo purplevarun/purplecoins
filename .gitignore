@@ -42,10 +42,6 @@ yarn-error.*
 # test coverage reports
 coverage/
 
-# generated native folders
-/ios
-/android
-
 bun.lock
 package-lock.json
 yarn.lock
