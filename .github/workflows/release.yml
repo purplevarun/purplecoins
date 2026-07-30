@@ -1,0 +1,196 @@
+name: Release
+
+on:
+  push:
+    paths:
+      - app.json
+  workflow_dispatch:
+
+jobs:
+  sanity-checks:
+    name: Sanity Checks (typecheck, lint, unit tests)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Typecheck
+        run: bun run typecheck
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Unit tests
+        run: bun run test:coverage
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 14
+
+  build-android:
+    name: Build Android APK (Gradle)
+    needs: sanity-checks
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.release-meta.outputs.version }}
+      tag: ${{ steps.release-meta.outputs.tag }}
+      name: ${{ steps.release-meta.outputs.name }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Ensure debug keystore exists
+        run: |
+          if [ ! -f android/app/debug.keystore ]; then
+            keytool -genkeypair -v \
+              -storetype PKCS12 \
+              -keystore android/app/debug.keystore \
+              -storepass android \
+              -keypass android \
+              -alias androiddebugkey \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname "CN=Android Debug,O=Android,C=US"
+          fi
+
+      - name: Build release APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon
+
+      - name: Resolve release metadata
+        id: release-meta
+        run: |
+          app_version=$(bun -e "const fs=require('fs');const j=JSON.parse(fs.readFileSync('app.json','utf8'));console.log(j.expo?.version ?? '')")
+          branch_name="${GITHUB_REF_NAME}"
+          safe_branch=$(echo "$branch_name" | tr '/' '-')
+          tag="v${app_version}-${safe_branch}"
+          echo "version=$app_version" >> "$GITHUB_OUTPUT"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "name=v${app_version} (${branch_name})" >> "$GITHUB_OUTPUT"
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-release-apk
+          path: android/app/build/outputs/apk/release/app-release.apk
+          retention-days: 7
+
+  e2e-verify:
+    name: Maestro Flows on Release Build (Android Emulator)
+    needs: build-android
+    # Public repos get free hardware-accelerated (KVM) Linux runners, which
+    # is fast enough for the Android emulator without needing macOS.
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Install Maestro CLI
+        run: |
+          curl -fsSL "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+
+      - name: Download release APK
+        uses: actions/download-artifact@v4
+        with:
+          name: android-release-apk
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run Maestro suite on emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 33
+          target: google_apis
+          profile: pixel_5
+          disable-animations: true
+          disable-spellchecker: true
+          emulator-options: >-
+            -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio
+            -no-boot-anim -camera-back none
+          script: |
+            set -euo pipefail
+
+            mkdir -p artifacts
+
+            adb wait-for-device
+            adb shell input keyevent 82
+
+            echo "Installing release APK..."
+            adb install -r app-release.apk
+
+            echo "Running Maestro flows..."
+            "$HOME/.maestro/bin/maestro" test .maestro/flows --format junit --output artifacts/maestro-report.xml
+
+      - name: Upload Maestro report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-maestro-report
+          path: artifacts/maestro-report.xml
+          retention-days: 14
+          if-no-files-found: ignore
+
+  release:
+    name: Create GitHub Release
+    needs:
+      - build-android
+      - e2e-verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download release APK
+        uses: actions/download-artifact@v4
+        with:
+          name: android-release-apk
+
+      - name: Create GitHub release with APK
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ needs.build-android.outputs.tag }}" \
+            app-release.apk \
+            --title "${{ needs.build-android.outputs.name }}" \
+            --notes "Automated Android build from branch ${GITHUB_REF_NAME} (app version ${{ needs.build-android.outputs.version }}), verified with typecheck, lint, unit tests, and Maestro E2E." \
+            --latest=false
