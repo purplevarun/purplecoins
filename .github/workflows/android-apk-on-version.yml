@@ -1,50 +1,50 @@
 name: Android APK Build
 
 on:
-    push:
-        paths:
-            - app.json
-    workflow_dispatch:
-        inputs:
-            profile:
-                description: EAS build profile
-                required: false
-                default: preview
-                type: choice
-                options:
-                    - preview
-                    - production
+  push:
+    paths:
+      - app.json
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: EAS build profile
+        required: false
+        default: preview
+        type: choice
+        options:
+          - preview
+          - production
 
 jobs:
-    build-android:
-        name: Build Android APK (EAS)
-        runs-on: ubuntu-latest
-        env:
-            EXPO_TOKEN: ${{ secrets.EXPO_KEY }}
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
+  build-android:
+    name: Build Android APK (EAS)
+    runs-on: ubuntu-latest
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_KEY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-            - name: Setup Bun
-              uses: oven-sh/setup-bun@v2
-              with:
-                  bun-version: latest
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
 
-            - name: Install dependencies
-              run: bun install
+      - name: Install dependencies
+        run: bun install
 
-            - name: Verify Expo auth
-              run: bunx eas-cli whoami
+      - name: Verify Expo auth
+        run: bunx eas-cli whoami
 
-            - name: Trigger Android build
-              run: |
-                  PROFILE="${{ github.event.inputs.profile || 'preview' }}"
-                  bunx eas-cli build --platform android --profile "$PROFILE" --non-interactive --no-wait
+      - name: Trigger Android build
+        run: |
+          PROFILE="${{ github.event.inputs.profile || 'preview' }}"
+          bunx eas-cli build --platform android --profile "$PROFILE" --non-interactive --no-wait
 
-            - name: Build summary
-              run: |
-                  app_version=$(bun -e "const fs=require('fs');const j=JSON.parse(fs.readFileSync('app.json','utf8'));console.log(j.expo?.version ?? '')")
-                  pkg_version=$(bun -e "const fs=require('fs');const j=JSON.parse(fs.readFileSync('package.json','utf8'));console.log(j.version ?? '')")
-                  echo "Triggered Android EAS build"
-                  echo "app.json version: $app_version"
-                  echo "package.json version: $pkg_version"
+      - name: Build summary
+        run: |
+          app_version=$(bun -e "const fs=require('fs');const j=JSON.parse(fs.readFileSync('app.json','utf8'));console.log(j.expo?.version ?? '')")
+          pkg_version=$(bun -e "const fs=require('fs');const j=JSON.parse(fs.readFileSync('package.json','utf8'));console.log(j.version ?? '')")
+          echo "Triggered Android EAS build"
+          echo "app.json version: $app_version"
+          echo "package.json version: $pkg_version"

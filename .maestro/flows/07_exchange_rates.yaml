@@ -4,7 +4,7 @@ appId: com.purple.coins
 # Creates a USD source, then sets and edits a manual rate.
 
 - launchApp:
-      clearState: true
+    clearState: true
 - tapOn: "Switch homepage"
 - tapOn: "Finance"
 

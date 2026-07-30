@@ -35,6 +35,7 @@
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.39.4",
+		"@prettier/plugin-xml": "^3.4.2",
 		"@types/react": "~19.2.2",
 		"@vitest/coverage-v8": "^4.1.10",
 		"eslint": "^9.39.4",
@@ -51,10 +52,12 @@
 	"scripts": {
 		"android": "expo run:android",
 		"android:clean": "(test -f android/gradlew && cd android && ./gradlew clean && cd ..) || true && npx expo prebuild --clean --platform android && expo run:android",
-		"clean": "rm -rf node_modules yarn.lock bun.lock .expo && bun install",
+		"clean": "rm -rf node_modules yarn.lock bun.lock package-lock.json .expo && bun install",
 		"doctor": "npx expo-doctor",
-		"format": "prettier --write .",
-		"format:check": "prettier --check .",
+		"format": "prettier --write . && bun run format:kotlin",
+		"format:check": "prettier --check . && bun run format:kotlin:check",
+		"format:kotlin": "cd android && ./gradlew ktlintFormat --no-daemon",
+		"format:kotlin:check": "cd android && ./gradlew ktlintCheck --no-daemon",
 		"lint": "eslint . --max-warnings=0",
 		"typecheck": "tsc --noEmit",
 		"test": "vitest run",

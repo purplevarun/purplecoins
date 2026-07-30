@@ -4,7 +4,7 @@ appId: com.purple.coins
 # restore from Settings > Archived relations, and the duplicate-name guard.
 
 - launchApp:
-      clearState: true
+    clearState: true
 - tapOn: "Switch homepage"
 - tapOn: "Finance"
 - tapOn: "Sources"
@@ -35,14 +35,14 @@ appId: com.purple.coins
 - inputText: "Everyday Bank"
 - tapOn: "Save"
 - assertVisible:
-      text: ".*already exists.*"
-      optional: true
+    text: ".*already exists.*"
+    optional: true
 - back
 
 # Validate the first source (adds a "Validated" badge).
 - tapOn:
-      text: "Validate"
-      below: "Everyday Bank"
+    text: "Validate"
+    below: "Everyday Bank"
 - assertVisible: "Validated"
 
 # Rename it — currency becomes read-only once created.
@@ -59,8 +59,8 @@ appId: com.purple.coins
 # Archive it, confirm it disappears from the active list, then restore it
 # from Settings > Archived relations.
 - tapOn:
-      text: "Archive"
-      below: "Primary Bank"
+    text: "Archive"
+    below: "Primary Bank"
 - tapOn: "Archive"
 - assertNotVisible: "Primary Bank"
 - assertVisible: "Travel Card"

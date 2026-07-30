@@ -3,7 +3,7 @@ appId: com.purple.coins
 # Vault > Identity: create, edit, delete. Identities have no copy buttons.
 
 - launchApp:
-      clearState: true
+    clearState: true
 - tapOn: "Switch homepage"
 - tapOn: "Vault"
 - tapOn: "Identity"

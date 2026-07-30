@@ -5,7 +5,7 @@ appId: com.purple.coins
 # then delete.
 
 - launchApp:
-      clearState: true
+    clearState: true
 - tapOn: "Switch homepage"
 - tapOn: "Vault"
 - tapOn: "Cards"
@@ -30,13 +30,13 @@ appId: com.purple.coins
 - assertVisible: "Visa"
 
 - tapOn:
-      rightOf: "Card number"
+    rightOf: "Card number"
 - assertVisible: "Card number copied."
 - tapOn:
-      rightOf: "CVV"
+    rightOf: "CVV"
 - assertVisible: "CVV copied."
 - tapOn:
-      rightOf: "PIN"
+    rightOf: "PIN"
 - assertVisible: "PIN copied."
 
 # Switch card type to Debit while editing.

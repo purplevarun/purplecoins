@@ -7,7 +7,7 @@ appId: com.purple.coins
 # OS chooser itself.
 
 - launchApp:
-      clearState: true
+    clearState: true
 - tapOn: "Settings"
 - assertVisible: "Home screen"
 
@@ -17,7 +17,7 @@ appId: com.purple.coins
 
 # Native currency display toggle (label + switch are separate elements).
 - tapOn:
-      rightOf: "Native currencies"
+    rightOf: "Native currencies"
 
 # Financial year start month.
 - tapOn: "Financial year start month"

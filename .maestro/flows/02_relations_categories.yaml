@@ -4,7 +4,7 @@ appId: com.purple.coins
 # switch, verify the reclassification warning dialog, then archive.
 
 - launchApp:
-      clearState: true
+    clearState: true
 - tapOn: "Switch homepage"
 - tapOn: "Finance"
 - tapOn: "Categories"
@@ -25,7 +25,7 @@ appId: com.purple.coins
 # in the same row (label left, switch right) — target the switch via its
 # position relative to the label rather than the label text itself.
 - tapOn:
-      rightOf: "Income category"
+    rightOf: "Income category"
 - tapOn: "Save"
 - assertVisible: "Salary"
 - assertVisible: "Income category"
@@ -35,7 +35,7 @@ appId: com.purple.coins
 - tapOn: "Groceries"
 - tapOn: "Edit"
 - tapOn:
-      rightOf: "Income category"
+    rightOf: "Income category"
 - tapOn: "Save"
 - assertVisible: "Change analysis classification?"
 - tapOn: "Change"
@@ -44,7 +44,7 @@ appId: com.purple.coins
 
 # Archive the Salary category.
 - tapOn:
-      text: "Archive"
-      below: "Salary"
+    text: "Archive"
+    below: "Salary"
 - tapOn: "Archive"
 - assertNotVisible: "Salary"

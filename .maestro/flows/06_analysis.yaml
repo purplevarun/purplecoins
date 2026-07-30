@@ -5,7 +5,7 @@ appId: com.purple.coins
 # rates via the in-screen link.
 
 - launchApp:
-      clearState: true
+    clearState: true
 - tapOn: "Switch homepage"
 - tapOn: "Finance"
 

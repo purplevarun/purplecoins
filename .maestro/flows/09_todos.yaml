@@ -4,7 +4,7 @@ appId: com.purple.coins
 # edit, then delete.
 
 - launchApp:
-      clearState: true
+    clearState: true
 - tapOn: "Switch homepage"
 - tapOn: "Tools"
 - tapOn: "Todos"
@@ -18,7 +18,7 @@ appId: com.purple.coins
 
 # Enable the due date switch and accept today's default date.
 - tapOn:
-      rightOf: "Due date"
+    rightOf: "Due date"
 - assertVisible: "Due"
 
 - tapOn: "Save todo"
@@ -30,7 +30,7 @@ appId: com.purple.coins
 - tapOn: "Renew passport"
 - assertVisible: "Edit todo"
 - tapOn:
-      rightOf: "Completed"
+    rightOf: "Completed"
 - tapOn: "Save todo"
 
 # Edit the title.

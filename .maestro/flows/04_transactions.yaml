@@ -5,7 +5,7 @@ appId: com.purple.coins
 # long-press. Creates its own prerequisite sources + category.
 
 - launchApp:
-      clearState: true
+    clearState: true
 - tapOn: "Switch homepage"
 - tapOn: "Finance"
 

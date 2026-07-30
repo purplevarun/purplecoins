@@ -5,7 +5,7 @@ appId: com.purple.coins
 # first check that a build is healthy before running the deeper flows.
 
 - launchApp:
-      clearState: true
+    clearState: true
 
 # Home screen defaults to the "Tools" mode.
 - assertVisible: "Purplecoins"

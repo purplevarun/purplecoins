@@ -4,7 +4,7 @@ appId: com.purple.coins
 # "simple entity" relation kinds (no extra fields beyond name).
 
 - launchApp:
-      clearState: true
+    clearState: true
 - tapOn: "Switch homepage"
 - tapOn: "Finance"
 
@@ -21,8 +21,8 @@ appId: com.purple.coins
 - inputText: "Goa Getaway"
 - tapOn: "Save"
 - assertVisible:
-      text: ".*already exists.*"
-      optional: true
+    text: ".*already exists.*"
+    optional: true
 - back
 - back
 

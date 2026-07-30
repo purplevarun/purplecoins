@@ -4,7 +4,7 @@ appId: com.purple.coins
 # edit the amount, then delete it.
 
 - launchApp:
-      clearState: true
+    clearState: true
 - tapOn: "Switch homepage"
 - tapOn: "Finance"
 

@@ -4,7 +4,7 @@ appId: com.purple.coins
 # gates on a 2-character minimum and finds the right item per mode.
 
 - launchApp:
-      clearState: true
+    clearState: true
 
 # Tools: a note to search for.
 - tapOn: "Notes"

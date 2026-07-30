@@ -1,0 +1,15 @@
+node_modules/
+.expo/
+.expo-export-test/
+dist/
+web-build/
+coverage/
+android/build/
+android/.gradle/
+android/app/build/
+android/app/src/main/res/
+android/gradle/
+bun.lock
+package-lock.json
+yarn.lock
+*.apk
