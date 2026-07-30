@@ -19,8 +19,10 @@ jobs:
   build-android:
     name: Build Android APK (EAS)
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
+    outputs:
+      version: ${{ steps.release-meta.outputs.version }}
+      tag: ${{ steps.release-meta.outputs.tag }}
+      name: ${{ steps.release-meta.outputs.name }}
     env:
       EXPO_TOKEN: ${{ secrets.EXPO_KEY }}
     steps:
@@ -65,12 +67,97 @@ jobs:
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "name=v${app_version} (${branch_name})" >> "$GITHUB_OUTPUT"
 
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: eas-android-apk
+          path: app-release.apk
+          retention-days: 7
+
+  e2e-verify:
+    name: Maestro Flows on EAS Build (Android Emulator)
+    needs: build-android
+    # macos runners have hardware-accelerated virtualization, which the
+    # Android emulator needs to run reliably in CI.
+    runs-on: macos-14
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Install Maestro CLI
+        run: |
+          curl -fsSL "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+
+      - name: Download EAS-built APK
+        uses: actions/download-artifact@v4
+        with:
+          name: eas-android-apk
+
+      - name: Run Maestro suite on emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 33
+          arch: arm64-v8a
+          target: google_apis
+          profile: pixel_5
+          disable-animations: true
+          disable-spellchecker: true
+          emulator-options: >-
+            -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio
+            -no-boot-anim -camera-back none
+          script: |
+            set -euo pipefail
+
+            mkdir -p artifacts
+
+            adb wait-for-device
+            adb shell input keyevent 82
+
+            echo "Installing EAS-built APK..."
+            adb install -r app-release.apk
+
+            echo "Running Maestro flows..."
+            "$HOME/.maestro/bin/maestro" test .maestro/flows --format junit --output artifacts/maestro-report.xml
+
+      - name: Upload Maestro report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eas-maestro-report
+          path: artifacts/maestro-report.xml
+          retention-days: 14
+          if-no-files-found: ignore
+
+  release:
+    name: Create GitHub Release
+    needs:
+      - build-android
+      - e2e-verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download EAS-built APK
+        uses: actions/download-artifact@v4
+        with:
+          name: eas-android-apk
+
       - name: Create GitHub release with APK
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "${{ steps.release-meta.outputs.tag }}" \
+          gh release create "${{ needs.build-android.outputs.tag }}" \
             app-release.apk \
-            --title "${{ steps.release-meta.outputs.name }}" \
-            --notes "Automated Android build from branch ${GITHUB_REF_NAME} (app version ${{ steps.release-meta.outputs.version }})" \
+            --title "${{ needs.build-android.outputs.name }}" \
+            --notes "Automated Android build from branch ${GITHUB_REF_NAME} (app version ${{ needs.build-android.outputs.version }}), verified with Maestro E2E on the EAS-built APK." \
             --latest=false
