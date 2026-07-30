@@ -1,9 +1,7 @@
-const {
-	withAndroidManifest,
-	withDangerousMod,
-} = require("@expo/config-plugins");
-const fs = require("fs");
-const path = require("path");
+import type { ConfigPlugin } from "@expo/config-plugins";
+import { withAndroidManifest, withDangerousMod } from "@expo/config-plugins";
+import fs from "fs";
+import path from "path";
 
 const PACKAGE_PATH = "com/purple/coins";
 const NATIVE_FILES_DIR = path.join(
@@ -24,13 +22,16 @@ const FILES_TO_COPY = [
 	"UpiNotificationListenerService.kt",
 ];
 
-const withUpiNotificationDetectorManifest = (config) =>
+const withUpiNotificationDetectorManifest: ConfigPlugin = (config) =>
 	withAndroidManifest(config, (config) => {
 		const manifest = config.modResults;
-		const application = manifest.manifest.application[0];
+		const application = manifest.manifest.application?.[0];
+		if (!application) {
+			return config;
+		}
 
 		manifest.manifest["uses-permission"] =
-			manifest.manifest["uses-permission"] || [];
+			manifest.manifest["uses-permission"] ?? [];
 		const hasOverlayPermission = manifest.manifest["uses-permission"].some(
 			(entry) =>
 				entry.$["android:name"] ===
@@ -42,7 +43,7 @@ const withUpiNotificationDetectorManifest = (config) =>
 			});
 		}
 
-		application.service = application.service || [];
+		application.service = application.service ?? [];
 		const hasListenerService = application.service.some(
 			(entry) =>
 				entry.$["android:name"] === ".UpiNotificationListenerService",
@@ -73,10 +74,10 @@ const withUpiNotificationDetectorManifest = (config) =>
 		return config;
 	});
 
-const withUpiNotificationDetectorFiles = (config) =>
+const withUpiNotificationDetectorFiles: ConfigPlugin = (config) =>
 	withDangerousMod(config, [
 		"android",
-		async (config) => {
+		(config) => {
 			const javaRoot = path.join(
 				config.modRequest.platformProjectRoot,
 				"app",
@@ -94,7 +95,7 @@ const withUpiNotificationDetectorFiles = (config) =>
 			// removed to avoid duplicate class definitions.
 			const generatedPackageDir = path.join(
 				javaRoot,
-				...config.android.package.split("."),
+				...(config.android?.package ?? "").split("."),
 			);
 			if (
 				generatedPackageDir !== targetDir &&
@@ -124,10 +125,10 @@ const withUpiNotificationDetectorFiles = (config) =>
  * copies the detector module/package/service files, and patches
  * AndroidManifest.xml with the required permission + listener service.
  */
-const withUpiNotificationDetector = (config) => {
+const withUpiNotificationDetector: ConfigPlugin = (config) => {
 	config = withUpiNotificationDetectorManifest(config);
 	config = withUpiNotificationDetectorFiles(config);
 	return config;
 };
 
-module.exports = withUpiNotificationDetector;
+export default withUpiNotificationDetector;
