@@ -27,7 +27,7 @@ const vitestConfig = defineConfig({
 				// UI layer: intentionally verified via the Maestro E2E suite
 				// (see .maestro/) rather than unit tests, since rendering
 				// React Native components requires native modules that
-				// cannot run under Vitest's Node environment. See TESTING.md.
+				// cannot run under Vitest's Node environment. See README.md.
 				"src/components/**",
 				"src/screens/**",
 				"src/navigation/**",
