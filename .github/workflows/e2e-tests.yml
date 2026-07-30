@@ -1,0 +1,128 @@
+name: E2E Tests (Maestro)
+
+on:
+  push:
+    branches:
+      - "**"
+  workflow_dispatch:
+
+jobs:
+  e2e-tests:
+    name: Maestro Flows (Android Emulator)
+    # macos runners have hardware-accelerated virtualization, which the
+    # Android emulator needs to run reliably in CI.
+    runs-on: macos-14
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Maestro CLI
+        run: |
+          curl -fsSL "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+
+      - name: Build debug APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+
+      - name: Enable KVM alternative (HVF check)
+        run: |
+          # macOS uses Apple's Hypervisor.framework instead of KVM; nothing to
+          # configure here, kept as a diagnostic no-op step for CI logs.
+          sw_vers
+
+      - name: Run Maestro suite on emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 33
+          arch: arm64-v8a
+          target: google_apis
+          profile: pixel_5
+          disable-animations: true
+          disable-spellchecker: true
+          emulator-options: >-
+            -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio
+            -no-boot-anim -camera-back none
+          script: |
+            set -euo pipefail
+
+            mkdir -p artifacts
+
+            adb wait-for-device
+            adb shell input keyevent 82
+
+            echo "Installing debug APK..."
+            adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+
+            echo "Starting screen recording..."
+            adb shell mkdir -p /sdcard/recordings
+            (
+              i=0
+              while true; do
+                adb shell screenrecord --bit-rate 4000000 "/sdcard/recordings/part_${i}.mp4" || true
+                i=$((i + 1))
+              done
+            ) &
+            RECORDER_PID=$!
+
+            echo "Running Maestro flows..."
+            set +e
+            "$HOME/.maestro/bin/maestro" test .maestro/flows --format junit --output artifacts/maestro-report.xml
+            TEST_EXIT=$?
+            set -e
+
+            echo "Stopping screen recording..."
+            kill "$RECORDER_PID" 2>/dev/null || true
+            adb shell pkill -INT screenrecord 2>/dev/null || true
+            sleep 3
+
+            mkdir -p artifacts/video-parts
+            adb pull /sdcard/recordings artifacts/video-parts || true
+
+            if ls artifacts/video-parts/recordings/part_*.mp4 >/dev/null 2>&1; then
+              (
+                cd artifacts/video-parts/recordings
+                ls part_*.mp4 | sort -V | sed 's/^/file /' > concat_list.txt
+                ffmpeg -y -f concat -safe 0 -i concat_list.txt -c copy ../../maestro-run.mp4
+              ) || echo "Video concat failed; keeping individual segments."
+            fi
+
+            exit $TEST_EXIT
+
+      - name: Upload Maestro report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-report
+          path: artifacts/maestro-report.xml
+          retention-days: 14
+          if-no-files-found: ignore
+
+      - name: Upload Maestro run video
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-run-video
+          path: |
+            artifacts/maestro-run.mp4
+            artifacts/video-parts/recordings/*.mp4
+          retention-days: 14
+          if-no-files-found: ignore
