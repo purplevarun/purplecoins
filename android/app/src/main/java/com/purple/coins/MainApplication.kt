@@ -12,33 +12,33 @@ import expo.modules.ApplicationLifecycleDispatcher
 import expo.modules.ExpoReactHostFactory
 
 class MainApplication :
-    Application(),
-    ReactApplication {
-    override val reactHost: ReactHost by lazy {
-        ExpoReactHostFactory.getDefaultReactHost(
-            context = applicationContext,
-            packageList =
-                PackageList(this).packages.apply {
-                    // Packages that cannot be autolinked yet can be added manually here, for example:
-                    add(UpiNotificationDetectorPackage())
-                },
-        )
-    }
+	Application(),
+	ReactApplication {
+	override val reactHost: ReactHost by lazy {
+		ExpoReactHostFactory.getDefaultReactHost(
+			context = applicationContext,
+			packageList =
+				PackageList(this).packages.apply {
+					// Packages that cannot be autolinked yet can be added manually here, for example:
+					add(UpiNotificationDetectorPackage())
+				},
+		)
+	}
 
-    override fun onCreate() {
-        super.onCreate()
-        DefaultNewArchitectureEntryPoint.releaseLevel =
-            try {
-                ReleaseLevel.valueOf(BuildConfig.REACT_NATIVE_RELEASE_LEVEL.uppercase())
-            } catch (e: IllegalArgumentException) {
-                ReleaseLevel.STABLE
-            }
-        loadReactNative(this)
-        ApplicationLifecycleDispatcher.onApplicationCreate(this)
-    }
+	override fun onCreate() {
+		super.onCreate()
+		DefaultNewArchitectureEntryPoint.releaseLevel =
+			try {
+				ReleaseLevel.valueOf(BuildConfig.REACT_NATIVE_RELEASE_LEVEL.uppercase())
+			} catch (e: IllegalArgumentException) {
+				ReleaseLevel.STABLE
+			}
+		loadReactNative(this)
+		ApplicationLifecycleDispatcher.onApplicationCreate(this)
+	}
 
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        ApplicationLifecycleDispatcher.onConfigurationChanged(this, newConfig)
-    }
+	override fun onConfigurationChanged(newConfig: Configuration) {
+		super.onConfigurationChanged(newConfig)
+		ApplicationLifecycleDispatcher.onConfigurationChanged(this, newConfig)
+	}
 }
