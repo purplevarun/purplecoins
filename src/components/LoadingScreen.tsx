@@ -12,7 +12,7 @@ const LoadingScreen = ({ error }: LoadingScreenProps): React.JSX.Element => (
 		{error ? (
 			<>
 				<CustomText style={styles.title}>
-					Unable to open Purplecoins_Experimental
+					Unable to open Purplecoins
 				</CustomText>
 				<CustomText style={styles.error}>{error}</CustomText>
 			</>

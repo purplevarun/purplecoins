@@ -355,7 +355,7 @@ echo "sdk.dir=C:\\Users\\$(whoami)\\AppData\\Local\\Android\\Sdk" > android/loca
 
 This branch builds the experimental Android app as:
 
-- App name: `Purplecoins_Experimental`
+- App name: `Purplecoins`
 - Android package/application id: `com.purple.coins.experimental`
 
 Because the package is different from the production v5 app, Android can keep

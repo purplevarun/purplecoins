@@ -1,4 +1,4 @@
-const APP_NAME = "Purplecoins_Experimental";
+const APP_NAME = "Purplecoins";
 const DATABASE_NAME = "purplecoins.db";
 const BACKUP_EXTENSION = ".purplecoins";
 const BACKUP_MIME_TYPE = "application/x-sqlite3";

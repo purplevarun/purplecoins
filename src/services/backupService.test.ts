@@ -137,13 +137,13 @@ describe("backupService", () => {
 				"mock://cache/backup-file",
 				{
 					mimeType: "application/x-sqlite3",
-					dialogTitle: "Export Purplecoins_Experimental backup",
+					dialogTitle: "Export Purplecoins backup",
 				},
 			);
-			// File name should follow `purplecoins_experimental-YYYY-MM-DD.purplecoins`
+			// File name should follow `purplecoins-YYYY-MM-DD.purplecoins`
 			const [, fileNameArg] = FileMock.mock.calls[0] ?? [];
 			expect(fileNameArg).toMatch(
-				/^purplecoins_experimental-\d{4}-\d{2}-\d{2}\.purplecoins$/,
+				/^purplecoins-\d{4}-\d{2}-\d{2}\.purplecoins$/,
 			);
 		});
 	});
