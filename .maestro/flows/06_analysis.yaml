@@ -1,4 +1,4 @@
-appId: com.purple.coins
+appId: ${APP_ID}
 ---
 # Analysis: create a category + transaction so a non-empty breakdown
 # renders, then cycle through the period selector and reach exchange

@@ -1,4 +1,4 @@
-appId: com.purple.coins
+appId: ${APP_ID}
 ---
 # Smoke test covering app launch, home navigation, and the Tools / Finance /
 # Vault mode switcher. This is the fastest flow to run and is a good

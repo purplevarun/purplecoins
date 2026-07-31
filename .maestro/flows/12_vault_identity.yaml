@@ -1,4 +1,4 @@
-appId: com.purple.coins
+appId: ${APP_ID}
 ---
 # Vault > Identity: create, edit, delete. Identities have no copy buttons.
 

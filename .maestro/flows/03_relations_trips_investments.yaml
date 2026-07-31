@@ -1,4 +1,4 @@
-appId: com.purple.coins
+appId: ${APP_ID}
 ---
 # Trips and Investments: simple create + duplicate-name guard for both
 # "simple entity" relation kinds (no extra fields beyond name).

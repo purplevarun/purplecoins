@@ -1,4 +1,4 @@
-appId: com.purple.coins
+appId: ${APP_ID}
 ---
 # Sources: create (INR + USD), list ordering, rename, validate, archive,
 # restore from Settings > Archived relations, and the duplicate-name guard.

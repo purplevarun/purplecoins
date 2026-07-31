@@ -1,4 +1,4 @@
-appId: com.purple.coins
+appId: ${APP_ID}
 ---
 # Exchange rates: only currencies used by a non-INR source appear here.
 # Creates a USD source, then sets and edits a manual rate.

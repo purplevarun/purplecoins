@@ -1,4 +1,4 @@
-appId: com.purple.coins
+appId: ${APP_ID}
 ---
 # Settings: default home mode, native-currency toggle, FY start month,
 # default trip, and the backup/restore entry points. The native OS share

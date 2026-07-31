@@ -1,4 +1,4 @@
-appId: com.purple.coins
+appId: ${APP_ID}
 ---
 # Categories: create an expense + income category, toggle the income
 # switch, verify the reclassification warning dialog, then archive.

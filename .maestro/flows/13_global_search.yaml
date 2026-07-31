@@ -1,4 +1,4 @@
-appId: com.purple.coins
+appId: ${APP_ID}
 ---
 # Global search: create one item per mode, then verify the search box
 # gates on a 2-character minimum and finds the right item per mode.

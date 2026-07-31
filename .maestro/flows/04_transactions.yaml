@@ -1,4 +1,4 @@
-appId: com.purple.coins
+appId: ${APP_ID}
 ---
 # Transactions: full CRUD across DEBIT / CREDIT / TRANSFER, category
 # selection, the classification/type filter, search, and clone-via-

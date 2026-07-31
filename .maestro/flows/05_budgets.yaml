@@ -1,4 +1,4 @@
-appId: com.purple.coins
+appId: ${APP_ID}
 ---
 # Budgets: create an expense category + monthly budget, verify it lists,
 # edit the amount, then delete it.

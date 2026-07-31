@@ -182,7 +182,8 @@ jobs:
             echo "Installing release APK..."
             adb install -r "${{ needs.build-android.outputs.apk_name }}"
 
-            echo "Running Maestro flows..."
+            export APP_ID=$(bun -e "const j=require('./app.json');console.log(j.expo.android.package)")
+            echo "Running Maestro flows against $APP_ID..."
             "$HOME/.maestro/bin/maestro" test .maestro/flows --format junit --output artifacts/maestro-report.xml
 
       - name: Upload Maestro report

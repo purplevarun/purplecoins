@@ -1,4 +1,4 @@
-appId: com.purple.coins
+appId: ${APP_ID}
 ---
 # Vault > Cards: create a credit card, copy its number/CVV/PIN (icon-only
 # buttons with no accessible label, targeted via relative position), edit,

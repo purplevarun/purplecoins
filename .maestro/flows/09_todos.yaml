@@ -1,4 +1,4 @@
-appId: com.purple.coins
+appId: ${APP_ID}
 ---
 # Todos: create with a due date, toggle completed via the form switch,
 # edit, then delete.

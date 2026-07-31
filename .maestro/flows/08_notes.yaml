@@ -1,4 +1,4 @@
-appId: com.purple.coins
+appId: ${APP_ID}
 ---
 # Notes: create a folder inline from the note form, create a note in it,
 # edit it, then delete it.
