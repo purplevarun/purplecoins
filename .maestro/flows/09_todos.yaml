@@ -13,8 +13,10 @@ appId: ${APP_ID}
 - assertVisible: "New todo"
 - tapOn: "What needs doing?"
 - inputText: "Renew passport"
+- hideKeyboard
 - tapOn: "Optional details"
 - inputText: "Book an appointment first"
+- hideKeyboard
 
 # Enable the due date switch and accept today's default date.
 - tapOn:
@@ -38,6 +40,7 @@ appId: ${APP_ID}
 - tapOn: "Renew passport"
 - eraseText
 - inputText: "Renew passport (urgent)"
+- hideKeyboard
 - tapOn: "Save todo"
 - assertVisible: "Renew passport (urgent)"
 

@@ -13,12 +13,14 @@ appId: ${APP_ID}
 - assertVisible: "New trip"
 - tapOn: "Trip name"
 - inputText: "Goa Getaway"
+- hideKeyboard
 - tapOn: "Save"
 - assertVisible: "Goa Getaway"
 
 - tapOn: "Add"
 - tapOn: "Trip name"
 - inputText: "Goa Getaway"
+- hideKeyboard
 - tapOn: "Save"
 - assertVisible:
     text: ".*already exists.*"
@@ -31,5 +33,6 @@ appId: ${APP_ID}
 - assertVisible: "New investment"
 - tapOn: "Investment name"
 - inputText: "Index Fund"
+- hideKeyboard
 - tapOn: "Save"
 - assertVisible: "Index Fund"

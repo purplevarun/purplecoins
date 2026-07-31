@@ -12,9 +12,11 @@ appId: ${APP_ID}
 - tapOn: "Add"
 - tapOn: "Source name"
 - inputText: "US Account"
+- hideKeyboard
 - tapOn: "INR"
 - eraseText
 - inputText: "USD"
+- hideKeyboard
 - tapOn: "Save"
 - back
 
@@ -23,6 +25,7 @@ appId: ${APP_ID}
 - assertVisible: "Rate not set"
 - tapOn: "0.00"
 - inputText: "83.50"
+- hideKeyboard
 - tapOn: "Save manual rate"
 - assertVisible: "USD rate saved."
 - assertVisible: "MANUAL"
@@ -30,5 +33,6 @@ appId: ${APP_ID}
 - tapOn: "83.5"
 - eraseText
 - inputText: "84"
+- hideKeyboard
 - tapOn: "Save manual rate"
 - assertVisible: "USD rate saved."

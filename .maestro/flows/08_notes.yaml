@@ -13,13 +13,16 @@ appId: ${APP_ID}
 - assertVisible: "New note"
 - tapOn: "Note title"
 - inputText: "Grocery list"
+- hideKeyboard
 - tapOn: "Write something useful..."
 - inputText: "Milk, eggs, bread"
+- hideKeyboard
 
 # Create a folder inline via the FolderPicker.
 - tapOn: "New folder"
 - tapOn: "Folder name"
 - inputText: "Personal"
+- hideKeyboard
 - tapOn: "Create"
 - assertVisible: "Personal"
 
@@ -33,6 +36,7 @@ appId: ${APP_ID}
 - tapOn: "Grocery list"
 - eraseText
 - inputText: "Weekend grocery list"
+- hideKeyboard
 - tapOn: "Save note"
 - assertVisible: "Weekend grocery list"
 

@@ -14,17 +14,23 @@ appId: ${APP_ID}
 - assertVisible: "New card"
 - tapOn: "Personal Visa"
 - inputText: "Everyday Visa"
+- hideKeyboard
 - assertVisible: "Credit card"
 - tapOn: "Card number"
 - inputText: "4111111111111111"
+- hideKeyboard
 - tapOn: "Visa, Mastercard, RuPay..."
 - inputText: "Visa"
+- hideKeyboard
 - tapOn: "MM/YY"
 - inputText: "12/30"
+- hideKeyboard
 - tapOn: "CVV"
 - inputText: "123"
+- hideKeyboard
 - tapOn: "PIN"
 - inputText: "4321"
+- hideKeyboard
 - tapOn: "Save entry"
 - assertVisible: "Everyday Visa"
 - assertVisible: "Visa"

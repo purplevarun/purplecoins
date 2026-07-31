@@ -12,10 +12,13 @@ appId: ${APP_ID}
 - assertVisible: "New identity"
 - tapOn: "Entry title"
 - inputText: "Passport"
+- hideKeyboard
 - tapOn: "Document number"
 - inputText: "P1234567"
+- hideKeyboard
 - tapOn: "Optional notes"
 - inputText: "Expires 2030"
+- hideKeyboard
 - tapOn: "Save entry"
 - assertVisible: "Passport"
 - assertVisible: "P1234567"
@@ -25,6 +28,7 @@ appId: ${APP_ID}
 - tapOn: "Passport"
 - eraseText
 - inputText: "Passport (renewed)"
+- hideKeyboard
 - tapOn: "Save entry"
 - assertVisible: "Passport (renewed)"
 

@@ -8,7 +8,7 @@ appId: ${APP_ID}
     clearState: true
 
 # Home screen defaults to the "Tools" mode.
-- assertVisible: "Purplecoins"
+- assertVisible: "Purplecoins_Experimental"
 - assertVisible: "Tools"
 - assertVisible: "Notes"
 - assertVisible: "Todos"

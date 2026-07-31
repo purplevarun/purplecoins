@@ -13,6 +13,7 @@ appId: ${APP_ID}
 - tapOn: "Add"
 - tapOn: "Source name"
 - inputText: "Bank"
+- hideKeyboard
 - tapOn: "Save"
 - back
 
@@ -20,6 +21,7 @@ appId: ${APP_ID}
 - tapOn: "Add"
 - tapOn: "Category name"
 - inputText: "Food"
+- hideKeyboard
 - tapOn: "Save"
 - back
 
@@ -29,10 +31,12 @@ appId: ${APP_ID}
 - tapOn: "Bank"
 - tapOn: "0.00"
 - inputText: "500"
+- hideKeyboard
 - tapOn: "Select category"
 - tapOn: "Food"
 - tapOn: "What was this for?"
 - inputText: "Groceries"
+- hideKeyboard
 - tapOn: "Save transaction"
 - back
 

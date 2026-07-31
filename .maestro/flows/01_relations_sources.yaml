@@ -14,6 +14,7 @@ appId: ${APP_ID}
 - assertVisible: "New source"
 - tapOn: "Source name"
 - inputText: "Everyday Bank"
+- hideKeyboard
 - assertVisible: "INR"
 - tapOn: "Save"
 - assertVisible: "Everyday Bank"
@@ -22,9 +23,11 @@ appId: ${APP_ID}
 - tapOn: "Add"
 - tapOn: "Source name"
 - inputText: "Travel Card"
+- hideKeyboard
 - tapOn: "INR"
 - eraseText
 - inputText: "USD"
+- hideKeyboard
 - tapOn: "Save"
 - assertVisible: "Travel Card"
 - assertVisible: "Everyday Bank"
@@ -33,6 +36,7 @@ appId: ${APP_ID}
 - tapOn: "Add"
 - tapOn: "Source name"
 - inputText: "Everyday Bank"
+- hideKeyboard
 - tapOn: "Save"
 - assertVisible:
     text: ".*already exists.*"
@@ -52,6 +56,7 @@ appId: ${APP_ID}
 - tapOn: "Everyday Bank"
 - eraseText
 - inputText: "Primary Bank"
+- hideKeyboard
 - tapOn: "Save"
 - back
 - assertVisible: "Primary Bank"

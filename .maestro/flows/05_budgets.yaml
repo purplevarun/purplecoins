@@ -12,6 +12,7 @@ appId: ${APP_ID}
 - tapOn: "Add"
 - tapOn: "Category name"
 - inputText: "Rent"
+- hideKeyboard
 - tapOn: "Save"
 - back
 
@@ -23,6 +24,7 @@ appId: ${APP_ID}
 - tapOn: "Rent"
 - tapOn: "0.00"
 - inputText: "20000"
+- hideKeyboard
 - assertVisible: "Monthly"
 - tapOn: "Save budget"
 - assertVisible: "Rent"

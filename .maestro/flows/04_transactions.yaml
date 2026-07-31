@@ -14,10 +14,12 @@ appId: ${APP_ID}
 - tapOn: "Add"
 - tapOn: "Source name"
 - inputText: "Bank"
+- hideKeyboard
 - tapOn: "Save"
 - tapOn: "Add"
 - tapOn: "Source name"
 - inputText: "Wallet"
+- hideKeyboard
 - tapOn: "Save"
 - back
 
@@ -25,6 +27,7 @@ appId: ${APP_ID}
 - tapOn: "Add"
 - tapOn: "Category name"
 - inputText: "Food"
+- hideKeyboard
 - tapOn: "Save"
 - back
 
@@ -36,10 +39,12 @@ appId: ${APP_ID}
 - tapOn: "Bank"
 - tapOn: "0.00"
 - inputText: "250"
+- hideKeyboard
 - tapOn: "Select category"
 - tapOn: "Food"
 - tapOn: "What was this for?"
 - inputText: "Lunch"
+- hideKeyboard
 - tapOn: "Save transaction"
 - assertVisible: "Lunch"
 
@@ -50,10 +55,12 @@ appId: ${APP_ID}
 - tapOn: "Bank"
 - tapOn: "0.00"
 - inputText: "50000"
+- hideKeyboard
 - tapOn: "Select category"
 - tapOn: "Food"
 - tapOn: "What was this for?"
 - inputText: "Refund"
+- hideKeyboard
 - tapOn: "Save transaction"
 - assertVisible: "Refund"
 
@@ -66,6 +73,7 @@ appId: ${APP_ID}
 - tapOn: "Wallet"
 - tapOn: "0.00"
 - inputText: "1000"
+- hideKeyboard
 - tapOn: "Save transaction"
 - assertVisible: "Bank to Wallet"
 
@@ -81,6 +89,7 @@ appId: ${APP_ID}
 - tapOn: "Search"
 - tapOn: "Search transactions..."
 - inputText: "Lunch"
+- hideKeyboard
 - assertVisible: "Lunch"
 - assertNotVisible: "Refund"
 - tapOn: "Close search"
@@ -91,6 +100,7 @@ appId: ${APP_ID}
 - tapOn: "Lunch"
 - eraseText
 - inputText: "Lunch with team"
+- hideKeyboard
 - tapOn: "Save transaction"
 - assertVisible: "Lunch with team"
 

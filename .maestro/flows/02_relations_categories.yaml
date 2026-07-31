@@ -13,6 +13,7 @@ appId: ${APP_ID}
 - assertVisible: "New category"
 - tapOn: "Category name"
 - inputText: "Groceries"
+- hideKeyboard
 - assertVisible: "Income category"
 - tapOn: "Save"
 - assertVisible: "Groceries"
@@ -21,6 +22,7 @@ appId: ${APP_ID}
 - tapOn: "Add"
 - tapOn: "Category name"
 - inputText: "Salary"
+- hideKeyboard
 # The "Income category" text and its Switch are separate sibling elements
 # in the same row (label left, switch right) — target the switch via its
 # position relative to the label rather than the label text itself.

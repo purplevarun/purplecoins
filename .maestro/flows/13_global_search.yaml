@@ -11,14 +11,17 @@ appId: ${APP_ID}
 - tapOn: "Add"
 - tapOn: "Note title"
 - inputText: "Vacation planning"
+- hideKeyboard
 - tapOn: "Save note"
 - back
 
 - tapOn: "Search Tools"
 - tapOn: "Search Tools"
 - inputText: "a"
+- hideKeyboard
 - assertVisible: "Type at least two characters."
 - inputText: "vacation"
+- hideKeyboard
 - assertVisible: "Vacation planning"
 - back
 
@@ -29,12 +32,14 @@ appId: ${APP_ID}
 - tapOn: "Add"
 - tapOn: "Source name"
 - inputText: "Zenith Bank"
+- hideKeyboard
 - tapOn: "Save"
 - back
 
 - tapOn: "Search Finance"
 - tapOn: "Search Finance"
 - inputText: "zenith"
+- hideKeyboard
 - assertVisible: "Zenith Bank"
 - back
 
@@ -45,12 +50,15 @@ appId: ${APP_ID}
 - tapOn: "Add"
 - tapOn: "Entry title"
 - inputText: "Streaming service"
+- hideKeyboard
 - tapOn: "Password"
 - inputText: "hunter2"
+- hideKeyboard
 - tapOn: "Save entry"
 - back
 
 - tapOn: "Search Vault"
 - tapOn: "Search Vault"
 - inputText: "streaming"
+- hideKeyboard
 - assertVisible: "Streaming service"
