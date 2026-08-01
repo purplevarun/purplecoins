@@ -6,6 +6,10 @@ on:
       - app.json
   workflow_dispatch:
 
+env:
+  # TODO: replace with the prod package id when merging to main.
+  APP_ID: com.purple.coins.experimental
+
 jobs:
   sanity-checks:
     name: Sanity Checks (typecheck, lint, unit tests)
@@ -102,11 +106,10 @@ jobs:
         id: release-meta
         run: |
           app_version=$(bun -e "const fs=require('fs');const j=JSON.parse(fs.readFileSync('app.json','utf8'));console.log(j.expo?.version ?? '')")
-          app_package=$(bun -e "const fs=require('fs');const j=JSON.parse(fs.readFileSync('app.json','utf8'));console.log(j.expo?.android?.package ?? '')")
           branch_name="${GITHUB_REF_NAME}"
           safe_branch=$(echo "$branch_name" | tr '/' '-')
           tag="v${app_version}-${safe_branch}"
-          apk_name="${app_package}_${app_version}.apk"
+          apk_name="${APP_ID}_${app_version}.apk"
           echo "version=$app_version" >> "$GITHUB_OUTPUT"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "name=v${app_version} (${branch_name})" >> "$GITHUB_OUTPUT"
@@ -185,18 +188,10 @@ jobs:
             echo "Installing release APK..."
             adb install -r "${{ needs.build-android.outputs.apk_name }}"
 
-            APP_ID=$(bun -e "const fs=require('fs');const j=JSON.parse(fs.readFileSync('$GITHUB_WORKSPACE/app.json','utf8'));console.log(j.expo?.android?.package ?? '')")
-
-            if [ -z "$APP_ID" ]; then
-              echo "::error::Failed to resolve APP_ID from $GITHUB_WORKSPACE/app.json"
-              exit 1
-            fi
+            APP_ID="${{ env.APP_ID }}"
 
             echo "--- Verifying package is installed ---"
-            adb shell pm list packages | grep -F "$APP_ID" || {
-              echo "::error::Package $APP_ID was not found on the device after install."
-              exit 1
-            }
+            adb shell pm list packages | grep -F "$APP_ID" || { echo "::error::Package $APP_ID was not found on the device after install."; exit 1; }
 
             echo "--- Starting logcat capture (background) ---"
             adb logcat -c

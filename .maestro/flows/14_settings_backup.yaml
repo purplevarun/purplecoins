@@ -32,13 +32,18 @@ appId: ${APP_ID}
 - back
 
 # Export prepares a backup and invokes the native share sheet.
+- scrollUntilVisible:
+    element: "Export .purplecoins"
 - tapOn: "Export .purplecoins"
 - back
+- scrollUntilVisible:
+    element: "Backup prepared successfully."
 - assertVisible: "Backup prepared successfully."
 
 # Restore prompts a destructive-action confirmation before opening the
-# native document picker.
+# native document picker. The picker itself is outside the app, so the
+# flow cancels rather than proceeding to "Choose backup".
 - tapOn: "Restore .purplecoins"
 - assertVisible: "Restore backup?"
 - assertVisible: "This replaces every record currently stored on this phone."
-- tapOn: "Choose backup"
+- tapOn: "Cancel"
