@@ -179,12 +179,45 @@ jobs:
             adb wait-for-device
             adb shell input keyevent 82
 
+            echo "--- adb devices ---"
+            adb devices -l
+
             echo "Installing release APK..."
             adb install -r "${{ needs.build-android.outputs.apk_name }}"
 
             APP_ID=$(bun -e "const j=require('./app.json');console.log(j.expo.android.package)")
+
+            echo "--- Verifying package is installed ---"
+            adb shell pm list packages | grep -F "$APP_ID" || {
+              echo "::error::Package $APP_ID was not found on the device after install."
+              exit 1
+            }
+
+            echo "--- Starting logcat capture (background) ---"
+            adb logcat -c
+            adb logcat > artifacts/logcat.txt 2>&1 &
+            LOGCAT_PID=$!
+
+            echo "--- Launching app manually once to sanity-check startup ---"
+            adb shell monkey -p "$APP_ID" -c android.intent.category.LAUNCHER 1 || true
+            sleep 5
+            adb shell dumpsys activity activities | grep -A2 "mResumedActivity" || true
+            adb shell screencap -p /sdcard/pre-maestro.png
+            adb pull /sdcard/pre-maestro.png artifacts/pre-maestro.png || true
+
             echo "Running Maestro flows against $APP_ID..."
-            "$HOME/.maestro/bin/maestro" test -e APP_ID="$APP_ID" .maestro/flows --format junit --output artifacts/maestro-report.xml
+            set +e
+            MAESTRO_CLI_LOG_LEVEL=debug "$HOME/.maestro/bin/maestro" test \
+              -e APP_ID="$APP_ID" \
+              .maestro/flows \
+              --format junit \
+              --output artifacts/maestro-report.xml \
+              --debug-output artifacts/maestro-debug
+            MAESTRO_EXIT=$?
+            set -e
+
+            kill "$LOGCAT_PID" || true
+            exit $MAESTRO_EXIT
 
       - name: Upload Maestro report
         if: always()
@@ -192,6 +225,18 @@ jobs:
         with:
           name: android-maestro-report
           path: artifacts/maestro-report.xml
+          retention-days: 14
+          if-no-files-found: ignore
+
+      - name: Upload Maestro debug artifacts (screenshots, hierarchy, logcat)
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: android-maestro-debug
+          path: |
+            artifacts/maestro-debug/**
+            artifacts/logcat.txt
+            artifacts/pre-maestro.png
           retention-days: 14
           if-no-files-found: ignore
 
