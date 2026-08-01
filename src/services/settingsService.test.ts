@@ -148,5 +148,25 @@ describe("settingsService", () => {
 				repeatHours: 1,
 			});
 		});
+
+		it("falls back to defaults when stored reminder values are not numbers", async () => {
+			await upsertSettingRow(
+				database,
+				"todo_reminder_days_before_due",
+				"not-a-number",
+				1,
+			);
+			await upsertSettingRow(
+				database,
+				"todo_reminder_repeat_hours",
+				"not-a-number",
+				1,
+			);
+			expect(await getTodoReminderSettings(database)).toEqual({
+				enabled: true,
+				daysBeforeDue: 2,
+				repeatHours: 12,
+			});
+		});
 	});
 });

@@ -22,6 +22,7 @@ const buildTripTotals = (
 
 	transactions.filter(shouldIncludeTransaction).forEach((transaction) => {
 		const tripId = transaction.tripId;
+		/* v8 ignore start */
 		if (!tripId) {
 			// NOTE: currently unreachable. `shouldIncludeTransaction` above
 			// already requires `Boolean(transaction.tripId)`, so every
@@ -31,6 +32,7 @@ const buildTripTotals = (
 			// filter is ever relaxed.
 			return;
 		}
+		/* v8 ignore stop */
 		const key = getTripTotalKey(tripId, transaction.sourceCurrencyCode);
 		const current = totals.get(key) ?? {
 			tripId,

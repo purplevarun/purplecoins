@@ -351,6 +351,34 @@ describe("categoryService", () => {
 			});
 		});
 
+		it("rejects a blank merged category name", async () => {
+			const groceries = await insertCategory(database, {
+				name: "Groceries",
+			});
+			const vegetables = await insertCategory(database, {
+				name: "Vegetables",
+			});
+
+			await expect(
+				mergeCategories(database, groceries.id, vegetables.id, "   "),
+			).rejects.toMatchObject({ code: "CATEGORY_NAME_REQUIRED" });
+		});
+
+		it("rejects merging when a selected category no longer exists", async () => {
+			const groceries = await insertCategory(database, {
+				name: "Groceries",
+			});
+
+			await expect(
+				mergeCategories(
+					database,
+					groceries.id,
+					"missing-category-id",
+					"Food",
+				),
+			).rejects.toMatchObject({ code: "CATEGORY_NOT_FOUND" });
+		});
+
 		it("rejects mixing income and expense categories", async () => {
 			const income = await insertCategory(database, {
 				name: "Salary",

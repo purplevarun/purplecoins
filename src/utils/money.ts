@@ -12,6 +12,7 @@ const normalizeMoney = (value: string): string => {
 	}
 
 	const amount = new Decimal(trimmedValue);
+	/* v8 ignore start */
 	if (!amount.isPositive()) {
 		// NOTE: currently unreachable through this function. MONEY_PATTERN
 		// only accepts unsigned digits (no "-" sign), and decimal.js treats
@@ -24,6 +25,7 @@ const normalizeMoney = (value: string): string => {
 			"Amount must be greater than zero.",
 		);
 	}
+	/* v8 ignore stop */
 	return amount.toFixed();
 };
 

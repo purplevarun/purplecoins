@@ -138,6 +138,7 @@ const prepareTransactionInput = async (
 		source.currencyCode === destination.currencyCode
 			? amount
 			: normalizeMoney(input.toAmount ?? "");
+	/* v8 ignore start */
 	if (
 		source.currencyCode === destination.currencyCode &&
 		compareMoney(amount, toAmount) !== 0
@@ -152,6 +153,7 @@ const prepareTransactionInput = async (
 			"Same-currency transfer amounts must match.",
 		);
 	}
+	/* v8 ignore stop */
 	return {
 		...input,
 		classification: "GENERAL",
