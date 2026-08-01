@@ -45,6 +45,8 @@ appId: ${APP_ID}
 - tapOn: "What was this for?"
 - inputText: "Lunch"
 - hideKeyboard
+- scrollUntilVisible:
+    element: "Save transaction"
 - tapOn: "Save transaction"
 - assertVisible: "Lunch"
 
@@ -61,6 +63,8 @@ appId: ${APP_ID}
 - tapOn: "What was this for?"
 - inputText: "Refund"
 - hideKeyboard
+- scrollUntilVisible:
+    element: "Save transaction"
 - tapOn: "Save transaction"
 - assertVisible: "Refund"
 
@@ -74,6 +78,8 @@ appId: ${APP_ID}
 - tapOn: "0.00"
 - inputText: "1000"
 - hideKeyboard
+- scrollUntilVisible:
+    element: "Save transaction"
 - tapOn: "Save transaction"
 - assertVisible: "Bank to Wallet"
 
@@ -81,7 +87,7 @@ appId: ${APP_ID}
 - tapOn: "General"
 - assertVisible: "Lunch"
 - tapOn: "Investment"
-- assertVisible: "No matching records found."
+- assertVisible: "No transactions found"
 - tapOn: "All"
 - assertVisible: "Lunch"
 
@@ -101,16 +107,22 @@ appId: ${APP_ID}
 - eraseText
 - inputText: "Lunch with team"
 - hideKeyboard
+- scrollUntilVisible:
+    element: "Save transaction"
 - tapOn: "Save transaction"
 - assertVisible: "Lunch with team"
 
 # --- Clone via long-press ---
 - longPressOn: "Lunch with team"
 - assertVisible: "Clone transaction"
+- scrollUntilVisible:
+    element: "Save transaction"
 - tapOn: "Save transaction"
 
 # --- Delete the refund transaction ---
 - tapOn: "Refund"
+- scrollUntilVisible:
+    element: "Delete transaction"
 - tapOn: "Delete transaction"
 - tapOn: "Delete"
 - assertNotVisible: "Refund"

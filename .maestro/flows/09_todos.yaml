@@ -23,6 +23,8 @@ appId: ${APP_ID}
     rightOf: "Due date"
 - assertVisible: "Due"
 
+- scrollUntilVisible:
+    element: "Save todo"
 - tapOn: "Save todo"
 - assertVisible: "Renew passport"
 - assertVisible: "Book an appointment first"
@@ -33,6 +35,8 @@ appId: ${APP_ID}
 - assertVisible: "Edit todo"
 - tapOn:
     rightOf: "Completed"
+- scrollUntilVisible:
+    element: "Save todo"
 - tapOn: "Save todo"
 
 # Edit the title.
@@ -41,11 +45,15 @@ appId: ${APP_ID}
 - eraseText
 - inputText: "Renew passport (urgent)"
 - hideKeyboard
+- scrollUntilVisible:
+    element: "Save todo"
 - tapOn: "Save todo"
 - assertVisible: "Renew passport (urgent)"
 
 # Delete it.
 - tapOn: "Renew passport (urgent)"
+- scrollUntilVisible:
+    element: "Delete todo"
 - tapOn: "Delete todo"
 - assertVisible: "Delete todo?"
 - tapOn: "Delete"

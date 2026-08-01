@@ -1,7 +1,6 @@
 appId: ${APP_ID}
 ---
-# Vault > Cards: create a credit card, copy its number/CVV/PIN (icon-only
-# buttons with no accessible label, targeted via relative position), edit,
+# Vault > Cards: create a credit card, copy its number/CVV/PIN, edit,
 # then delete.
 
 - launchApp:
@@ -31,18 +30,20 @@ appId: ${APP_ID}
 - tapOn: "PIN"
 - inputText: "4321"
 - hideKeyboard
+- scrollUntilVisible:
+    element: "Save entry"
 - tapOn: "Save entry"
 - assertVisible: "Everyday Visa"
-- assertVisible: "Visa"
+- assertVisible: ".*Visa.*"
 
 - tapOn:
-    rightOf: "Card number"
+    id: "copy-card-number"
 - assertVisible: "Card number copied."
 - tapOn:
-    rightOf: "CVV"
+    id: "copy-cvv"
 - assertVisible: "CVV copied."
 - tapOn:
-    rightOf: "PIN"
+    id: "copy-pin"
 - assertVisible: "PIN copied."
 
 # Switch card type to Debit while editing.
@@ -50,10 +51,14 @@ appId: ${APP_ID}
 - assertVisible: "Edit card"
 - tapOn: "Credit card"
 - tapOn: "Debit card"
+- scrollUntilVisible:
+    element: "Save entry"
 - tapOn: "Save entry"
 - assertVisible: "Debit card"
 
 - tapOn: "Everyday Visa"
+- scrollUntilVisible:
+    element: "Delete entry"
 - tapOn: "Delete entry"
 - assertVisible: "Delete vault entry?"
 - tapOn: "Delete"

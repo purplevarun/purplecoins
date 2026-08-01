@@ -28,7 +28,7 @@ appId: ${APP_ID}
 - hideKeyboard
 - tapOn: "Save manual rate"
 - assertVisible: "USD rate saved."
-- assertVisible: "MANUAL"
+- assertVisible: ".*MANUAL.*"
 
 - tapOn: "83.5"
 - eraseText

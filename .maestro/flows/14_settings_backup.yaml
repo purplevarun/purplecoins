@@ -26,6 +26,8 @@ appId: ${APP_ID}
 - assertVisible: "Jun"
 
 # Archived relations is reachable (covered in depth by 01_relations_sources).
+- scrollUntilVisible:
+    element: "Archived relations"
 - tapOn: "Archived relations"
 - back
 

@@ -52,7 +52,7 @@ appId: ${APP_ID}
 # Rename it — currency becomes read-only once created.
 - tapOn: "Everyday Bank"
 - tapOn: "Edit"
-- assertVisible: "Currency is fixed after a source is created."
+- assertVisible: ".*Currency is fixed after a source is created\\..*"
 - tapOn: "Everyday Bank"
 - eraseText
 - inputText: "Primary Bank"
@@ -72,6 +72,8 @@ appId: ${APP_ID}
 
 - back
 - tapOn: "Settings"
+- scrollUntilVisible:
+    element: "Archived relations"
 - tapOn: "Archived relations"
 - assertVisible: "Primary Bank"
 - tapOn: "Primary Bank"

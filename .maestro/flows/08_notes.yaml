@@ -26,6 +26,8 @@ appId: ${APP_ID}
 - tapOn: "Create"
 - assertVisible: "Personal"
 
+- scrollUntilVisible:
+    element: "Save note"
 - tapOn: "Save note"
 - assertVisible: "Grocery list"
 - assertVisible: "Personal"
@@ -42,6 +44,8 @@ appId: ${APP_ID}
 
 # Delete the note.
 - tapOn: "Weekend grocery list"
+- scrollUntilVisible:
+    element: "Delete note"
 - tapOn: "Delete note"
 - assertVisible: "Delete note?"
 - tapOn: "Delete"

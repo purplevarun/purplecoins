@@ -26,12 +26,16 @@ appId: ${APP_ID}
 - inputText: "20000"
 - hideKeyboard
 - assertVisible: "Monthly"
+- scrollUntilVisible:
+    element: "Save budget"
 - tapOn: "Save budget"
 - assertVisible: "Rent"
 
 - tapOn: "Edit"
 - assertVisible: "Edit budget"
 - tapOn: "Yearly"
+- scrollUntilVisible:
+    element: "Save budget"
 - tapOn: "Save budget"
 
 - tapOn: "Delete"

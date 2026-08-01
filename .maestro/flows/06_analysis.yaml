@@ -37,6 +37,8 @@ appId: ${APP_ID}
 - tapOn: "What was this for?"
 - inputText: "Groceries"
 - hideKeyboard
+- scrollUntilVisible:
+    element: "Save transaction"
 - tapOn: "Save transaction"
 - back
 
@@ -50,5 +52,7 @@ appId: ${APP_ID}
 - tapOn: "FY"
 - tapOn: "YTD"
 
+- scrollUntilVisible:
+    element: "Manage exchange rates"
 - tapOn: "Manage exchange rates"
 - assertVisible: "Fetch latest rates"
