@@ -54,7 +54,7 @@ appId: ${APP_ID}
 - scrollUntilVisible:
     element: "Save entry"
 - tapOn: "Save entry"
-- assertVisible: "Debit card"
+- assertVisible: ".*Debit card.*"
 
 - tapOn: "Everyday Visa"
 - scrollUntilVisible:

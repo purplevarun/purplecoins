@@ -185,7 +185,12 @@ jobs:
             echo "Installing release APK..."
             adb install -r "${{ needs.build-android.outputs.apk_name }}"
 
-            APP_ID=$(bun -e "const j=require('./app.json');console.log(j.expo.android.package)")
+            APP_ID=$(bun -e "const fs=require('fs');const j=JSON.parse(fs.readFileSync('$GITHUB_WORKSPACE/app.json','utf8'));console.log(j.expo?.android?.package ?? '')")
+
+            if [ -z "$APP_ID" ]; then
+              echo "::error::Failed to resolve APP_ID from $GITHUB_WORKSPACE/app.json"
+              exit 1
+            fi
 
             echo "--- Verifying package is installed ---"
             adb shell pm list packages | grep -F "$APP_ID" || {

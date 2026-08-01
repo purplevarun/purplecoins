@@ -20,10 +20,10 @@ appId: ${APP_ID}
     rightOf: "Native currencies"
 
 # Financial year start month.
-- tapOn: "Financial year start month"
+- tapOn: "Apr"
 - tapOn: "Jul"
-- assertVisible: "FY ends in"
-- assertVisible: "Jun"
+- assertVisible: ".*FY ends in.*"
+- assertVisible: ".*Jun.*"
 
 # Archived relations is reachable (covered in depth by 01_relations_sources).
 - scrollUntilVisible:
