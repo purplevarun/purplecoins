@@ -50,7 +50,13 @@ describe("upiDetectionService", () => {
 	});
 
 	describe("when the native module is available on android", () => {
-		const buildNativeModule = () => ({
+		const buildNativeModule = (): {
+			consumeDetectedTransaction: ReturnType<typeof vi.fn>;
+			getDetectionEnabled: ReturnType<typeof vi.fn>;
+			isNotificationAccessEnabled: ReturnType<typeof vi.fn>;
+			openNotificationAccessSettings: ReturnType<typeof vi.fn>;
+			setDetectionEnabled: ReturnType<typeof vi.fn>;
+		} => ({
 			consumeDetectedTransaction: vi.fn().mockResolvedValue({
 				type: "DEBIT",
 				amount: "100",

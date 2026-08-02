@@ -162,7 +162,16 @@ describe("syncTodoReminders", () => {
 			identifier: string;
 			content: { data: Record<string, unknown> | null };
 		}[];
-	}) => {
+	}): {
+		setNotificationHandler: ReturnType<typeof vi.fn>;
+		setNotificationChannelAsync: ReturnType<typeof vi.fn>;
+		getAllScheduledNotificationsAsync: ReturnType<typeof vi.fn>;
+		cancelScheduledNotificationAsync: ReturnType<typeof vi.fn>;
+		getPermissionsAsync: ReturnType<typeof vi.fn>;
+		requestPermissionsAsync: ReturnType<typeof vi.fn>;
+		scheduleNotificationAsync: ReturnType<typeof vi.fn>;
+		AndroidImportance: { HIGH: number };
+	} => {
 		const {
 			settings = DEFAULT_SETTINGS,
 			todos = [],
