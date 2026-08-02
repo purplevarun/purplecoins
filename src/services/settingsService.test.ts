@@ -7,11 +7,13 @@ import createTestDatabase from "@/test/sqliteTestDatabase";
 import type { SQLiteDatabase } from "expo-sqlite";
 
 const {
+	getBudgetAlertsEnabled,
 	getDefaultHomeMode,
 	getDefaultTripId,
 	getFyStartMonth,
 	getNativeCurrencyDisplay,
 	getTodoReminderSettings,
+	updateBudgetAlertsEnabled,
 	updateDefaultHomeMode,
 	updateDefaultTripId,
 	updateFyStartMonth,
@@ -106,6 +108,23 @@ describe("settingsService", () => {
 				1,
 			);
 			expect(await getDefaultHomeMode(database)).toBe("TOOLS");
+		});
+	});
+
+	describe("budget alerts enabled", () => {
+		it("defaults to true when never set", async () => {
+			expect(await getBudgetAlertsEnabled(database)).toBe(true);
+		});
+
+		it("round-trips false", async () => {
+			await updateBudgetAlertsEnabled(database, false);
+			expect(await getBudgetAlertsEnabled(database)).toBe(false);
+		});
+
+		it("round-trips true explicitly", async () => {
+			await updateBudgetAlertsEnabled(database, false);
+			await updateBudgetAlertsEnabled(database, true);
+			expect(await getBudgetAlertsEnabled(database)).toBe(true);
 		});
 	});
 

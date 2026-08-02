@@ -8,6 +8,7 @@ import { AppState, Platform } from "react-native";
 
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import navigationRef from "@/navigation/navigationRef";
+import budgetAlertService from "@/services/budgetAlertService";
 import merchantCategoryService from "@/services/merchantCategoryService";
 import todoReminderService from "@/services/todoReminderService";
 import upiDetectionService from "@/services/upiDetectionService";
@@ -15,6 +16,7 @@ import upiDetectionService from "@/services/upiDetectionService";
 import type { DetectedTransactionPayload } from "@/services/upiDetectionService";
 import type TransactionType from "@/types/TransactionType";
 
+const { syncBudgetAlerts } = budgetAlertService;
 const { syncTodoReminders } = todoReminderService;
 const { consumeDetectedTransaction } = upiDetectionService;
 const { getSuggestionForMerchant } = merchantCategoryService;
@@ -60,8 +62,11 @@ const getReadableSource = (
 const NotificationProvider = ({ children }: PropsWithChildren): ReactNode => {
 	const { database, dataVersion } = useDatabaseContext();
 
-	const syncReminders = useCallback(async (): Promise<void> => {
-		await syncTodoReminders(database);
+	const syncNotifications = useCallback(async (): Promise<void> => {
+		await Promise.all([
+			syncTodoReminders(database),
+			syncBudgetAlerts(database),
+		]);
 	}, [database]);
 
 	const handleDetectedTransactionLaunch =
@@ -90,8 +95,8 @@ const NotificationProvider = ({ children }: PropsWithChildren): ReactNode => {
 		}, [database]);
 
 	useEffect(() => {
-		void syncReminders();
-	}, [dataVersion, syncReminders]);
+		void syncNotifications();
+	}, [dataVersion, syncNotifications]);
 
 	useEffect(() => {
 		let attempts = 0;
@@ -108,12 +113,12 @@ const NotificationProvider = ({ children }: PropsWithChildren): ReactNode => {
 	useEffect(() => {
 		const subscription = AppState.addEventListener("change", (state) => {
 			if (state === "active") {
-				void syncReminders();
+				void syncNotifications();
 				void handleDetectedTransactionLaunch();
 			}
 		});
 		return () => subscription.remove();
-	}, [syncReminders, handleDetectedTransactionLaunch]);
+	}, [syncNotifications, handleDetectedTransactionLaunch]);
 
 	return children;
 };

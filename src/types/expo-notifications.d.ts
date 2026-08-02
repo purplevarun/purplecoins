@@ -27,7 +27,7 @@ declare module "expo-notifications" {
 
 	export type NotificationRequestInput = Readonly<{
 		content: NotificationContentInput;
-		trigger: Date;
+		trigger: Date | null;
 	}>;
 
 	export type ScheduledNotificationRequest = Readonly<{

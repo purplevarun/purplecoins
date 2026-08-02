@@ -11,6 +11,7 @@ const NATIVE_CURRENCY_KEY = "native_currency_display";
 const FY_START_MONTH_KEY = "fy_start_month";
 const DEFAULT_TRIP_ID_KEY = "default_trip_id";
 const DEFAULT_HOME_MODE_KEY = "default_home_mode";
+const BUDGET_ALERTS_ENABLED_KEY = "budget_alerts_enabled";
 const TODO_REMINDERS_ENABLED_KEY = "todo_reminders_enabled";
 const TODO_REMINDER_DAYS_BEFORE_DUE_KEY = "todo_reminder_days_before_due";
 const TODO_REMINDER_REPEAT_HOURS_KEY = "todo_reminder_repeat_hours";
@@ -109,6 +110,25 @@ const updateDefaultHomeMode = async (
 ): Promise<void> =>
 	upsertSettingRow(database, DEFAULT_HOME_MODE_KEY, mode, Date.now());
 
+// Budget overspend alerts (80%/100% thresholds) fire as local notifications.
+const getBudgetAlertsEnabled = async (
+	database: SQLiteDatabase,
+): Promise<boolean> => {
+	const value = await getSettingRow(database, BUDGET_ALERTS_ENABLED_KEY);
+	return value === null ? true : value === "true";
+};
+
+const updateBudgetAlertsEnabled = async (
+	database: SQLiteDatabase,
+	enabled: boolean,
+): Promise<void> =>
+	upsertSettingRow(
+		database,
+		BUDGET_ALERTS_ENABLED_KEY,
+		String(enabled),
+		Date.now(),
+	);
+
 const getTodoReminderSettings = async (
 	database: SQLiteDatabase,
 ): Promise<TodoReminderSettings> => {
@@ -184,11 +204,13 @@ const updateTodoReminderRepeatHours = async (
 	);
 
 const settingsService = {
+	getBudgetAlertsEnabled,
 	getDefaultHomeMode,
 	getDefaultTripId,
 	getFyStartMonth,
 	getNativeCurrencyDisplay,
 	getTodoReminderSettings,
+	updateBudgetAlertsEnabled,
 	updateDefaultHomeMode,
 	updateDefaultTripId,
 	updateFyStartMonth,

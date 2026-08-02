@@ -22,6 +22,7 @@ import COLORS from "@/constants/colors";
 import useAppDialog from "@/hooks/useAppDialog";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import backupService from "@/services/backupService";
+import budgetAlertService from "@/services/budgetAlertService";
 import settingsService from "@/services/settingsService";
 import todoReminderService from "@/services/todoReminderService";
 import tripService from "@/services/tripService";
@@ -34,12 +35,15 @@ import getErrorMessage from "@/utils/error";
 const { APP_NAME } = appConstants;
 const { version } = packageJson;
 const { exportBackup, restoreBackup } = backupService;
+const { syncBudgetAlerts } = budgetAlertService;
 const {
+	getBudgetAlertsEnabled,
 	getDefaultHomeMode,
 	getDefaultTripId,
 	getFyStartMonth,
 	getNativeCurrencyDisplay,
 	getTodoReminderSettings,
+	updateBudgetAlertsEnabled,
 	updateDefaultHomeMode,
 	updateDefaultTripId,
 	updateFyStartMonth,
@@ -129,6 +133,8 @@ const SettingsScreen = ({
 	const [todoReminderRepeatHours, setTodoReminderRepeatHours] = useState(12);
 	const [trips, setTrips] = useState<readonly Trip[]>([]);
 	const [reminderNotice, setReminderNotice] = useState("");
+	const [budgetAlertsEnabled, setBudgetAlertsEnabled] = useState(true);
+	const [budgetAlertNotice, setBudgetAlertNotice] = useState("");
 	const [upiDetectionEnabled, setUpiDetectionEnabled] = useState(false);
 	const [hasNotificationAccess, setHasNotificationAccess] = useState(false);
 	const [hasSmsPermission, setHasSmsPermission] = useState(false);
@@ -143,6 +149,7 @@ const SettingsScreen = ({
 				homeMode,
 				reminderSettings,
 				loadedTrips,
+				budgetAlerts,
 			] = await Promise.all([
 				getNativeCurrencyDisplay(database),
 				getFyStartMonth(database),
@@ -150,6 +157,7 @@ const SettingsScreen = ({
 				getDefaultHomeMode(database),
 				getTodoReminderSettings(database),
 				getTrips(database),
+				getBudgetAlertsEnabled(database),
 			]);
 			setIsNativeCurrency(native);
 			setFyStartMonth(fy);
@@ -159,6 +167,7 @@ const SettingsScreen = ({
 			setTodoReminderDaysBeforeDue(reminderSettings.daysBeforeDue);
 			setTodoReminderRepeatHours(reminderSettings.repeatHours);
 			setTrips(loadedTrips);
+			setBudgetAlertsEnabled(budgetAlerts);
 		};
 		void getSettings();
 	}, [database]);
@@ -219,6 +228,34 @@ const SettingsScreen = ({
 		setReminderNotice(
 			"No upcoming due-date reminders to schedule right now.",
 		);
+	};
+
+	const syncBudgetAlertSettings = async (): Promise<void> => {
+		const result = await syncBudgetAlerts(database);
+		if (result.permissionState === "denied") {
+			setBudgetAlertNotice(
+				"Allow notifications from system settings to receive budget alerts.",
+			);
+			return;
+		}
+		if (result.permissionState === "unavailable") {
+			setBudgetAlertNotice(
+				"Notifications dependency is not installed locally yet. Reinstall dependencies and rebuild the app to enable alerts.",
+			);
+			return;
+		}
+		if (result.permissionState === "disabled") {
+			setBudgetAlertNotice("Budget alerts are turned off.");
+			return;
+		}
+		if (result.notifiedCount > 0) {
+			const alertSuffix = result.notifiedCount === 1 ? "" : "s";
+			setBudgetAlertNotice(
+				`Sent ${result.notifiedCount} new budget alert${alertSuffix}.`,
+			);
+			return;
+		}
+		setBudgetAlertNotice("No new budget alerts right now.");
 	};
 
 	const handleUpiDetectionToggle = (value: boolean): void => {
@@ -302,6 +339,14 @@ const SettingsScreen = ({
 		setTodoReminderRepeatHours(hours);
 		await updateTodoReminderRepeatHours(database, hours);
 		await syncReminderSettings();
+	};
+
+	const handleBudgetAlertsEnabledChange = async (
+		value: boolean,
+	): Promise<void> => {
+		setBudgetAlertsEnabled(value);
+		await updateBudgetAlertsEnabled(database, value);
+		await syncBudgetAlertSettings();
 	};
 
 	const handleExport = async (): Promise<void> => {
@@ -492,6 +537,37 @@ const SettingsScreen = ({
 					</CustomText>
 					{reminderNotice ? (
 						<Notice message={reminderNotice} />
+					) : null}
+				</View>
+			</GlassCard>
+			<GlassCard>
+				<View style={styles.section}>
+					<CustomText style={styles.heading}>
+						Budget alerts
+					</CustomText>
+					<CustomText style={styles.description}>
+						Get notified locally as soon as a budget crosses 80% or
+						100% of its limit for the current month or year.
+					</CustomText>
+					<View style={styles.switchRow}>
+						<View style={styles.switchDetails}>
+							<CustomText style={styles.switchTitle}>
+								Enable budget alerts
+							</CustomText>
+							<CustomText style={styles.switchDescription}>
+								Each budget only alerts once per threshold per
+								period.
+							</CustomText>
+						</View>
+						<Switch
+							onValueChange={(value) =>
+								void handleBudgetAlertsEnabledChange(value)
+							}
+							value={budgetAlertsEnabled}
+						/>
+					</View>
+					{budgetAlertNotice ? (
+						<Notice message={budgetAlertNotice} />
 					) : null}
 				</View>
 			</GlassCard>
