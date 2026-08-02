@@ -117,12 +117,7 @@ jobs:
 
             echo "Running Maestro flows against $APP_ID..."
             set +e
-            maestro --verbose test -e APP_ID="$APP_ID" \
-              --debug-output artifacts/maestro-debug \
-              --flatten-debug-output \
-              --format HTML-DETAILED \
-              --output artifacts/maestro-report.html \
-              .maestro
+            maestro --verbose test -e APP_ID="$APP_ID" --debug-output artifacts/maestro-debug --flatten-debug-output --format HTML-DETAILED --output artifacts/maestro-report.html .maestro
             MAESTRO_EXIT=$?
             set -e
 
