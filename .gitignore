@@ -40,6 +40,9 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
+# local npm registry override (machine-specific proxy workaround)
+.npmrc
+
 # test coverage reports
 coverage/
 
