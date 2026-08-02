@@ -35,19 +35,15 @@ jobs:
           curl -fsSL "https://get.maestro.mobile.dev" | bash
           echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
 
-      - name: Find latest successful Release run
+      - name: Find latest Release run with APK artifact
         id: latest-run
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          run_id=$(gh run list \
-            --workflow release.yml \
-            --status success \
-            --limit 1 \
-            --json databaseId \
-            --jq '.[0].databaseId')
+          run_id=$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts?per_page=100" --paginate \
+            --jq '[.artifacts[] | select(.name == "android-release-apk" and .expired == false)] | sort_by(.created_at) | reverse | .[0].workflow_run.id')
           if [ -z "$run_id" ] || [ "$run_id" = "null" ]; then
-            echo "::error::No successful run of release.yml found."
+            echo "::error::No non-expired android-release-apk artifact found in any run."
             exit 1
           fi
           echo "Using run ID: $run_id"
