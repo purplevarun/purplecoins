@@ -47,13 +47,25 @@ appId: ${APP_ID}
 - scrollUntilVisible:
     element: "Food"
     timeout: 10000
+- scrollUntilVisible:
+    element: "Year"
+    direction: UP
+    timeout: 10000
 - tapOn: "Year"
 - scrollUntilVisible:
     element: "Food"
     timeout: 10000
+- scrollUntilVisible:
+    element: "All"
+    direction: UP
+    timeout: 10000
 - tapOn: "All"
 - scrollUntilVisible:
     element: "Food"
+    timeout: 10000
+- scrollUntilVisible:
+    element: "FY"
+    direction: UP
     timeout: 10000
 - tapOn: "FY"
 - tapOn: "YTD"
