@@ -207,7 +207,7 @@ jobs:
 
             echo "Running Maestro flows against $APP_ID..."
             set +e
-            MAESTRO_CLI_LOG_LEVEL=debug "$HOME/.maestro/bin/maestro" test -e APP_ID="$APP_ID" .maestro/flows --format junit --output artifacts/maestro-report.xml --debug-output artifacts/maestro-debug
+            maestro test -e APP_ID="$APP_ID" .maestro
             MAESTRO_EXIT=$?
             set -e
 

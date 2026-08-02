@@ -1,0 +1,139 @@
+name: E2E Analysis (Manual - Latest Build Artifact)
+
+# TEMPORARY workflow: manually triggered, runs only the Maestro E2E suite
+# against the release APK artifact from the most recent successful "Release" run.
+# Delete this file once it's no longer needed.
+
+on:
+  workflow_dispatch:
+
+env:
+  APP_ID: com.purple.coins.experimental
+
+jobs:
+  e2e-verify:
+    name: Maestro Flows on Release Build (Android Emulator)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Install Maestro CLI
+        run: |
+          curl -fsSL "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+
+      - name: Find latest successful Release run
+        id: latest-run
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          run_id=$(gh run list \
+            --workflow release.yml \
+            --status success \
+            --limit 1 \
+            --json databaseId \
+            --jq '.[0].databaseId')
+          if [ -z "$run_id" ] || [ "$run_id" = "null" ]; then
+            echo "::error::No successful run of release.yml found."
+            exit 1
+          fi
+          echo "Using run ID: $run_id"
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+
+      - name: Download release APK from latest run
+        uses: actions/download-artifact@v7
+        with:
+          name: android-release-apk
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ steps.latest-run.outputs.run_id }}
+
+      - name: Locate APK
+        id: apk
+        run: |
+          apk_path=$(find . -maxdepth 1 -name "*.apk" | head -n1)
+          if [ -z "$apk_path" ]; then
+            echo "::error::No APK found in downloaded artifact."
+            exit 1
+          fi
+          echo "apk_name=$(basename "$apk_path")" >> "$GITHUB_OUTPUT"
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run Maestro suite on emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 33
+          target: google_apis
+          arch: x86_64
+          profile: pixel_5
+          disable-animations: true
+          disable-spellchecker: true
+          emulator-options: >-
+            -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio
+            -no-boot-anim -camera-back none
+          script: |
+            set -eu
+
+            mkdir -p artifacts
+
+            adb wait-for-device
+            adb shell input keyevent 82
+
+            echo "--- adb devices ---"
+            adb devices -l
+
+            echo "Installing release APK..."
+            adb install -r "${{ steps.apk.outputs.apk_name }}"
+
+            APP_ID="${{ env.APP_ID }}"
+
+            echo "--- Verifying package is installed ---"
+            adb shell pm list packages | grep -F "$APP_ID" || { echo "::error::Package $APP_ID was not found on the device after install."; exit 1; }
+
+            echo "--- Starting logcat capture (background) ---"
+            adb logcat -c
+            adb logcat > artifacts/logcat.txt 2>&1 &
+            LOGCAT_PID=$!
+
+            echo "--- Launching app manually once to sanity-check startup ---"
+            adb shell monkey -p "$APP_ID" -c android.intent.category.LAUNCHER 1 || true
+            sleep 5
+            adb shell dumpsys activity activities | grep -A2 "mResumedActivity" || true
+            adb shell screencap -p /sdcard/pre-maestro.png
+            adb pull /sdcard/pre-maestro.png artifacts/pre-maestro.png || true
+
+            echo "Running Maestro flows against $APP_ID..."
+            set +e
+            maestro test -e APP_ID="$APP_ID" .maestro
+            MAESTRO_EXIT=$?
+            set -e
+
+            kill "$LOGCAT_PID" || true
+            exit $MAESTRO_EXIT
+
+      - name: Upload Maestro debug artifacts (screenshots, hierarchy, logcat)
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: android-maestro-debug
+          path: |
+            artifacts/maestro-debug/**
+            artifacts/logcat.txt
+            artifacts/pre-maestro.png
+          retention-days: 14
+          if-no-files-found: ignore
+          include-hidden-files: true
