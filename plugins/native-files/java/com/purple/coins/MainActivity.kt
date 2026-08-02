@@ -10,11 +10,6 @@ import expo.modules.ReactActivityDelegateWrapper
 
 class MainActivity : ReactActivity() {
 	companion object {
-		private const val TYPE_KEY = "purplecoins_detected_transaction_type"
-		private const val AMOUNT_KEY = "purplecoins_detected_transaction_amount"
-		private const val SOURCE_KEY = "purplecoins_detected_transaction_source"
-		private const val DETECTED_AT_KEY = "purplecoins_detected_transaction_at"
-
 		@Volatile private var pendingDetectedTransaction: Bundle? = null
 
 		fun consumePendingDetectedTransaction(): Bundle? {
@@ -24,23 +19,56 @@ class MainActivity : ReactActivity() {
 		}
 
 		private fun captureDetectedTransactionFromIntent(intent: android.content.Intent?) {
-			if (intent == null || !intent.hasExtra(TYPE_KEY) || !intent.hasExtra(AMOUNT_KEY)) {
+			if (intent == null ||
+				!intent.hasExtra(TransactionDetectionNotifier.TYPE_KEY) ||
+				!intent.hasExtra(TransactionDetectionNotifier.AMOUNT_KEY)
+			) {
 				return
 			}
 
 			val payload =
 				Bundle().apply {
-					putString(TYPE_KEY, intent.getStringExtra(TYPE_KEY))
-					putString(AMOUNT_KEY, intent.getStringExtra(AMOUNT_KEY))
-					putString(SOURCE_KEY, intent.getStringExtra(SOURCE_KEY))
-					putLong(DETECTED_AT_KEY, intent.getLongExtra(DETECTED_AT_KEY, System.currentTimeMillis()))
+					putString(
+						TransactionDetectionNotifier.TYPE_KEY,
+						intent.getStringExtra(TransactionDetectionNotifier.TYPE_KEY),
+					)
+					putString(
+						TransactionDetectionNotifier.AMOUNT_KEY,
+						intent.getStringExtra(TransactionDetectionNotifier.AMOUNT_KEY),
+					)
+					putString(
+						TransactionDetectionNotifier.SOURCE_KEY,
+						intent.getStringExtra(TransactionDetectionNotifier.SOURCE_KEY),
+					)
+					putLong(
+						TransactionDetectionNotifier.DETECTED_AT_KEY,
+						intent.getLongExtra(
+							TransactionDetectionNotifier.DETECTED_AT_KEY,
+							System.currentTimeMillis(),
+						),
+					)
+					putString(
+						TransactionDetectionNotifier.MERCHANT_KEY,
+						intent.getStringExtra(TransactionDetectionNotifier.MERCHANT_KEY),
+					)
+					putString(
+						TransactionDetectionNotifier.REFERENCE_KEY,
+						intent.getStringExtra(TransactionDetectionNotifier.REFERENCE_KEY),
+					)
+					putString(
+						TransactionDetectionNotifier.CHANNEL_KEY,
+						intent.getStringExtra(TransactionDetectionNotifier.CHANNEL_KEY),
+					)
 				}
 
 			pendingDetectedTransaction = payload
-			intent.removeExtra(TYPE_KEY)
-			intent.removeExtra(AMOUNT_KEY)
-			intent.removeExtra(SOURCE_KEY)
-			intent.removeExtra(DETECTED_AT_KEY)
+			intent.removeExtra(TransactionDetectionNotifier.TYPE_KEY)
+			intent.removeExtra(TransactionDetectionNotifier.AMOUNT_KEY)
+			intent.removeExtra(TransactionDetectionNotifier.SOURCE_KEY)
+			intent.removeExtra(TransactionDetectionNotifier.DETECTED_AT_KEY)
+			intent.removeExtra(TransactionDetectionNotifier.MERCHANT_KEY)
+			intent.removeExtra(TransactionDetectionNotifier.REFERENCE_KEY)
+			intent.removeExtra(TransactionDetectionNotifier.CHANNEL_KEY)
 		}
 	}
 

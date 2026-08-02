@@ -1,10 +1,15 @@
 import { NativeModules, Platform } from "react-native";
 
+import type DetectedTransactionChannel from "@/types/DetectedTransactionChannel";
+
 type DetectedTransactionPayload = Readonly<{
 	type: string;
 	amount: string;
 	source: string;
 	detectedAt: number;
+	merchant: string | null;
+	referenceId: string | null;
+	channel: DetectedTransactionChannel;
 }>;
 
 type UpiNotificationDetectorModule = Readonly<{

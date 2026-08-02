@@ -8,18 +8,27 @@ import { AppState, Platform } from "react-native";
 
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import navigationRef from "@/navigation/navigationRef";
+import merchantCategoryService from "@/services/merchantCategoryService";
 import todoReminderService from "@/services/todoReminderService";
 import upiDetectionService from "@/services/upiDetectionService";
 
+import type { DetectedTransactionPayload } from "@/services/upiDetectionService";
 import type TransactionType from "@/types/TransactionType";
 
 const { syncTodoReminders } = todoReminderService;
 const { consumeDetectedTransaction } = upiDetectionService;
+const { getSuggestionForMerchant } = merchantCategoryService;
 
 const getTransactionType = (rawType: string): TransactionType =>
 	rawType.toLowerCase() === "credit" ? "CREDIT" : "DEBIT";
 
-const getReadableSource = (source: string): string => {
+const getReadableSource = (
+	payload: Pick<DetectedTransactionPayload, "channel" | "source">,
+): string => {
+	const { channel, source } = payload;
+	if (channel === "SMS") {
+		return source ? `SMS (${source})` : "SMS";
+	}
 	if (!source) {
 		return "a payment app";
 	}
@@ -41,6 +50,9 @@ const getReadableSource = (source: string): string => {
 	if (source.includes("amazon")) {
 		return "Amazon Pay";
 	}
+	if (source.includes("google.android.gm")) {
+		return "Gmail";
+	}
 	const compact = source.substring(source.lastIndexOf(".") + 1);
 	return compact || source;
 };
@@ -61,13 +73,21 @@ const NotificationProvider = ({ children }: PropsWithChildren): ReactNode => {
 			if (!payload?.amount) {
 				return;
 			}
+			const suggestion = payload.merchant
+				? await getSuggestionForMerchant(database, payload.merchant)
+				: null;
 			navigationRef.navigate("TransactionForm", {
 				prefillAmount: payload.amount,
-				prefillReason: `Detected from ${getReadableSource(payload.source)}`,
+				prefillReason:
+					payload.merchant ??
+					`Detected from ${getReadableSource(payload)}`,
 				prefillTransactionAt: payload.detectedAt,
 				prefillType: getTransactionType(payload.type),
+				prefillCategoryId: suggestion?.categoryId ?? undefined,
+				prefillSourceId: suggestion?.sourceId ?? undefined,
+				prefillMerchant: payload.merchant ?? undefined,
 			});
-		}, []);
+		}, [database]);
 
 	useEffect(() => {
 		void syncReminders();

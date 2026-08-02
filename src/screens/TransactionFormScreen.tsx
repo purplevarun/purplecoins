@@ -18,6 +18,7 @@ import useAttachment from "@/hooks/useAttachment";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import categoryService from "@/services/categoryService";
 import investmentService from "@/services/investmentService";
+import merchantCategoryService from "@/services/merchantCategoryService";
 import settingsService from "@/services/settingsService";
 import sourceService from "@/services/sourceService";
 import transactionService from "@/services/transactionService";
@@ -34,6 +35,7 @@ import getErrorMessage from "@/utils/error";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 const { getCategories } = categoryService;
 const { getInvestments } = investmentService;
+const { recordMerchantChoice } = merchantCategoryService;
 const { getDefaultTripId } = settingsService;
 const { getSources } = sourceService;
 const { deleteTransaction, getTransaction, saveTransaction } =
@@ -84,6 +86,9 @@ const TransactionFormScreen = ({
 	const prefillAmount = route.params?.prefillAmount;
 	const prefillReason = route.params?.prefillReason;
 	const prefillTransactionAt = route.params?.prefillTransactionAt;
+	const prefillCategoryId = route.params?.prefillCategoryId;
+	const prefillSourceId = route.params?.prefillSourceId;
+	const prefillMerchant = route.params?.prefillMerchant;
 	const { database, refreshData } = useDatabaseContext();
 	const dialog = useAppDialog();
 	const attachment = useAttachment("TRANSACTION", transactionId);
@@ -149,6 +154,22 @@ const TransactionFormScreen = ({
 								setCategoryId(matchedCategoryId);
 							}
 						}
+						if (
+							prefillCategoryId &&
+							loadedCategories.some(
+								(category) => category.id === prefillCategoryId,
+							)
+						) {
+							setCategoryId(prefillCategoryId);
+						}
+						if (
+							prefillSourceId &&
+							loadedSources.some(
+								(source) => source.id === prefillSourceId,
+							)
+						) {
+							setSourceId(prefillSourceId);
+						}
 						if (prefillAmount) {
 							setAmount(prefillAmount);
 						}
@@ -197,6 +218,8 @@ const TransactionFormScreen = ({
 		prefillAmount,
 		prefillReason,
 		prefillTransactionAt,
+		prefillCategoryId,
+		prefillSourceId,
 	]);
 
 	const selectedSource = sources.find((source) => source.id === sourceId);
@@ -291,6 +314,18 @@ const TransactionFormScreen = ({
 				reason,
 				transactionAt,
 			});
+			if (
+				prefillMerchant &&
+				classification === "GENERAL" &&
+				type !== "TRANSFER"
+			) {
+				await recordMerchantChoice(
+					database,
+					prefillMerchant,
+					categoryId || null,
+					sourceId || null,
+				);
+			}
 			await attachment.processAttachment(savedId);
 			refreshData();
 			navigation.goBack();

@@ -62,6 +62,9 @@ describe("upiDetectionService", () => {
 				amount: "100",
 				source: "Bank",
 				detectedAt: 1,
+				merchant: "Swiggy",
+				referenceId: "REF123456",
+				channel: "NOTIFICATION",
 			}),
 			getDetectionEnabled: vi.fn().mockResolvedValue(true),
 			isNotificationAccessEnabled: vi.fn().mockResolvedValue(true),
@@ -85,6 +88,9 @@ describe("upiDetectionService", () => {
 				amount: "100",
 				source: "Bank",
 				detectedAt: 1,
+				merchant: "Swiggy",
+				referenceId: "REF123456",
+				channel: "NOTIFICATION",
 			});
 			service.setDetectionEnabled(false);
 			service.openNotificationAccessSettings();

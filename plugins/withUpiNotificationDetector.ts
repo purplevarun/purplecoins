@@ -20,6 +20,9 @@ const FILES_TO_COPY = [
 	"UpiNotificationDetectorModule.kt",
 	"UpiNotificationDetectorPackage.kt",
 	"UpiNotificationListenerService.kt",
+	"TransactionTextParser.kt",
+	"TransactionDetectionNotifier.kt",
+	"SmsTransactionReceiver.kt",
 ];
 
 const withUpiNotificationDetectorManifest: ConfigPlugin = (config) =>
@@ -43,6 +46,17 @@ const withUpiNotificationDetectorManifest: ConfigPlugin = (config) =>
 			});
 		}
 
+		// Real-time SMS broadcast only (least-privilege) — not the broader READ_SMS history-scan permission.
+		const hasSmsPermission = manifest.manifest["uses-permission"].some(
+			(entry) =>
+				entry.$["android:name"] === "android.permission.RECEIVE_SMS",
+		);
+		if (!hasSmsPermission) {
+			manifest.manifest["uses-permission"].push({
+				$: { "android:name": "android.permission.RECEIVE_SMS" },
+			});
+		}
+
 		application.service = application.service ?? [];
 		const hasListenerService = application.service.some(
 			(entry) =>
@@ -63,6 +77,35 @@ const withUpiNotificationDetectorManifest: ConfigPlugin = (config) =>
 								$: {
 									"android:name":
 										"android.service.notification.NotificationListenerService",
+								},
+							},
+						],
+					},
+				],
+			});
+		}
+
+		application.receiver = application.receiver ?? [];
+		const hasSmsReceiver = application.receiver.some(
+			(entry) => entry.$["android:name"] === ".SmsTransactionReceiver",
+		);
+		if (!hasSmsReceiver) {
+			application.receiver.push({
+				// `android:permission` restricts broadcast senders; the config-plugins
+				// ManifestReceiver type omits it (unlike ManifestService), even though
+				// it's a valid AndroidManifest.xml receiver attribute.
+				$: {
+					"android:name": ".SmsTransactionReceiver",
+					"android:exported": "true",
+					"android:permission": "android.permission.BROADCAST_SMS",
+				} as (typeof application.receiver)[number]["$"],
+				"intent-filter": [
+					{
+						action: [
+							{
+								$: {
+									"android:name":
+										"android.provider.Telephony.SMS_RECEIVED",
 								},
 							},
 						],

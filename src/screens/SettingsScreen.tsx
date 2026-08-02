@@ -4,7 +4,13 @@ import packageJson from "@/../package.json";
 import CustomText from "@/components/CustomText";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useEffect, useState } from "react";
-import { Platform, StyleSheet, Switch, View } from "react-native";
+import {
+	PermissionsAndroid,
+	Platform,
+	StyleSheet,
+	Switch,
+	View,
+} from "react-native";
 
 import AppButton from "@/components/AppButton";
 import GlassCard from "@/components/GlassCard";
@@ -125,6 +131,7 @@ const SettingsScreen = ({
 	const [reminderNotice, setReminderNotice] = useState("");
 	const [upiDetectionEnabled, setUpiDetectionEnabled] = useState(false);
 	const [hasNotificationAccess, setHasNotificationAccess] = useState(false);
+	const [hasSmsPermission, setHasSmsPermission] = useState(false);
 	const [upiDetectionNotice, setUpiDetectionNotice] = useState("");
 
 	useEffect(() => {
@@ -162,12 +169,14 @@ const SettingsScreen = ({
 				return;
 			}
 			try {
-				const [enabled, access] = await Promise.all([
+				const [enabled, access, smsGranted] = await Promise.all([
 					getDetectionEnabled(),
 					isNotificationAccessEnabled(),
+					PermissionsAndroid.check("android.permission.RECEIVE_SMS"),
 				]);
 				setUpiDetectionEnabled(enabled);
 				setHasNotificationAccess(access);
+				setHasSmsPermission(smsGranted);
 				setUpiDetectionNotice(
 					access
 						? "Detection is active in background for transaction notifications."
@@ -232,6 +241,13 @@ const SettingsScreen = ({
 				setHasNotificationAccess(await isNotificationAccessEnabled());
 			})();
 		}, 1000);
+	};
+
+	const handleRequestSmsPermission = async (): Promise<void> => {
+		const result = await PermissionsAndroid.request(
+			"android.permission.RECEIVE_SMS",
+		);
+		setHasSmsPermission(result === PermissionsAndroid.RESULTS.GRANTED);
 	};
 
 	const handleCurrencyToggle = async (value: boolean): Promise<void> => {
@@ -487,8 +503,9 @@ const SettingsScreen = ({
 						</CustomText>
 						<CustomText style={styles.description}>
 							PurpleCoins watches transaction-style notifications
-							from UPI and bank/card apps, then asks if you want
-							to add the transaction.
+							from UPI and bank/card apps, and can also read
+							incoming SMS bank alerts, then asks if you want to
+							add the transaction.
 						</CustomText>
 						<View style={styles.switchRow}>
 							<View style={styles.switchDetails}>
@@ -515,6 +532,20 @@ const SettingsScreen = ({
 							onPress={handleOpenNotificationAccess}
 							variant="secondary"
 						/>
+						<Notice
+							message={`SMS detection: ${hasSmsPermission ? "Granted" : "Not granted"}`}
+							tone={hasSmsPermission ? "info" : "warning"}
+						/>
+						{!hasSmsPermission ? (
+							<AppButton
+								icon="chatbox-outline"
+								label="Grant SMS permission"
+								onPress={() =>
+									void handleRequestSmsPermission()
+								}
+								variant="secondary"
+							/>
+						) : null}
 						{upiDetectionNotice ? (
 							<Notice message={upiDetectionNotice} />
 						) : null}

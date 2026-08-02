@@ -14,6 +14,9 @@ type RootStackParamList = {
 				prefillAmount?: string;
 				prefillReason?: string;
 				prefillTransactionAt?: number;
+				prefillCategoryId?: string;
+				prefillSourceId?: string;
+				prefillMerchant?: string;
 		  }
 		| undefined;
 	Relations: { kind: RelationKind };

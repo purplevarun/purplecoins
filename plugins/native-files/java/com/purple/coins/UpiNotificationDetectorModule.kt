@@ -1,7 +1,6 @@
 package com.purple.coins.experimental
 
 import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
 import android.provider.Settings
 import com.facebook.react.bridge.Arguments
@@ -13,27 +12,16 @@ import com.facebook.react.bridge.ReactMethod
 class UpiNotificationDetectorModule(
 	reactContext: ReactApplicationContext,
 ) : ReactContextBaseJavaModule(reactContext) {
-	companion object {
-		private const val PREFERENCES_NAME = "purplecoins_upi_detection"
-		private const val ENABLED_KEY = "enabled"
-		private const val TYPE_KEY = "purplecoins_detected_transaction_type"
-		private const val AMOUNT_KEY = "purplecoins_detected_transaction_amount"
-		private const val SOURCE_KEY = "purplecoins_detected_transaction_source"
-		private const val DETECTED_AT_KEY = "purplecoins_detected_transaction_at"
-	}
-
 	override fun getName(): String = "UpiNotificationDetector"
-
-	private fun getPreferences() = reactApplicationContext.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
 
 	@ReactMethod
 	fun getDetectionEnabled(promise: Promise) {
-		promise.resolve(getPreferences().getBoolean(ENABLED_KEY, true))
+		promise.resolve(TransactionDetectionNotifier.isDetectionEnabled(reactApplicationContext))
 	}
 
 	@ReactMethod
 	fun setDetectionEnabled(enabled: Boolean) {
-		getPreferences().edit().putBoolean(ENABLED_KEY, enabled).apply()
+		TransactionDetectionNotifier.setDetectionEnabled(reactApplicationContext, enabled)
 	}
 
 	@ReactMethod
@@ -84,12 +72,21 @@ class UpiNotificationDetectorModule(
 		}
 
 		val result = Arguments.createMap()
-		result.putString("type", payload.getString(TYPE_KEY))
-		result.putString("amount", payload.getString(AMOUNT_KEY))
-		result.putString("source", payload.getString(SOURCE_KEY))
+		result.putString("type", payload.getString(TransactionDetectionNotifier.TYPE_KEY))
+		result.putString("amount", payload.getString(TransactionDetectionNotifier.AMOUNT_KEY))
+		result.putString("source", payload.getString(TransactionDetectionNotifier.SOURCE_KEY))
 		result.putDouble(
 			"detectedAt",
-			payload.getLong(DETECTED_AT_KEY, System.currentTimeMillis()).toDouble(),
+			payload
+				.getLong(TransactionDetectionNotifier.DETECTED_AT_KEY, System.currentTimeMillis())
+				.toDouble(),
+		)
+		result.putString("merchant", payload.getString(TransactionDetectionNotifier.MERCHANT_KEY))
+		result.putString("referenceId", payload.getString(TransactionDetectionNotifier.REFERENCE_KEY))
+		result.putString(
+			"channel",
+			payload.getString(TransactionDetectionNotifier.CHANNEL_KEY)
+				?: TransactionDetectionNotifier.CHANNEL_NOTIFICATION,
 		)
 		promise.resolve(result)
 	}
