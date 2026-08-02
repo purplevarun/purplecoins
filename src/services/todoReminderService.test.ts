@@ -162,6 +162,12 @@ describe("syncTodoReminders", () => {
 			identifier: string;
 			content: { data: Record<string, unknown> | null };
 		}[];
+		// Overrides the default `react-native` mock factory entirely (e.g. to
+		// simulate the module being unavailable). Passing this instead of
+		// separately calling `vi.doMock("react-native", ...)` after
+		// `mockDependencies` avoids registering two competing mocks for the
+		// same specifier in one test, which was a source of flakiness.
+		reactNativeMock?: () => Record<string, unknown>;
 	}): {
 		setNotificationHandler: ReturnType<typeof vi.fn>;
 		setNotificationChannelAsync: ReturnType<typeof vi.fn>;
@@ -179,6 +185,7 @@ describe("syncTodoReminders", () => {
 			permissions = { granted: true },
 			requestedGranted = true,
 			scheduled = [],
+			reactNativeMock,
 		} = options;
 
 		const notificationsMock = {
@@ -199,9 +206,10 @@ describe("syncTodoReminders", () => {
 		};
 
 		vi.doMock("expo-notifications", () => notificationsMock);
-		vi.doMock("react-native", () => ({
-			Platform: { OS: platformOs },
-		}));
+		vi.doMock(
+			"react-native",
+			reactNativeMock ?? (() => ({ Platform: { OS: platformOs } })),
+		);
 		vi.doMock("@/services/settingsService", () => ({
 			default: {
 				getTodoReminderSettings: vi.fn().mockResolvedValue(settings),
@@ -360,9 +368,11 @@ describe("syncTodoReminders", () => {
 	});
 
 	it("treats the android channel setup as skipped when the platform cannot be determined", async () => {
-		const notifications = mockDependencies({ todos: [] });
-		vi.doMock("react-native", () => {
-			throw new Error("react-native unavailable");
+		const notifications = mockDependencies({
+			todos: [],
+			reactNativeMock: () => {
+				throw new Error("react-native unavailable");
+			},
 		});
 		const { default: service } =
 			await import("@/services/todoReminderService");
