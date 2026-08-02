@@ -1,7 +1,9 @@
+import type CategoryType from "@/types/CategoryType";
+
 type CategoryAnalysis = Readonly<{
 	categoryId: string;
 	categoryName: string;
-	isIncome: boolean;
+	type: CategoryType;
 	currencyCode: string;
 	credits: string;
 	debits: string;

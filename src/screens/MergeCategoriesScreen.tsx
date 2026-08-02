@@ -14,6 +14,7 @@ import useAppDialog from "@/hooks/useAppDialog";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import categoryService from "@/services/categoryService";
 import type Category from "@/types/Category";
+import type CategoryType from "@/types/CategoryType";
 import type RootStackParamList from "@/types/RootStackParamList";
 import type SelectOption from "@/types/SelectOption";
 import getErrorMessage from "@/utils/error";
@@ -21,6 +22,12 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 const { getCategories, getCategoryMergeImpact, mergeCategories } =
 	categoryService;
+
+const getCategoryTypeLabel = (type: CategoryType): string => {
+	if (type === "INCOME") return "Income category";
+	if (type === "REFUND") return "Refund category";
+	return "Expense category";
+};
 
 type MergeCategoriesScreenProps = NativeStackScreenProps<
 	RootStackParamList,
@@ -89,7 +96,7 @@ const MergeCategoriesScreen = ({
 	const hasTypeMismatch =
 		firstCategory !== undefined &&
 		secondCategory !== undefined &&
-		firstCategory.isIncome !== secondCategory.isIncome;
+		firstCategory.type !== secondCategory.type;
 
 	const firstCategoryOptions: readonly SelectOption[] = useMemo(
 		() =>
@@ -98,9 +105,7 @@ const MergeCategoriesScreen = ({
 				.map((category) => ({
 					label: category.name,
 					value: category.id,
-					description: category.isIncome
-						? "Income category"
-						: "Expense category",
+					description: getCategoryTypeLabel(category.type),
 				})),
 		[categories, secondCategoryId],
 	);
@@ -111,9 +116,7 @@ const MergeCategoriesScreen = ({
 				.map((category) => ({
 					label: category.name,
 					value: category.id,
-					description: category.isIncome
-						? "Income category"
-						: "Expense category",
+					description: getCategoryTypeLabel(category.type),
 				})),
 		[categories, firstCategoryId],
 	);
@@ -198,7 +201,7 @@ const MergeCategoriesScreen = ({
 					) : null}
 					{hasTypeMismatch ? (
 						<Notice
-							message="Both selected categories must be either income or expense categories."
+							message="Both selected categories must be the same type (Income, Expense, or Refund)."
 							tone="warning"
 						/>
 					) : null}

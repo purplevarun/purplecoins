@@ -219,7 +219,7 @@ describe("buildFinanceResults", () => {
 		const income: Category = {
 			id: "c1",
 			name: "Salary",
-			isIncome: true,
+			type: "INCOME",
 			createdAt: NOW,
 			updatedAt: NOW,
 			archived: false,
@@ -227,7 +227,15 @@ describe("buildFinanceResults", () => {
 		const expense: Category = {
 			id: "c2",
 			name: "Rent",
-			isIncome: false,
+			type: "EXPENSE",
+			createdAt: NOW,
+			updatedAt: NOW,
+			archived: false,
+		};
+		const refund: Category = {
+			id: "c3",
+			name: "Lent",
+			type: "REFUND",
 			createdAt: NOW,
 			updatedAt: NOW,
 			archived: false,
@@ -235,7 +243,7 @@ describe("buildFinanceResults", () => {
 		const results = buildFinanceResults(
 			[],
 			[],
-			[income, expense],
+			[income, expense, refund],
 			[],
 			[],
 			[],
@@ -243,6 +251,7 @@ describe("buildFinanceResults", () => {
 		);
 		expect(results[0]?.subtitle).toBe("Income category");
 		expect(results[1]?.subtitle).toBe("Expense category");
+		expect(results[2]?.subtitle).toBe("Refund category");
 	});
 
 	it("maps trips and investments with static subtitles", () => {

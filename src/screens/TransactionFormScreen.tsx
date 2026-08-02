@@ -64,9 +64,14 @@ const getDefaultCategoryForType = (
 	type: TransactionType,
 ): string => {
 	if (type === "CREDIT") {
-		return allCategories.find((category) => category.isIncome)?.id ?? "";
+		return (
+			allCategories.find((category) => category.type === "INCOME")?.id ??
+			""
+		);
 	}
-	return allCategories.find((category) => !category.isIncome)?.id ?? "";
+	return (
+		allCategories.find((category) => category.type === "EXPENSE")?.id ?? ""
+	);
 };
 
 const TransactionFormScreen = ({
@@ -213,7 +218,12 @@ const TransactionFormScreen = ({
 		(category) => ({
 			label: category.name,
 			value: category.id,
-			description: category.isIncome ? "Income" : "Expense",
+			description:
+				category.type === "INCOME"
+					? "Income"
+					: category.type === "REFUND"
+						? "Refund"
+						: "Expense",
 		}),
 	);
 	const tripOptions: readonly SelectOption[] = trips.map((trip) => ({
@@ -264,14 +274,14 @@ const TransactionFormScreen = ({
 						: undefined,
 				categoryId:
 					classification === "GENERAL" &&
-					type !== "TRANSFER" &&
-					categoryId
+						type !== "TRANSFER" &&
+						categoryId
 						? categoryId
 						: undefined,
 				tripId:
 					classification === "GENERAL" &&
-					type !== "TRANSFER" &&
-					tripId
+						type !== "TRANSFER" &&
+						tripId
 						? tripId
 						: undefined,
 				investmentId:

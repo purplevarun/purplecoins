@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS sources (
 CREATE TABLE IF NOT EXISTS categories (
 	id TEXT PRIMARY KEY NOT NULL,
 	name TEXT NOT NULL CHECK (length(trim(name)) > 0),
-	is_income INTEGER NOT NULL CHECK (is_income IN (0, 1)),
+	type TEXT NOT NULL DEFAULT 'EXPENSE' CHECK (type IN ('INCOME', 'EXPENSE', 'REFUND')),
 	created_at INTEGER NOT NULL,
 	updated_at INTEGER NOT NULL
 );

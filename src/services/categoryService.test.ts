@@ -35,26 +35,54 @@ describe("categoryService", () => {
 	});
 
 	describe("saveCategory (create)", () => {
-		it("creates a category and coerces isIncome/archived to booleans", async () => {
-			const id = await saveCategory(database, undefined, "Salary", true);
+		it("creates a category and coerces archived to boolean", async () => {
+			const id = await saveCategory(
+				database,
+				undefined,
+				"Salary",
+				"INCOME",
+			);
 
 			const category = await getCategory(database, id);
 			expect(category?.name).toBe("Salary");
-			expect(category?.isIncome).toBe(true);
+			expect(category?.type).toBe("INCOME");
 			expect(category?.archived).toBe(false);
 		});
 
 		it("throws CATEGORY_NAME_REQUIRED for a blank name", async () => {
 			await expect(
-				saveCategory(database, undefined, "   ", false),
+				saveCategory(database, undefined, "   ", "EXPENSE"),
 			).rejects.toMatchObject({ code: "CATEGORY_NAME_REQUIRED" });
 		});
 
+		it("throws CATEGORY_TYPE_INVALID for an invalid type", async () => {
+			await expect(
+				saveCategory(
+					database,
+					undefined,
+					"Bad",
+					"BOGUS" as never,
+				),
+			).rejects.toMatchObject({ code: "CATEGORY_TYPE_INVALID" });
+		});
+
+		it("creates a REFUND category", async () => {
+			const id = await saveCategory(
+				database,
+				undefined,
+				"Lent",
+				"REFUND",
+			);
+
+			const category = await getCategory(database, id);
+			expect(category?.type).toBe("REFUND");
+		});
+
 		it("throws CATEGORY_NAME_DUPLICATE case-insensitively", async () => {
-			await saveCategory(database, undefined, "Rent", false);
+			await saveCategory(database, undefined, "Rent", "EXPENSE");
 
 			await expect(
-				saveCategory(database, undefined, "rent", false),
+				saveCategory(database, undefined, "rent", "EXPENSE"),
 			).rejects.toMatchObject({ code: "CATEGORY_NAME_DUPLICATE" });
 		});
 
@@ -63,26 +91,26 @@ describe("categoryService", () => {
 				database,
 				undefined,
 				"  Food  ",
-				false,
+				"EXPENSE",
 			);
 			expect((await getCategory(database, id))?.name).toBe("Food");
 		});
 	});
 
 	describe("saveCategory (update)", () => {
-		it("updates name/isIncome while preserving createdAt and archived state", async () => {
+		it("updates name/type while preserving createdAt and archived state", async () => {
 			const existing = await insertCategory(database, {
 				name: "Old",
-				isIncome: false,
+				type: "EXPENSE",
 				archived: false,
 				createdAt: 1000,
 			});
 
-			await saveCategory(database, existing.id, "New", true);
+			await saveCategory(database, existing.id, "New", "INCOME");
 
 			const updated = await getCategory(database, existing.id);
 			expect(updated?.name).toBe("New");
-			expect(updated?.isIncome).toBe(true);
+			expect(updated?.type).toBe("INCOME");
 			expect(updated?.createdAt).toBe(1000);
 		});
 
@@ -90,7 +118,7 @@ describe("categoryService", () => {
 			const existing = await insertCategory(database, { name: "Rent" });
 
 			await expect(
-				saveCategory(database, existing.id, "RENT", false),
+				saveCategory(database, existing.id, "RENT", "EXPENSE"),
 			).resolves.toBe(existing.id);
 		});
 
@@ -99,7 +127,7 @@ describe("categoryService", () => {
 				name: "Rent",
 				archived: true,
 			});
-			const id = await saveCategory(database, undefined, "Rent", false);
+			const id = await saveCategory(database, undefined, "Rent", "EXPENSE");
 
 			expect(id).not.toBe(archived.id);
 		});
@@ -245,7 +273,7 @@ describe("categoryService", () => {
 			expect(await getCategory(database, vegetables.id)).toBeNull();
 			expect(await getCategory(database, mergedId)).toMatchObject({
 				name: "Food",
-				isIncome: false,
+				type: "EXPENSE",
 			});
 
 			const transactions = await getTransactionRows(database);
@@ -382,11 +410,11 @@ describe("categoryService", () => {
 		it("rejects mixing income and expense categories", async () => {
 			const income = await insertCategory(database, {
 				name: "Salary",
-				isIncome: true,
+				type: "INCOME",
 			});
 			const expense = await insertCategory(database, {
 				name: "Groceries",
-				isIncome: false,
+				type: "EXPENSE",
 			});
 
 			await expect(

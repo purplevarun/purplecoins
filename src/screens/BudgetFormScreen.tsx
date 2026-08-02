@@ -58,7 +58,9 @@ const BudgetFormScreen = ({
 						: Promise.resolve(null),
 				]);
 				setCategories(
-					loadedCategories.filter((category) => !category.isIncome),
+					loadedCategories.filter(
+						(category) => category.type === "EXPENSE",
+					),
 				);
 				if (budget) {
 					setCategoryId(budget.categoryId);

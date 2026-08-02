@@ -191,7 +191,7 @@ describe("financeRepository", () => {
 		it("creates, lists and fetches a category", async () => {
 			const category = await insertCategory(database, {
 				name: "Groceries",
-				isIncome: false,
+				type: "EXPENSE",
 			});
 
 			const rows = await getCategoryRows(database);
@@ -199,7 +199,7 @@ describe("financeRepository", () => {
 
 			expect(rows.map((item) => item.id)).toContain(category.id);
 			expect(row?.name).toBe("Groceries");
-			expect(row?.isIncome).toBe(0);
+			expect(row?.type).toBe("EXPENSE");
 		});
 
 		it("upserts (updates) an existing category by id", async () => {
@@ -208,13 +208,13 @@ describe("financeRepository", () => {
 			await upsertCategoryRow(database, {
 				...category,
 				name: "New",
-				isIncome: true,
+				type: "INCOME",
 				updatedAt: NOW,
 			});
 
 			const row = await getCategoryRow(database, category.id);
 			expect(row?.name).toBe("New");
-			expect(row?.isIncome).toBe(1);
+			expect(row?.type).toBe("INCOME");
 		});
 
 		it("separates archived from active categories", async () => {

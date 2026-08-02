@@ -91,7 +91,7 @@ const buildCategoryAnalysis = (
 		const current = totals.get(key) ?? {
 			categoryId: category.id,
 			categoryName: category.name,
-			isIncome: Boolean(category.isIncome),
+			type: category.type,
 			currencyCode,
 			credits: ZERO_AMOUNT,
 			debits: ZERO_AMOUNT,
@@ -193,12 +193,14 @@ const buildCategoryCurrencySummaries = (
 			totalExpense: ZERO_AMOUNT,
 			netProfit: ZERO_AMOUNT,
 		};
-		const totalIncome = category.isIncome
-			? addMoney(current.totalIncome, category.net)
-			: current.totalIncome;
-		const totalExpense = category.isIncome
-			? current.totalExpense
-			: subtractMoney(current.totalExpense, category.net);
+		const totalIncome =
+			category.type === "INCOME"
+				? addMoney(current.totalIncome, category.net)
+				: current.totalIncome;
+		const totalExpense =
+			category.type === "EXPENSE"
+				? subtractMoney(current.totalExpense, category.net)
+				: current.totalExpense;
 		summaries.set(category.currencyCode, {
 			...current,
 			totalIncome,
@@ -258,12 +260,12 @@ const getAnalysisSummary = async (
 	);
 	const totalIncome = sumMoney(
 		categoryAnalysis
-			.filter((category) => category.isIncome)
+			.filter((category) => category.type === "INCOME")
 			.map((category) => category.net),
 	);
 	const expenseCategoryNet = sumMoney(
 		categoryAnalysis
-			.filter((category) => !category.isIncome)
+			.filter((category) => category.type === "EXPENSE")
 			.map((category) => category.net),
 	);
 	const totalExpense = subtractMoney(ZERO_AMOUNT, expenseCategoryNet);

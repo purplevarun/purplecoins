@@ -2,6 +2,7 @@ import AppError from "@/errors/AppError";
 import financeRepository from "@/repositories/financeRepository";
 import type Budget from "@/types/Budget";
 import type Category from "@/types/Category";
+import type CategoryType from "@/types/CategoryType";
 import createId from "@/utils/id";
 import moneyUtils from "@/utils/money";
 import type { SQLiteDatabase } from "expo-sqlite";
@@ -21,9 +22,10 @@ const {
 } = financeRepository;
 const { addMoney } = moneyUtils;
 
+const CATEGORY_TYPES: readonly CategoryType[] = ["INCOME", "EXPENSE", "REFUND"];
+
 const mapCategory = (category: Category): Category => ({
 	...category,
-	isIncome: Boolean(category.isIncome),
 	archived: Boolean(category.archived),
 });
 
@@ -53,13 +55,19 @@ const saveCategory = async (
 	database: SQLiteDatabase,
 	id: string | undefined,
 	name: string,
-	isIncome: boolean,
+	type: CategoryType,
 ): Promise<string> => {
 	const normalizedName = name.trim();
 	if (!normalizedName) {
 		throw new AppError(
 			"CATEGORY_NAME_REQUIRED",
 			"Category name is required.",
+		);
+	}
+	if (!CATEGORY_TYPES.includes(type)) {
+		throw new AppError(
+			"CATEGORY_TYPE_INVALID",
+			"Category type must be Income, Expense, or Refund.",
 		);
 	}
 	if (await categoryNameExistsRow(database, normalizedName, id)) {
@@ -74,7 +82,7 @@ const saveCategory = async (
 	await upsertCategoryRow(database, {
 		id: categoryId,
 		name: normalizedName,
-		isIncome,
+		type,
 		createdAt: existingCategory?.createdAt ?? now,
 		updatedAt: now,
 		archived: existingCategory?.archived ?? false,
@@ -156,10 +164,10 @@ const mergeCategories = async (
 
 	const firstCategory = mapCategory(firstCategoryRow);
 	const secondCategory = mapCategory(secondCategoryRow);
-	if (firstCategory.isIncome !== secondCategory.isIncome) {
+	if (firstCategory.type !== secondCategory.type) {
 		throw new AppError(
 			"CATEGORY_MERGE_TYPE_MISMATCH",
-			"Both categories must belong to the same income or expense bucket.",
+			"Both categories must be the same type (Income, Expense, or Refund).",
 		);
 	}
 
@@ -194,7 +202,7 @@ const mergeCategories = async (
 		await upsertCategoryRow(database, {
 			id: mergedCategoryId,
 			name: normalizedName,
-			isIncome: firstCategory.isIncome,
+			type: firstCategory.type,
 			createdAt: now,
 			updatedAt: now,
 			archived: false,

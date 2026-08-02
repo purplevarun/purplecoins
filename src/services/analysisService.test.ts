@@ -51,7 +51,7 @@ const CATEGORIES: readonly Category[] = [
 	{
 		id: "rent",
 		name: "Domo Living Rent",
-		isIncome: false,
+		type: "EXPENSE",
 		createdAt: NOW,
 		updatedAt: NOW,
 		archived: false,
@@ -59,7 +59,7 @@ const CATEGORIES: readonly Category[] = [
 	{
 		id: "company-trip",
 		name: "Company Trip",
-		isIncome: false,
+		type: "EXPENSE",
 		createdAt: NOW,
 		updatedAt: NOW,
 		archived: false,
@@ -67,7 +67,7 @@ const CATEGORIES: readonly Category[] = [
 	{
 		id: "salary",
 		name: "Salary",
-		isIncome: true,
+		type: "INCOME",
 		createdAt: NOW,
 		updatedAt: NOW,
 		archived: false,
@@ -100,7 +100,7 @@ describe("category-driven analysis", () => {
 
 		expect(result).toHaveLength(1);
 		expect(result[0]?.net).toBe("-14000");
-		expect(result[0]?.isIncome).toBe(false);
+		expect(result[0]?.type).toBe("EXPENSE");
 	});
 
 	it("keeps a positive expense-category net out of the income bucket", () => {
@@ -127,7 +127,7 @@ describe("category-driven analysis", () => {
 		);
 
 		expect(result[0]?.net).toBe("400");
-		expect(result[0]?.isIncome).toBe(false);
+		expect(result[0]?.type).toBe("EXPENSE");
 	});
 
 	it("sorts the most expense-heavy category first", () => {
@@ -270,7 +270,7 @@ describe("native currency summaries", () => {
 			{
 				categoryId: "salary",
 				categoryName: "Salary",
-				isIncome: true,
+				type: "INCOME",
 				currencyCode: "INR",
 				credits: "50000",
 				debits: "0",
@@ -279,7 +279,7 @@ describe("native currency summaries", () => {
 			{
 				categoryId: "rent",
 				categoryName: "Rent",
-				isIncome: false,
+				type: "EXPENSE",
 				currencyCode: "INR",
 				credits: "13000",
 				debits: "27000",
@@ -288,7 +288,7 @@ describe("native currency summaries", () => {
 			{
 				categoryId: "consulting",
 				categoryName: "Consulting",
-				isIncome: true,
+				type: "INCOME",
 				currencyCode: "USD",
 				credits: "100",
 				debits: "0",
@@ -317,7 +317,7 @@ describe("native currency summaries", () => {
 			{
 				categoryId: "company-trip",
 				categoryName: "Company Trip",
-				isIncome: false,
+				type: "EXPENSE",
 				currencyCode: "INR",
 				credits: "5000",
 				debits: "4000",
@@ -542,11 +542,11 @@ describe("getAnalysisSummary (integration)", () => {
 		});
 		const salary = await dbFixtures.insertCategory(database, {
 			name: "Salary",
-			isIncome: true,
+			type: "INCOME",
 		});
 		const rent = await dbFixtures.insertCategory(database, {
 			name: "Rent",
-			isIncome: false,
+			type: "EXPENSE",
 		});
 		await financeRepository.createTransactionRow(
 			database,
@@ -587,6 +587,63 @@ describe("getAnalysisSummary (integration)", () => {
 		expect(summary.netProfit).toBe("73000");
 		expect(summary.categories).toHaveLength(2);
 		expect(summary.missingCurrencies).toEqual([]);
+	});
+
+	it("excludes REFUND categories from totals but still lists them in categories", async () => {
+		const source = await dbFixtures.insertSource(database, {
+			currencyCode: "INR",
+		});
+		const incomeTax = await dbFixtures.insertCategory(database, {
+			name: "Income Tax",
+			type: "EXPENSE",
+		});
+		const lent = await dbFixtures.insertCategory(database, {
+			name: "Lent",
+			type: "REFUND",
+		});
+		await financeRepository.createTransactionRow(
+			database,
+			{
+				classification: "GENERAL",
+				type: "DEBIT",
+				sourceId: source.id,
+				categoryId: incomeTax.id,
+				amount: "71410",
+				reason: "ITR Filing",
+				transactionAt: NOW,
+			},
+			"txn-income-tax",
+			NOW,
+		);
+		await financeRepository.createTransactionRow(
+			database,
+			{
+				classification: "GENERAL",
+				type: "CREDIT",
+				sourceId: source.id,
+				categoryId: lent.id,
+				amount: "100000",
+				reason: "Suraj Return",
+				transactionAt: NOW,
+			},
+			"txn-lent-return",
+			NOW,
+		);
+
+		const summary = await getAnalysisSummary(database, {
+			dateRange: { start: 0, end: 8_640_000_000_000_000 },
+			isNativeCurrency: true,
+		});
+
+		expect(summary.totalIncome).toBe("0");
+		expect(summary.totalExpense).toBe("71410");
+		expect(summary.netProfit).toBe("-71410");
+		expect(summary.categories).toHaveLength(2);
+		expect(
+			summary.categories.find(
+				(category) => category.categoryId === lent.id,
+			)?.net,
+		).toBe("100000");
 	});
 
 	it("reports missing currencies only when converting and a rate is absent", async () => {

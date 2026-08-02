@@ -1,12 +1,13 @@
 import CustomText from "@/components/CustomText";
 
 import { useEffect, useState } from "react";
-import { StyleSheet, Switch, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 import AppButton from "@/components/AppButton";
 import GlassCard from "@/components/GlassCard";
 import Notice from "@/components/Notice";
 import ScreenContainer from "@/components/ScreenContainer";
+import SegmentedControl from "@/components/SegmentedControl";
 import TextField from "@/components/TextField";
 import appConstants from "@/constants/appConstants";
 import COLORS from "@/constants/colors";
@@ -16,7 +17,9 @@ import categoryService from "@/services/categoryService";
 import investmentService from "@/services/investmentService";
 import sourceService from "@/services/sourceService";
 import tripService from "@/services/tripService";
+import type CategoryType from "@/types/CategoryType";
 import type RootStackParamList from "@/types/RootStackParamList";
+import type SelectOption from "@/types/SelectOption";
 import getErrorMessage from "@/utils/error";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 const { DEFAULT_CURRENCY_CODE } = appConstants;
@@ -24,6 +27,21 @@ const { getCategory, saveCategory } = categoryService;
 const { getInvestment, saveInvestment } = investmentService;
 const { createSource, getSource, updateSourceName } = sourceService;
 const { getTrip, saveTrip } = tripService;
+
+const CATEGORY_TYPE_OPTIONS: readonly SelectOption[] = [
+	{ label: "Expense", value: "EXPENSE" },
+	{ label: "Income", value: "INCOME" },
+	{ label: "Refund", value: "REFUND" },
+];
+
+const CATEGORY_TYPE_DESCRIPTIONS: Readonly<Record<CategoryType, string>> = {
+	EXPENSE:
+		"Money going out that reduces your balance. Examples: Groceries, Taxi, Rent.",
+	INCOME:
+		"Money coming in that increases your balance. Examples: Salary, Cashback, Interest.",
+	REFUND:
+		"Money returned to you that isn't really income, like a loan repayment or deposit return. Excluded from Income, Expense, and Net totals. Examples: Lent (loan repayments), security deposit refunds.",
+};
 
 type RelationFormScreenProps = NativeStackScreenProps<
 	RootStackParamList,
@@ -39,8 +57,9 @@ const RelationFormScreen = ({
 	const { kind, entityId } = route.params;
 	const [name, setName] = useState("");
 	const [currencyCode, setCurrencyCode] = useState(DEFAULT_CURRENCY_CODE);
-	const [isIncome, setIsIncome] = useState(false);
-	const [originalIsIncome, setOriginalIsIncome] = useState(false);
+	const [categoryType, setCategoryType] = useState<CategoryType>("EXPENSE");
+	const [originalCategoryType, setOriginalCategoryType] =
+		useState<CategoryType>("EXPENSE");
 	const [isSaving, setIsSaving] = useState(false);
 	const [error, setError] = useState("");
 
@@ -62,8 +81,8 @@ const RelationFormScreen = ({
 					const category = await getCategory(database, entityId);
 					if (category) {
 						setName(category.name);
-						setIsIncome(category.isIncome);
-						setOriginalIsIncome(category.isIncome);
+						setCategoryType(category.type);
+						setOriginalCategoryType(category.type);
 					}
 					return;
 				}
@@ -92,7 +111,7 @@ const RelationFormScreen = ({
 					await createSource(database, name, currencyCode);
 				}
 			} else if (kind === "CATEGORY") {
-				await saveCategory(database, entityId, name, isIncome);
+				await saveCategory(database, entityId, name, categoryType);
 			} else if (kind === "TRIP") {
 				await saveTrip(database, entityId, name);
 			} else {
@@ -114,7 +133,7 @@ const RelationFormScreen = ({
 		const hasCategoryClassificationChanged =
 			kind === "CATEGORY" &&
 			Boolean(entityId) &&
-			isIncome !== originalIsIncome;
+			categoryType !== originalCategoryType;
 		if (!hasCategoryClassificationChanged) {
 			void processSave();
 			return;
@@ -162,29 +181,17 @@ const RelationFormScreen = ({
 						</>
 					) : null}
 					{kind === "CATEGORY" ? (
-						<View style={styles.switchRow}>
-							<View style={styles.switchText}>
-								<CustomText style={styles.switchTitle}>
-									Income category
-								</CustomText>
-								<CustomText style={styles.switchDescription}>
-									Controls which analysis bucket receives this
-									category. Net sign never changes the bucket.
-								</CustomText>
-							</View>
-							<Switch
-								onValueChange={setIsIncome}
-								thumbColor={
-									isIncome
-										? COLORS.primaryBright
-										: COLORS.textMuted
+						<View style={styles.categoryTypeSection}>
+							<SegmentedControl
+								onChange={(value) =>
+									setCategoryType(value as CategoryType)
 								}
-								trackColor={{
-									false: COLORS.border,
-									true: COLORS.primaryMuted,
-								}}
-								value={isIncome}
+								options={CATEGORY_TYPE_OPTIONS}
+								value={categoryType}
 							/>
+							<CustomText style={styles.categoryTypeDescription}>
+								{CATEGORY_TYPE_DESCRIPTIONS[categoryType]}
+							</CustomText>
 						</View>
 					) : null}
 					{error ? <Notice message={error} tone="danger" /> : null}
@@ -209,29 +216,14 @@ const styles = StyleSheet.create({
 		fontWeight: "900",
 		letterSpacing: -0.5,
 	},
-	switchRow: {
-		flexDirection: "row",
-		alignItems: "center",
-		gap: 12,
-		padding: 14,
-		borderRadius: 15,
-		borderWidth: 1,
-		borderColor: COLORS.border,
-		backgroundColor: "rgba(255,255,255,0.035)",
+	categoryTypeSection: {
+		gap: 10,
 	},
-	switchText: {
-		flex: 1,
-		gap: 4,
-	},
-	switchTitle: {
-		color: COLORS.text,
-		fontSize: 15,
-		fontWeight: "800",
-	},
-	switchDescription: {
+	categoryTypeDescription: {
 		color: COLORS.textMuted,
 		fontSize: 12,
 		lineHeight: 17,
+		paddingHorizontal: 2,
 	},
 });
 

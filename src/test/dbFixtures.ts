@@ -69,7 +69,7 @@ const insertCategory = async (
 	const category: Category = {
 		id: `category-${suffix}`,
 		name: `Test Category ${suffix}`,
-		isIncome: false,
+		type: "EXPENSE",
 		createdAt: now,
 		updatedAt: now,
 		archived: false,

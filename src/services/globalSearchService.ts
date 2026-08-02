@@ -44,23 +44,23 @@ const buildToolsResults = (
 	notes: readonly Note[],
 	todos: readonly Todo[],
 ): readonly GlobalSearchResult[] => [
-	...notes.map((note): GlobalSearchResult => ({
-		id: note.id,
-		kind: "NOTE",
-		title: note.title,
-		subtitle: note.folderName ?? "Note",
-		icon: "document-text-outline",
-		color: COLORS.blue,
-	})),
-	...todos.map((todo): GlobalSearchResult => ({
-		id: todo.id,
-		kind: "TODO",
-		title: todo.title,
-		subtitle: todo.folderName ?? "Todo",
-		icon: "checkbox-outline",
-		color: COLORS.success,
-	})),
-];
+		...notes.map((note): GlobalSearchResult => ({
+			id: note.id,
+			kind: "NOTE",
+			title: note.title,
+			subtitle: note.folderName ?? "Note",
+			icon: "document-text-outline",
+			color: COLORS.blue,
+		})),
+		...todos.map((todo): GlobalSearchResult => ({
+			id: todo.id,
+			kind: "TODO",
+			title: todo.title,
+			subtitle: todo.folderName ?? "Todo",
+			icon: "checkbox-outline",
+			color: COLORS.success,
+		})),
+	];
 
 const buildFinanceResults = (
 	transactions: readonly Transaction[],
@@ -71,105 +71,109 @@ const buildFinanceResults = (
 	budgets: readonly Budget[],
 	exchangeRates: readonly ExchangeRate[],
 ): readonly GlobalSearchResult[] => [
-	...transactions.map((transaction): GlobalSearchResult => {
-		const formattedAmount = formatMoney(
-			transaction.amount,
-			transaction.sourceCurrencyCode,
-		);
-		return {
-			id: transaction.id,
-			kind: "TRANSACTION",
-			title: getTransactionDisplayReason(transaction),
-			subtitle: `${transaction.sourceName} · ${formattedAmount} · ${formatDate(transaction.transactionAt)}`,
-			icon: "swap-horizontal",
-			color: COLORS.primary,
-			searchExtra: `${transaction.amount} ${formattedAmount.replace(/,/g, "")} ${transaction.categoryName ?? ""} ${transaction.tripName ?? ""} ${transaction.investmentName ?? ""} ${transaction.destinationSourceName ?? ""}`,
-		};
-	}),
-	...sources.map((source): GlobalSearchResult => ({
-		id: source.id,
-		kind: "SOURCE",
-		title: source.name,
-		subtitle: `Source · ${source.currencyCode}`,
-		icon: "wallet-outline",
-		color: COLORS.blue,
-	})),
-	...categories.map((category): GlobalSearchResult => ({
-		id: category.id,
-		kind: "CATEGORY",
-		title: category.name,
-		subtitle: category.isIncome ? "Income category" : "Expense category",
-		icon: "pricetag-outline",
-		color: COLORS.warning,
-	})),
-	...trips.map((trip): GlobalSearchResult => ({
-		id: trip.id,
-		kind: "TRIP",
-		title: trip.name,
-		subtitle: "Trip",
-		icon: "airplane-outline",
-		color: "#68D5FF",
-	})),
-	...investments.map((investment): GlobalSearchResult => ({
-		id: investment.id,
-		kind: "INVESTMENT",
-		title: investment.name,
-		subtitle: "Investment",
-		icon: "trending-up",
-		color: COLORS.success,
-	})),
-	...budgets.map((budget): GlobalSearchResult => ({
-		id: budget.id,
-		kind: "BUDGET",
-		title: budget.categoryName,
-		subtitle: `${
-			budget.period === "MONTHLY" ? "Monthly" : "Yearly"
-		} budget · ${formatMoney(budget.amount, DEFAULT_CURRENCY_CODE)}`,
-		icon: "speedometer-outline",
-		color: "#FF8FA3",
-		searchExtra: `${budget.period} ${budget.amount}`,
-	})),
-	...exchangeRates.map((rate): GlobalSearchResult => ({
-		id: rate.currencyCode,
-		kind: "EXCHANGE_RATE",
-		title: rate.currencyCode,
-		subtitle: `Exchange rate · ${formatMoney(rate.rateToInr, DEFAULT_CURRENCY_CODE)}`,
-		icon: "earth-outline",
-		color: "#66E0C2",
-		searchExtra: `${rate.source} ${rate.rateToInr}`,
-	})),
-];
+		...transactions.map((transaction): GlobalSearchResult => {
+			const formattedAmount = formatMoney(
+				transaction.amount,
+				transaction.sourceCurrencyCode,
+			);
+			return {
+				id: transaction.id,
+				kind: "TRANSACTION",
+				title: getTransactionDisplayReason(transaction),
+				subtitle: `${transaction.sourceName} · ${formattedAmount} · ${formatDate(transaction.transactionAt)}`,
+				icon: "swap-horizontal",
+				color: COLORS.primary,
+				searchExtra: `${transaction.amount} ${formattedAmount.replace(/,/g, "")} ${transaction.categoryName ?? ""} ${transaction.tripName ?? ""} ${transaction.investmentName ?? ""} ${transaction.destinationSourceName ?? ""}`,
+			};
+		}),
+		...sources.map((source): GlobalSearchResult => ({
+			id: source.id,
+			kind: "SOURCE",
+			title: source.name,
+			subtitle: `Source · ${source.currencyCode}`,
+			icon: "wallet-outline",
+			color: COLORS.blue,
+		})),
+		...categories.map((category): GlobalSearchResult => ({
+			id: category.id,
+			kind: "CATEGORY",
+			title: category.name,
+			subtitle:
+				category.type === "INCOME"
+					? "Income category"
+					: category.type === "REFUND"
+						? "Refund category"
+						: "Expense category",
+			icon: "pricetag-outline",
+			color: COLORS.warning,
+		})),
+		...trips.map((trip): GlobalSearchResult => ({
+			id: trip.id,
+			kind: "TRIP",
+			title: trip.name,
+			subtitle: "Trip",
+			icon: "airplane-outline",
+			color: "#68D5FF",
+		})),
+		...investments.map((investment): GlobalSearchResult => ({
+			id: investment.id,
+			kind: "INVESTMENT",
+			title: investment.name,
+			subtitle: "Investment",
+			icon: "trending-up",
+			color: COLORS.success,
+		})),
+		...budgets.map((budget): GlobalSearchResult => ({
+			id: budget.id,
+			kind: "BUDGET",
+			title: budget.categoryName,
+			subtitle: `${budget.period === "MONTHLY" ? "Monthly" : "Yearly"
+				} budget · ${formatMoney(budget.amount, DEFAULT_CURRENCY_CODE)}`,
+			icon: "speedometer-outline",
+			color: "#FF8FA3",
+			searchExtra: `${budget.period} ${budget.amount}`,
+		})),
+		...exchangeRates.map((rate): GlobalSearchResult => ({
+			id: rate.currencyCode,
+			kind: "EXCHANGE_RATE",
+			title: rate.currencyCode,
+			subtitle: `Exchange rate · ${formatMoney(rate.rateToInr, DEFAULT_CURRENCY_CODE)}`,
+			icon: "earth-outline",
+			color: "#66E0C2",
+			searchExtra: `${rate.source} ${rate.rateToInr}`,
+		})),
+	];
 
 const buildVaultResults = (
 	passwords: readonly PasswordEntry[],
 	cards: readonly CardEntry[],
 	identities: readonly IdentityEntry[],
 ): readonly GlobalSearchResult[] => [
-	...passwords.map((password): GlobalSearchResult => ({
-		id: password.id,
-		kind: "PASSWORD",
-		title: password.title,
-		subtitle: password.username || password.website,
-		icon: "key-outline",
-		color: COLORS.warning,
-	})),
-	...cards.map((card): GlobalSearchResult => ({
-		id: card.id,
-		kind: "CARD",
-		title: card.name,
-		subtitle: card.network || "Card",
-		icon: "card-outline",
-		color: COLORS.danger,
-	})),
-	...identities.map((identity): GlobalSearchResult => ({
-		id: identity.id,
-		kind: "IDENTITY",
-		title: identity.title,
-		subtitle: identity.idNumber || "Identity",
-		icon: "person-circle-outline",
-		color: COLORS.blue,
-	})),
-];
+		...passwords.map((password): GlobalSearchResult => ({
+			id: password.id,
+			kind: "PASSWORD",
+			title: password.title,
+			subtitle: password.username || password.website,
+			icon: "key-outline",
+			color: COLORS.warning,
+		})),
+		...cards.map((card): GlobalSearchResult => ({
+			id: card.id,
+			kind: "CARD",
+			title: card.name,
+			subtitle: card.network || "Card",
+			icon: "card-outline",
+			color: COLORS.danger,
+		})),
+		...identities.map((identity): GlobalSearchResult => ({
+			id: identity.id,
+			kind: "IDENTITY",
+			title: identity.title,
+			subtitle: identity.idNumber || "Identity",
+			icon: "person-circle-outline",
+			color: COLORS.blue,
+		})),
+	];
 
 /**
  * Applies the screen's search-box behavior: results stay empty until the

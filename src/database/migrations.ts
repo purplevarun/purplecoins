@@ -15,6 +15,9 @@ const SCHEMA_MIGRATIONS: readonly string[] = [
 	`ALTER TABLE categories ADD COLUMN archived INTEGER;`,
 	`ALTER TABLE trips ADD COLUMN archived INTEGER;`,
 	`ALTER TABLE investments ADD COLUMN archived INTEGER;`,
+	`ALTER TABLE categories ADD COLUMN type TEXT NOT NULL DEFAULT 'EXPENSE';
+	UPDATE categories SET type = CASE WHEN is_income = 1 THEN 'INCOME' ELSE 'EXPENSE' END;`,
+	`ALTER TABLE categories DROP COLUMN is_income;`,
 ];
 
 export default SCHEMA_MIGRATIONS;

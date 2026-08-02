@@ -26,7 +26,8 @@ and private vault records. SQLite is the source of truth.
 - Transfers have a source, destination, from amount, and to amount.
 - Transfers are excluded from category analysis.
 - Category net is `credits - debits`.
-- `is_income` selects the analysis bucket; the net sign never changes it.
+- `type` (`INCOME`, `EXPENSE`, `REFUND`) selects the analysis bucket; the net sign never changes it.
+- `REFUND` categories are excluded from total income, total expense, and net profit, but still appear in the category breakdown.
 - Investment net is `total invested - total redeemed`.
 - Source currency is immutable after creation.
 

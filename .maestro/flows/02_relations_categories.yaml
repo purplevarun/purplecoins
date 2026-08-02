@@ -1,7 +1,7 @@
 appId: ${APP_ID}
 ---
-# Categories: create an expense + income category, toggle the income
-# switch, verify the reclassification warning dialog, then archive.
+# Categories: create an expense + income category, switch the category
+# type selector, verify the reclassification warning dialog, then archive.
 
 - launchApp:
     clearState: true
@@ -14,7 +14,7 @@ appId: ${APP_ID}
 - tapOn: "Category name"
 - inputText: "Groceries"
 - hideKeyboard
-- assertVisible: "Income category"
+- assertVisible: "Expense"
 - tapOn: "Save"
 - assertVisible: "Groceries"
 - assertVisible: "Expense category"
@@ -23,21 +23,16 @@ appId: ${APP_ID}
 - tapOn: "Category name"
 - inputText: "Salary"
 - hideKeyboard
-# The "Income category" text and its Switch are separate sibling elements
-# in the same row (label left, switch right) — target the switch via its
-# position relative to the label rather than the label text itself.
-- tapOn:
-    rightOf: "Income category"
+- tapOn: "Income"
 - tapOn: "Save"
 - assertVisible: "Salary"
 - assertVisible: "Income category"
 
-# Editing an existing category's income flag prompts a confirmation
-# because it reclassifies historical analysis.
+# Editing an existing category's type prompts a confirmation because it
+# reclassifies historical analysis.
 - tapOn: "Groceries"
 - tapOn: "Edit"
-- tapOn:
-    rightOf: "Income category"
+- tapOn: "Income"
 - tapOn: "Save"
 - assertVisible: "Change analysis classification?"
 - tapOn: "Change"
