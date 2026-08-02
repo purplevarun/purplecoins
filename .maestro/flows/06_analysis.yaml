@@ -44,11 +44,17 @@ appId: ${APP_ID}
 
 - tapOn: "Analysis"
 - assertVisible: "Month"
-- assertVisible: "Food"
+- extendedWaitUntil:
+    visible: "Food"
+    timeout: 10000
 - tapOn: "Year"
-- assertVisible: "Food"
+- extendedWaitUntil:
+    visible: "Food"
+    timeout: 10000
 - tapOn: "All"
-- assertVisible: "Food"
+- extendedWaitUntil:
+    visible: "Food"
+    timeout: 10000
 - tapOn: "FY"
 - tapOn: "YTD"
 

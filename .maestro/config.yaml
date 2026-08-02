@@ -1,0 +1,18 @@
+executionOrder:
+  continueOnFailure: false
+  flowsOrder:
+    - 00_smoke_navigation
+    - 01_relations_sources
+    - 02_relations_categories
+    - 03_relations_trips_investments
+    - 04_transactions
+    - 05_budgets
+    - 06_analysis
+    - 07_exchange_rates
+    - 08_notes
+    - 09_todos
+    - 10_vault_password
+    - 11_vault_card
+    - 12_vault_identity
+    - 13_global_search
+    - 14_settings_backup
