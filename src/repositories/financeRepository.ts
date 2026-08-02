@@ -187,25 +187,25 @@ const sourceNameExistsRow = async (
 ): Promise<boolean> => {
 	const row = excludeId
 		? await database.getFirstAsync<{ id: string }>(
-			`
+				`
 					SELECT id FROM sources
 					WHERE lower(name) = lower(?)
 						AND COALESCE(archived, 0) = 0
 						AND id != ?
 					LIMIT 1;
 				`,
-			name,
-			excludeId,
-		)
+				name,
+				excludeId,
+			)
 		: await database.getFirstAsync<{ id: string }>(
-			`
+				`
 					SELECT id FROM sources
 					WHERE lower(name) = lower(?)
 						AND COALESCE(archived, 0) = 0
 					LIMIT 1;
 				`,
-			name,
-		);
+				name,
+			);
 	return row !== null;
 };
 
@@ -322,25 +322,25 @@ const categoryNameExistsRow = async (
 ): Promise<boolean> => {
 	const row = excludeId
 		? await database.getFirstAsync<{ id: string }>(
-			`
+				`
 					SELECT id FROM categories
 					WHERE lower(name) = lower(?)
 						AND COALESCE(archived, 0) = 0
 						AND id != ?
 					LIMIT 1;
 				`,
-			name,
-			excludeId,
-		)
+				name,
+				excludeId,
+			)
 		: await database.getFirstAsync<{ id: string }>(
-			`
+				`
 					SELECT id FROM categories
 					WHERE lower(name) = lower(?)
 						AND COALESCE(archived, 0) = 0
 					LIMIT 1;
 				`,
-			name,
-		);
+				name,
+			);
 	return row !== null;
 };
 
@@ -495,25 +495,25 @@ const simpleEntityNameExistsRow = async (
 ): Promise<boolean> => {
 	const row = excludeId
 		? await database.getFirstAsync<{ id: string }>(
-			`
+				`
 					SELECT id FROM ${tableName}
 					WHERE lower(name) = lower(?)
 						AND COALESCE(archived, 0) = 0
 						AND id != ?
 					LIMIT 1;
 				`,
-			name,
-			excludeId,
-		)
+				name,
+				excludeId,
+			)
 		: await database.getFirstAsync<{ id: string }>(
-			`
+				`
 					SELECT id FROM ${tableName}
 					WHERE lower(name) = lower(?)
 						AND COALESCE(archived, 0) = 0
 					LIMIT 1;
 				`,
-			name,
-		);
+				name,
+			);
 	return row !== null;
 };
 

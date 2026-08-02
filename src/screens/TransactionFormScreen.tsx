@@ -274,14 +274,14 @@ const TransactionFormScreen = ({
 						: undefined,
 				categoryId:
 					classification === "GENERAL" &&
-						type !== "TRANSFER" &&
-						categoryId
+					type !== "TRANSFER" &&
+					categoryId
 						? categoryId
 						: undefined,
 				tripId:
 					classification === "GENERAL" &&
-						type !== "TRANSFER" &&
-						tripId
+					type !== "TRANSFER" &&
+					tripId
 						? tripId
 						: undefined,
 				investmentId:

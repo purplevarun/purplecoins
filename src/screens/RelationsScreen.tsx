@@ -458,7 +458,7 @@ const RelationsScreen = ({
 					source.validatedAt !== null &&
 					(source.latestTransactionCreatedAt === null ||
 						source.validatedAt >=
-						source.latestTransactionCreatedAt);
+							source.latestTransactionCreatedAt);
 				return (
 					<Pressable
 						onPress={() =>
@@ -508,37 +508,37 @@ const RelationsScreen = ({
 										)}
 									</CustomText>
 									{!isNativeCurrency &&
-										source.currencyCode !== "INR"
+									source.currencyCode !== "INR"
 										? (() => {
-											const inrVal = toInr(
-												source.balance,
-												source.currencyCode,
-											);
-											if (inrVal.isZero())
-												return null;
-											const isPositive =
-												inrVal.gte(0);
-											return (
-												<CustomText
-													style={[
-														styles.convertedAmount,
-														{
-															color: isPositive
-																? COLORS.success
-																: COLORS.danger,
-														},
-													]}
-												>
-													{"≈ "}
-													{formatMoney(
-														inrVal
-															.abs()
-															.toFixed(),
-														"INR",
-													)}
-												</CustomText>
-											);
-										})()
+												const inrVal = toInr(
+													source.balance,
+													source.currencyCode,
+												);
+												if (inrVal.isZero())
+													return null;
+												const isPositive =
+													inrVal.gte(0);
+												return (
+													<CustomText
+														style={[
+															styles.convertedAmount,
+															{
+																color: isPositive
+																	? COLORS.success
+																	: COLORS.danger,
+															},
+														]}
+													>
+														{"≈ "}
+														{formatMoney(
+															inrVal
+																.abs()
+																.toFixed(),
+															"INR",
+														)}
+													</CustomText>
+												);
+											})()
 										: null}
 								</View>
 							</View>
@@ -583,9 +583,7 @@ const RelationsScreen = ({
 							})
 						}
 					>
-						<GlassCard
-							accent={getCategoryAccent(category.type)}
-						>
+						<GlassCard accent={getCategoryAccent(category.type)}>
 							<View style={styles.row}>
 								<View style={styles.iconBox}>
 									<Ionicons
@@ -661,8 +659,8 @@ const RelationsScreen = ({
 			const investmentTotals =
 				item.kind === "INVESTMENT"
 					? (analysis?.investments.filter(
-						(row) => row.investmentId === entity.id,
-					) ?? [])
+							(row) => row.investmentId === entity.id,
+						) ?? [])
 					: [];
 			return (
 				<Pressable
@@ -728,42 +726,42 @@ const RelationsScreen = ({
 									)
 								) : null}
 								{item.kind === "TRIP" &&
-									!isNativeCurrency &&
-									totals.some((t) => t.currencyCode !== "INR")
+								!isNativeCurrency &&
+								totals.some((t) => t.currencyCode !== "INR")
 									? (() => {
-										const inrTotal = totals.reduce(
-											(sum, t) =>
-												sum.plus(
-													toInr(
-														t.total,
-														t.currencyCode,
+											const inrTotal = totals.reduce(
+												(sum, t) =>
+													sum.plus(
+														toInr(
+															t.total,
+															t.currencyCode,
+														),
 													),
-												),
-											new Decimal(0),
-										);
-										return (
-											<CustomText
-												style={[
-													styles.convertedAmount,
-													{
-														color: inrTotal.gte(
-															0,
-														)
-															? COLORS.danger
-															: COLORS.success,
-													},
-												]}
-											>
-												≈{" "}
-												{formatMoney(
-													inrTotal
-														.abs()
-														.toFixed(),
-													"INR",
-												)}
-											</CustomText>
-										);
-									})()
+												new Decimal(0),
+											);
+											return (
+												<CustomText
+													style={[
+														styles.convertedAmount,
+														{
+															color: inrTotal.gte(
+																0,
+															)
+																? COLORS.danger
+																: COLORS.success,
+														},
+													]}
+												>
+													≈{" "}
+													{formatMoney(
+														inrTotal
+															.abs()
+															.toFixed(),
+														"INR",
+													)}
+												</CustomText>
+											);
+										})()
 									: null}
 								{investmentTotals.map((total) => (
 									<View
@@ -795,9 +793,9 @@ const RelationsScreen = ({
 														) > 0
 															? COLORS.danger
 															: compareMoney(
-																total.net,
-																ZERO_AMOUNT,
-															) < 0
+																		total.net,
+																		ZERO_AMOUNT,
+																  ) < 0
 																? COLORS.success
 																: COLORS.text,
 												},

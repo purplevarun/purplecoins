@@ -265,17 +265,17 @@ const AnalysisScreen = ({
 	const chartData: readonly ChartDatum[] = hasMissingCurrencies
 		? []
 		: (summary?.categories
-			.filter(
-				(category) =>
-					category.type !== "REFUND" &&
-					compareMoney(category.net, ZERO_AMOUNT) !== 0,
-			)
-			.slice(0, CHART_COLORS.length)
-			.map((category, index) => ({
-				label: category.categoryName,
-				value: Number(absoluteMoney(category.net)),
-				color: CHART_COLORS[index] ?? COLORS.primary,
-			})) ?? []);
+				.filter(
+					(category) =>
+						category.type !== "REFUND" &&
+						compareMoney(category.net, ZERO_AMOUNT) !== 0,
+				)
+				.slice(0, CHART_COLORS.length)
+				.map((category, index) => ({
+					label: category.categoryName,
+					value: Number(absoluteMoney(category.net)),
+					color: CHART_COLORS[index] ?? COLORS.primary,
+				})) ?? []);
 
 	const summaryMetrics: readonly SummaryMetricInput[] = [
 		{
@@ -334,7 +334,7 @@ const AnalysisScreen = ({
 			style={[
 				styles.summaryTile,
 				metric.label === "Net after investments" &&
-				styles.summaryTileFull,
+					styles.summaryTileFull,
 			]}
 		>
 			<GlassCard accent={metric.accent}>

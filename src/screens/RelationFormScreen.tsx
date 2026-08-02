@@ -37,10 +37,8 @@ const CATEGORY_TYPE_OPTIONS: readonly SelectOption[] = [
 const CATEGORY_TYPE_DESCRIPTIONS: Readonly<Record<CategoryType, string>> = {
 	EXPENSE:
 		"Money going out that reduces your balance. Examples: Groceries, Taxi, Rent.",
-	INCOME:
-		"Money coming in that increases your balance. Examples: Salary, Cashback, Interest.",
-	REFUND:
-		"Money returned to you that isn't really income, like a loan repayment or deposit return. Excluded from Income, Expense, and Net totals. Examples: Lent (loan repayments), security deposit refunds.",
+	INCOME: "Money coming in that increases your balance. Examples: Salary, Cashback, Interest.",
+	REFUND: "Money returned to you that isn't really income, like a loan repayment or deposit return. Excluded from Income, Expense, and Net totals. Examples: Lent (loan repayments), security deposit refunds.",
 };
 
 type RelationFormScreenProps = NativeStackScreenProps<

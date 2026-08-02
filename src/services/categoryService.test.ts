@@ -57,12 +57,7 @@ describe("categoryService", () => {
 
 		it("throws CATEGORY_TYPE_INVALID for an invalid type", async () => {
 			await expect(
-				saveCategory(
-					database,
-					undefined,
-					"Bad",
-					"BOGUS" as never,
-				),
+				saveCategory(database, undefined, "Bad", "BOGUS" as never),
 			).rejects.toMatchObject({ code: "CATEGORY_TYPE_INVALID" });
 		});
 
@@ -127,7 +122,12 @@ describe("categoryService", () => {
 				name: "Rent",
 				archived: true,
 			});
-			const id = await saveCategory(database, undefined, "Rent", "EXPENSE");
+			const id = await saveCategory(
+				database,
+				undefined,
+				"Rent",
+				"EXPENSE",
+			);
 
 			expect(id).not.toBe(archived.id);
 		});
