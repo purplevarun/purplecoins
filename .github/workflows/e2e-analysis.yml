@@ -117,9 +117,18 @@ jobs:
 
             echo "Running Maestro flows against $APP_ID..."
             set +e
-            maestro test -e APP_ID="$APP_ID" .maestro
+            maestro --verbose test -e APP_ID="$APP_ID" \
+              --debug-output artifacts/maestro-debug \
+              --flatten-debug-output \
+              --format HTML-DETAILED \
+              --output artifacts/maestro-report.html \
+              .maestro
             MAESTRO_EXIT=$?
             set -e
+
+            echo "--- Post-failure screenshot ---"
+            adb shell screencap -p /sdcard/post-run.png
+            adb pull /sdcard/post-run.png artifacts/post-run.png || true
 
             kill "$LOGCAT_PID" || true
             exit $MAESTRO_EXIT
@@ -131,8 +140,10 @@ jobs:
           name: android-maestro-debug
           path: |
             artifacts/maestro-debug/**
+            artifacts/maestro-report.html
             artifacts/logcat.txt
             artifacts/pre-maestro.png
+            artifacts/post-run.png
           retention-days: 14
           if-no-files-found: ignore
           include-hidden-files: true
