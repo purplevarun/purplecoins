@@ -89,7 +89,7 @@ const runAutoBackupIfDue = async (
 	if (
 		settings.lastBackupAt > 0 &&
 		now - settings.lastBackupAt <
-			settings.intervalDays * MILLISECONDS_PER_DAY
+		settings.intervalDays * MILLISECONDS_PER_DAY
 	) {
 		return { result: "up-to-date" };
 	}
