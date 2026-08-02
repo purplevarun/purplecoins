@@ -2,6 +2,7 @@ import settingsRepository from "@/repositories/settingsRepository";
 import type { SQLiteDatabase } from "expo-sqlite";
 
 import HOME_MODES from "@/constants/homeModes";
+import type AutoBackupSettings from "@/types/AutoBackupSettings";
 import type HomeMode from "@/types/HomeMode";
 import type TodoReminderSettings from "@/types/TodoReminderSettings";
 
@@ -12,9 +13,22 @@ const FY_START_MONTH_KEY = "fy_start_month";
 const DEFAULT_TRIP_ID_KEY = "default_trip_id";
 const DEFAULT_HOME_MODE_KEY = "default_home_mode";
 const BUDGET_ALERTS_ENABLED_KEY = "budget_alerts_enabled";
+const AUTO_BACKUP_ENABLED_KEY = "auto_backup_enabled";
+const AUTO_BACKUP_INTERVAL_DAYS_KEY = "auto_backup_interval_days";
+const AUTO_BACKUP_DIRECTORY_URI_KEY = "auto_backup_directory_uri";
+const AUTO_BACKUP_LAST_BACKUP_AT_KEY = "auto_backup_last_backup_at";
 const TODO_REMINDERS_ENABLED_KEY = "todo_reminders_enabled";
 const TODO_REMINDER_DAYS_BEFORE_DUE_KEY = "todo_reminder_days_before_due";
 const TODO_REMINDER_REPEAT_HOURS_KEY = "todo_reminder_repeat_hours";
+
+const AUTO_BACKUP_INTERVAL_DAYS_MIN = 1;
+const AUTO_BACKUP_INTERVAL_DAYS_MAX = 30;
+const DEFAULT_AUTO_BACKUP_SETTINGS: AutoBackupSettings = {
+	enabled: false,
+	intervalDays: 1,
+	directoryUri: null,
+	lastBackupAt: 0,
+};
 
 const DEFAULT_TODO_REMINDER_SETTINGS: TodoReminderSettings = {
 	enabled: true,
@@ -129,6 +143,87 @@ const updateBudgetAlertsEnabled = async (
 		Date.now(),
 	);
 
+// Automatic local backups (Android only — uses SAF for persisted directory access).
+const getAutoBackupSettings = async (
+	database: SQLiteDatabase,
+): Promise<AutoBackupSettings> => {
+	const [enabledValue, intervalValue, directoryValue, lastAtValue] =
+		await Promise.all([
+			getSettingRow(database, AUTO_BACKUP_ENABLED_KEY),
+			getSettingRow(database, AUTO_BACKUP_INTERVAL_DAYS_KEY),
+			getSettingRow(database, AUTO_BACKUP_DIRECTORY_URI_KEY),
+			getSettingRow(database, AUTO_BACKUP_LAST_BACKUP_AT_KEY),
+		]);
+	return {
+		enabled:
+			enabledValue === null
+				? DEFAULT_AUTO_BACKUP_SETTINGS.enabled
+				: enabledValue === "true",
+		intervalDays: parseIntegerSetting(
+			intervalValue,
+			DEFAULT_AUTO_BACKUP_SETTINGS.intervalDays,
+			AUTO_BACKUP_INTERVAL_DAYS_MIN,
+			AUTO_BACKUP_INTERVAL_DAYS_MAX,
+		),
+		// An empty string means "cleared" — same pattern as updateDefaultTripId.
+		directoryUri:
+			directoryValue !== null && directoryValue !== ""
+				? directoryValue
+				: null,
+		lastBackupAt: lastAtValue !== null ? Number(lastAtValue) || 0 : 0,
+	};
+};
+
+const updateAutoBackupEnabled = async (
+	database: SQLiteDatabase,
+	enabled: boolean,
+): Promise<void> =>
+	upsertSettingRow(
+		database,
+		AUTO_BACKUP_ENABLED_KEY,
+		String(enabled),
+		Date.now(),
+	);
+
+const updateAutoBackupIntervalDays = async (
+	database: SQLiteDatabase,
+	intervalDays: number,
+): Promise<void> =>
+	upsertSettingRow(
+		database,
+		AUTO_BACKUP_INTERVAL_DAYS_KEY,
+		String(
+			clampInteger(
+				intervalDays,
+				AUTO_BACKUP_INTERVAL_DAYS_MIN,
+				AUTO_BACKUP_INTERVAL_DAYS_MAX,
+			),
+		),
+		Date.now(),
+	);
+
+const updateAutoBackupDirectoryUri = async (
+	database: SQLiteDatabase,
+	uri: string | null,
+): Promise<void> =>
+	upsertSettingRow(
+		database,
+		AUTO_BACKUP_DIRECTORY_URI_KEY,
+		uri ?? "",
+		Date.now(),
+	);
+
+const updateAutoBackupLastBackupAt = async (
+	database: SQLiteDatabase,
+	timestamp: number,
+): Promise<void> =>
+	upsertSettingRow(
+		database,
+		AUTO_BACKUP_LAST_BACKUP_AT_KEY,
+		String(timestamp),
+		Date.now(),
+	);
+
 const getTodoReminderSettings = async (
 	database: SQLiteDatabase,
 ): Promise<TodoReminderSettings> => {
@@ -204,12 +299,17 @@ const updateTodoReminderRepeatHours = async (
 	);
 
 const settingsService = {
+	getAutoBackupSettings,
 	getBudgetAlertsEnabled,
 	getDefaultHomeMode,
 	getDefaultTripId,
 	getFyStartMonth,
 	getNativeCurrencyDisplay,
 	getTodoReminderSettings,
+	updateAutoBackupDirectoryUri,
+	updateAutoBackupEnabled,
+	updateAutoBackupIntervalDays,
+	updateAutoBackupLastBackupAt,
 	updateBudgetAlertsEnabled,
 	updateDefaultHomeMode,
 	updateDefaultTripId,

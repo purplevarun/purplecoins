@@ -1,10 +1,10 @@
 appId: ${APP_ID}
 ---
 # Settings: default home mode, native-currency toggle, FY start month,
-# default trip, and the backup/restore entry points. The native OS share
-# sheet (export) and document picker (restore) are outside the app's own
-# UI, so this flow verifies the app-side triggers rather than driving the
-# OS chooser itself.
+# default trip, budget alerts, auto-backup (Android only), and the
+# backup/restore entry points. The native OS share sheet (export) and
+# document picker (restore) are outside the app's own UI, so this flow
+# verifies the app-side triggers rather than driving the OS chooser itself.
 
 - launchApp:
     clearState: true
@@ -30,6 +30,22 @@ appId: ${APP_ID}
     element: "Archived relations"
 - tapOn: "Archived relations"
 - back
+
+# Budget alerts card is visible (Phase 2 — cross-platform).
+- scrollUntilVisible:
+    element: "Budget alerts"
+- assertVisible: "Enable budget alerts"
+
+# Automatic backups card is Android-only; the assertion is wrapped in a
+# conditional so the flow still passes on iOS builds.
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - scrollUntilVisible:
+          element: "Automatic backups"
+      - assertVisible: "Enable auto-backup"
+      - assertVisible: "Choose backup folder"
 
 # Export prepares a backup and invokes the native share sheet.
 - scrollUntilVisible:

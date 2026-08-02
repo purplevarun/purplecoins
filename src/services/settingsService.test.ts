@@ -7,12 +7,17 @@ import createTestDatabase from "@/test/sqliteTestDatabase";
 import type { SQLiteDatabase } from "expo-sqlite";
 
 const {
+	getAutoBackupSettings,
 	getBudgetAlertsEnabled,
 	getDefaultHomeMode,
 	getDefaultTripId,
 	getFyStartMonth,
 	getNativeCurrencyDisplay,
 	getTodoReminderSettings,
+	updateAutoBackupDirectoryUri,
+	updateAutoBackupEnabled,
+	updateAutoBackupIntervalDays,
+	updateAutoBackupLastBackupAt,
 	updateBudgetAlertsEnabled,
 	updateDefaultHomeMode,
 	updateDefaultTripId,
@@ -108,6 +113,69 @@ describe("settingsService", () => {
 				1,
 			);
 			expect(await getDefaultHomeMode(database)).toBe("TOOLS");
+		});
+	});
+
+	describe("auto backup settings", () => {
+		it("defaults to disabled with 1-day interval, no directory, and zero last-backup time", async () => {
+			expect(await getAutoBackupSettings(database)).toEqual({
+				enabled: false,
+				intervalDays: 1,
+				directoryUri: null,
+				lastBackupAt: 0,
+			});
+		});
+
+		it("round-trips enabled, intervalDays, directoryUri, and lastBackupAt", async () => {
+			await updateAutoBackupEnabled(database, true);
+			await updateAutoBackupIntervalDays(database, 7);
+			await updateAutoBackupDirectoryUri(
+				database,
+				"content://com.example.dir",
+			);
+			await updateAutoBackupLastBackupAt(database, 12345);
+
+			expect(await getAutoBackupSettings(database)).toEqual({
+				enabled: true,
+				intervalDays: 7,
+				directoryUri: "content://com.example.dir",
+				lastBackupAt: 12345,
+			});
+		});
+
+		it("stores a cleared directoryUri as null (empty string maps to null)", async () => {
+			await updateAutoBackupDirectoryUri(
+				database,
+				"content://com.example.dir",
+			);
+			await updateAutoBackupDirectoryUri(database, null);
+
+			const settings = await getAutoBackupSettings(database);
+			expect(settings.directoryUri).toBeNull();
+		});
+
+		it("clamps intervalDays to the 1–30 range", async () => {
+			await updateAutoBackupIntervalDays(database, 100);
+			expect((await getAutoBackupSettings(database)).intervalDays).toBe(
+				30,
+			);
+
+			await updateAutoBackupIntervalDays(database, 0);
+			expect((await getAutoBackupSettings(database)).intervalDays).toBe(
+				1,
+			);
+		});
+
+		it("falls back to 0 for a non-numeric lastBackupAt", async () => {
+			await upsertSettingRow(
+				database,
+				"auto_backup_last_backup_at",
+				"not-a-number",
+				1,
+			);
+			expect((await getAutoBackupSettings(database)).lastBackupAt).toBe(
+				0,
+			);
 		});
 	});
 

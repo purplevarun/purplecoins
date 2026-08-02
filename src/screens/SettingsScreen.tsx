@@ -21,6 +21,7 @@ import SelectField from "@/components/SelectField";
 import COLORS from "@/constants/colors";
 import useAppDialog from "@/hooks/useAppDialog";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
+import autoBackupService from "@/services/autoBackupService";
 import backupService from "@/services/backupService";
 import budgetAlertService from "@/services/budgetAlertService";
 import settingsService from "@/services/settingsService";
@@ -32,17 +33,23 @@ import type RootStackParamList from "@/types/RootStackParamList";
 import type SelectOption from "@/types/SelectOption";
 import type Trip from "@/types/Trip";
 import getErrorMessage from "@/utils/error";
+import { StorageAccessFramework } from "expo-file-system/legacy";
 const { APP_NAME } = appConstants;
 const { version } = packageJson;
 const { exportBackup, restoreBackup } = backupService;
+const { runAutoBackupIfDue } = autoBackupService;
 const { syncBudgetAlerts } = budgetAlertService;
 const {
+	getAutoBackupSettings,
 	getBudgetAlertsEnabled,
 	getDefaultHomeMode,
 	getDefaultTripId,
 	getFyStartMonth,
 	getNativeCurrencyDisplay,
 	getTodoReminderSettings,
+	updateAutoBackupDirectoryUri,
+	updateAutoBackupEnabled,
+	updateAutoBackupIntervalDays,
 	updateBudgetAlertsEnabled,
 	updateDefaultHomeMode,
 	updateDefaultTripId,
@@ -110,6 +117,13 @@ const TODO_REMINDER_REPEAT_HOURS_OPTIONS: readonly SelectOption[] = [
 	value: String(hours),
 }));
 
+const AUTO_BACKUP_INTERVAL_OPTIONS: readonly SelectOption[] = [
+	{ label: "Daily", value: "1" },
+	{ label: "Every 2 days", value: "2" },
+	{ label: "Every 3 days", value: "3" },
+	{ label: "Weekly", value: "7" },
+];
+
 const getFyEndMonthLabel = (startMonth: number): string => {
 	const endMonth = startMonth === 1 ? 12 : startMonth - 1;
 	return MONTH_OPTIONS[endMonth - 1]?.label ?? "Mar";
@@ -135,6 +149,13 @@ const SettingsScreen = ({
 	const [reminderNotice, setReminderNotice] = useState("");
 	const [budgetAlertsEnabled, setBudgetAlertsEnabled] = useState(true);
 	const [budgetAlertNotice, setBudgetAlertNotice] = useState("");
+	const [autoBackupEnabled, setAutoBackupEnabled] = useState(false);
+	const [autoBackupIntervalDays, setAutoBackupIntervalDays] = useState(1);
+	const [autoBackupDirectoryUri, setAutoBackupDirectoryUri] = useState<
+		string | null
+	>(null);
+	const [autoBackupLastBackupAt, setAutoBackupLastBackupAt] = useState(0);
+	const [autoBackupNotice, setAutoBackupNotice] = useState("");
 	const [upiDetectionEnabled, setUpiDetectionEnabled] = useState(false);
 	const [hasNotificationAccess, setHasNotificationAccess] = useState(false);
 	const [hasSmsPermission, setHasSmsPermission] = useState(false);
@@ -150,6 +171,7 @@ const SettingsScreen = ({
 				reminderSettings,
 				loadedTrips,
 				budgetAlerts,
+				autoBackup,
 			] = await Promise.all([
 				getNativeCurrencyDisplay(database),
 				getFyStartMonth(database),
@@ -158,6 +180,7 @@ const SettingsScreen = ({
 				getTodoReminderSettings(database),
 				getTrips(database),
 				getBudgetAlertsEnabled(database),
+				getAutoBackupSettings(database),
 			]);
 			setIsNativeCurrency(native);
 			setFyStartMonth(fy);
@@ -168,6 +191,10 @@ const SettingsScreen = ({
 			setTodoReminderRepeatHours(reminderSettings.repeatHours);
 			setTrips(loadedTrips);
 			setBudgetAlertsEnabled(budgetAlerts);
+			setAutoBackupEnabled(autoBackup.enabled);
+			setAutoBackupIntervalDays(autoBackup.intervalDays);
+			setAutoBackupDirectoryUri(autoBackup.directoryUri);
+			setAutoBackupLastBackupAt(autoBackup.lastBackupAt);
 		};
 		void getSettings();
 	}, [database]);
@@ -347,6 +374,51 @@ const SettingsScreen = ({
 		setBudgetAlertsEnabled(value);
 		await updateBudgetAlertsEnabled(database, value);
 		await syncBudgetAlertSettings();
+	};
+
+	const handleAutoBackupEnabledChange = async (
+		value: boolean,
+	): Promise<void> => {
+		setAutoBackupEnabled(value);
+		await updateAutoBackupEnabled(database, value);
+	};
+
+	const handleAutoBackupIntervalChange = async (
+		value: string,
+	): Promise<void> => {
+		const days = Number.parseInt(value, 10);
+		setAutoBackupIntervalDays(days);
+		await updateAutoBackupIntervalDays(database, days);
+	};
+
+	const handleChooseAutoBackupFolder = async (): Promise<void> => {
+		const result =
+			await StorageAccessFramework.requestDirectoryPermissionsAsync(
+				autoBackupDirectoryUri ?? null,
+			);
+		if (!result.granted) {
+			return;
+		}
+		setAutoBackupDirectoryUri(result.directoryUri);
+		await updateAutoBackupDirectoryUri(database, result.directoryUri);
+		setAutoBackupNotice("Folder saved. Auto-backup will run when due.");
+	};
+
+	const handleRunAutoBackupNow = async (): Promise<void> => {
+		setAutoBackupNotice("Running backup\u2026");
+		const { result } = await runAutoBackupIfDue(database);
+		if (result === "success") {
+			setAutoBackupLastBackupAt(Date.now());
+			setAutoBackupNotice("Backup complete.");
+		} else if (result === "no-directory") {
+			setAutoBackupNotice("Choose a folder first.");
+		} else if (result === "not-android") {
+			setAutoBackupNotice("Auto-backup is only available on Android.");
+		} else {
+			setAutoBackupNotice(
+				"Backup failed. Check that the folder is still accessible.",
+			);
+		}
 	};
 
 	const handleExport = async (): Promise<void> => {
@@ -649,6 +721,77 @@ const SettingsScreen = ({
 					/>
 				</View>
 			</GlassCard>
+			{Platform.OS === "android" ? (
+				<GlassCard>
+					<View style={styles.section}>
+						<CustomText style={styles.heading}>
+							Automatic backups
+						</CustomText>
+						<CustomText style={styles.description}>
+							Silently saves a .purplecoins file to a folder you
+							choose. Runs each time you open the app if the
+							interval has passed.
+						</CustomText>
+						<View style={styles.switchRow}>
+							<View style={styles.switchDetails}>
+								<CustomText style={styles.switchTitle}>
+									Enable auto-backup
+								</CustomText>
+								<CustomText style={styles.switchDescription}>
+									Requires a folder to be chosen below.
+								</CustomText>
+							</View>
+							<Switch
+								onValueChange={(value) =>
+									void handleAutoBackupEnabledChange(value)
+								}
+								value={autoBackupEnabled}
+							/>
+						</View>
+						<SelectField
+							label="Backup interval"
+							onChange={(value) =>
+								void handleAutoBackupIntervalChange(value)
+							}
+							options={AUTO_BACKUP_INTERVAL_OPTIONS}
+							value={String(autoBackupIntervalDays)}
+						/>
+						<AppButton
+							icon="folder-open-outline"
+							label={
+								autoBackupDirectoryUri
+									? "Change backup folder"
+									: "Choose backup folder"
+							}
+							onPress={() => void handleChooseAutoBackupFolder()}
+							variant="secondary"
+						/>
+						{autoBackupDirectoryUri ? (
+							<CustomText
+								style={styles.switchDescription}
+								numberOfLines={2}
+							>
+								{autoBackupDirectoryUri}
+							</CustomText>
+						) : null}
+						<CustomText style={styles.switchDescription}>
+							{autoBackupLastBackupAt > 0
+								? `Last backup: ${new Date(autoBackupLastBackupAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}`
+								: "Never backed up automatically."}
+						</CustomText>
+						<AppButton
+							icon="save-outline"
+							isDisabled={!autoBackupDirectoryUri}
+							label="Back up now"
+							onPress={() => void handleRunAutoBackupNow()}
+							variant="secondary"
+						/>
+						{autoBackupNotice ? (
+							<Notice message={autoBackupNotice} />
+						) : null}
+					</View>
+				</GlassCard>
+			) : null}
 			<GlassCard>
 				<View style={styles.section}>
 					<CustomText style={styles.heading}>
