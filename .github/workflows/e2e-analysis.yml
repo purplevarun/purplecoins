@@ -6,6 +6,9 @@ name: E2E Analysis (Manual - Latest Build Artifact)
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - "**"
 
 env:
   APP_ID: com.purple.coins.experimental
