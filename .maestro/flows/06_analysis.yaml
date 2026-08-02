@@ -44,16 +44,16 @@ appId: ${APP_ID}
 
 - tapOn: "Analysis"
 - assertVisible: "Month"
-- extendedWaitUntil:
-    visible: "Food"
+- scrollUntilVisible:
+    element: "Food"
     timeout: 10000
 - tapOn: "Year"
-- extendedWaitUntil:
-    visible: "Food"
+- scrollUntilVisible:
+    element: "Food"
     timeout: 10000
 - tapOn: "All"
-- extendedWaitUntil:
-    visible: "Food"
+- scrollUntilVisible:
+    element: "Food"
     timeout: 10000
 - tapOn: "FY"
 - tapOn: "YTD"
