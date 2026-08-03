@@ -1,3 +1,5 @@
+appId: ${APP_ID}
+---
 # Reusable mini flow: Search for element (scroll down then up) and tap it
 # Parameters:
 #   - element: the element text to find and tap
