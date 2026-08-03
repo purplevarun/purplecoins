@@ -132,10 +132,6 @@ appId: ${APP_ID}
 - runFlow:
     file: find_and_tap.yaml
     env:
-      element: "Settings"
-- runFlow:
-    file: find_and_tap.yaml
-    env:
       element: "Archived relations"
 - assertVisible: "Primary Bank"
 - runFlow:
