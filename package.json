@@ -71,5 +71,8 @@
 	"private": true,
 	"overrides": {
 		"@expo/config-plugins": "56.0.14"
+	},
+	"patchedDependencies": {
+		"@react-native-voice/voice@3.2.4": "patches/@react-native-voice%2Fvoice@3.2.4.patch"
 	}
 }
