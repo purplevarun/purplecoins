@@ -29,6 +29,13 @@
 			"expo-splash-screen",
 			"./plugins/withUpiNotificationDetector",
 			[
+				"@react-native-voice/voice",
+				{
+					"microphonePermission": "Allow Purplecoins to access your microphone for voice quick-add.",
+					"speechRecognitionPermission": "Allow Purplecoins to recognize speech for voice quick-add."
+				}
+			],
+			[
 				"expo-quick-actions",
 				{
 					"androidIcons": {
