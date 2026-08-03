@@ -5,37 +5,82 @@ appId: ${APP_ID}
 
 - launchApp:
     clearState: true
-- tapOn: "Switch homepage"
-- tapOn: "Finance"
-- tapOn: "Categories"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Switch homepage"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Finance"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Categories"
 
-- tapOn: "Add"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Add"
 - assertVisible: "New category"
-- tapOn: "Category name"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Category name"
 - inputText: "Groceries"
 - hideKeyboard
 - assertVisible: "Expense"
-- tapOn: "Save"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Save"
 - assertVisible: "Groceries"
 - assertVisible: "Expense category"
 
-- tapOn: "Add"
-- tapOn: "Category name"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Add"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Category name"
 - inputText: "Salary"
 - hideKeyboard
-- tapOn: "Income"
-- tapOn: "Save"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Income"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Save"
 - assertVisible: "Salary"
 - assertVisible: "Income category"
 
 # Editing an existing category's type prompts a confirmation because it
 # reclassifies historical analysis.
-- tapOn: "Groceries"
-- tapOn: "Edit"
-- tapOn: "Income"
-- tapOn: "Save"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Groceries"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Edit"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Income"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Save"
 - assertVisible: "Change analysis classification?"
-- tapOn: "Change"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Change"
 - back
 - assertVisible: "Income category"
 
@@ -43,5 +88,8 @@ appId: ${APP_ID}
 - tapOn:
     text: "Archive"
     below: "Salary"
-- tapOn: "Archive"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Archive"
 - assertNotVisible: "Salary"

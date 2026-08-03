@@ -5,48 +5,92 @@ appId: ${APP_ID}
 
 - launchApp:
     clearState: true
-- tapOn: "Switch homepage"
-- tapOn: "Tools"
-- tapOn: "Notes"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Switch homepage"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Tools"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Notes"
 
-- tapOn: "Add"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Add"
 - assertVisible: "New note"
-- tapOn: "Note title"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Note title"
 - inputText: "Grocery list"
 - hideKeyboard
-- tapOn: "Write something useful..."
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Write something useful..."
 - inputText: "Milk, eggs, bread"
 - hideKeyboard
 
 # Create a folder inline via the FolderPicker.
-- tapOn: "New folder"
-- tapOn: "Folder name"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "New folder"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Folder name"
 - inputText: "Personal"
 - hideKeyboard
-- tapOn: "Create"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Create"
 - assertVisible: "Personal"
 
-- scrollUntilVisible:
-    element: "Save note"
-- tapOn: "Save note"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Save note"
 - assertVisible: "Grocery list"
 - assertVisible: "Personal"
 
 # Edit the note.
-- tapOn: "Grocery list"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Grocery list"
 - assertVisible: "Edit note"
-- tapOn: "Grocery list"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Grocery list"
 - eraseText
 - inputText: "Weekend grocery list"
 - hideKeyboard
-- tapOn: "Save note"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Save note"
 - assertVisible: "Weekend grocery list"
 
 # Delete the note.
-- tapOn: "Weekend grocery list"
-- scrollUntilVisible:
-    element: "Delete note"
-- tapOn: "Delete note"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Weekend grocery list"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Delete note"
 - assertVisible: "Delete note?"
-- tapOn: "Delete"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Delete"
 - assertNotVisible: "Weekend grocery list"

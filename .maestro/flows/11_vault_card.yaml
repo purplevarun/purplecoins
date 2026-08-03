@@ -5,34 +5,65 @@ appId: ${APP_ID}
 
 - launchApp:
     clearState: true
-- tapOn: "Switch homepage"
-- tapOn: "Vault"
-- tapOn: "Cards"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Switch homepage"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Vault"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Cards"
 
-- tapOn: "Add"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Add"
 - assertVisible: "New card"
-- tapOn: "Personal Visa"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Personal Visa"
 - inputText: "Everyday Visa"
 - hideKeyboard
 - assertVisible: "Credit card"
-- tapOn: "Card number"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Card number"
 - inputText: "4111111111111111"
 - hideKeyboard
-- tapOn: "Visa, Mastercard, RuPay..."
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Visa, Mastercard, RuPay..."
 - inputText: "Visa"
 - hideKeyboard
-- tapOn: "MM/YY"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "MM/YY"
 - inputText: "12/30"
 - hideKeyboard
-- tapOn: "CVV"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "CVV"
 - inputText: "123"
 - hideKeyboard
-- tapOn: "PIN"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "PIN"
 - inputText: "4321"
 - hideKeyboard
-- scrollUntilVisible:
-    element: "Save entry"
-- tapOn: "Save entry"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Save entry"
 - assertVisible: "Everyday Visa"
 - assertVisible: ".*Visa.*"
 
@@ -47,19 +78,36 @@ appId: ${APP_ID}
 - assertVisible: "PIN copied."
 
 # Switch card type to Debit while editing.
-- tapOn: "Everyday Visa"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Everyday Visa"
 - assertVisible: "Edit card"
-- tapOn: "Credit card"
-- tapOn: "Debit card"
-- scrollUntilVisible:
-    element: "Save entry"
-- tapOn: "Save entry"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Credit card"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Debit card"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Save entry"
 - assertVisible: ".*Debit card.*"
 
-- tapOn: "Everyday Visa"
-- scrollUntilVisible:
-    element: "Delete entry"
-- tapOn: "Delete entry"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Everyday Visa"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Delete entry"
 - assertVisible: "Delete vault entry?"
-- tapOn: "Delete"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Delete"
 - assertNotVisible: "Everyday Visa"

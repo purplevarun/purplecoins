@@ -6,71 +6,142 @@ appId: ${APP_ID}
 
 - launchApp:
     clearState: true
-- tapOn: "Switch homepage"
-- tapOn: "Finance"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Switch homepage"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Finance"
 
-- tapOn: "Sources"
-- tapOn: "Add"
-- tapOn: "Source name"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Sources"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Add"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Source name"
 - inputText: "Bank"
 - hideKeyboard
-- tapOn: "Save"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Save"
 - back
 
-- tapOn: "Categories"
-- tapOn: "Add"
-- tapOn: "Category name"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Categories"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Add"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Category name"
 - inputText: "Food"
 - hideKeyboard
-- tapOn: "Save"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Save"
 - back
 
-- tapOn: "Transactions"
-- tapOn: "Add"
-- tapOn: "Select source"
-- tapOn: "Bank"
-- tapOn: "0.00"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Transactions"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Add"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Select source"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Bank"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "0.00"
 - inputText: "500"
 - hideKeyboard
-- tapOn: "Select category"
-- tapOn: "Food"
-- tapOn: "What was this for?"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Select category"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Food"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "What was this for?"
 - inputText: "Groceries"
 - hideKeyboard
-- scrollUntilVisible:
-    element: "Save transaction"
-- tapOn: "Save transaction"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Save transaction"
 - back
 
-- tapOn: "Analysis"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Analysis"
 - assertVisible: "Month"
 - scrollUntilVisible:
     element: "Food"
-    timeout: 10000
-- scrollUntilVisible:
-    element: "Year"
-    direction: UP
-    timeout: 10000
-- tapOn: "Year"
+    direction: down
+    optional: true
 - scrollUntilVisible:
     element: "Food"
-    timeout: 10000
-- scrollUntilVisible:
-    element: "All"
-    direction: UP
-    timeout: 10000
-- tapOn: "All"
+    direction: up
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Year"
 - scrollUntilVisible:
     element: "Food"
-    timeout: 10000
+    direction: down
+    optional: true
 - scrollUntilVisible:
-    element: "FY"
-    direction: UP
-    timeout: 10000
-- tapOn: "FY"
-- tapOn: "YTD"
+    element: "Food"
+    direction: up
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "All"
+- scrollUntilVisible:
+    element: "Food"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Food"
+    direction: up
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "FY"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "YTD"
 
-- scrollUntilVisible:
-    element: "Manage exchange rates"
-- tapOn: "Manage exchange rates"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Manage exchange rates"
 - assertVisible: "Fetch latest rates"

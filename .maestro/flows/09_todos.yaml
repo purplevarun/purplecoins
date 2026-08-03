@@ -5,16 +5,34 @@ appId: ${APP_ID}
 
 - launchApp:
     clearState: true
-- tapOn: "Switch homepage"
-- tapOn: "Tools"
-- tapOn: "Todos"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Switch homepage"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Tools"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Todos"
 
-- tapOn: "Add"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Add"
 - assertVisible: "New todo"
-- tapOn: "What needs doing?"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "What needs doing?"
 - inputText: "Renew passport"
 - hideKeyboard
-- tapOn: "Optional details"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Optional details"
 - inputText: "Book an appointment first"
 - hideKeyboard
 
@@ -23,38 +41,57 @@ appId: ${APP_ID}
     rightOf: "Due date"
 - assertVisible: "Due"
 
-- scrollUntilVisible:
-    element: "Save todo"
-- tapOn: "Save todo"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Save todo"
 - assertVisible: "Renew passport"
 - assertVisible: "Book an appointment first"
 
 # Toggle "Completed" via the edit form (the list's quick-toggle checkbox
 # has no accessible label, so this is the reliable path for E2E).
-- tapOn: "Renew passport"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Renew passport"
 - assertVisible: "Edit todo"
 - tapOn:
     rightOf: "Completed"
-- scrollUntilVisible:
-    element: "Save todo"
-- tapOn: "Save todo"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Save todo"
 
 # Edit the title.
-- tapOn: "Renew passport"
-- tapOn: "Renew passport"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Renew passport"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Renew passport"
 - eraseText
 - inputText: "Renew passport (urgent)"
 - hideKeyboard
-- scrollUntilVisible:
-    element: "Save todo"
-- tapOn: "Save todo"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Save todo"
 - assertVisible: "Renew passport (urgent)"
 
 # Delete it.
-- tapOn: "Renew passport (urgent)"
-- scrollUntilVisible:
-    element: "Delete todo"
-- tapOn: "Delete todo"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Renew passport (urgent)"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Delete todo"
 - assertVisible: "Delete todo?"
-- tapOn: "Delete"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Delete"
 - assertNotVisible: "Renew passport (urgent)"

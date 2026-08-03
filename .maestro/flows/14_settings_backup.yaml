@@ -8,11 +8,17 @@ appId: ${APP_ID}
 
 - launchApp:
     clearState: true
-- tapOn: "Settings"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Settings"
 - assertVisible: "Home screen"
 
 # Default home mode.
-- tapOn: "Finance"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Finance"
 - assertVisible: "Currency display"
 
 # Native currency display toggle (label + switch are separate elements).
@@ -20,20 +26,29 @@ appId: ${APP_ID}
     rightOf: "Native currencies"
 
 # Financial year start month.
-- tapOn: "Apr"
-- tapOn: "Jul"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Apr"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Jul"
 - assertVisible: ".*FY ends in.*"
 - assertVisible: ".*Jun.*"
 
 # Archived relations is reachable (covered in depth by 01_relations_sources).
-- scrollUntilVisible:
-    element: "Archived relations"
-- tapOn: "Archived relations"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Archived relations"
 - back
 
 # Budget alerts card is visible (Phase 2 — cross-platform).
-- scrollUntilVisible:
-    element: "Budget alerts"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Budget alerts"
 - assertVisible: "Enable budget alerts"
 
 # Automatic backups card is Android-only; the assertion is wrapped in a
@@ -42,24 +57,35 @@ appId: ${APP_ID}
     when:
       platform: Android
     commands:
-      - scrollUntilVisible:
-          element: "Automatic backups"
+      - runFlow:
+          path: find_and_tap.yaml
+          args:
+            element: "Automatic backups"
       - assertVisible: "Enable auto-backup"
       - assertVisible: "Choose backup folder"
 
 # Export prepares a backup and invokes the native share sheet.
-- scrollUntilVisible:
-    element: "Export .purplecoins"
-- tapOn: "Export .purplecoins"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Export .purplecoins"
 - back
-- scrollUntilVisible:
-    element: "Backup prepared successfully."
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Backup prepared successfully."
 - assertVisible: "Backup prepared successfully."
 
 # Restore prompts a destructive-action confirmation before opening the
 # native document picker. The picker itself is outside the app, so the
 # flow cancels rather than proceeding to "Choose backup".
-- tapOn: "Restore .purplecoins"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Restore .purplecoins"
 - assertVisible: "Restore backup?"
 - assertVisible: "This replaces every record currently stored on this phone."
-- tapOn: "Cancel"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Cancel"

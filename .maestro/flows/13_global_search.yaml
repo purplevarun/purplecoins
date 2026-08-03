@@ -7,16 +7,34 @@ appId: ${APP_ID}
     clearState: true
 
 # Tools: a note to search for.
-- tapOn: "Notes"
-- tapOn: "Add"
-- tapOn: "Note title"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Notes"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Add"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Note title"
 - inputText: "Vacation planning"
 - hideKeyboard
-- tapOn: "Save note"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Save note"
 - back
 
-- tapOn: "Search Tools"
-- tapOn: "Search Tools"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Search Tools"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Search Tools"
 - inputText: "a"
 - hideKeyboard
 - assertVisible: "Type at least two characters."
@@ -27,39 +45,90 @@ appId: ${APP_ID}
 - back
 
 # Finance: a source to search for.
-- tapOn: "Switch homepage"
-- tapOn: "Finance"
-- tapOn: "Sources"
-- tapOn: "Add"
-- tapOn: "Source name"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Switch homepage"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Finance"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Sources"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Add"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Source name"
 - inputText: "Zenith Bank"
 - hideKeyboard
-- tapOn: "Save"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Save"
 - back
 
-- tapOn: "Search Finance"
-- tapOn: "Search Finance"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Search Finance"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Search Finance"
 - inputText: "zenith"
 - hideKeyboard
 - assertVisible: "Zenith Bank"
 - back
 
 # Vault: a password to search for.
-- tapOn: "Switch homepage"
-- tapOn: "Vault"
-- tapOn: "Passwords"
-- tapOn: "Add"
-- tapOn: "Entry title"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Switch homepage"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Vault"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Passwords"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Add"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Entry title"
 - inputText: "Streaming service"
 - hideKeyboard
-- tapOn: "Password"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Password"
 - inputText: "hunter2"
 - hideKeyboard
-- tapOn: "Save entry"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Save entry"
 - back
 
-- tapOn: "Search Vault"
-- tapOn: "Search Vault"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Search Vault"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Search Vault"
 - inputText: "streaming"
 - hideKeyboard
 - assertVisible: "Streaming service"

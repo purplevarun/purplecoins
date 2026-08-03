@@ -4,40 +4,78 @@ appId: ${APP_ID}
 
 - launchApp:
     clearState: true
-- tapOn: "Switch homepage"
-- tapOn: "Vault"
-- tapOn: "Identity"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Switch homepage"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Vault"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Identity"
 
-- tapOn: "Add"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Add"
 - assertVisible: "New identity"
-- tapOn: "Entry title"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Entry title"
 - inputText: "Passport"
 - hideKeyboard
-- tapOn: "Document number"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Document number"
 - inputText: "P1234567"
 - hideKeyboard
-- tapOn: "Optional notes"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Optional notes"
 - inputText: "Expires 2030"
 - hideKeyboard
-- scrollUntilVisible:
-    element: "Save entry"
-- tapOn: "Save entry"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Save entry"
 - assertVisible: "Passport"
 - assertVisible: "P1234567"
 
-- tapOn: "Passport"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Passport"
 - assertVisible: "Edit identity"
-- tapOn: "Passport"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Passport"
 - eraseText
 - inputText: "Passport (renewed)"
 - hideKeyboard
-- tapOn: "Save entry"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Save entry"
 - assertVisible: "Passport (renewed)"
 
-- tapOn: "Passport (renewed)"
-- scrollUntilVisible:
-    element: "Delete entry"
-- tapOn: "Delete entry"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Passport (renewed)"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Delete entry"
 - assertVisible: "Delete vault entry?"
-- tapOn: "Delete"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Delete"
 - assertNotVisible: "Passport (renewed)"

@@ -5,40 +5,87 @@ appId: ${APP_ID}
 
 - launchApp:
     clearState: true
-- tapOn: "Switch homepage"
-- tapOn: "Finance"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Switch homepage"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Finance"
 
-- tapOn: "Categories"
-- tapOn: "Add"
-- tapOn: "Category name"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Categories"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Add"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Category name"
 - inputText: "Rent"
 - hideKeyboard
-- tapOn: "Save"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Save"
 - back
 
-- tapOn: "Budgets"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Budgets"
 - assertVisible: "Budgets use INR and reset on calendar month or calendar year boundaries."
-- tapOn: "Add"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Add"
 - assertVisible: "New budget"
-- tapOn: "Select category"
-- tapOn: "Rent"
-- tapOn: "0.00"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Select category"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Rent"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "0.00"
 - inputText: "20000"
 - hideKeyboard
 - assertVisible: "Monthly"
-- scrollUntilVisible:
-    element: "Save budget"
-- tapOn: "Save budget"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Save budget"
 - assertVisible: "Rent"
 
-- tapOn: "Edit"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Edit"
 - assertVisible: "Edit budget"
-- tapOn: "Yearly"
-- scrollUntilVisible:
-    element: "Save budget"
-- tapOn: "Save budget"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Yearly"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Save budget"
 
-- tapOn: "Delete"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Delete"
 - assertVisible: "Delete budget?"
-- tapOn: "Delete"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Delete"
 - assertNotVisible: "Rent"

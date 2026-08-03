@@ -14,9 +14,15 @@ appId: ${APP_ID}
 - assertVisible: "Todos"
 
 # Switch to Finance via the mode-switcher modal.
-- tapOn: "Switch homepage"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Switch homepage"
 - assertVisible: "Finance"
-- tapOn: "Finance"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Finance"
 - assertVisible: "Transactions"
 - assertVisible: "Sources"
 - assertVisible: "Categories"
@@ -27,23 +33,41 @@ appId: ${APP_ID}
 - assertVisible: "Exchange rates"
 
 # Switch to Vault.
-- tapOn: "Switch homepage"
-- tapOn: "Vault"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Switch homepage"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Vault"
 - assertVisible: "Passwords"
 - assertVisible: "Cards"
 - assertVisible: "Identity"
 
 # Back to Tools for the next flow / a clean starting point.
-- tapOn: "Switch homepage"
-- tapOn: "Tools"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Switch homepage"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Tools"
 - assertVisible: "Notes"
 
 # Settings screen is reachable from every mode.
-- tapOn: "Settings"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Settings"
 - assertVisible: "Home screen"
 - back
 
 # Global search is reachable from every mode.
-- tapOn: "Search Tools"
+- runFlow:
+    path: find_and_tap.yaml
+    args:
+      element: "Search Tools"
 - assertVisible: "Type at least two characters."
 - back
