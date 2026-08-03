@@ -49,13 +49,17 @@
 							"id": "add-expense",
 							"title": "Add Expense",
 							"icon": "add",
-							"params": { "prefillType": "DEBIT" }
+							"params": {
+								"prefillType": "DEBIT"
+							}
 						},
 						{
 							"id": "add-income",
 							"title": "Add Income",
 							"icon": "add",
-							"params": { "prefillType": "CREDIT" }
+							"params": {
+								"prefillType": "CREDIT"
+							}
 						}
 					]
 				}

@@ -1,5 +1,5 @@
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type VoiceModule from "@react-native-voice/voice";
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import {
 	useCallback,
@@ -87,9 +87,8 @@ const TransactionsScreen = ({
 		() => () => {
 			const cleanupVoice = async (): Promise<void> => {
 				try {
-					const { default: Voice } = await import(
-						"@react-native-voice/voice"
-					);
+					const { default: Voice } =
+						await import("@react-native-voice/voice");
 					await Voice.destroy();
 					Voice.removeAllListeners();
 				} catch {
@@ -310,11 +309,11 @@ const TransactionsScreen = ({
 					/>
 				) : null}
 				{isListening ? (
-					<Notice
-						message="Listening... Say something like: paid 450 to Swiggy"
-					/>
+					<Notice message="Listening... Say something like: paid 450 to Swiggy" />
 				) : null}
-				{voiceError ? <Notice message={voiceError} tone="danger" /> : null}
+				{voiceError ? (
+					<Notice message={voiceError} tone="danger" />
+				) : null}
 				{error ? <Notice message={error} tone="danger" /> : null}
 			</ListHeader>
 		),

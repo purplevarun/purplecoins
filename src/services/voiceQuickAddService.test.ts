@@ -23,7 +23,9 @@ describe("voiceQuickAddService", () => {
 		});
 
 		it("does not leak regex state across repeated parse calls", () => {
-			expect(parseVoiceText("received 90 from refund").type).toBe("CREDIT");
+			expect(parseVoiceText("received 90 from refund").type).toBe(
+				"CREDIT",
+			);
 			expect(parseVoiceText("received 110 from cashback").type).toBe(
 				"CREDIT",
 			);

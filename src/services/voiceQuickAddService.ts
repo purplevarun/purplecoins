@@ -8,8 +8,7 @@ type VoiceParseResult = Readonly<{
 
 const DEBIT_KEYWORDS =
 	/\b(paid|pay|paying|spent|spend|spending|bought|buy|buying|debit|send|sent|give|given)\b/i;
-const CREDIT_KEYWORDS =
-	/\b(received|receive|got|get|earned|earn|credit)\b/i;
+const CREDIT_KEYWORDS = /\b(received|receive|got|get|earned|earn|credit)\b/i;
 const DEBIT_KEYWORDS_GLOBAL =
 	/\b(paid|pay|paying|spent|spend|spending|bought|buy|buying|debit|send|sent|give|given)\b/gi;
 const CREDIT_KEYWORDS_GLOBAL =
