@@ -62,6 +62,9 @@ appId: ${APP_ID}
           env:
             element: "Automatic backups"
       - assertVisible: "Enable auto-backup"
+      - scrollUntilVisible:
+          element: "Choose backup folder"
+          direction: down
       - assertVisible: "Choose backup folder"
 
 # Export prepares a backup and invokes the native share sheet.

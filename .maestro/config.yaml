@@ -1,5 +1,7 @@
 flows:
   - "flows/**"
+excludeTags:
+  - utility
 executionOrder:
   continueOnFailure: false
   flowsOrder:

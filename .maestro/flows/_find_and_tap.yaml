@@ -1,4 +1,6 @@
 appId: ${APP_ID}
+tags:
+  - utility
 ---
 # Reusable mini flow: Search for element (scroll down then up) and tap it
 # Parameters:
