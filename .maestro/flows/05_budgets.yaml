@@ -6,86 +6,86 @@ appId: ${APP_ID}
 - launchApp:
     clearState: true
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Switch homepage"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Finance"
 
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Categories"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Add"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Category name"
 - inputText: "Rent"
 - hideKeyboard
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Save"
 - back
 
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Budgets"
 - assertVisible: "Budgets use INR and reset on calendar month or calendar year boundaries."
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Add"
 - assertVisible: "New budget"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Select category"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Rent"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "0.00"
 - inputText: "20000"
 - hideKeyboard
 - assertVisible: "Monthly"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Save budget"
 - assertVisible: "Rent"
 
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Edit"
 - assertVisible: "Edit budget"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Yearly"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Save budget"
 
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Delete"
 - assertVisible: "Delete budget?"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Delete"
 - assertNotVisible: "Rent"

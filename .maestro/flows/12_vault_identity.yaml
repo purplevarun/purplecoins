@@ -5,77 +5,77 @@ appId: ${APP_ID}
 - launchApp:
     clearState: true
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Switch homepage"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Vault"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Identity"
 
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Add"
 - assertVisible: "New identity"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Entry title"
 - inputText: "Passport"
 - hideKeyboard
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Document number"
 - inputText: "P1234567"
 - hideKeyboard
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Optional notes"
 - inputText: "Expires 2030"
 - hideKeyboard
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Save entry"
 - assertVisible: "Passport"
 - assertVisible: "P1234567"
 
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Passport"
 - assertVisible: "Edit identity"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Passport"
 - eraseText
 - inputText: "Passport (renewed)"
 - hideKeyboard
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Save entry"
 - assertVisible: "Passport (renewed)"
 
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Passport (renewed)"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Delete entry"
 - assertVisible: "Delete vault entry?"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Delete"
 - assertNotVisible: "Passport (renewed)"

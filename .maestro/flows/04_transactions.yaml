@@ -7,217 +7,217 @@ appId: ${APP_ID}
 - launchApp:
     clearState: true
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Switch homepage"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Finance"
 
 # --- Prerequisites: two sources + one category ---
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Sources"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Add"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Source name"
 - inputText: "Bank"
 - hideKeyboard
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Save"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Add"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Source name"
 - inputText: "Wallet"
 - hideKeyboard
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Save"
 - back
 
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Categories"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Add"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Category name"
 - inputText: "Food"
 - hideKeyboard
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Save"
 - back
 
 # --- DEBIT transaction against a category ---
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Transactions"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Add"
 - assertVisible: "New transaction"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Select source"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Bank"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "0.00"
 - inputText: "250"
 - hideKeyboard
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Select category"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Food"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "What was this for?"
 - inputText: "Lunch"
 - hideKeyboard
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Save transaction"
 - assertVisible: "Lunch"
 
 # --- CREDIT transaction ---
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Add"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Credit"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Select source"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Bank"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "0.00"
 - inputText: "50000"
 - hideKeyboard
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Select category"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Food"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "What was this for?"
 - inputText: "Refund"
 - hideKeyboard
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Save transaction"
 - assertVisible: "Refund"
 
 # --- TRANSFER between the two sources ---
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Add"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Transfer"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Select source"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Bank"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Select destination"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Wallet"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "0.00"
 - inputText: "1000"
 - hideKeyboard
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Save transaction"
 - assertVisible: "Bank to Wallet"
 
 # --- Filter by classification ---
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "General"
 - assertVisible: "Lunch"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Investment"
 - assertVisible: "No transactions found"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "All"
 - assertVisible: "Lunch"
 
 # --- Search ---
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Search"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Search transactions..."
 - inputText: "Lunch"
@@ -225,25 +225,25 @@ appId: ${APP_ID}
 - assertVisible: "Lunch"
 - assertNotVisible: "Refund"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Close search"
 
 # --- Edit the Lunch transaction ---
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Lunch"
 - assertVisible: "Edit transaction"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Lunch"
 - eraseText
 - inputText: "Lunch with team"
 - hideKeyboard
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Save transaction"
 - assertVisible: "Lunch with team"
@@ -252,21 +252,21 @@ appId: ${APP_ID}
 - longPressOn: "Lunch with team"
 - assertVisible: "Clone transaction"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Save transaction"
 
 # --- Delete the refund transaction ---
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Refund"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Delete transaction"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Delete"
 - assertNotVisible: "Refund"

@@ -8,31 +8,31 @@ appId: ${APP_ID}
 
 # Tools: a note to search for.
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Notes"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Add"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Note title"
 - inputText: "Vacation planning"
 - hideKeyboard
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Save note"
 - back
 
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Search Tools"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Search Tools"
 - inputText: "a"
@@ -46,39 +46,39 @@ appId: ${APP_ID}
 
 # Finance: a source to search for.
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Switch homepage"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Finance"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Sources"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Add"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Source name"
 - inputText: "Zenith Bank"
 - hideKeyboard
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Save"
 - back
 
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Search Finance"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Search Finance"
 - inputText: "zenith"
@@ -88,45 +88,45 @@ appId: ${APP_ID}
 
 # Vault: a password to search for.
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Switch homepage"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Vault"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Passwords"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Add"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Entry title"
 - inputText: "Streaming service"
 - hideKeyboard
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Password"
 - inputText: "hunter2"
 - hideKeyboard
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Save entry"
 - back
 
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Search Vault"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Search Vault"
 - inputText: "streaming"

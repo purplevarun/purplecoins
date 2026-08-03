@@ -6,62 +6,62 @@ appId: ${APP_ID}
 - launchApp:
     clearState: true
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Switch homepage"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Vault"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Cards"
 
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Add"
 - assertVisible: "New card"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Personal Visa"
 - inputText: "Everyday Visa"
 - hideKeyboard
 - assertVisible: "Credit card"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Card number"
 - inputText: "4111111111111111"
 - hideKeyboard
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Visa, Mastercard, RuPay..."
 - inputText: "Visa"
 - hideKeyboard
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "MM/YY"
 - inputText: "12/30"
 - hideKeyboard
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "CVV"
 - inputText: "123"
 - hideKeyboard
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "PIN"
 - inputText: "4321"
 - hideKeyboard
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Save entry"
 - assertVisible: "Everyday Visa"
@@ -79,35 +79,35 @@ appId: ${APP_ID}
 
 # Switch card type to Debit while editing.
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Everyday Visa"
 - assertVisible: "Edit card"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Credit card"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Debit card"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Save entry"
 - assertVisible: ".*Debit card.*"
 
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Everyday Visa"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Delete entry"
 - assertVisible: "Delete vault entry?"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Delete"
 - assertNotVisible: "Everyday Visa"

@@ -6,57 +6,57 @@ appId: ${APP_ID}
 - launchApp:
     clearState: true
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Switch homepage"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Finance"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Sources"
 
 # Create the first source (default currency INR).
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Add"
 - assertVisible: "New source"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Source name"
 - inputText: "Everyday Bank"
 - hideKeyboard
 - assertVisible: "INR"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Save"
 - assertVisible: "Everyday Bank"
 
 # Create a second source with a different currency.
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Add"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Source name"
 - inputText: "Travel Card"
 - hideKeyboard
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "INR"
 - eraseText
 - inputText: "USD"
 - hideKeyboard
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Save"
 - assertVisible: "Travel Card"
@@ -64,17 +64,17 @@ appId: ${APP_ID}
 
 # Duplicate name is rejected.
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Add"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Source name"
 - inputText: "Everyday Bank"
 - hideKeyboard
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Save"
 - assertVisible:
@@ -90,23 +90,23 @@ appId: ${APP_ID}
 
 # Rename it — currency becomes read-only once created.
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Everyday Bank"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Edit"
 - assertVisible: ".*Currency is fixed after a source is created\\..*"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Everyday Bank"
 - eraseText
 - inputText: "Primary Bank"
 - hideKeyboard
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Save"
 - back
@@ -118,7 +118,7 @@ appId: ${APP_ID}
     text: "Archive"
     below: "Primary Bank"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Archive"
 - assertNotVisible: "Primary Bank"
@@ -126,20 +126,20 @@ appId: ${APP_ID}
 
 - back
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Settings"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Archived relations"
 - assertVisible: "Primary Bank"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Primary Bank"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Restore"
 - assertNotVisible: "Primary Bank"

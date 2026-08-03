@@ -5,7 +5,7 @@ appId: ${APP_ID}
 #   - element: the element text to find and tap
 # Usage:
 #   - runFlow:
-#       file: find_and_tap.yaml
+#       file: _find_and_tap.yaml
 #       env:
 #         element: "Budget alerts"
 

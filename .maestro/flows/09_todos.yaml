@@ -6,31 +6,31 @@ appId: ${APP_ID}
 - launchApp:
     clearState: true
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Switch homepage"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Tools"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Todos"
 
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Add"
 - assertVisible: "New todo"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "What needs doing?"
 - inputText: "Renew passport"
 - hideKeyboard
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Optional details"
 - inputText: "Book an appointment first"
@@ -42,7 +42,7 @@ appId: ${APP_ID}
 - assertVisible: "Due"
 
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Save todo"
 - assertVisible: "Renew passport"
@@ -51,47 +51,47 @@ appId: ${APP_ID}
 # Toggle "Completed" via the edit form (the list's quick-toggle checkbox
 # has no accessible label, so this is the reliable path for E2E).
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Renew passport"
 - assertVisible: "Edit todo"
 - tapOn:
     rightOf: "Completed"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Save todo"
 
 # Edit the title.
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Renew passport"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Renew passport"
 - eraseText
 - inputText: "Renew passport (urgent)"
 - hideKeyboard
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Save todo"
 - assertVisible: "Renew passport (urgent)"
 
 # Delete it.
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Renew passport (urgent)"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Delete todo"
 - assertVisible: "Delete todo?"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Delete"
 - assertNotVisible: "Renew passport (urgent)"

@@ -9,14 +9,14 @@ appId: ${APP_ID}
 - launchApp:
     clearState: true
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Settings"
 - assertVisible: "Home screen"
 
 # Default home mode.
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Finance"
 - assertVisible: "Currency display"
@@ -27,11 +27,11 @@ appId: ${APP_ID}
 
 # Financial year start month.
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Apr"
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Jul"
 - assertVisible: ".*FY ends in.*"
@@ -39,14 +39,14 @@ appId: ${APP_ID}
 
 # Archived relations is reachable (covered in depth by 01_relations_sources).
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Archived relations"
 - back
 
 # Budget alerts card is visible (Phase 2 — cross-platform).
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Budget alerts"
 - assertVisible: "Enable budget alerts"
@@ -58,7 +58,7 @@ appId: ${APP_ID}
       platform: Android
     commands:
       - runFlow:
-          file: find_and_tap.yaml
+          file: _find_and_tap.yaml
           env:
             element: "Automatic backups"
       - assertVisible: "Enable auto-backup"
@@ -66,12 +66,12 @@ appId: ${APP_ID}
 
 # Export prepares a backup and invokes the native share sheet.
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Export .purplecoins"
 - back
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Backup prepared successfully."
 - assertVisible: "Backup prepared successfully."
@@ -80,12 +80,12 @@ appId: ${APP_ID}
 # native document picker. The picker itself is outside the app, so the
 # flow cancels rather than proceeding to "Choose backup".
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Restore .purplecoins"
 - assertVisible: "Restore backup?"
 - assertVisible: "This replaces every record currently stored on this phone."
 - runFlow:
-    file: find_and_tap.yaml
+    file: _find_and_tap.yaml
     env:
       element: "Cancel"
