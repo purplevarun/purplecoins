@@ -58,8 +58,8 @@ appId: ${APP_ID}
       platform: Android
     commands:
       - runFlow:
-          name: find_and_tap
-          args:
+          file: find_and_tap.yaml
+          env:
             element: "Automatic backups"
       - assertVisible: "Enable auto-backup"
       - assertVisible: "Choose backup folder"
