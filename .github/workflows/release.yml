@@ -261,4 +261,5 @@ jobs:
             "${{ needs.build-android.outputs.apk_name }}" \
             --title "${{ needs.build-android.outputs.name }}" \
             --notes "Automated Android build from branch ${GITHUB_REF_NAME} (app version ${{ needs.build-android.outputs.version }}), verified with typecheck, lint, unit tests, and Maestro E2E." \
+            --target "${{ github.sha }}" \
             --latest=false
