@@ -5,34 +5,58 @@ appId: ${APP_ID}
 
 - launchApp:
     clearState: true
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Switch homepage"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Tools"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Todos"
+- scrollUntilVisible:
+    element: "Switch homepage"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Switch homepage"
+    direction: up
+- tapOn: "Switch homepage"
+- scrollUntilVisible:
+    element: "Tools"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Tools"
+    direction: up
+- tapOn: "Tools"
+- scrollUntilVisible:
+    element: "Todos"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Todos"
+    direction: up
+- tapOn: "Todos"
 
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Add"
+- scrollUntilVisible:
+    element: "Add"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Add"
+    direction: up
+- tapOn: "Add"
 - assertVisible: "New todo"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "What needs doing?"
+- scrollUntilVisible:
+    element: "What needs doing?"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "What needs doing?"
+    direction: up
+- tapOn: "What needs doing?"
 - inputText: "Renew passport"
 - hideKeyboard
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Optional details"
+- scrollUntilVisible:
+    element: "Optional details"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Optional details"
+    direction: up
+- tapOn: "Optional details"
 - inputText: "Book an appointment first"
 - hideKeyboard
 
@@ -41,57 +65,93 @@ appId: ${APP_ID}
     rightOf: "Due date"
 - assertVisible: "Due"
 
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Save todo"
+- scrollUntilVisible:
+    element: "Save todo"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Save todo"
+    direction: up
+- tapOn: "Save todo"
 - assertVisible: "Renew passport"
 - assertVisible: "Book an appointment first"
 
 # Toggle "Completed" via the edit form (the list's quick-toggle checkbox
 # has no accessible label, so this is the reliable path for E2E).
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Renew passport"
+- scrollUntilVisible:
+    element: "Renew passport"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Renew passport"
+    direction: up
+- tapOn: "Renew passport"
 - assertVisible: "Edit todo"
 - tapOn:
     rightOf: "Completed"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Save todo"
+- scrollUntilVisible:
+    element: "Save todo"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Save todo"
+    direction: up
+- tapOn: "Save todo"
 
 # Edit the title.
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Renew passport"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Renew passport"
+- scrollUntilVisible:
+    element: "Renew passport"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Renew passport"
+    direction: up
+- tapOn: "Renew passport"
+- scrollUntilVisible:
+    element: "Renew passport"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Renew passport"
+    direction: up
+- tapOn: "Renew passport"
 - eraseText
 - inputText: "Renew passport (urgent)"
 - hideKeyboard
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Save todo"
+- scrollUntilVisible:
+    element: "Save todo"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Save todo"
+    direction: up
+- tapOn: "Save todo"
 - assertVisible: "Renew passport (urgent)"
 
 # Delete it.
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Renew passport (urgent)"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Delete todo"
+- scrollUntilVisible:
+    element: "Renew passport (urgent)"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Renew passport (urgent)"
+    direction: up
+- tapOn: "Renew passport (urgent)"
+- scrollUntilVisible:
+    element: "Delete todo"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Delete todo"
+    direction: up
+- tapOn: "Delete todo"
 - assertVisible: "Delete todo?"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Delete"
+- scrollUntilVisible:
+    element: "Delete"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Delete"
+    direction: up
+- tapOn: "Delete"
 - assertNotVisible: "Renew passport (urgent)"

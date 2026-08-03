@@ -6,267 +6,475 @@ appId: ${APP_ID}
 
 - launchApp:
     clearState: true
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Switch homepage"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Finance"
+- scrollUntilVisible:
+    element: "Switch homepage"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Switch homepage"
+    direction: up
+- tapOn: "Switch homepage"
+- scrollUntilVisible:
+    element: "Finance"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Finance"
+    direction: up
+- tapOn: "Finance"
 
 # --- Prerequisites: two sources + one category ---
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Sources"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Add"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Source name"
+- scrollUntilVisible:
+    element: "Sources"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Sources"
+    direction: up
+- tapOn: "Sources"
+- scrollUntilVisible:
+    element: "Add"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Add"
+    direction: up
+- tapOn: "Add"
+- scrollUntilVisible:
+    element: "Source name"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Source name"
+    direction: up
+- tapOn: "Source name"
 - inputText: "Bank"
 - hideKeyboard
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Save"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Add"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Source name"
+- scrollUntilVisible:
+    element: "Save"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Save"
+    direction: up
+- tapOn: "Save"
+- scrollUntilVisible:
+    element: "Add"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Add"
+    direction: up
+- tapOn: "Add"
+- scrollUntilVisible:
+    element: "Source name"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Source name"
+    direction: up
+- tapOn: "Source name"
 - inputText: "Wallet"
 - hideKeyboard
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Save"
+- scrollUntilVisible:
+    element: "Save"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Save"
+    direction: up
+- tapOn: "Save"
 - back
 
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Categories"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Add"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Category name"
+- scrollUntilVisible:
+    element: "Categories"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Categories"
+    direction: up
+- tapOn: "Categories"
+- scrollUntilVisible:
+    element: "Add"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Add"
+    direction: up
+- tapOn: "Add"
+- scrollUntilVisible:
+    element: "Category name"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Category name"
+    direction: up
+- tapOn: "Category name"
 - inputText: "Food"
 - hideKeyboard
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Save"
+- scrollUntilVisible:
+    element: "Save"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Save"
+    direction: up
+- tapOn: "Save"
 - back
 
 # --- DEBIT transaction against a category ---
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Transactions"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Add"
+- scrollUntilVisible:
+    element: "Transactions"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Transactions"
+    direction: up
+- tapOn: "Transactions"
+- scrollUntilVisible:
+    element: "Add"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Add"
+    direction: up
+- tapOn: "Add"
 - assertVisible: "New transaction"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Select source"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Bank"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "0.00"
+- scrollUntilVisible:
+    element: "Select source"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Select source"
+    direction: up
+- tapOn: "Select source"
+- scrollUntilVisible:
+    element: "Bank"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Bank"
+    direction: up
+- tapOn: "Bank"
+- scrollUntilVisible:
+    element: "0.00"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "0.00"
+    direction: up
+- tapOn: "0.00"
 - inputText: "250"
 - hideKeyboard
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Select category"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Food"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "What was this for?"
+- scrollUntilVisible:
+    element: "Select category"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Select category"
+    direction: up
+- tapOn: "Select category"
+- scrollUntilVisible:
+    element: "Food"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Food"
+    direction: up
+- tapOn: "Food"
+- scrollUntilVisible:
+    element: "What was this for?"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "What was this for?"
+    direction: up
+- tapOn: "What was this for?"
 - inputText: "Lunch"
 - hideKeyboard
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Save transaction"
+- scrollUntilVisible:
+    element: "Save transaction"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Save transaction"
+    direction: up
+- tapOn: "Save transaction"
 - assertVisible: "Lunch"
 
 # --- CREDIT transaction ---
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Add"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Credit"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Select source"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Bank"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "0.00"
+- scrollUntilVisible:
+    element: "Add"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Add"
+    direction: up
+- tapOn: "Add"
+- scrollUntilVisible:
+    element: "Credit"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Credit"
+    direction: up
+- tapOn: "Credit"
+- scrollUntilVisible:
+    element: "Select source"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Select source"
+    direction: up
+- tapOn: "Select source"
+- scrollUntilVisible:
+    element: "Bank"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Bank"
+    direction: up
+- tapOn: "Bank"
+- scrollUntilVisible:
+    element: "0.00"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "0.00"
+    direction: up
+- tapOn: "0.00"
 - inputText: "50000"
 - hideKeyboard
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Select category"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Food"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "What was this for?"
+- scrollUntilVisible:
+    element: "Select category"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Select category"
+    direction: up
+- tapOn: "Select category"
+- scrollUntilVisible:
+    element: "Food"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Food"
+    direction: up
+- tapOn: "Food"
+- scrollUntilVisible:
+    element: "What was this for?"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "What was this for?"
+    direction: up
+- tapOn: "What was this for?"
 - inputText: "Refund"
 - hideKeyboard
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Save transaction"
+- scrollUntilVisible:
+    element: "Save transaction"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Save transaction"
+    direction: up
+- tapOn: "Save transaction"
 - assertVisible: "Refund"
 
 # --- TRANSFER between the two sources ---
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Add"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Transfer"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Select source"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Bank"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Select destination"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Wallet"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "0.00"
+- scrollUntilVisible:
+    element: "Add"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Add"
+    direction: up
+- tapOn: "Add"
+- scrollUntilVisible:
+    element: "Transfer"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Transfer"
+    direction: up
+- tapOn: "Transfer"
+- scrollUntilVisible:
+    element: "Select source"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Select source"
+    direction: up
+- tapOn: "Select source"
+- scrollUntilVisible:
+    element: "Bank"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Bank"
+    direction: up
+- tapOn: "Bank"
+- scrollUntilVisible:
+    element: "Select destination"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Select destination"
+    direction: up
+- tapOn: "Select destination"
+- scrollUntilVisible:
+    element: "Wallet"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Wallet"
+    direction: up
+- tapOn: "Wallet"
+- scrollUntilVisible:
+    element: "0.00"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "0.00"
+    direction: up
+- tapOn: "0.00"
 - inputText: "1000"
 - hideKeyboard
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Save transaction"
+- scrollUntilVisible:
+    element: "Save transaction"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Save transaction"
+    direction: up
+- tapOn: "Save transaction"
 - assertVisible: "Bank to Wallet"
 
 # --- Filter by classification ---
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "General"
+- scrollUntilVisible:
+    element: "General"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "General"
+    direction: up
+- tapOn: "General"
 - assertVisible: "Lunch"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Investment"
+- scrollUntilVisible:
+    element: "Investment"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Investment"
+    direction: up
+- tapOn: "Investment"
 - assertVisible: "No transactions found"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "All"
+- scrollUntilVisible:
+    element: "All"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "All"
+    direction: up
+- tapOn: "All"
 - assertVisible: "Lunch"
 
 # --- Search ---
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Search"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Search transactions..."
+- scrollUntilVisible:
+    element: "Search"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Search"
+    direction: up
+- tapOn: "Search"
+- scrollUntilVisible:
+    element: "Search transactions..."
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Search transactions..."
+    direction: up
+- tapOn: "Search transactions..."
 - inputText: "Lunch"
 - hideKeyboard
 - assertVisible: "Lunch"
 - assertNotVisible: "Refund"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Close search"
+- scrollUntilVisible:
+    element: "Close search"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Close search"
+    direction: up
+- tapOn: "Close search"
 
 # --- Edit the Lunch transaction ---
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Lunch"
+- scrollUntilVisible:
+    element: "Lunch"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Lunch"
+    direction: up
+- tapOn: "Lunch"
 - assertVisible: "Edit transaction"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Lunch"
+- scrollUntilVisible:
+    element: "Lunch"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Lunch"
+    direction: up
+- tapOn: "Lunch"
 - eraseText
 - inputText: "Lunch with team"
 - hideKeyboard
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Save transaction"
+- scrollUntilVisible:
+    element: "Save transaction"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Save transaction"
+    direction: up
+- tapOn: "Save transaction"
 - assertVisible: "Lunch with team"
 
 # --- Clone via long-press ---
 - longPressOn: "Lunch with team"
 - assertVisible: "Clone transaction"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Save transaction"
+- scrollUntilVisible:
+    element: "Save transaction"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Save transaction"
+    direction: up
+- tapOn: "Save transaction"
 
 # --- Delete the refund transaction ---
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Refund"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Delete transaction"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Delete"
+- scrollUntilVisible:
+    element: "Refund"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Refund"
+    direction: up
+- tapOn: "Refund"
+- scrollUntilVisible:
+    element: "Delete transaction"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Delete transaction"
+    direction: up
+- tapOn: "Delete transaction"
+- scrollUntilVisible:
+    element: "Delete"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Delete"
+    direction: up
+- tapOn: "Delete"
 - assertNotVisible: "Refund"

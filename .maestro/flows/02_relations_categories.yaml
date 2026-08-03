@@ -5,82 +5,142 @@ appId: ${APP_ID}
 
 - launchApp:
     clearState: true
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Switch homepage"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Finance"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Categories"
+- scrollUntilVisible:
+    element: "Switch homepage"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Switch homepage"
+    direction: up
+- tapOn: "Switch homepage"
+- scrollUntilVisible:
+    element: "Finance"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Finance"
+    direction: up
+- tapOn: "Finance"
+- scrollUntilVisible:
+    element: "Categories"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Categories"
+    direction: up
+- tapOn: "Categories"
 
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Add"
+- scrollUntilVisible:
+    element: "Add"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Add"
+    direction: up
+- tapOn: "Add"
 - assertVisible: "New category"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Category name"
+- scrollUntilVisible:
+    element: "Category name"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Category name"
+    direction: up
+- tapOn: "Category name"
 - inputText: "Groceries"
 - hideKeyboard
 - assertVisible: "Expense"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Save"
+- scrollUntilVisible:
+    element: "Save"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Save"
+    direction: up
+- tapOn: "Save"
 - assertVisible: "Groceries"
 - assertVisible: "Expense category"
 
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Add"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Category name"
+- scrollUntilVisible:
+    element: "Add"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Add"
+    direction: up
+- tapOn: "Add"
+- scrollUntilVisible:
+    element: "Category name"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Category name"
+    direction: up
+- tapOn: "Category name"
 - inputText: "Salary"
 - hideKeyboard
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Income"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Save"
+- scrollUntilVisible:
+    element: "Income"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Income"
+    direction: up
+- tapOn: "Income"
+- scrollUntilVisible:
+    element: "Save"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Save"
+    direction: up
+- tapOn: "Save"
 - assertVisible: "Salary"
 - assertVisible: "Income category"
 
 # Editing an existing category's type prompts a confirmation because it
 # reclassifies historical analysis.
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Groceries"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Edit"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Income"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Save"
+- scrollUntilVisible:
+    element: "Groceries"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Groceries"
+    direction: up
+- tapOn: "Groceries"
+- scrollUntilVisible:
+    element: "Edit"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Edit"
+    direction: up
+- tapOn: "Edit"
+- scrollUntilVisible:
+    element: "Income"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Income"
+    direction: up
+- tapOn: "Income"
+- scrollUntilVisible:
+    element: "Save"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Save"
+    direction: up
+- tapOn: "Save"
 - assertVisible: "Change analysis classification?"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Change"
+- scrollUntilVisible:
+    element: "Change"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Change"
+    direction: up
+- tapOn: "Change"
 - back
 - assertVisible: "Income category"
 
@@ -88,8 +148,12 @@ appId: ${APP_ID}
 - tapOn:
     text: "Archive"
     below: "Salary"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Archive"
+- scrollUntilVisible:
+    element: "Archive"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Archive"
+    direction: up
+- tapOn: "Archive"
 - assertNotVisible: "Salary"

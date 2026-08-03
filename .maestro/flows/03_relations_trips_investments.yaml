@@ -5,73 +5,125 @@ appId: ${APP_ID}
 
 - launchApp:
     clearState: true
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Switch homepage"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Finance"
+- scrollUntilVisible:
+    element: "Switch homepage"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Switch homepage"
+    direction: up
+- tapOn: "Switch homepage"
+- scrollUntilVisible:
+    element: "Finance"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Finance"
+    direction: up
+- tapOn: "Finance"
 
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Trips"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Add"
+- scrollUntilVisible:
+    element: "Trips"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Trips"
+    direction: up
+- tapOn: "Trips"
+- scrollUntilVisible:
+    element: "Add"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Add"
+    direction: up
+- tapOn: "Add"
 - assertVisible: "New trip"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Trip name"
+- scrollUntilVisible:
+    element: "Trip name"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Trip name"
+    direction: up
+- tapOn: "Trip name"
 - inputText: "Goa Getaway"
 - hideKeyboard
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Save"
+- scrollUntilVisible:
+    element: "Save"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Save"
+    direction: up
+- tapOn: "Save"
 - assertVisible: "Goa Getaway"
 
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Add"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Trip name"
+- scrollUntilVisible:
+    element: "Add"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Add"
+    direction: up
+- tapOn: "Add"
+- scrollUntilVisible:
+    element: "Trip name"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Trip name"
+    direction: up
+- tapOn: "Trip name"
 - inputText: "Goa Getaway"
 - hideKeyboard
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Save"
+- scrollUntilVisible:
+    element: "Save"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Save"
+    direction: up
+- tapOn: "Save"
 - assertVisible:
     text: ".*already exists.*"
     optional: true
 - back
 - back
 
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Investments"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Add"
+- scrollUntilVisible:
+    element: "Investments"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Investments"
+    direction: up
+- tapOn: "Investments"
+- scrollUntilVisible:
+    element: "Add"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Add"
+    direction: up
+- tapOn: "Add"
 - assertVisible: "New investment"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Investment name"
+- scrollUntilVisible:
+    element: "Investment name"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Investment name"
+    direction: up
+- tapOn: "Investment name"
 - inputText: "Index Fund"
 - hideKeyboard
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Save"
+- scrollUntilVisible:
+    element: "Save"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Save"
+    direction: up
+- tapOn: "Save"
 - assertVisible: "Index Fund"

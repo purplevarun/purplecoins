@@ -14,15 +14,23 @@ appId: ${APP_ID}
 - assertVisible: "Todos"
 
 # Switch to Finance via the mode-switcher modal.
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Switch homepage"
+- scrollUntilVisible:
+    element: "Switch homepage"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Switch homepage"
+    direction: up
+- tapOn: "Switch homepage"
 - assertVisible: "Finance"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Finance"
+- scrollUntilVisible:
+    element: "Finance"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Finance"
+    direction: up
+- tapOn: "Finance"
 - assertVisible: "Transactions"
 - assertVisible: "Sources"
 - assertVisible: "Categories"
@@ -33,41 +41,65 @@ appId: ${APP_ID}
 - assertVisible: "Exchange rates"
 
 # Switch to Vault.
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Switch homepage"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Vault"
+- scrollUntilVisible:
+    element: "Switch homepage"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Switch homepage"
+    direction: up
+- tapOn: "Switch homepage"
+- scrollUntilVisible:
+    element: "Vault"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Vault"
+    direction: up
+- tapOn: "Vault"
 - assertVisible: "Passwords"
 - assertVisible: "Cards"
 - assertVisible: "Identity"
 
 # Back to Tools for the next flow / a clean starting point.
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Switch homepage"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Tools"
+- scrollUntilVisible:
+    element: "Switch homepage"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Switch homepage"
+    direction: up
+- tapOn: "Switch homepage"
+- scrollUntilVisible:
+    element: "Tools"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Tools"
+    direction: up
+- tapOn: "Tools"
 - assertVisible: "Notes"
 
 # Settings screen is reachable from every mode.
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Settings"
+- scrollUntilVisible:
+    element: "Settings"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Settings"
+    direction: up
+- tapOn: "Settings"
 - assertVisible: "Home screen"
 - back
 
 # Global search is reachable from every mode.
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Search Tools"
+- scrollUntilVisible:
+    element: "Search Tools"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Search Tools"
+    direction: up
+- tapOn: "Search Tools"
 - assertVisible: "Type at least two characters."
 - back

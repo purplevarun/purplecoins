@@ -4,78 +4,134 @@ appId: ${APP_ID}
 
 - launchApp:
     clearState: true
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Switch homepage"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Vault"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Identity"
+- scrollUntilVisible:
+    element: "Switch homepage"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Switch homepage"
+    direction: up
+- tapOn: "Switch homepage"
+- scrollUntilVisible:
+    element: "Vault"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Vault"
+    direction: up
+- tapOn: "Vault"
+- scrollUntilVisible:
+    element: "Identity"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Identity"
+    direction: up
+- tapOn: "Identity"
 
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Add"
+- scrollUntilVisible:
+    element: "Add"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Add"
+    direction: up
+- tapOn: "Add"
 - assertVisible: "New identity"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Entry title"
+- scrollUntilVisible:
+    element: "Entry title"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Entry title"
+    direction: up
+- tapOn: "Entry title"
 - inputText: "Passport"
 - hideKeyboard
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Document number"
+- scrollUntilVisible:
+    element: "Document number"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Document number"
+    direction: up
+- tapOn: "Document number"
 - inputText: "P1234567"
 - hideKeyboard
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Optional notes"
+- scrollUntilVisible:
+    element: "Optional notes"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Optional notes"
+    direction: up
+- tapOn: "Optional notes"
 - inputText: "Expires 2030"
 - hideKeyboard
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Save entry"
+- scrollUntilVisible:
+    element: "Save entry"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Save entry"
+    direction: up
+- tapOn: "Save entry"
 - assertVisible: "Passport"
 - assertVisible: "P1234567"
 
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Passport"
+- scrollUntilVisible:
+    element: "Passport"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Passport"
+    direction: up
+- tapOn: "Passport"
 - assertVisible: "Edit identity"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Passport"
+- scrollUntilVisible:
+    element: "Passport"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Passport"
+    direction: up
+- tapOn: "Passport"
 - eraseText
 - inputText: "Passport (renewed)"
 - hideKeyboard
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Save entry"
+- scrollUntilVisible:
+    element: "Save entry"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Save entry"
+    direction: up
+- tapOn: "Save entry"
 - assertVisible: "Passport (renewed)"
 
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Passport (renewed)"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Delete entry"
+- scrollUntilVisible:
+    element: "Passport (renewed)"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Passport (renewed)"
+    direction: up
+- tapOn: "Passport (renewed)"
+- scrollUntilVisible:
+    element: "Delete entry"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Delete entry"
+    direction: up
+- tapOn: "Delete entry"
 - assertVisible: "Delete vault entry?"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Delete"
+- scrollUntilVisible:
+    element: "Delete"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Delete"
+    direction: up
+- tapOn: "Delete"
 - assertNotVisible: "Passport (renewed)"

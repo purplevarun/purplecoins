@@ -6,101 +6,181 @@ appId: ${APP_ID}
 
 - launchApp:
     clearState: true
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Switch homepage"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Finance"
+- scrollUntilVisible:
+    element: "Switch homepage"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Switch homepage"
+    direction: up
+- tapOn: "Switch homepage"
+- scrollUntilVisible:
+    element: "Finance"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Finance"
+    direction: up
+- tapOn: "Finance"
 
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Sources"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Add"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Source name"
+- scrollUntilVisible:
+    element: "Sources"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Sources"
+    direction: up
+- tapOn: "Sources"
+- scrollUntilVisible:
+    element: "Add"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Add"
+    direction: up
+- tapOn: "Add"
+- scrollUntilVisible:
+    element: "Source name"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Source name"
+    direction: up
+- tapOn: "Source name"
 - inputText: "Bank"
 - hideKeyboard
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Save"
+- scrollUntilVisible:
+    element: "Save"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Save"
+    direction: up
+- tapOn: "Save"
 - back
 
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Categories"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Add"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Category name"
+- scrollUntilVisible:
+    element: "Categories"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Categories"
+    direction: up
+- tapOn: "Categories"
+- scrollUntilVisible:
+    element: "Add"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Add"
+    direction: up
+- tapOn: "Add"
+- scrollUntilVisible:
+    element: "Category name"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Category name"
+    direction: up
+- tapOn: "Category name"
 - inputText: "Food"
 - hideKeyboard
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Save"
+- scrollUntilVisible:
+    element: "Save"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Save"
+    direction: up
+- tapOn: "Save"
 - back
 
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Transactions"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Add"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Select source"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Bank"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "0.00"
+- scrollUntilVisible:
+    element: "Transactions"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Transactions"
+    direction: up
+- tapOn: "Transactions"
+- scrollUntilVisible:
+    element: "Add"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Add"
+    direction: up
+- tapOn: "Add"
+- scrollUntilVisible:
+    element: "Select source"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Select source"
+    direction: up
+- tapOn: "Select source"
+- scrollUntilVisible:
+    element: "Bank"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Bank"
+    direction: up
+- tapOn: "Bank"
+- scrollUntilVisible:
+    element: "0.00"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "0.00"
+    direction: up
+- tapOn: "0.00"
 - inputText: "500"
 - hideKeyboard
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Select category"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Food"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "What was this for?"
+- scrollUntilVisible:
+    element: "Select category"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Select category"
+    direction: up
+- tapOn: "Select category"
+- scrollUntilVisible:
+    element: "Food"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Food"
+    direction: up
+- tapOn: "Food"
+- scrollUntilVisible:
+    element: "What was this for?"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "What was this for?"
+    direction: up
+- tapOn: "What was this for?"
 - inputText: "Groceries"
 - hideKeyboard
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Save transaction"
+- scrollUntilVisible:
+    element: "Save transaction"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Save transaction"
+    direction: up
+- tapOn: "Save transaction"
 - back
 
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Analysis"
+- scrollUntilVisible:
+    element: "Analysis"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Analysis"
+    direction: up
+- tapOn: "Analysis"
 - assertVisible: "Month"
 - scrollUntilVisible:
     element: "Food"
@@ -109,10 +189,14 @@ appId: ${APP_ID}
 - scrollUntilVisible:
     element: "Food"
     direction: up
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Year"
+- scrollUntilVisible:
+    element: "Year"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Year"
+    direction: up
+- tapOn: "Year"
 - scrollUntilVisible:
     element: "Food"
     direction: down
@@ -120,10 +204,14 @@ appId: ${APP_ID}
 - scrollUntilVisible:
     element: "Food"
     direction: up
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "All"
+- scrollUntilVisible:
+    element: "All"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "All"
+    direction: up
+- tapOn: "All"
 - scrollUntilVisible:
     element: "Food"
     direction: down
@@ -131,17 +219,29 @@ appId: ${APP_ID}
 - scrollUntilVisible:
     element: "Food"
     direction: up
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "FY"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "YTD"
+- scrollUntilVisible:
+    element: "FY"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "FY"
+    direction: up
+- tapOn: "FY"
+- scrollUntilVisible:
+    element: "YTD"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "YTD"
+    direction: up
+- tapOn: "YTD"
 
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Manage exchange rates"
+- scrollUntilVisible:
+    element: "Manage exchange rates"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Manage exchange rates"
+    direction: up
+- tapOn: "Manage exchange rates"
 - assertVisible: "Fetch latest rates"

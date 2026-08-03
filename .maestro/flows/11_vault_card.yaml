@@ -5,65 +5,109 @@ appId: ${APP_ID}
 
 - launchApp:
     clearState: true
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Switch homepage"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Vault"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Cards"
+- scrollUntilVisible:
+    element: "Switch homepage"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Switch homepage"
+    direction: up
+- tapOn: "Switch homepage"
+- scrollUntilVisible:
+    element: "Vault"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Vault"
+    direction: up
+- tapOn: "Vault"
+- scrollUntilVisible:
+    element: "Cards"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Cards"
+    direction: up
+- tapOn: "Cards"
 
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Add"
+- scrollUntilVisible:
+    element: "Add"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Add"
+    direction: up
+- tapOn: "Add"
 - assertVisible: "New card"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Personal Visa"
+- scrollUntilVisible:
+    element: "Personal Visa"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Personal Visa"
+    direction: up
+- tapOn: "Personal Visa"
 - inputText: "Everyday Visa"
 - hideKeyboard
 - assertVisible: "Credit card"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Card number"
+- scrollUntilVisible:
+    element: "Card number"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Card number"
+    direction: up
+- tapOn: "Card number"
 - inputText: "4111111111111111"
 - hideKeyboard
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Visa, Mastercard, RuPay..."
+- scrollUntilVisible:
+    element: "Visa, Mastercard, RuPay..."
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Visa, Mastercard, RuPay..."
+    direction: up
+- tapOn: "Visa, Mastercard, RuPay..."
 - inputText: "Visa"
 - hideKeyboard
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "MM/YY"
+- scrollUntilVisible:
+    element: "MM/YY"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "MM/YY"
+    direction: up
+- tapOn: "MM/YY"
 - inputText: "12/30"
 - hideKeyboard
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "CVV"
+- scrollUntilVisible:
+    element: "CVV"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "CVV"
+    direction: up
+- tapOn: "CVV"
 - inputText: "123"
 - hideKeyboard
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "PIN"
+- scrollUntilVisible:
+    element: "PIN"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "PIN"
+    direction: up
+- tapOn: "PIN"
 - inputText: "4321"
 - hideKeyboard
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Save entry"
+- scrollUntilVisible:
+    element: "Save entry"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Save entry"
+    direction: up
+- tapOn: "Save entry"
 - assertVisible: "Everyday Visa"
 - assertVisible: ".*Visa.*"
 
@@ -78,36 +122,64 @@ appId: ${APP_ID}
 - assertVisible: "PIN copied."
 
 # Switch card type to Debit while editing.
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Everyday Visa"
+- scrollUntilVisible:
+    element: "Everyday Visa"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Everyday Visa"
+    direction: up
+- tapOn: "Everyday Visa"
 - assertVisible: "Edit card"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Credit card"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Debit card"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Save entry"
+- scrollUntilVisible:
+    element: "Credit card"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Credit card"
+    direction: up
+- tapOn: "Credit card"
+- scrollUntilVisible:
+    element: "Debit card"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Debit card"
+    direction: up
+- tapOn: "Debit card"
+- scrollUntilVisible:
+    element: "Save entry"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Save entry"
+    direction: up
+- tapOn: "Save entry"
 - assertVisible: ".*Debit card.*"
 
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Everyday Visa"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Delete entry"
+- scrollUntilVisible:
+    element: "Everyday Visa"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Everyday Visa"
+    direction: up
+- tapOn: "Everyday Visa"
+- scrollUntilVisible:
+    element: "Delete entry"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Delete entry"
+    direction: up
+- tapOn: "Delete entry"
 - assertVisible: "Delete vault entry?"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Delete"
+- scrollUntilVisible:
+    element: "Delete"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Delete"
+    direction: up
+- tapOn: "Delete"
 - assertNotVisible: "Everyday Visa"

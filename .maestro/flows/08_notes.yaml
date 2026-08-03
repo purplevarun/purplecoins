@@ -5,92 +5,156 @@ appId: ${APP_ID}
 
 - launchApp:
     clearState: true
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Switch homepage"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Tools"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Notes"
+- scrollUntilVisible:
+    element: "Switch homepage"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Switch homepage"
+    direction: up
+- tapOn: "Switch homepage"
+- scrollUntilVisible:
+    element: "Tools"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Tools"
+    direction: up
+- tapOn: "Tools"
+- scrollUntilVisible:
+    element: "Notes"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Notes"
+    direction: up
+- tapOn: "Notes"
 
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Add"
+- scrollUntilVisible:
+    element: "Add"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Add"
+    direction: up
+- tapOn: "Add"
 - assertVisible: "New note"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Note title"
+- scrollUntilVisible:
+    element: "Note title"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Note title"
+    direction: up
+- tapOn: "Note title"
 - inputText: "Grocery list"
 - hideKeyboard
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Write something useful..."
+- scrollUntilVisible:
+    element: "Write something useful..."
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Write something useful..."
+    direction: up
+- tapOn: "Write something useful..."
 - inputText: "Milk, eggs, bread"
 - hideKeyboard
 
 # Create a folder inline via the FolderPicker.
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "New folder"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Folder name"
+- scrollUntilVisible:
+    element: "New folder"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "New folder"
+    direction: up
+- tapOn: "New folder"
+- scrollUntilVisible:
+    element: "Folder name"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Folder name"
+    direction: up
+- tapOn: "Folder name"
 - inputText: "Personal"
 - hideKeyboard
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Create"
+- scrollUntilVisible:
+    element: "Create"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Create"
+    direction: up
+- tapOn: "Create"
 - assertVisible: "Personal"
 
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Save note"
+- scrollUntilVisible:
+    element: "Save note"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Save note"
+    direction: up
+- tapOn: "Save note"
 - assertVisible: "Grocery list"
 - assertVisible: "Personal"
 
 # Edit the note.
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Grocery list"
+- scrollUntilVisible:
+    element: "Grocery list"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Grocery list"
+    direction: up
+- tapOn: "Grocery list"
 - assertVisible: "Edit note"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Grocery list"
+- scrollUntilVisible:
+    element: "Grocery list"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Grocery list"
+    direction: up
+- tapOn: "Grocery list"
 - eraseText
 - inputText: "Weekend grocery list"
 - hideKeyboard
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Save note"
+- scrollUntilVisible:
+    element: "Save note"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Save note"
+    direction: up
+- tapOn: "Save note"
 - assertVisible: "Weekend grocery list"
 
 # Delete the note.
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Weekend grocery list"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Delete note"
+- scrollUntilVisible:
+    element: "Weekend grocery list"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Weekend grocery list"
+    direction: up
+- tapOn: "Weekend grocery list"
+- scrollUntilVisible:
+    element: "Delete note"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Delete note"
+    direction: up
+- tapOn: "Delete note"
 - assertVisible: "Delete note?"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Delete"
+- scrollUntilVisible:
+    element: "Delete"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Delete"
+    direction: up
+- tapOn: "Delete"
 - assertNotVisible: "Weekend grocery list"

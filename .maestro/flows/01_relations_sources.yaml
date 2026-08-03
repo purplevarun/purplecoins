@@ -5,78 +5,130 @@ appId: ${APP_ID}
 
 - launchApp:
     clearState: true
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Switch homepage"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Finance"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Sources"
+- scrollUntilVisible:
+    element: "Switch homepage"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Switch homepage"
+    direction: up
+- tapOn: "Switch homepage"
+- scrollUntilVisible:
+    element: "Finance"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Finance"
+    direction: up
+- tapOn: "Finance"
+- scrollUntilVisible:
+    element: "Sources"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Sources"
+    direction: up
+- tapOn: "Sources"
 
 # Create the first source (default currency INR).
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Add"
+- scrollUntilVisible:
+    element: "Add"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Add"
+    direction: up
+- tapOn: "Add"
 - assertVisible: "New source"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Source name"
+- scrollUntilVisible:
+    element: "Source name"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Source name"
+    direction: up
+- tapOn: "Source name"
 - inputText: "Everyday Bank"
 - hideKeyboard
 - assertVisible: "INR"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Save"
+- scrollUntilVisible:
+    element: "Save"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Save"
+    direction: up
+- tapOn: "Save"
 - assertVisible: "Everyday Bank"
 
 # Create a second source with a different currency.
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Add"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Source name"
+- scrollUntilVisible:
+    element: "Add"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Add"
+    direction: up
+- tapOn: "Add"
+- scrollUntilVisible:
+    element: "Source name"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Source name"
+    direction: up
+- tapOn: "Source name"
 - inputText: "Travel Card"
 - hideKeyboard
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "INR"
+- scrollUntilVisible:
+    element: "INR"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "INR"
+    direction: up
+- tapOn: "INR"
 - eraseText
 - inputText: "USD"
 - hideKeyboard
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Save"
+- scrollUntilVisible:
+    element: "Save"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Save"
+    direction: up
+- tapOn: "Save"
 - assertVisible: "Travel Card"
 - assertVisible: "Everyday Bank"
 
 # Duplicate name is rejected.
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Add"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Source name"
+- scrollUntilVisible:
+    element: "Add"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Add"
+    direction: up
+- tapOn: "Add"
+- scrollUntilVisible:
+    element: "Source name"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Source name"
+    direction: up
+- tapOn: "Source name"
 - inputText: "Everyday Bank"
 - hideKeyboard
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Save"
+- scrollUntilVisible:
+    element: "Save"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Save"
+    direction: up
+- tapOn: "Save"
 - assertVisible:
     text: ".*already exists.*"
     optional: true
@@ -89,26 +141,42 @@ appId: ${APP_ID}
 - assertVisible: "Validated"
 
 # Rename it — currency becomes read-only once created.
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Everyday Bank"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Edit"
+- scrollUntilVisible:
+    element: "Everyday Bank"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Everyday Bank"
+    direction: up
+- tapOn: "Everyday Bank"
+- scrollUntilVisible:
+    element: "Edit"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Edit"
+    direction: up
+- tapOn: "Edit"
 - assertVisible: ".*Currency is fixed after a source is created\\..*"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Everyday Bank"
+- scrollUntilVisible:
+    element: "Everyday Bank"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Everyday Bank"
+    direction: up
+- tapOn: "Everyday Bank"
 - eraseText
 - inputText: "Primary Bank"
 - hideKeyboard
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Save"
+- scrollUntilVisible:
+    element: "Save"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Save"
+    direction: up
+- tapOn: "Save"
 - back
 - assertVisible: "Primary Bank"
 
@@ -117,33 +185,57 @@ appId: ${APP_ID}
 - tapOn:
     text: "Archive"
     below: "Primary Bank"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Archive"
+- scrollUntilVisible:
+    element: "Archive"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Archive"
+    direction: up
+- tapOn: "Archive"
 - assertNotVisible: "Primary Bank"
 - assertVisible: "Travel Card"
 
 - back
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Settings"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Settings"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Archived relations"
+- scrollUntilVisible:
+    element: "Settings"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Settings"
+    direction: up
+- tapOn: "Settings"
+- scrollUntilVisible:
+    element: "Settings"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Settings"
+    direction: up
+- tapOn: "Settings"
+- scrollUntilVisible:
+    element: "Archived relations"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Archived relations"
+    direction: up
+- tapOn: "Archived relations"
 - assertVisible: "Primary Bank"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Primary Bank"
-- runFlow:
-    name: find_and_tap
-    args:
-      element: "Restore"
+- scrollUntilVisible:
+    element: "Primary Bank"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Primary Bank"
+    direction: up
+- tapOn: "Primary Bank"
+- scrollUntilVisible:
+    element: "Restore"
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element: "Restore"
+    direction: up
+- tapOn: "Restore"
 - assertNotVisible: "Primary Bank"
