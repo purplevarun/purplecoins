@@ -27,7 +27,32 @@
 			"@react-native-community/datetimepicker",
 			"expo-font",
 			"expo-splash-screen",
-			"./plugins/withUpiNotificationDetector"
+			"./plugins/withUpiNotificationDetector",
+			[
+				"expo-quick-actions",
+				{
+					"androidIcons": {
+						"shortcut_add": {
+							"foregroundImage": "./assets/icon.png",
+							"backgroundColor": "#7B52AB"
+						}
+					},
+					"iosActions": [
+						{
+							"id": "add-expense",
+							"title": "Add Expense",
+							"icon": "add",
+							"params": { "prefillType": "DEBIT" }
+						},
+						{
+							"id": "add-income",
+							"title": "Add Income",
+							"icon": "add",
+							"params": { "prefillType": "CREDIT" }
+						}
+					]
+				}
+			]
 		]
 	}
 }

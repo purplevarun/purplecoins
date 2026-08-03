@@ -1,3 +1,4 @@
+import * as QuickActions from "expo-quick-actions";
 import {
 	useCallback,
 	useEffect,
@@ -22,6 +23,36 @@ const { syncBudgetAlerts } = budgetAlertService;
 const { syncTodoReminders } = todoReminderService;
 const { consumeDetectedTransaction } = upiDetectionService;
 const { getSuggestionForMerchant } = merchantCategoryService;
+
+// Dynamic shortcuts registered with the launcher on every launch (Android).
+// iOS static shortcuts are defined in app.json under iosActions.
+const SHORTCUT_ITEMS: QuickActions.Action[] = [
+	{
+		id: "add-expense",
+		title: "Add Expense",
+		icon: "shortcut_add",
+		params: { prefillType: "DEBIT" },
+	},
+	{
+		id: "add-income",
+		title: "Add Income",
+		icon: "shortcut_add",
+		params: { prefillType: "CREDIT" },
+	},
+];
+
+const handleQuickAction = (action: QuickActions.Action): void => {
+	if (!navigationRef.isReady()) {
+		return;
+	}
+	const prefillType = action.params?.prefillType;
+	if (prefillType !== "DEBIT" && prefillType !== "CREDIT") {
+		return;
+	}
+	navigationRef.navigate("TransactionForm", {
+		prefillType: prefillType as TransactionType,
+	});
+};
 
 const getTransactionType = (rawType: string): TransactionType =>
 	rawType.toLowerCase() === "credit" ? "CREDIT" : "DEBIT";
@@ -97,6 +128,31 @@ const NotificationProvider = ({ children }: PropsWithChildren): ReactNode => {
 				prefillMerchant: payload.merchant ?? undefined,
 			});
 		}, [database]);
+
+	// Register shortcuts with the launcher and handle any shortcut that
+	// launched the app cold (poll until navigation is ready).
+	useEffect(() => {
+		void QuickActions.setItems(SHORTCUT_ITEMS);
+		const initial = QuickActions.initial;
+		if (!initial) {
+			return;
+		}
+		let attempts = 0;
+		const interval = setInterval(() => {
+			attempts += 1;
+			handleQuickAction(initial);
+			if (attempts >= 8 || navigationRef.isReady()) {
+				clearInterval(interval);
+			}
+		}, 400);
+		return () => clearInterval(interval);
+	}, []);
+
+	// Handle shortcuts tapped while the app is already in the foreground.
+	useEffect(() => {
+		const subscription = QuickActions.addListener(handleQuickAction);
+		return () => subscription.remove();
+	}, []);
 
 	useEffect(() => {
 		void syncNotifications();
