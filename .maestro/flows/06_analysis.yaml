@@ -7,98 +7,98 @@ appId: ${APP_ID}
 - launchApp:
     clearState: true
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Switch homepage"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Finance"
 
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Sources"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Add"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Source name"
 - inputText: "Bank"
 - hideKeyboard
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Save"
 - back
 
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Categories"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Add"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Category name"
 - inputText: "Food"
 - hideKeyboard
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Save"
 - back
 
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Transactions"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Add"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Select source"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Bank"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "0.00"
 - inputText: "500"
 - hideKeyboard
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Select category"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Food"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "What was this for?"
 - inputText: "Groceries"
 - hideKeyboard
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Save transaction"
 - back
 
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Analysis"
 - assertVisible: "Month"
@@ -110,7 +110,7 @@ appId: ${APP_ID}
     element: "Food"
     direction: up
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Year"
 - scrollUntilVisible:
@@ -121,7 +121,7 @@ appId: ${APP_ID}
     element: "Food"
     direction: up
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "All"
 - scrollUntilVisible:
@@ -132,16 +132,16 @@ appId: ${APP_ID}
     element: "Food"
     direction: up
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "FY"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "YTD"
 
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Manage exchange rates"
 - assertVisible: "Fetch latest rates"

@@ -6,86 +6,86 @@ appId: ${APP_ID}
 - launchApp:
     clearState: true
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Switch homepage"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Finance"
 
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Categories"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Add"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Category name"
 - inputText: "Rent"
 - hideKeyboard
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Save"
 - back
 
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Budgets"
 - assertVisible: "Budgets use INR and reset on calendar month or calendar year boundaries."
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Add"
 - assertVisible: "New budget"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Select category"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Rent"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "0.00"
 - inputText: "20000"
 - hideKeyboard
 - assertVisible: "Monthly"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Save budget"
 - assertVisible: "Rent"
 
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Edit"
 - assertVisible: "Edit budget"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Yearly"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Save budget"
 
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Delete"
 - assertVisible: "Delete budget?"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Delete"
 - assertNotVisible: "Rent"

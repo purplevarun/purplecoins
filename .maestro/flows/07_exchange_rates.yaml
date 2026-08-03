@@ -6,69 +6,69 @@ appId: ${APP_ID}
 - launchApp:
     clearState: true
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Switch homepage"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Finance"
 
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Sources"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Add"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Source name"
 - inputText: "US Account"
 - hideKeyboard
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "INR"
 - eraseText
 - inputText: "USD"
 - hideKeyboard
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Save"
 - back
 
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Exchange rates"
 - assertVisible: "1 USD"
 - assertVisible: "Rate not set"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "0.00"
 - inputText: "83.50"
 - hideKeyboard
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Save manual rate"
 - assertVisible: "USD rate saved."
 - assertVisible: ".*MANUAL.*"
 
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "83.5"
 - eraseText
 - inputText: "84"
 - hideKeyboard
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Save manual rate"
 - assertVisible: "USD rate saved."

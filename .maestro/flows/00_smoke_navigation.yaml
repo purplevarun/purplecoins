@@ -15,12 +15,12 @@ appId: ${APP_ID}
 
 # Switch to Finance via the mode-switcher modal.
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Switch homepage"
 - assertVisible: "Finance"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Finance"
 - assertVisible: "Transactions"
@@ -34,11 +34,11 @@ appId: ${APP_ID}
 
 # Switch to Vault.
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Switch homepage"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Vault"
 - assertVisible: "Passwords"
@@ -47,18 +47,18 @@ appId: ${APP_ID}
 
 # Back to Tools for the next flow / a clean starting point.
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Switch homepage"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Tools"
 - assertVisible: "Notes"
 
 # Settings screen is reachable from every mode.
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Settings"
 - assertVisible: "Home screen"
@@ -66,7 +66,7 @@ appId: ${APP_ID}
 
 # Global search is reachable from every mode.
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Search Tools"
 - assertVisible: "Type at least two characters."

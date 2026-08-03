@@ -6,53 +6,53 @@ appId: ${APP_ID}
 - launchApp:
     clearState: true
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Switch homepage"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Finance"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Categories"
 
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Add"
 - assertVisible: "New category"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Category name"
 - inputText: "Groceries"
 - hideKeyboard
 - assertVisible: "Expense"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Save"
 - assertVisible: "Groceries"
 - assertVisible: "Expense category"
 
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Add"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Category name"
 - inputText: "Salary"
 - hideKeyboard
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Income"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Save"
 - assertVisible: "Salary"
@@ -61,24 +61,24 @@ appId: ${APP_ID}
 # Editing an existing category's type prompts a confirmation because it
 # reclassifies historical analysis.
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Groceries"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Edit"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Income"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Save"
 - assertVisible: "Change analysis classification?"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Change"
 - back
@@ -89,7 +89,7 @@ appId: ${APP_ID}
     text: "Archive"
     below: "Salary"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Archive"
 - assertNotVisible: "Salary"

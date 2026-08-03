@@ -9,14 +9,14 @@ appId: ${APP_ID}
 - launchApp:
     clearState: true
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Settings"
 - assertVisible: "Home screen"
 
 # Default home mode.
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Finance"
 - assertVisible: "Currency display"
@@ -27,11 +27,11 @@ appId: ${APP_ID}
 
 # Financial year start month.
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Apr"
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Jul"
 - assertVisible: ".*FY ends in.*"
@@ -39,14 +39,14 @@ appId: ${APP_ID}
 
 # Archived relations is reachable (covered in depth by 01_relations_sources).
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Archived relations"
 - back
 
 # Budget alerts card is visible (Phase 2 — cross-platform).
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Budget alerts"
 - assertVisible: "Enable budget alerts"
@@ -58,7 +58,7 @@ appId: ${APP_ID}
       platform: Android
     commands:
       - runFlow:
-          path: find_and_tap.yaml
+          name: find_and_tap
           args:
             element: "Automatic backups"
       - assertVisible: "Enable auto-backup"
@@ -66,12 +66,12 @@ appId: ${APP_ID}
 
 # Export prepares a backup and invokes the native share sheet.
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Export .purplecoins"
 - back
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Backup prepared successfully."
 - assertVisible: "Backup prepared successfully."
@@ -80,12 +80,12 @@ appId: ${APP_ID}
 # native document picker. The picker itself is outside the app, so the
 # flow cancels rather than proceeding to "Choose backup".
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Restore .purplecoins"
 - assertVisible: "Restore backup?"
 - assertVisible: "This replaces every record currently stored on this phone."
 - runFlow:
-    path: find_and_tap.yaml
+    name: find_and_tap
     args:
       element: "Cancel"

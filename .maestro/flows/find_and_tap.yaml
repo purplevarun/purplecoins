@@ -3,7 +3,7 @@
 #   - element: the element text to find and tap
 # Usage:
 #   - runFlow:
-#       path: find_and_tap.yaml
+#       name: find_and_tap
 #       args:
 #         element: "Budget alerts"
 
