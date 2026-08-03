@@ -75,6 +75,7 @@ appId: ${APP_ID}
     file: _find_and_tap.yaml
     env:
       element: "Transactions"
+- assertVisible: "Start voice quick-add"
 - runFlow:
     file: _find_and_tap.yaml
     env:
