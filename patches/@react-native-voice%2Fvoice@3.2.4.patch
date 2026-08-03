@@ -1,5 +1,8 @@
+diff --git a/node_modules/@react-native-voice/voice/.bun-tag-c10605d31bdda56e b/.bun-tag-c10605d31bdda56e
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
 diff --git a/android/build.gradle b/android/build.gradle
-index 8fce879dcf7a0d92209550aebde7be63b0aba530..4144c6caef81a53fb94d502dc2e2fd3a897ac4c3 100644
+index 8fce879dcf7a0d92209550aebde7be63b0aba530..dbea947591e08afbd9ccdc47095f7309808aff97 100644
 --- a/android/build.gradle
 +++ b/android/build.gradle
 @@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
@@ -29,3 +32,10 @@ index 8fce879dcf7a0d92209550aebde7be63b0aba530..4144c6caef81a53fb94d502dc2e2fd3a
      }
  }
  
+@@ -62,6 +62,5 @@ def supportVersion = rootProject.hasProperty('supportLibVersion') ? rootProject.
+ dependencies {
+     implementation fileTree(dir: 'libs', include: ['*.jar'])
+     testImplementation 'junit:junit:4.12'
+-    implementation "com.android.support:appcompat-v7:${supportVersion}"
+     implementation 'com.facebook.react:react-native:+'
+ }
