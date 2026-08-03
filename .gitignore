@@ -46,7 +46,6 @@ yarn-error.*
 # test coverage reports
 coverage/
 
-bun.lock
 package-lock.json
 yarn.lock
 /build/eas-archive-inspect/
