@@ -8,6 +8,7 @@ const {
 	getAnalysisDateRange,
 	getCustomDateRange,
 	getFyDateRange,
+	getPreviousDateRange,
 	getYtdDateRange,
 	shiftAnalysisAnchor,
 } = dateUtils;
@@ -287,6 +288,68 @@ describe("date utilities", () => {
 			const timestamp = new Date(2026, 6, 24, 15, 30).getTime();
 			expect(formatDateTime(timestamp)).toContain("24 Jul 2026");
 			expect(formatDateTime(timestamp)).toMatch(/03:30\s*pm/i);
+		});
+	});
+
+	describe("getPreviousDateRange", () => {
+		it("returns null for ALL period", () => {
+			expect(
+				getPreviousDateRange("ALL", new Date(2026, 6, 1)),
+			).toBeNull();
+		});
+
+		it("returns null for CUSTOM period", () => {
+			expect(
+				getPreviousDateRange("CUSTOM", new Date(2026, 6, 1)),
+			).toBeNull();
+		});
+
+		it("returns the previous month's range for MONTH period", () => {
+			const range = getPreviousDateRange("MONTH", new Date(2026, 6, 15));
+
+			expect(range?.start).toBe(new Date(2026, 5, 1).getTime());
+			expect(range?.end).toBe(new Date(2026, 6, 1).getTime() - 1);
+		});
+
+		it("wraps back to December when the anchor is January for MONTH period", () => {
+			const range = getPreviousDateRange("MONTH", new Date(2026, 0, 15));
+
+			expect(range?.start).toBe(new Date(2025, 11, 1).getTime());
+			expect(range?.end).toBe(new Date(2026, 0, 1).getTime() - 1);
+		});
+
+		it("returns the previous year's range for YEAR period", () => {
+			const range = getPreviousDateRange("YEAR", new Date(2026, 6, 15));
+
+			expect(range?.start).toBe(new Date(2025, 0, 1).getTime());
+			expect(range?.end).toBe(new Date(2026, 0, 1).getTime() - 1);
+		});
+
+		it("returns the previous FY range for FY period", () => {
+			// Anchor July 2026, FY starts April → current FY is Apr 2026–Mar 2027
+			// Previous FY is Apr 2025–Mar 2026
+			const range = getPreviousDateRange("FY", new Date(2026, 6, 15), 4);
+
+			expect(range?.start).toBe(new Date(2025, 3, 1).getTime());
+			expect(range?.end).toBe(new Date(2026, 3, 1).getTime() - 1);
+		});
+
+		it("returns the previous YTD window shifted back 1 year", () => {
+			vi.useFakeTimers();
+			vi.setSystemTime(new Date(2026, 6, 15));
+
+			const range = getPreviousDateRange("YTD", new Date());
+
+			vi.useRealTimers();
+
+			// Current YTD: Jul 15 2025 → Jul 15 2026
+			// Previous YTD: Jul 15 2024 → Jul 15 2025
+			expect(range?.start).toBe(
+				new Date(2024, 6, 15, 0, 0, 0, 0).getTime(),
+			);
+			expect(range?.end).toBe(
+				new Date(2025, 6, 15, 23, 59, 59, 999).getTime(),
+			);
 		});
 	});
 });

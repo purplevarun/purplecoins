@@ -142,6 +142,49 @@ const getCustomDateRange = (startAt: number, endAt: number): DateRange => {
 	return { start: startDate.getTime(), end: endDate.getTime() };
 };
 
+// Returns the equivalent period immediately before the given period/anchor.
+// Used to compute period-over-period % change. Returns null for ALL/CUSTOM.
+const getPreviousDateRange = (
+	period: AnalysisPeriod,
+	anchorDate: Date,
+	fyStartMonth = 4,
+): DateRange | null => {
+	if (period === "ALL" || period === "CUSTOM") {
+		return null;
+	}
+	if (period === "YTD") {
+		// Previous YTD: same-length window shifted back 1 year.
+		const now = new Date();
+		return {
+			start: new Date(
+				now.getFullYear() - 2,
+				now.getMonth(),
+				now.getDate(),
+				0,
+				0,
+				0,
+				0,
+			).getTime(),
+			end: new Date(
+				now.getFullYear() - 1,
+				now.getMonth(),
+				now.getDate(),
+				DAY_END_HOURS,
+				DAY_END_MINUTES,
+				DAY_END_SECONDS,
+				DAY_END_MILLISECONDS,
+			).getTime(),
+		};
+	}
+	const prevAnchor = new Date(anchorDate);
+	if (period === "MONTH") {
+		prevAnchor.setMonth(prevAnchor.getMonth() - 1);
+	} else {
+		prevAnchor.setFullYear(prevAnchor.getFullYear() - 1);
+	}
+	return getAnalysisDateRange(period, prevAnchor, fyStartMonth);
+};
+
 const formatDate = (timestamp: number): string =>
 	new Date(timestamp).toLocaleDateString("en-IN", {
 		day: "2-digit",
@@ -164,6 +207,7 @@ const dateUtils = {
 	getAnalysisDateRange,
 	getCustomDateRange,
 	getFyDateRange,
+	getPreviousDateRange,
 	getYtdDateRange,
 	shiftAnalysisAnchor,
 };

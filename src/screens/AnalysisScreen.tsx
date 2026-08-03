@@ -39,6 +39,7 @@ const {
 	formatDate,
 	getAnalysisDateRange,
 	getCustomDateRange,
+	getPreviousDateRange,
 	shiftAnalysisAnchor,
 } = dateUtils;
 const {
@@ -69,6 +70,8 @@ type SummaryMetricInput = Readonly<{
 	value: string;
 	accent: "success" | "danger" | "warning" | "default";
 	color: string;
+	pctText?: string;
+	pctColor?: string;
 }>;
 
 const PERIOD_OPTIONS: readonly SelectOption[] = [
@@ -154,6 +157,32 @@ const getInvestmentAccent = (net: string): "success" | "danger" | "default" => {
 	return "default";
 };
 
+const getPercentChange = (current: string, previous: string): number | null => {
+	const prev = Number(previous);
+	if (prev === 0) return null;
+	return ((Number(current) - prev) / Math.abs(prev)) * 100;
+};
+
+const buildPctDisplay = (
+	pct: number | null,
+	higherIsBetter: boolean,
+): { pctText: string; pctColor: string } => {
+	if (pct === null) {
+		return { pctText: "\u2014", pctColor: COLORS.textMuted };
+	}
+	const sign = pct > 0 ? "+" : "";
+	const improved = higherIsBetter ? pct > 0 : pct < 0;
+	return {
+		pctText: `${sign}${pct.toFixed(1)}%`,
+		pctColor:
+			pct === 0
+				? COLORS.textMuted
+				: improved
+					? COLORS.success
+					: COLORS.danger,
+	};
+};
+
 const HAS_ARROWS: readonly AnalysisPeriod[] = ["MONTH", "YEAR", "FY"];
 
 const AnalysisScreen = ({
@@ -165,6 +194,8 @@ const AnalysisScreen = ({
 	const [customStartAt, setCustomStartAt] = useState(() => Date.now());
 	const [customEndAt, setCustomEndAt] = useState(() => Date.now());
 	const [summary, setSummary] = useState<AnalysisSummary | null>(null);
+	const [previousSummary, setPreviousSummary] =
+		useState<AnalysisSummary | null>(null);
 	const [error, setError] = useState("");
 	const [fyStartMonth, setFyStartMonth] = useState(4);
 	const [minTxnDate, setMinTxnDate] = useState<number | undefined>(undefined);
@@ -182,18 +213,31 @@ const AnalysisScreen = ({
 		[anchorDate, customEndAt, customStartAt, fyStartMonth, period],
 	);
 
+	const previousDateRange = useMemo(
+		() => getPreviousDateRange(period, anchorDate, fyStartMonth),
+		[anchorDate, fyStartMonth, period],
+	);
+
 	const getScreenData = useCallback(async (): Promise<void> => {
 		try {
-			const [summaryResult, minMax, fy] = await Promise.all([
-				getAnalysisSummary(database, {
-					dateRange,
-					isNativeCurrency: false,
-				}),
-				getTransactionMinMaxDate(database),
-				getFyStartMonth(database),
-			]);
+			const [summaryResult, minMax, fy, prevSummaryResult] =
+				await Promise.all([
+					getAnalysisSummary(database, {
+						dateRange,
+						isNativeCurrency: false,
+					}),
+					getTransactionMinMaxDate(database),
+					getFyStartMonth(database),
+					previousDateRange
+						? getAnalysisSummary(database, {
+								dateRange: previousDateRange,
+								isNativeCurrency: false,
+							})
+						: Promise.resolve(null),
+				]);
 			setSummary(summaryResult);
 			setFyStartMonth(fy);
+			setPreviousSummary(prevSummaryResult);
 			if (minMax) {
 				setMinTxnDate(minMax.minDate);
 				setMaxTxnDate(minMax.maxDate);
@@ -202,7 +246,7 @@ const AnalysisScreen = ({
 		} catch (caughtError: unknown) {
 			setError(getErrorMessage(caughtError));
 		}
-	}, [database, dateRange]);
+	}, [database, dateRange, previousDateRange]);
 
 	useEffect(
 		() =>
@@ -277,6 +321,18 @@ const AnalysisScreen = ({
 					color: CHART_COLORS[index] ?? COLORS.primary,
 				})) ?? []);
 
+	const prevInvestmentNet = sumMoney(
+		previousSummary?.investments.map((investment) => investment.net) ?? [],
+	);
+	const prevInvestmentCashFlow = subtractMoney(
+		ZERO_AMOUNT,
+		prevInvestmentNet,
+	);
+	const prevNetAfterInvestments = addMoney(
+		previousSummary?.netProfit ?? ZERO_AMOUNT,
+		prevInvestmentCashFlow,
+	);
+
 	const summaryMetrics: readonly SummaryMetricInput[] = [
 		{
 			label: "Income",
@@ -286,6 +342,15 @@ const AnalysisScreen = ({
 			),
 			accent: "success",
 			color: COLORS.success,
+			...(previousSummary !== null
+				? buildPctDisplay(
+						getPercentChange(
+							summary?.totalIncome ?? ZERO_AMOUNT,
+							previousSummary.totalIncome,
+						),
+						true,
+					)
+				: {}),
 		},
 		{
 			label: "Expenses",
@@ -295,6 +360,15 @@ const AnalysisScreen = ({
 			),
 			accent: "danger",
 			color: COLORS.danger,
+			...(previousSummary !== null
+				? buildPctDisplay(
+						getPercentChange(
+							summary?.totalExpense ?? ZERO_AMOUNT,
+							previousSummary.totalExpense,
+						),
+						false,
+					)
+				: {}),
 		},
 		{
 			label: "Investments",
@@ -313,6 +387,15 @@ const AnalysisScreen = ({
 				compareMoney(summary?.netProfit ?? ZERO_AMOUNT, ZERO_AMOUNT) < 0
 					? COLORS.danger
 					: COLORS.success,
+			...(previousSummary !== null
+				? buildPctDisplay(
+						getPercentChange(
+							summary?.netProfit ?? ZERO_AMOUNT,
+							previousSummary.netProfit,
+						),
+						true,
+					)
+				: {}),
 		},
 		{
 			label: "Net after investments",
@@ -325,6 +408,15 @@ const AnalysisScreen = ({
 				compareMoney(netAfterInvestments, ZERO_AMOUNT) < 0
 					? COLORS.danger
 					: COLORS.success,
+			...(previousSummary !== null
+				? buildPctDisplay(
+						getPercentChange(
+							netAfterInvestments,
+							prevNetAfterInvestments,
+						),
+						true,
+					)
+				: {}),
 		},
 	];
 
@@ -346,6 +438,16 @@ const AnalysisScreen = ({
 				>
 					{metric.value}
 				</CustomText>
+				{metric.pctText ? (
+					<CustomText
+						style={[
+							styles.summaryPct,
+							{ color: metric.pctColor ?? COLORS.textMuted },
+						]}
+					>
+						{metric.pctText} vs prev
+					</CustomText>
+				) : null}
 			</GlassCard>
 		</View>
 	);
@@ -724,6 +826,11 @@ const styles = StyleSheet.create({
 		fontSize: 14,
 		fontWeight: "900",
 		marginTop: 5,
+	},
+	summaryPct: {
+		fontSize: 11,
+		fontWeight: "700",
+		marginTop: 3,
 	},
 	categoryRow: {
 		flexDirection: "row",
