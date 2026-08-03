@@ -8,25 +8,17 @@ appId: ${APP_ID}
 
 - launchApp:
     clearState: true
-- scrollUntilVisible:
-    element: "Settings"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Settings"
-    direction: up
-- tapOn: "Settings"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Settings"
 - assertVisible: "Home screen"
 
 # Default home mode.
-- scrollUntilVisible:
-    element: "Finance"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Finance"
-    direction: up
-- tapOn: "Finance"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Finance"
 - assertVisible: "Currency display"
 
 # Native currency display toggle (label + switch are separate elements).
@@ -34,45 +26,29 @@ appId: ${APP_ID}
     rightOf: "Native currencies"
 
 # Financial year start month.
-- scrollUntilVisible:
-    element: "Apr"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Apr"
-    direction: up
-- tapOn: "Apr"
-- scrollUntilVisible:
-    element: "Jul"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Jul"
-    direction: up
-- tapOn: "Jul"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Apr"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Jul"
 - assertVisible: ".*FY ends in.*"
 - assertVisible: ".*Jun.*"
 
 # Archived relations is reachable (covered in depth by 01_relations_sources).
-- scrollUntilVisible:
-    element: "Archived relations"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Archived relations"
-    direction: up
-- tapOn: "Archived relations"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Archived relations"
 - back
 
 # Budget alerts card is visible (Phase 2 — cross-platform).
-- scrollUntilVisible:
-    element: "Budget alerts"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Budget alerts"
-    direction: up
-- tapOn: "Budget alerts"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Budget alerts"
 - assertVisible: "Enable budget alerts"
 
 # Automatic backups card is Android-only; the assertion is wrapped in a
@@ -89,43 +65,27 @@ appId: ${APP_ID}
       - assertVisible: "Choose backup folder"
 
 # Export prepares a backup and invokes the native share sheet.
-- scrollUntilVisible:
-    element: "Export .purplecoins"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Export .purplecoins"
-    direction: up
-- tapOn: "Export .purplecoins"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Export .purplecoins"
 - back
-- scrollUntilVisible:
-    element: "Backup prepared successfully."
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Backup prepared successfully."
-    direction: up
-- tapOn: "Backup prepared successfully."
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Backup prepared successfully."
 - assertVisible: "Backup prepared successfully."
 
 # Restore prompts a destructive-action confirmation before opening the
 # native document picker. The picker itself is outside the app, so the
 # flow cancels rather than proceeding to "Choose backup".
-- scrollUntilVisible:
-    element: "Restore .purplecoins"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Restore .purplecoins"
-    direction: up
-- tapOn: "Restore .purplecoins"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Restore .purplecoins"
 - assertVisible: "Restore backup?"
 - assertVisible: "This replaces every record currently stored on this phone."
-- scrollUntilVisible:
-    element: "Cancel"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Cancel"
-    direction: up
-- tapOn: "Cancel"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Cancel"

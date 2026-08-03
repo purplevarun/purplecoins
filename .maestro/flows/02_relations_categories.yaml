@@ -5,142 +5,82 @@ appId: ${APP_ID}
 
 - launchApp:
     clearState: true
-- scrollUntilVisible:
-    element: "Switch homepage"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Switch homepage"
-    direction: up
-- tapOn: "Switch homepage"
-- scrollUntilVisible:
-    element: "Finance"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Finance"
-    direction: up
-- tapOn: "Finance"
-- scrollUntilVisible:
-    element: "Categories"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Categories"
-    direction: up
-- tapOn: "Categories"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Switch homepage"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Finance"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Categories"
 
-- scrollUntilVisible:
-    element: "Add"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Add"
-    direction: up
-- tapOn: "Add"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Add"
 - assertVisible: "New category"
-- scrollUntilVisible:
-    element: "Category name"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Category name"
-    direction: up
-- tapOn: "Category name"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Category name"
 - inputText: "Groceries"
 - hideKeyboard
 - assertVisible: "Expense"
-- scrollUntilVisible:
-    element: "Save"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Save"
-    direction: up
-- tapOn: "Save"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Save"
 - assertVisible: "Groceries"
 - assertVisible: "Expense category"
 
-- scrollUntilVisible:
-    element: "Add"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Add"
-    direction: up
-- tapOn: "Add"
-- scrollUntilVisible:
-    element: "Category name"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Category name"
-    direction: up
-- tapOn: "Category name"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Add"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Category name"
 - inputText: "Salary"
 - hideKeyboard
-- scrollUntilVisible:
-    element: "Income"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Income"
-    direction: up
-- tapOn: "Income"
-- scrollUntilVisible:
-    element: "Save"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Save"
-    direction: up
-- tapOn: "Save"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Income"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Save"
 - assertVisible: "Salary"
 - assertVisible: "Income category"
 
 # Editing an existing category's type prompts a confirmation because it
 # reclassifies historical analysis.
-- scrollUntilVisible:
-    element: "Groceries"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Groceries"
-    direction: up
-- tapOn: "Groceries"
-- scrollUntilVisible:
-    element: "Edit"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Edit"
-    direction: up
-- tapOn: "Edit"
-- scrollUntilVisible:
-    element: "Income"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Income"
-    direction: up
-- tapOn: "Income"
-- scrollUntilVisible:
-    element: "Save"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Save"
-    direction: up
-- tapOn: "Save"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Groceries"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Edit"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Income"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Save"
 - assertVisible: "Change analysis classification?"
-- scrollUntilVisible:
-    element: "Change"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Change"
-    direction: up
-- tapOn: "Change"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Change"
 - back
 - assertVisible: "Income category"
 
@@ -148,12 +88,8 @@ appId: ${APP_ID}
 - tapOn:
     text: "Archive"
     below: "Salary"
-- scrollUntilVisible:
-    element: "Archive"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Archive"
-    direction: up
-- tapOn: "Archive"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Archive"
 - assertNotVisible: "Salary"

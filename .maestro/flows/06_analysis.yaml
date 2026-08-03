@@ -6,181 +6,101 @@ appId: ${APP_ID}
 
 - launchApp:
     clearState: true
-- scrollUntilVisible:
-    element: "Switch homepage"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Switch homepage"
-    direction: up
-- tapOn: "Switch homepage"
-- scrollUntilVisible:
-    element: "Finance"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Finance"
-    direction: up
-- tapOn: "Finance"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Switch homepage"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Finance"
 
-- scrollUntilVisible:
-    element: "Sources"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Sources"
-    direction: up
-- tapOn: "Sources"
-- scrollUntilVisible:
-    element: "Add"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Add"
-    direction: up
-- tapOn: "Add"
-- scrollUntilVisible:
-    element: "Source name"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Source name"
-    direction: up
-- tapOn: "Source name"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Sources"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Add"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Source name"
 - inputText: "Bank"
 - hideKeyboard
-- scrollUntilVisible:
-    element: "Save"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Save"
-    direction: up
-- tapOn: "Save"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Save"
 - back
 
-- scrollUntilVisible:
-    element: "Categories"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Categories"
-    direction: up
-- tapOn: "Categories"
-- scrollUntilVisible:
-    element: "Add"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Add"
-    direction: up
-- tapOn: "Add"
-- scrollUntilVisible:
-    element: "Category name"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Category name"
-    direction: up
-- tapOn: "Category name"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Categories"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Add"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Category name"
 - inputText: "Food"
 - hideKeyboard
-- scrollUntilVisible:
-    element: "Save"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Save"
-    direction: up
-- tapOn: "Save"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Save"
 - back
 
-- scrollUntilVisible:
-    element: "Transactions"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Transactions"
-    direction: up
-- tapOn: "Transactions"
-- scrollUntilVisible:
-    element: "Add"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Add"
-    direction: up
-- tapOn: "Add"
-- scrollUntilVisible:
-    element: "Select source"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Select source"
-    direction: up
-- tapOn: "Select source"
-- scrollUntilVisible:
-    element: "Bank"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Bank"
-    direction: up
-- tapOn: "Bank"
-- scrollUntilVisible:
-    element: "0.00"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "0.00"
-    direction: up
-- tapOn: "0.00"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Transactions"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Add"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Select source"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Bank"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "0.00"
 - inputText: "500"
 - hideKeyboard
-- scrollUntilVisible:
-    element: "Select category"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Select category"
-    direction: up
-- tapOn: "Select category"
-- scrollUntilVisible:
-    element: "Food"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Food"
-    direction: up
-- tapOn: "Food"
-- scrollUntilVisible:
-    element: "What was this for?"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "What was this for?"
-    direction: up
-- tapOn: "What was this for?"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Select category"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Food"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "What was this for?"
 - inputText: "Groceries"
 - hideKeyboard
-- scrollUntilVisible:
-    element: "Save transaction"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Save transaction"
-    direction: up
-- tapOn: "Save transaction"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Save transaction"
 - back
 
-- scrollUntilVisible:
-    element: "Analysis"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Analysis"
-    direction: up
-- tapOn: "Analysis"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Analysis"
 - assertVisible: "Month"
 - scrollUntilVisible:
     element: "Food"
@@ -189,14 +109,10 @@ appId: ${APP_ID}
 - scrollUntilVisible:
     element: "Food"
     direction: up
-- scrollUntilVisible:
-    element: "Year"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Year"
-    direction: up
-- tapOn: "Year"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Year"
 - scrollUntilVisible:
     element: "Food"
     direction: down
@@ -204,14 +120,10 @@ appId: ${APP_ID}
 - scrollUntilVisible:
     element: "Food"
     direction: up
-- scrollUntilVisible:
-    element: "All"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "All"
-    direction: up
-- tapOn: "All"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "All"
 - scrollUntilVisible:
     element: "Food"
     direction: down
@@ -219,29 +131,17 @@ appId: ${APP_ID}
 - scrollUntilVisible:
     element: "Food"
     direction: up
-- scrollUntilVisible:
-    element: "FY"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "FY"
-    direction: up
-- tapOn: "FY"
-- scrollUntilVisible:
-    element: "YTD"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "YTD"
-    direction: up
-- tapOn: "YTD"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "FY"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "YTD"
 
-- scrollUntilVisible:
-    element: "Manage exchange rates"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Manage exchange rates"
-    direction: up
-- tapOn: "Manage exchange rates"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Manage exchange rates"
 - assertVisible: "Fetch latest rates"

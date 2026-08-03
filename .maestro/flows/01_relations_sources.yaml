@@ -5,130 +5,78 @@ appId: ${APP_ID}
 
 - launchApp:
     clearState: true
-- scrollUntilVisible:
-    element: "Switch homepage"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Switch homepage"
-    direction: up
-- tapOn: "Switch homepage"
-- scrollUntilVisible:
-    element: "Finance"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Finance"
-    direction: up
-- tapOn: "Finance"
-- scrollUntilVisible:
-    element: "Sources"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Sources"
-    direction: up
-- tapOn: "Sources"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Switch homepage"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Finance"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Sources"
 
 # Create the first source (default currency INR).
-- scrollUntilVisible:
-    element: "Add"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Add"
-    direction: up
-- tapOn: "Add"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Add"
 - assertVisible: "New source"
-- scrollUntilVisible:
-    element: "Source name"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Source name"
-    direction: up
-- tapOn: "Source name"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Source name"
 - inputText: "Everyday Bank"
 - hideKeyboard
 - assertVisible: "INR"
-- scrollUntilVisible:
-    element: "Save"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Save"
-    direction: up
-- tapOn: "Save"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Save"
 - assertVisible: "Everyday Bank"
 
 # Create a second source with a different currency.
-- scrollUntilVisible:
-    element: "Add"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Add"
-    direction: up
-- tapOn: "Add"
-- scrollUntilVisible:
-    element: "Source name"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Source name"
-    direction: up
-- tapOn: "Source name"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Add"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Source name"
 - inputText: "Travel Card"
 - hideKeyboard
-- scrollUntilVisible:
-    element: "INR"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "INR"
-    direction: up
-- tapOn: "INR"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "INR"
 - eraseText
 - inputText: "USD"
 - hideKeyboard
-- scrollUntilVisible:
-    element: "Save"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Save"
-    direction: up
-- tapOn: "Save"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Save"
 - assertVisible: "Travel Card"
 - assertVisible: "Everyday Bank"
 
 # Duplicate name is rejected.
-- scrollUntilVisible:
-    element: "Add"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Add"
-    direction: up
-- tapOn: "Add"
-- scrollUntilVisible:
-    element: "Source name"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Source name"
-    direction: up
-- tapOn: "Source name"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Add"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Source name"
 - inputText: "Everyday Bank"
 - hideKeyboard
-- scrollUntilVisible:
-    element: "Save"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Save"
-    direction: up
-- tapOn: "Save"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Save"
 - assertVisible:
     text: ".*already exists.*"
     optional: true
@@ -141,42 +89,26 @@ appId: ${APP_ID}
 - assertVisible: "Validated"
 
 # Rename it — currency becomes read-only once created.
-- scrollUntilVisible:
-    element: "Everyday Bank"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Everyday Bank"
-    direction: up
-- tapOn: "Everyday Bank"
-- scrollUntilVisible:
-    element: "Edit"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Edit"
-    direction: up
-- tapOn: "Edit"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Everyday Bank"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Edit"
 - assertVisible: ".*Currency is fixed after a source is created\\..*"
-- scrollUntilVisible:
-    element: "Everyday Bank"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Everyday Bank"
-    direction: up
-- tapOn: "Everyday Bank"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Everyday Bank"
 - eraseText
 - inputText: "Primary Bank"
 - hideKeyboard
-- scrollUntilVisible:
-    element: "Save"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Save"
-    direction: up
-- tapOn: "Save"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Save"
 - back
 - assertVisible: "Primary Bank"
 
@@ -185,57 +117,33 @@ appId: ${APP_ID}
 - tapOn:
     text: "Archive"
     below: "Primary Bank"
-- scrollUntilVisible:
-    element: "Archive"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Archive"
-    direction: up
-- tapOn: "Archive"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Archive"
 - assertNotVisible: "Primary Bank"
 - assertVisible: "Travel Card"
 
 - back
-- scrollUntilVisible:
-    element: "Settings"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Settings"
-    direction: up
-- tapOn: "Settings"
-- scrollUntilVisible:
-    element: "Settings"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Settings"
-    direction: up
-- tapOn: "Settings"
-- scrollUntilVisible:
-    element: "Archived relations"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Archived relations"
-    direction: up
-- tapOn: "Archived relations"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Settings"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Settings"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Archived relations"
 - assertVisible: "Primary Bank"
-- scrollUntilVisible:
-    element: "Primary Bank"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Primary Bank"
-    direction: up
-- tapOn: "Primary Bank"
-- scrollUntilVisible:
-    element: "Restore"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Restore"
-    direction: up
-- tapOn: "Restore"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Primary Bank"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Restore"
 - assertNotVisible: "Primary Bank"

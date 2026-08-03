@@ -14,23 +14,15 @@ appId: ${APP_ID}
 - assertVisible: "Todos"
 
 # Switch to Finance via the mode-switcher modal.
-- scrollUntilVisible:
-    element: "Switch homepage"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Switch homepage"
-    direction: up
-- tapOn: "Switch homepage"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Switch homepage"
 - assertVisible: "Finance"
-- scrollUntilVisible:
-    element: "Finance"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Finance"
-    direction: up
-- tapOn: "Finance"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Finance"
 - assertVisible: "Transactions"
 - assertVisible: "Sources"
 - assertVisible: "Categories"
@@ -41,65 +33,41 @@ appId: ${APP_ID}
 - assertVisible: "Exchange rates"
 
 # Switch to Vault.
-- scrollUntilVisible:
-    element: "Switch homepage"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Switch homepage"
-    direction: up
-- tapOn: "Switch homepage"
-- scrollUntilVisible:
-    element: "Vault"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Vault"
-    direction: up
-- tapOn: "Vault"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Switch homepage"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Vault"
 - assertVisible: "Passwords"
 - assertVisible: "Cards"
 - assertVisible: "Identity"
 
 # Back to Tools for the next flow / a clean starting point.
-- scrollUntilVisible:
-    element: "Switch homepage"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Switch homepage"
-    direction: up
-- tapOn: "Switch homepage"
-- scrollUntilVisible:
-    element: "Tools"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Tools"
-    direction: up
-- tapOn: "Tools"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Switch homepage"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Tools"
 - assertVisible: "Notes"
 
 # Settings screen is reachable from every mode.
-- scrollUntilVisible:
-    element: "Settings"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Settings"
-    direction: up
-- tapOn: "Settings"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Settings"
 - assertVisible: "Home screen"
 - back
 
 # Global search is reachable from every mode.
-- scrollUntilVisible:
-    element: "Search Tools"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Search Tools"
-    direction: up
-- tapOn: "Search Tools"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Search Tools"
 - assertVisible: "Type at least two characters."
 - back

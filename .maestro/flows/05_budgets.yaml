@@ -5,155 +5,87 @@ appId: ${APP_ID}
 
 - launchApp:
     clearState: true
-- scrollUntilVisible:
-    element: "Switch homepage"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Switch homepage"
-    direction: up
-- tapOn: "Switch homepage"
-- scrollUntilVisible:
-    element: "Finance"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Finance"
-    direction: up
-- tapOn: "Finance"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Switch homepage"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Finance"
 
-- scrollUntilVisible:
-    element: "Categories"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Categories"
-    direction: up
-- tapOn: "Categories"
-- scrollUntilVisible:
-    element: "Add"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Add"
-    direction: up
-- tapOn: "Add"
-- scrollUntilVisible:
-    element: "Category name"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Category name"
-    direction: up
-- tapOn: "Category name"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Categories"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Add"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Category name"
 - inputText: "Rent"
 - hideKeyboard
-- scrollUntilVisible:
-    element: "Save"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Save"
-    direction: up
-- tapOn: "Save"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Save"
 - back
 
-- scrollUntilVisible:
-    element: "Budgets"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Budgets"
-    direction: up
-- tapOn: "Budgets"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Budgets"
 - assertVisible: "Budgets use INR and reset on calendar month or calendar year boundaries."
-- scrollUntilVisible:
-    element: "Add"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Add"
-    direction: up
-- tapOn: "Add"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Add"
 - assertVisible: "New budget"
-- scrollUntilVisible:
-    element: "Select category"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Select category"
-    direction: up
-- tapOn: "Select category"
-- scrollUntilVisible:
-    element: "Rent"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Rent"
-    direction: up
-- tapOn: "Rent"
-- scrollUntilVisible:
-    element: "0.00"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "0.00"
-    direction: up
-- tapOn: "0.00"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Select category"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Rent"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "0.00"
 - inputText: "20000"
 - hideKeyboard
 - assertVisible: "Monthly"
-- scrollUntilVisible:
-    element: "Save budget"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Save budget"
-    direction: up
-- tapOn: "Save budget"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Save budget"
 - assertVisible: "Rent"
 
-- scrollUntilVisible:
-    element: "Edit"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Edit"
-    direction: up
-- tapOn: "Edit"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Edit"
 - assertVisible: "Edit budget"
-- scrollUntilVisible:
-    element: "Yearly"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Yearly"
-    direction: up
-- tapOn: "Yearly"
-- scrollUntilVisible:
-    element: "Save budget"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Save budget"
-    direction: up
-- tapOn: "Save budget"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Yearly"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Save budget"
 
-- scrollUntilVisible:
-    element: "Delete"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Delete"
-    direction: up
-- tapOn: "Delete"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Delete"
 - assertVisible: "Delete budget?"
-- scrollUntilVisible:
-    element: "Delete"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Delete"
-    direction: up
-- tapOn: "Delete"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Delete"
 - assertNotVisible: "Rent"

@@ -4,134 +4,78 @@ appId: ${APP_ID}
 
 - launchApp:
     clearState: true
-- scrollUntilVisible:
-    element: "Switch homepage"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Switch homepage"
-    direction: up
-- tapOn: "Switch homepage"
-- scrollUntilVisible:
-    element: "Vault"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Vault"
-    direction: up
-- tapOn: "Vault"
-- scrollUntilVisible:
-    element: "Identity"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Identity"
-    direction: up
-- tapOn: "Identity"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Switch homepage"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Vault"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Identity"
 
-- scrollUntilVisible:
-    element: "Add"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Add"
-    direction: up
-- tapOn: "Add"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Add"
 - assertVisible: "New identity"
-- scrollUntilVisible:
-    element: "Entry title"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Entry title"
-    direction: up
-- tapOn: "Entry title"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Entry title"
 - inputText: "Passport"
 - hideKeyboard
-- scrollUntilVisible:
-    element: "Document number"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Document number"
-    direction: up
-- tapOn: "Document number"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Document number"
 - inputText: "P1234567"
 - hideKeyboard
-- scrollUntilVisible:
-    element: "Optional notes"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Optional notes"
-    direction: up
-- tapOn: "Optional notes"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Optional notes"
 - inputText: "Expires 2030"
 - hideKeyboard
-- scrollUntilVisible:
-    element: "Save entry"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Save entry"
-    direction: up
-- tapOn: "Save entry"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Save entry"
 - assertVisible: "Passport"
 - assertVisible: "P1234567"
 
-- scrollUntilVisible:
-    element: "Passport"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Passport"
-    direction: up
-- tapOn: "Passport"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Passport"
 - assertVisible: "Edit identity"
-- scrollUntilVisible:
-    element: "Passport"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Passport"
-    direction: up
-- tapOn: "Passport"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Passport"
 - eraseText
 - inputText: "Passport (renewed)"
 - hideKeyboard
-- scrollUntilVisible:
-    element: "Save entry"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Save entry"
-    direction: up
-- tapOn: "Save entry"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Save entry"
 - assertVisible: "Passport (renewed)"
 
-- scrollUntilVisible:
-    element: "Passport (renewed)"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Passport (renewed)"
-    direction: up
-- tapOn: "Passport (renewed)"
-- scrollUntilVisible:
-    element: "Delete entry"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Delete entry"
-    direction: up
-- tapOn: "Delete entry"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Passport (renewed)"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Delete entry"
 - assertVisible: "Delete vault entry?"
-- scrollUntilVisible:
-    element: "Delete"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Delete"
-    direction: up
-- tapOn: "Delete"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Delete"
 - assertNotVisible: "Passport (renewed)"

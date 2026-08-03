@@ -5,125 +5,73 @@ appId: ${APP_ID}
 
 - launchApp:
     clearState: true
-- scrollUntilVisible:
-    element: "Switch homepage"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Switch homepage"
-    direction: up
-- tapOn: "Switch homepage"
-- scrollUntilVisible:
-    element: "Finance"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Finance"
-    direction: up
-- tapOn: "Finance"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Switch homepage"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Finance"
 
-- scrollUntilVisible:
-    element: "Trips"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Trips"
-    direction: up
-- tapOn: "Trips"
-- scrollUntilVisible:
-    element: "Add"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Add"
-    direction: up
-- tapOn: "Add"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Trips"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Add"
 - assertVisible: "New trip"
-- scrollUntilVisible:
-    element: "Trip name"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Trip name"
-    direction: up
-- tapOn: "Trip name"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Trip name"
 - inputText: "Goa Getaway"
 - hideKeyboard
-- scrollUntilVisible:
-    element: "Save"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Save"
-    direction: up
-- tapOn: "Save"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Save"
 - assertVisible: "Goa Getaway"
 
-- scrollUntilVisible:
-    element: "Add"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Add"
-    direction: up
-- tapOn: "Add"
-- scrollUntilVisible:
-    element: "Trip name"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Trip name"
-    direction: up
-- tapOn: "Trip name"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Add"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Trip name"
 - inputText: "Goa Getaway"
 - hideKeyboard
-- scrollUntilVisible:
-    element: "Save"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Save"
-    direction: up
-- tapOn: "Save"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Save"
 - assertVisible:
     text: ".*already exists.*"
     optional: true
 - back
 - back
 
-- scrollUntilVisible:
-    element: "Investments"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Investments"
-    direction: up
-- tapOn: "Investments"
-- scrollUntilVisible:
-    element: "Add"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Add"
-    direction: up
-- tapOn: "Add"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Investments"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Add"
 - assertVisible: "New investment"
-- scrollUntilVisible:
-    element: "Investment name"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Investment name"
-    direction: up
-- tapOn: "Investment name"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Investment name"
 - inputText: "Index Fund"
 - hideKeyboard
-- scrollUntilVisible:
-    element: "Save"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Save"
-    direction: up
-- tapOn: "Save"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Save"
 - assertVisible: "Index Fund"

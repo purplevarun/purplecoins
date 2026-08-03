@@ -5,156 +5,92 @@ appId: ${APP_ID}
 
 - launchApp:
     clearState: true
-- scrollUntilVisible:
-    element: "Switch homepage"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Switch homepage"
-    direction: up
-- tapOn: "Switch homepage"
-- scrollUntilVisible:
-    element: "Tools"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Tools"
-    direction: up
-- tapOn: "Tools"
-- scrollUntilVisible:
-    element: "Notes"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Notes"
-    direction: up
-- tapOn: "Notes"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Switch homepage"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Tools"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Notes"
 
-- scrollUntilVisible:
-    element: "Add"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Add"
-    direction: up
-- tapOn: "Add"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Add"
 - assertVisible: "New note"
-- scrollUntilVisible:
-    element: "Note title"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Note title"
-    direction: up
-- tapOn: "Note title"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Note title"
 - inputText: "Grocery list"
 - hideKeyboard
-- scrollUntilVisible:
-    element: "Write something useful..."
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Write something useful..."
-    direction: up
-- tapOn: "Write something useful..."
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Write something useful..."
 - inputText: "Milk, eggs, bread"
 - hideKeyboard
 
 # Create a folder inline via the FolderPicker.
-- scrollUntilVisible:
-    element: "New folder"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "New folder"
-    direction: up
-- tapOn: "New folder"
-- scrollUntilVisible:
-    element: "Folder name"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Folder name"
-    direction: up
-- tapOn: "Folder name"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "New folder"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Folder name"
 - inputText: "Personal"
 - hideKeyboard
-- scrollUntilVisible:
-    element: "Create"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Create"
-    direction: up
-- tapOn: "Create"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Create"
 - assertVisible: "Personal"
 
-- scrollUntilVisible:
-    element: "Save note"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Save note"
-    direction: up
-- tapOn: "Save note"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Save note"
 - assertVisible: "Grocery list"
 - assertVisible: "Personal"
 
 # Edit the note.
-- scrollUntilVisible:
-    element: "Grocery list"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Grocery list"
-    direction: up
-- tapOn: "Grocery list"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Grocery list"
 - assertVisible: "Edit note"
-- scrollUntilVisible:
-    element: "Grocery list"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Grocery list"
-    direction: up
-- tapOn: "Grocery list"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Grocery list"
 - eraseText
 - inputText: "Weekend grocery list"
 - hideKeyboard
-- scrollUntilVisible:
-    element: "Save note"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Save note"
-    direction: up
-- tapOn: "Save note"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Save note"
 - assertVisible: "Weekend grocery list"
 
 # Delete the note.
-- scrollUntilVisible:
-    element: "Weekend grocery list"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Weekend grocery list"
-    direction: up
-- tapOn: "Weekend grocery list"
-- scrollUntilVisible:
-    element: "Delete note"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Delete note"
-    direction: up
-- tapOn: "Delete note"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Weekend grocery list"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Delete note"
 - assertVisible: "Delete note?"
-- scrollUntilVisible:
-    element: "Delete"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Delete"
-    direction: up
-- tapOn: "Delete"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Delete"
 - assertNotVisible: "Weekend grocery list"

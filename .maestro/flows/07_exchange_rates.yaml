@@ -5,118 +5,70 @@ appId: ${APP_ID}
 
 - launchApp:
     clearState: true
-- scrollUntilVisible:
-    element: "Switch homepage"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Switch homepage"
-    direction: up
-- tapOn: "Switch homepage"
-- scrollUntilVisible:
-    element: "Finance"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Finance"
-    direction: up
-- tapOn: "Finance"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Switch homepage"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Finance"
 
-- scrollUntilVisible:
-    element: "Sources"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Sources"
-    direction: up
-- tapOn: "Sources"
-- scrollUntilVisible:
-    element: "Add"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Add"
-    direction: up
-- tapOn: "Add"
-- scrollUntilVisible:
-    element: "Source name"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Source name"
-    direction: up
-- tapOn: "Source name"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Sources"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Add"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Source name"
 - inputText: "US Account"
 - hideKeyboard
-- scrollUntilVisible:
-    element: "INR"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "INR"
-    direction: up
-- tapOn: "INR"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "INR"
 - eraseText
 - inputText: "USD"
 - hideKeyboard
-- scrollUntilVisible:
-    element: "Save"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Save"
-    direction: up
-- tapOn: "Save"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Save"
 - back
 
-- scrollUntilVisible:
-    element: "Exchange rates"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Exchange rates"
-    direction: up
-- tapOn: "Exchange rates"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Exchange rates"
 - assertVisible: "1 USD"
 - assertVisible: "Rate not set"
-- scrollUntilVisible:
-    element: "0.00"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "0.00"
-    direction: up
-- tapOn: "0.00"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "0.00"
 - inputText: "83.50"
 - hideKeyboard
-- scrollUntilVisible:
-    element: "Save manual rate"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Save manual rate"
-    direction: up
-- tapOn: "Save manual rate"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Save manual rate"
 - assertVisible: "USD rate saved."
 - assertVisible: ".*MANUAL.*"
 
-- scrollUntilVisible:
-    element: "83.5"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "83.5"
-    direction: up
-- tapOn: "83.5"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "83.5"
 - eraseText
 - inputText: "84"
 - hideKeyboard
-- scrollUntilVisible:
-    element: "Save manual rate"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Save manual rate"
-    direction: up
-- tapOn: "Save manual rate"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Save manual rate"
 - assertVisible: "USD rate saved."

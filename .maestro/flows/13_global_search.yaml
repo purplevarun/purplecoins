@@ -7,58 +7,34 @@ appId: ${APP_ID}
     clearState: true
 
 # Tools: a note to search for.
-- scrollUntilVisible:
-    element: "Notes"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Notes"
-    direction: up
-- tapOn: "Notes"
-- scrollUntilVisible:
-    element: "Add"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Add"
-    direction: up
-- tapOn: "Add"
-- scrollUntilVisible:
-    element: "Note title"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Note title"
-    direction: up
-- tapOn: "Note title"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Notes"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Add"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Note title"
 - inputText: "Vacation planning"
 - hideKeyboard
-- scrollUntilVisible:
-    element: "Save note"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Save note"
-    direction: up
-- tapOn: "Save note"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Save note"
 - back
 
-- scrollUntilVisible:
-    element: "Search Tools"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Search Tools"
-    direction: up
-- tapOn: "Search Tools"
-- scrollUntilVisible:
-    element: "Search Tools"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Search Tools"
-    direction: up
-- tapOn: "Search Tools"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Search Tools"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Search Tools"
 - inputText: "a"
 - hideKeyboard
 - assertVisible: "Type at least two characters."
@@ -69,158 +45,90 @@ appId: ${APP_ID}
 - back
 
 # Finance: a source to search for.
-- scrollUntilVisible:
-    element: "Switch homepage"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Switch homepage"
-    direction: up
-- tapOn: "Switch homepage"
-- scrollUntilVisible:
-    element: "Finance"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Finance"
-    direction: up
-- tapOn: "Finance"
-- scrollUntilVisible:
-    element: "Sources"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Sources"
-    direction: up
-- tapOn: "Sources"
-- scrollUntilVisible:
-    element: "Add"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Add"
-    direction: up
-- tapOn: "Add"
-- scrollUntilVisible:
-    element: "Source name"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Source name"
-    direction: up
-- tapOn: "Source name"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Switch homepage"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Finance"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Sources"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Add"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Source name"
 - inputText: "Zenith Bank"
 - hideKeyboard
-- scrollUntilVisible:
-    element: "Save"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Save"
-    direction: up
-- tapOn: "Save"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Save"
 - back
 
-- scrollUntilVisible:
-    element: "Search Finance"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Search Finance"
-    direction: up
-- tapOn: "Search Finance"
-- scrollUntilVisible:
-    element: "Search Finance"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Search Finance"
-    direction: up
-- tapOn: "Search Finance"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Search Finance"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Search Finance"
 - inputText: "zenith"
 - hideKeyboard
 - assertVisible: "Zenith Bank"
 - back
 
 # Vault: a password to search for.
-- scrollUntilVisible:
-    element: "Switch homepage"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Switch homepage"
-    direction: up
-- tapOn: "Switch homepage"
-- scrollUntilVisible:
-    element: "Vault"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Vault"
-    direction: up
-- tapOn: "Vault"
-- scrollUntilVisible:
-    element: "Passwords"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Passwords"
-    direction: up
-- tapOn: "Passwords"
-- scrollUntilVisible:
-    element: "Add"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Add"
-    direction: up
-- tapOn: "Add"
-- scrollUntilVisible:
-    element: "Entry title"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Entry title"
-    direction: up
-- tapOn: "Entry title"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Switch homepage"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Vault"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Passwords"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Add"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Entry title"
 - inputText: "Streaming service"
 - hideKeyboard
-- scrollUntilVisible:
-    element: "Password"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Password"
-    direction: up
-- tapOn: "Password"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Password"
 - inputText: "hunter2"
 - hideKeyboard
-- scrollUntilVisible:
-    element: "Save entry"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Save entry"
-    direction: up
-- tapOn: "Save entry"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Save entry"
 - back
 
-- scrollUntilVisible:
-    element: "Search Vault"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Search Vault"
-    direction: up
-- tapOn: "Search Vault"
-- scrollUntilVisible:
-    element: "Search Vault"
-    direction: down
-    optional: true
-- scrollUntilVisible:
-    element: "Search Vault"
-    direction: up
-- tapOn: "Search Vault"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Search Vault"
+- runFlow:
+    file: find_and_tap.yaml
+    env:
+      element: "Search Vault"
 - inputText: "streaming"
 - hideKeyboard
 - assertVisible: "Streaming service"
