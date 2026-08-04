@@ -103,6 +103,23 @@ const GreetingScreen = ({
 		>
 			<SafeAreaView style={styles.safeArea}>
 				<ScreenContainer>
+					<View style={styles.topBar}>
+						<Pressable
+							accessibilityLabel="Greeting settings"
+							onPress={() => navigation.navigate("Settings")}
+							testID="greeting-settings-button"
+							style={({ pressed }) => [
+								styles.settingsButton,
+								pressed && styles.pressed,
+							]}
+						>
+							<Ionicons
+								color={COLORS.text}
+								name="settings-outline"
+								size={22}
+							/>
+						</Pressable>
+					</View>
 					<View style={styles.header}>
 						<CustomText style={styles.greeting}>
 							Hello {greetingName}
@@ -167,6 +184,20 @@ const styles = StyleSheet.create({
 	},
 	safeArea: {
 		flex: 1,
+	},
+	topBar: {
+		alignItems: "flex-end",
+		marginBottom: 6,
+	},
+	settingsButton: {
+		width: 42,
+		height: 42,
+		borderRadius: 13,
+		alignItems: "center",
+		justifyContent: "center",
+		backgroundColor: "rgba(255,255,255,0.08)",
+		borderWidth: 1,
+		borderColor: COLORS.border,
 	},
 	header: {
 		gap: 8,
