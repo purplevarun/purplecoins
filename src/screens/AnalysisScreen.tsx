@@ -1,5 +1,5 @@
-import BarChart from "@/components/BarChart";
 import type { BarDatum } from "@/components/BarChart";
+import BarChart from "@/components/BarChart";
 import CustomText from "@/components/CustomText";
 
 import { Ionicons } from "@expo/vector-icons";
@@ -11,8 +11,8 @@ import DateField from "@/components/DateField";
 import DonutChart from "@/components/DonutChart";
 import EmptyState from "@/components/EmptyState";
 import GlassCard from "@/components/GlassCard";
-import LineChart from "@/components/LineChart";
 import type { LineSeries } from "@/components/LineChart";
+import LineChart from "@/components/LineChart";
 import Notice from "@/components/Notice";
 import ScreenContainer from "@/components/ScreenContainer";
 import SectionHeading from "@/components/SectionHeading";
@@ -21,8 +21,8 @@ import appConstants from "@/constants/appConstants";
 import COLORS from "@/constants/colors";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import financeRepository from "@/repositories/financeRepository";
-import budgetService from "@/services/budgetService";
 import analysisService from "@/services/analysisService";
+import budgetService from "@/services/budgetService";
 import settingsService from "@/services/settingsService";
 import type AnalysisPeriod from "@/types/AnalysisPeriod";
 import type AnalysisSummary from "@/types/AnalysisSummary";
@@ -38,7 +38,8 @@ import moneyUtils from "@/utils/money";
 import runAfterRender from "@/utils/runAfterRender";
 
 const { DEFAULT_CURRENCY_CODE } = appConstants;
-const { getTransactionMinMaxDate, getTransactionRowsInRange } = financeRepository;
+const { getTransactionMinMaxDate, getTransactionRowsInRange } =
+	financeRepository;
 const { getBudgets } = budgetService;
 const { getAnalysisSummary, getInvestmentNetAmount, getInvestmentNetLabel } =
 	analysisService;
@@ -211,7 +212,9 @@ const AnalysisScreen = ({
 	const [summary, setSummary] = useState<AnalysisSummary | null>(null);
 	const [previousSummary, setPreviousSummary] =
 		useState<AnalysisSummary | null>(null);
-	const [transactions, setTransactions] = useState<readonly Transaction[]>([]);
+	const [transactions, setTransactions] = useState<readonly Transaction[]>(
+		[],
+	);
 	const [budgets, setBudgets] = useState<readonly Budget[]>([]);
 	const [error, setError] = useState("");
 	const [fyStartMonth, setFyStartMonth] = useState(4);
@@ -237,27 +240,33 @@ const AnalysisScreen = ({
 
 	const getScreenData = useCallback(async (): Promise<void> => {
 		try {
-			const [summaryResult, minMax, fy, prevSummaryResult, txnRows, budgetRows] =
-				await Promise.all([
-					getAnalysisSummary(database, {
-						dateRange,
-						isNativeCurrency: false,
-					}),
-					getTransactionMinMaxDate(database),
-					getFyStartMonth(database),
-					previousDateRange
-						? getAnalysisSummary(database, {
-								dateRange: previousDateRange,
-								isNativeCurrency: false,
-							})
-						: Promise.resolve(null),
-					getTransactionRowsInRange(
-						database,
-						dateRange.start,
-						dateRange.end,
-					),
-					getBudgets(database),
-				]);
+			const [
+				summaryResult,
+				minMax,
+				fy,
+				prevSummaryResult,
+				txnRows,
+				budgetRows,
+			] = await Promise.all([
+				getAnalysisSummary(database, {
+					dateRange,
+					isNativeCurrency: false,
+				}),
+				getTransactionMinMaxDate(database),
+				getFyStartMonth(database),
+				previousDateRange
+					? getAnalysisSummary(database, {
+							dateRange: previousDateRange,
+							isNativeCurrency: false,
+						})
+					: Promise.resolve(null),
+				getTransactionRowsInRange(
+					database,
+					dateRange.start,
+					dateRange.end,
+				),
+				getBudgets(database),
+			]);
 			setSummary(summaryResult);
 			setFyStartMonth(fy);
 			setPreviousSummary(prevSummaryResult);
@@ -503,7 +512,7 @@ const AnalysisScreen = ({
 
 	const topSpendingData: readonly BarDatum[] = useMemo(
 		() =>
-			(summary?.categories
+			summary?.categories
 				.filter((category) => Number(category.debits) > 0)
 				.sort((a, b) => Number(b.debits) - Number(a.debits))
 				.slice(0, 8)
@@ -511,43 +520,46 @@ const AnalysisScreen = ({
 					label: category.categoryName.slice(0, 10),
 					value: Number(category.debits),
 					color: COLORS.danger,
-				})) ?? []),
+				})) ?? [],
 		[summary?.categories],
 	);
 
-	const budgetUtilization: readonly BudgetUtilizationItem[] = useMemo(() => {
-		if (!summary?.categories.length || !budgets.length) {
-			return [];
-		}
+	const budgetUtilization: readonly BudgetUtilizationItem[] =
+		!summary?.categories.length || !budgets.length
+			? []
+			: (() => {
+					const debitsByCategory = new Map<string, string>();
+					summary.categories.forEach((category) => {
+						const current =
+							debitsByCategory.get(category.categoryId) ??
+							ZERO_AMOUNT;
+						debitsByCategory.set(
+							category.categoryId,
+							addMoney(current, category.debits),
+						);
+					});
 
-		const debitsByCategory = new Map<string, string>();
-		summary.categories.forEach((category) => {
-			const current = debitsByCategory.get(category.categoryId) ?? ZERO_AMOUNT;
-			debitsByCategory.set(
-				category.categoryId,
-				addMoney(current, category.debits),
-			);
-		});
-
-		return budgets
-			.map((budget) => {
-				const spent = debitsByCategory.get(budget.categoryId) ?? ZERO_AMOUNT;
-				const budgetValue = Number(budget.amount);
-				const spentValue = Number(spent);
-				const percent =
-					budgetValue <= 0
-						? 0
-						: (spentValue / budgetValue) * 100;
-				return {
-					categoryName: budget.categoryName,
-					spent,
-					budget: budget.amount,
-					percent,
-				};
-			})
-			.sort((a, b) => b.percent - a.percent)
-			.slice(0, 8);
-	}, [addMoney, budgets, summary?.categories]);
+					return budgets
+						.map((budget) => {
+							const spent =
+								debitsByCategory.get(budget.categoryId) ??
+								ZERO_AMOUNT;
+							const budgetValue = Number(budget.amount);
+							const spentValue = Number(spent);
+							const percent =
+								budgetValue <= 0
+									? 0
+									: (spentValue / budgetValue) * 100;
+							return {
+								categoryName: budget.categoryName,
+								spent,
+								budget: budget.amount,
+								percent,
+							};
+						})
+						.sort((a, b) => b.percent - a.percent)
+						.slice(0, 8);
+				})();
 
 	const weekdaySpendingData: readonly BarDatum[] = useMemo(() => {
 		const totals = Array.from({ length: 7 }, () => 0);
@@ -619,7 +631,8 @@ const AnalysisScreen = ({
 				data: labels.map((label, index) => {
 					const inVal = income[index] ?? 0;
 					const outVal = expense[index] ?? 0;
-					const value = inVal <= 0 ? 0 : ((inVal - outVal) / inVal) * 100;
+					const value =
+						inVal <= 0 ? 0 : ((inVal - outVal) / inVal) * 100;
 					return { label, value };
 				}),
 			},
@@ -797,7 +810,10 @@ const AnalysisScreen = ({
 					<GlassCard>
 						<LineChart
 							formatValue={(value) =>
-								formatMoney(value.toFixed(2), DEFAULT_CURRENCY_CODE)
+								formatMoney(
+									value.toFixed(2),
+									DEFAULT_CURRENCY_CODE,
+								)
 							}
 							series={monthlyTrendSeries}
 							title="Monthly income vs expense"
@@ -807,7 +823,10 @@ const AnalysisScreen = ({
 						<BarChart
 							data={topSpendingData}
 							formatValue={(value) =>
-								formatMoney(value.toFixed(2), DEFAULT_CURRENCY_CODE)
+								formatMoney(
+									value.toFixed(2),
+									DEFAULT_CURRENCY_CODE,
+								)
 							}
 							title="Top spending categories"
 						/>
@@ -820,7 +839,8 @@ const AnalysisScreen = ({
 							<View style={styles.budgetList}>
 								{budgetUtilization.map((item) => {
 									const pct = Math.max(0, item.percent);
-									const barWidth = `${Math.min(pct, 100).toFixed(1)}%` as `${number}%`;
+									const barWidth =
+										`${Math.min(pct, 100).toFixed(1)}%` as `${number}%`;
 									const toneColor =
 										pct >= 100
 											? COLORS.danger
@@ -828,12 +848,22 @@ const AnalysisScreen = ({
 												? COLORS.warning
 												: COLORS.success;
 									return (
-										<View key={item.categoryName} style={styles.budgetItem}>
+										<View
+											key={item.categoryName}
+											style={styles.budgetItem}
+										>
 											<View style={styles.budgetHeader}>
-												<CustomText style={styles.budgetName}>
+												<CustomText
+													style={styles.budgetName}
+												>
 													{item.categoryName}
 												</CustomText>
-												<CustomText style={[styles.budgetPct, { color: toneColor }]}> 
+												<CustomText
+													style={[
+														styles.budgetPct,
+														{ color: toneColor },
+													]}
+												>
 													{pct.toFixed(1)}%
 												</CustomText>
 											</View>
@@ -841,12 +871,27 @@ const AnalysisScreen = ({
 												<View
 													style={[
 														styles.budgetFill,
-														{ width: barWidth, backgroundColor: toneColor },
+														{
+															width: barWidth,
+															backgroundColor:
+																toneColor,
+														},
 													]}
 												/>
 											</View>
-											<CustomText style={styles.budgetCaption}>
-												Spent {formatMoney(item.spent, DEFAULT_CURRENCY_CODE)} of {formatMoney(item.budget, DEFAULT_CURRENCY_CODE)}
+											<CustomText
+												style={styles.budgetCaption}
+											>
+												Spent{" "}
+												{formatMoney(
+													item.spent,
+													DEFAULT_CURRENCY_CODE,
+												)}{" "}
+												of{" "}
+												{formatMoney(
+													item.budget,
+													DEFAULT_CURRENCY_CODE,
+												)}
 											</CustomText>
 										</View>
 									);
@@ -862,7 +907,10 @@ const AnalysisScreen = ({
 						<BarChart
 							data={weekdaySpendingData}
 							formatValue={(value) =>
-								formatMoney(value.toFixed(2), DEFAULT_CURRENCY_CODE)
+								formatMoney(
+									value.toFixed(2),
+									DEFAULT_CURRENCY_CODE,
+								)
 							}
 							title="Avg spending by weekday"
 						/>
@@ -878,7 +926,10 @@ const AnalysisScreen = ({
 						<BarChart
 							data={sourceSpendingData}
 							formatValue={(value) =>
-								formatMoney(value.toFixed(2), DEFAULT_CURRENCY_CODE)
+								formatMoney(
+									value.toFixed(2),
+									DEFAULT_CURRENCY_CODE,
+								)
 							}
 							title="Spending by source"
 						/>

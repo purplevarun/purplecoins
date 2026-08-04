@@ -47,14 +47,14 @@ const LineChart = ({
 	const minVal = Math.min(...allValues);
 	const maxVal = Math.max(...allValues);
 	const range = Math.max(maxVal - minVal, 1);
-	const labels =
-		series[0]?.data.map((d) => d.label) ?? [];
+	const labels = series[0]?.data.map((d) => d.label) ?? [];
 	const count = labels.length;
 	const plotWidth = CHART_WIDTH - PADDING_LEFT - PADDING_RIGHT;
 	const plotHeight = height - PADDING_TOP;
 
 	const getX = (i: number): number =>
-		PADDING_LEFT + (count <= 1 ? plotWidth / 2 : (i / (count - 1)) * plotWidth);
+		PADDING_LEFT +
+		(count <= 1 ? plotWidth / 2 : (i / (count - 1)) * plotWidth);
 	const getY = (v: number): number =>
 		PADDING_TOP + plotHeight - ((v - minVal) / range) * plotHeight;
 

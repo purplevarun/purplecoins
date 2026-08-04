@@ -17,7 +17,10 @@ import type RootStackParamList from "@/types/RootStackParamList";
 
 const { getUsername } = settingsService;
 
-type GreetingScreenProps = NativeStackScreenProps<RootStackParamList, "Greeting">;
+type GreetingScreenProps = NativeStackScreenProps<
+	RootStackParamList,
+	"Greeting"
+>;
 
 type LandingTile = Readonly<{
 	label: string;
@@ -51,7 +54,9 @@ const TILES: readonly LandingTile[] = [
 	},
 ];
 
-const GreetingScreen = ({ navigation }: GreetingScreenProps): React.JSX.Element => {
+const GreetingScreen = ({
+	navigation,
+}: GreetingScreenProps): React.JSX.Element => {
 	const { database } = useDatabaseContext();
 	const [username, setUsername] = useState("");
 	const [now, setNow] = useState(() => new Date());
@@ -99,16 +104,24 @@ const GreetingScreen = ({ navigation }: GreetingScreenProps): React.JSX.Element 
 			<SafeAreaView style={styles.safeArea}>
 				<ScreenContainer>
 					<View style={styles.header}>
-						<CustomText style={styles.greeting}>Hello {greetingName}</CustomText>
-						<CustomText style={styles.dateText}>{dateText}</CustomText>
-						<CustomText style={styles.timeText}>{timeText}</CustomText>
+						<CustomText style={styles.greeting}>
+							Hello {greetingName}
+						</CustomText>
+						<CustomText style={styles.dateText}>
+							{dateText}
+						</CustomText>
+						<CustomText style={styles.timeText}>
+							{timeText}
+						</CustomText>
 					</View>
 					<View style={styles.grid}>
 						{TILES.map((tile) => (
 							<Pressable
 								key={tile.label}
 								onPress={() =>
-									navigation.replace("Home", { mode: tile.mode })
+									navigation.replace("Home", {
+										mode: tile.mode,
+									})
 								}
 								style={({ pressed }) => [
 									styles.tilePressable,
@@ -120,13 +133,23 @@ const GreetingScreen = ({ navigation }: GreetingScreenProps): React.JSX.Element 
 										<View
 											style={[
 												styles.tileIcon,
-												{ backgroundColor: `${tile.color}22` },
+												{
+													backgroundColor: `${tile.color}22`,
+												},
 											]}
 										>
-											<Ionicons color={tile.color} name={tile.icon} size={28} />
+											<Ionicons
+												color={tile.color}
+												name={tile.icon}
+												size={28}
+											/>
 										</View>
-										<CustomText style={styles.tileTitle}>{tile.label}</CustomText>
-										<CustomText style={styles.tileSubtitle}>{tile.subtitle}</CustomText>
+										<CustomText style={styles.tileTitle}>
+											{tile.label}
+										</CustomText>
+										<CustomText style={styles.tileSubtitle}>
+											{tile.subtitle}
+										</CustomText>
 									</View>
 								</GlassCard>
 							</Pressable>

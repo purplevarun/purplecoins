@@ -431,7 +431,9 @@ const SettingsScreen = ({
 		} else if (result === "up-to-date") {
 			setAutoBackupNotice("Backup already up to date.");
 		} else {
-			setAutoBackupNotice("Backup failed. Re-select the backup folder and try again.");
+			setAutoBackupNotice(
+				"Backup failed. Re-select the backup folder and try again.",
+			);
 		}
 	};
 

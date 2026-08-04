@@ -55,7 +55,10 @@ const SWITCH_ARROW_TRAVEL = 5;
 const getModeLabel = (mode: HomeMode): string =>
 	MODE_OPTIONS.find((option) => option.mode === mode)?.label ?? "Tools";
 
-const HomeScreen = ({ navigation, route }: HomeScreenProps): React.JSX.Element => {
+const HomeScreen = ({
+	navigation,
+	route,
+}: HomeScreenProps): React.JSX.Element => {
 	const { database } = useDatabaseContext();
 	const [mode, setMode] = useState<HomeMode>("TOOLS");
 	const [isModeMenuVisible, setIsModeMenuVisible] = useState(false);
@@ -349,7 +352,10 @@ const HomeScreen = ({ navigation, route }: HomeScreenProps): React.JSX.Element =
 				<ScreenContainer>
 					<View style={styles.header}>
 						<View style={styles.brandRow}>
-							<CustomText numberOfLines={1} style={styles.appName}>
+							<CustomText
+								numberOfLines={1}
+								style={styles.appName}
+							>
 								{APP_NAME}
 							</CustomText>
 							<HeaderIconButton

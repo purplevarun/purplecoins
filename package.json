@@ -70,6 +70,5 @@
 	"private": true,
 	"overrides": {
 		"@expo/config-plugins": "56.0.14"
-
 	}
 }
