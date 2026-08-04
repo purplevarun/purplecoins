@@ -256,9 +256,9 @@ const AnalysisScreen = ({
 				getFyStartMonth(database),
 				previousDateRange
 					? getAnalysisSummary(database, {
-						dateRange: previousDateRange,
-						isNativeCurrency: false,
-					})
+							dateRange: previousDateRange,
+							isNativeCurrency: false,
+						})
 					: Promise.resolve(null),
 				getTransactionRowsInRange(
 					database,
@@ -347,17 +347,17 @@ const AnalysisScreen = ({
 	const chartData: readonly ChartDatum[] = hasMissingCurrencies
 		? []
 		: (summary?.categories
-			.filter(
-				(category) =>
-					category.type !== "REFUND" &&
-					compareMoney(category.net, ZERO_AMOUNT) !== 0,
-			)
-			.slice(0, CHART_COLORS.length)
-			.map((category, index) => ({
-				label: category.categoryName,
-				value: Number(absoluteMoney(category.net)),
-				color: CHART_COLORS[index] ?? COLORS.primary,
-			})) ?? []);
+				.filter(
+					(category) =>
+						category.type !== "REFUND" &&
+						compareMoney(category.net, ZERO_AMOUNT) !== 0,
+				)
+				.slice(0, CHART_COLORS.length)
+				.map((category, index) => ({
+					label: category.categoryName,
+					value: Number(absoluteMoney(category.net)),
+					color: CHART_COLORS[index] ?? COLORS.primary,
+				})) ?? []);
 
 	const prevInvestmentNet = sumMoney(
 		previousSummary?.investments.map((investment) => investment.net) ?? [],
@@ -382,12 +382,12 @@ const AnalysisScreen = ({
 			color: COLORS.success,
 			...(previousSummary !== null
 				? buildPctDisplay(
-					getPercentChange(
-						summary?.totalIncome ?? ZERO_AMOUNT,
-						previousSummary.totalIncome,
-					),
-					true,
-				)
+						getPercentChange(
+							summary?.totalIncome ?? ZERO_AMOUNT,
+							previousSummary.totalIncome,
+						),
+						true,
+					)
 				: {}),
 		},
 		{
@@ -400,12 +400,12 @@ const AnalysisScreen = ({
 			color: COLORS.danger,
 			...(previousSummary !== null
 				? buildPctDisplay(
-					getPercentChange(
-						summary?.totalExpense ?? ZERO_AMOUNT,
-						previousSummary.totalExpense,
-					),
-					false,
-				)
+						getPercentChange(
+							summary?.totalExpense ?? ZERO_AMOUNT,
+							previousSummary.totalExpense,
+						),
+						false,
+					)
 				: {}),
 		},
 		{
@@ -427,12 +427,12 @@ const AnalysisScreen = ({
 					: COLORS.success,
 			...(previousSummary !== null
 				? buildPctDisplay(
-					getPercentChange(
-						summary?.netProfit ?? ZERO_AMOUNT,
-						previousSummary.netProfit,
-					),
-					true,
-				)
+						getPercentChange(
+							summary?.netProfit ?? ZERO_AMOUNT,
+							previousSummary.netProfit,
+						),
+						true,
+					)
 				: {}),
 		},
 		{
@@ -448,12 +448,12 @@ const AnalysisScreen = ({
 					: COLORS.success,
 			...(previousSummary !== null
 				? buildPctDisplay(
-					getPercentChange(
-						netAfterInvestments,
-						prevNetAfterInvestments,
-					),
-					true,
-				)
+						getPercentChange(
+							netAfterInvestments,
+							prevNetAfterInvestments,
+						),
+						true,
+					)
 				: {}),
 		},
 	];
@@ -528,38 +528,38 @@ const AnalysisScreen = ({
 		!summary?.categories.length || !budgets.length
 			? []
 			: (() => {
-				const debitsByCategory = new Map<string, string>();
-				summary.categories.forEach((category) => {
-					const current =
-						debitsByCategory.get(category.categoryId) ??
-						ZERO_AMOUNT;
-					debitsByCategory.set(
-						category.categoryId,
-						addMoney(current, category.debits),
-					);
-				});
-
-				return budgets
-					.map((budget) => {
-						const spent =
-							debitsByCategory.get(budget.categoryId) ??
+					const debitsByCategory = new Map<string, string>();
+					summary.categories.forEach((category) => {
+						const current =
+							debitsByCategory.get(category.categoryId) ??
 							ZERO_AMOUNT;
-						const budgetValue = Number(budget.amount);
-						const spentValue = Number(spent);
-						const percent =
-							budgetValue <= 0
-								? 0
-								: (spentValue / budgetValue) * 100;
-						return {
-							categoryName: budget.categoryName,
-							spent,
-							budget: budget.amount,
-							percent,
-						};
-					})
-					.sort((a, b) => b.percent - a.percent)
-					.slice(0, 8);
-			})();
+						debitsByCategory.set(
+							category.categoryId,
+							addMoney(current, category.debits),
+						);
+					});
+
+					return budgets
+						.map((budget) => {
+							const spent =
+								debitsByCategory.get(budget.categoryId) ??
+								ZERO_AMOUNT;
+							const budgetValue = Number(budget.amount);
+							const spentValue = Number(spent);
+							const percent =
+								budgetValue <= 0
+									? 0
+									: (spentValue / budgetValue) * 100;
+							return {
+								categoryName: budget.categoryName,
+								spent,
+								budget: budget.amount,
+								percent,
+							};
+						})
+						.sort((a, b) => b.percent - a.percent)
+						.slice(0, 8);
+				})();
 
 	const weekdaySpendingData: readonly BarDatum[] = useMemo(() => {
 		const totals = Array.from({ length: 7 }, () => 0);
@@ -674,7 +674,7 @@ const AnalysisScreen = ({
 			style={[
 				styles.summaryTile,
 				metric.label === "Net after investments" &&
-				styles.summaryTileFull,
+					styles.summaryTileFull,
 			]}
 		>
 			<GlassCard accent={metric.accent}>
