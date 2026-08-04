@@ -4,7 +4,8 @@ import type TransactionType from "@/types/TransactionType";
 import type VaultKind from "@/types/VaultKind";
 
 type RootStackParamList = {
-	Home: undefined;
+	Greeting: undefined;
+	Home: { mode?: HomeMode } | undefined;
 	Transactions: undefined;
 	TransactionForm:
 		| {

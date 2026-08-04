@@ -18,6 +18,7 @@ import Notice from "@/components/Notice";
 import ScreenContainer from "@/components/ScreenContainer";
 import SegmentedControl from "@/components/SegmentedControl";
 import SelectField from "@/components/SelectField";
+import TextField from "@/components/TextField";
 import COLORS from "@/constants/colors";
 import useAppDialog from "@/hooks/useAppDialog";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
@@ -37,7 +38,7 @@ import { StorageAccessFramework } from "expo-file-system/legacy";
 const { APP_NAME } = appConstants;
 const { version } = packageJson;
 const { exportBackup, restoreBackup } = backupService;
-const { runAutoBackupIfDue } = autoBackupService;
+const { runAutoBackupNow } = autoBackupService;
 const { syncBudgetAlerts } = budgetAlertService;
 const {
 	getAutoBackupSettings,
@@ -47,6 +48,7 @@ const {
 	getFyStartMonth,
 	getNativeCurrencyDisplay,
 	getTodoReminderSettings,
+	getUsername,
 	updateAutoBackupDirectoryUri,
 	updateAutoBackupEnabled,
 	updateAutoBackupIntervalDays,
@@ -58,6 +60,7 @@ const {
 	updateTodoReminderDaysBeforeDue,
 	updateTodoReminderRepeatHours,
 	updateTodoRemindersEnabled,
+	updateUsername,
 } = settingsService;
 const { syncTodoReminders } = todoReminderService;
 const {
@@ -141,6 +144,7 @@ const SettingsScreen = ({
 	const [fyStartMonth, setFyStartMonth] = useState(4);
 	const [defaultTripId, setDefaultTripId] = useState("");
 	const [defaultHomeMode, setDefaultHomeMode] = useState<HomeMode>("TOOLS");
+	const [username, setUsername] = useState("");
 	const [todoRemindersEnabled, setTodoRemindersEnabled] = useState(true);
 	const [todoReminderDaysBeforeDue, setTodoReminderDaysBeforeDue] =
 		useState(2);
@@ -168,6 +172,7 @@ const SettingsScreen = ({
 				fy,
 				tripId,
 				homeMode,
+				name,
 				reminderSettings,
 				loadedTrips,
 				budgetAlerts,
@@ -177,6 +182,7 @@ const SettingsScreen = ({
 				getFyStartMonth(database),
 				getDefaultTripId(database),
 				getDefaultHomeMode(database),
+				getUsername(database),
 				getTodoReminderSettings(database),
 				getTrips(database),
 				getBudgetAlertsEnabled(database),
@@ -186,6 +192,7 @@ const SettingsScreen = ({
 			setFyStartMonth(fy);
 			setDefaultTripId(tripId ?? "");
 			setDefaultHomeMode(homeMode);
+			setUsername(name);
 			setTodoRemindersEnabled(reminderSettings.enabled);
 			setTodoReminderDaysBeforeDue(reminderSettings.daysBeforeDue);
 			setTodoReminderRepeatHours(reminderSettings.repeatHours);
@@ -342,6 +349,11 @@ const SettingsScreen = ({
 		refreshData();
 	};
 
+	const handleSaveUsername = async (): Promise<void> => {
+		await updateUsername(database, username);
+		setMessage("Username saved.");
+	};
+
 	const handleTodoRemindersEnabledChange = async (
 		value: boolean,
 	): Promise<void> => {
@@ -406,7 +418,7 @@ const SettingsScreen = ({
 
 	const handleRunAutoBackupNow = async (): Promise<void> => {
 		setAutoBackupNotice("Running backup\u2026");
-		const { result } = await runAutoBackupIfDue(database);
+		const { result } = await runAutoBackupNow(database);
 		if (result === "success") {
 			setAutoBackupLastBackupAt(Date.now());
 			setAutoBackupNotice("Backup complete.");
@@ -414,10 +426,12 @@ const SettingsScreen = ({
 			setAutoBackupNotice("Choose a folder first.");
 		} else if (result === "not-android") {
 			setAutoBackupNotice("Auto-backup is only available on Android.");
+		} else if (result === "disabled") {
+			setAutoBackupNotice("Enable auto-backup first.");
+		} else if (result === "up-to-date") {
+			setAutoBackupNotice("Backup already up to date.");
 		} else {
-			setAutoBackupNotice(
-				"Backup failed. Check that the folder is still accessible.",
-			);
+			setAutoBackupNotice("Backup failed. Re-select the backup folder and try again.");
 		}
 	};
 
@@ -496,6 +510,27 @@ const SettingsScreen = ({
 						}
 						options={HOME_MODE_OPTIONS}
 						value={defaultHomeMode}
+					/>
+				</View>
+			</GlassCard>
+			<GlassCard>
+				<View style={styles.section}>
+					<CustomText style={styles.heading}>Greeting</CustomText>
+					<CustomText style={styles.description}>
+						Used by the greeting screen when the app opens.
+					</CustomText>
+					<TextField
+						autoCapitalize="words"
+						label="Username"
+						onChangeText={setUsername}
+						placeholder="Guest"
+						value={username}
+					/>
+					<AppButton
+						icon="save-outline"
+						label="Save username"
+						onPress={() => void handleSaveUsername()}
+						variant="secondary"
 					/>
 				</View>
 			</GlassCard>

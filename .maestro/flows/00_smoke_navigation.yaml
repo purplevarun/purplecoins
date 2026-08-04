@@ -7,22 +7,18 @@ appId: ${APP_ID}
 - launchApp:
     clearState: true
 
-# Home screen defaults to the "Tools" mode.
-- assertVisible: "Purplecoins"
-- assertVisible: "Tools"
-- assertVisible: "Notes"
-- assertVisible: "Todos"
-
-# Switch to Finance via the mode-switcher modal.
-- runFlow:
-    file: _find_and_tap.yaml
-    env:
-      element: "Switch homepage"
+# App opens on Greeting.
+- assertVisible: "Hello Guest"
 - assertVisible: "Finance"
+- assertVisible: "Tools"
+- assertVisible: "Vault"
+
+# Enter Finance from Greeting.
 - runFlow:
     file: _find_and_tap.yaml
     env:
       element: "Finance"
+- assertVisible: "Purplecoins"
 - assertVisible: "Transactions"
 - assertVisible: "Sources"
 - assertVisible: "Categories"
@@ -32,11 +28,12 @@ appId: ${APP_ID}
 - assertVisible: "Analysis"
 - assertVisible: "Exchange rates"
 
-# Switch to Vault.
+# Go back to Greeting via the new home icon and enter Vault.
 - runFlow:
     file: _find_and_tap.yaml
     env:
-      element: "Switch homepage"
+      element: "Go to greeting"
+- assertVisible: "Hello Guest"
 - runFlow:
     file: _find_and_tap.yaml
     env:
@@ -45,11 +42,12 @@ appId: ${APP_ID}
 - assertVisible: "Cards"
 - assertVisible: "Identity"
 
-# Back to Tools for the next flow / a clean starting point.
+# Back to Greeting via home icon, then enter Tools.
 - runFlow:
     file: _find_and_tap.yaml
     env:
-      element: "Switch homepage"
+      element: "Go to greeting"
+- assertVisible: "Hello Guest"
 - runFlow:
     file: _find_and_tap.yaml
     env:

@@ -10,6 +10,7 @@ import ArchivedRelationsScreen from "@/screens/ArchivedRelationsScreen";
 import BudgetFormScreen from "@/screens/BudgetFormScreen";
 import BudgetsScreen from "@/screens/BudgetsScreen";
 import ExchangeRatesScreen from "@/screens/ExchangeRatesScreen";
+import GreetingScreen from "@/screens/GreetingScreen";
 import GlobalSearchScreen from "@/screens/GlobalSearchScreen";
 import HomeScreen from "@/screens/HomeScreen";
 import LinkedTransactionsScreen from "@/screens/LinkedTransactionsScreen";
@@ -46,7 +47,7 @@ const navigationTheme = {
 const AppNavigator = (): React.JSX.Element => (
 	<NavigationContainer ref={navigationRef} theme={navigationTheme}>
 		<Stack.Navigator
-			initialRouteName="Home"
+			initialRouteName="Greeting"
 			screenOptions={{
 				contentStyle: { backgroundColor: COLORS.background },
 				headerStyle: { backgroundColor: COLORS.backgroundElevated },
@@ -59,6 +60,11 @@ const AppNavigator = (): React.JSX.Element => (
 				animation: "slide_from_right",
 			}}
 		>
+			<Stack.Screen
+				component={GreetingScreen}
+				name="Greeting"
+				options={{ headerShown: false }}
+			/>
 			<Stack.Screen
 				component={HomeScreen}
 				name="Home"

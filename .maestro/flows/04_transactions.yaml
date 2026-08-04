@@ -9,10 +9,6 @@ appId: ${APP_ID}
 - runFlow:
     file: _find_and_tap.yaml
     env:
-      element: "Switch homepage"
-- runFlow:
-    file: _find_and_tap.yaml
-    env:
       element: "Finance"
 
 # --- Prerequisites: two sources + one category ---
@@ -75,7 +71,6 @@ appId: ${APP_ID}
     file: _find_and_tap.yaml
     env:
       element: "Transactions"
-- assertVisible: "Start voice quick-add"
 - runFlow:
     file: _find_and_tap.yaml
     env:

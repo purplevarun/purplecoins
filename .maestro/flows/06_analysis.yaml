@@ -9,10 +9,6 @@ appId: ${APP_ID}
 - runFlow:
     file: _find_and_tap.yaml
     env:
-      element: "Switch homepage"
-- runFlow:
-    file: _find_and_tap.yaml
-    env:
       element: "Finance"
 
 - runFlow:

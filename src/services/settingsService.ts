@@ -20,6 +20,7 @@ const AUTO_BACKUP_LAST_BACKUP_AT_KEY = "auto_backup_last_backup_at";
 const TODO_REMINDERS_ENABLED_KEY = "todo_reminders_enabled";
 const TODO_REMINDER_DAYS_BEFORE_DUE_KEY = "todo_reminder_days_before_due";
 const TODO_REMINDER_REPEAT_HOURS_KEY = "todo_reminder_repeat_hours";
+const USERNAME_KEY = "username";
 
 const AUTO_BACKUP_INTERVAL_DAYS_MIN = 1;
 const AUTO_BACKUP_INTERVAL_DAYS_MAX = 30;
@@ -298,6 +299,17 @@ const updateTodoReminderRepeatHours = async (
 		Date.now(),
 	);
 
+const getUsername = async (database: SQLiteDatabase): Promise<string> => {
+	const value = await getSettingRow(database, USERNAME_KEY);
+	return value?.trim() ?? "";
+};
+
+const updateUsername = async (
+	database: SQLiteDatabase,
+	username: string,
+): Promise<void> =>
+	upsertSettingRow(database, USERNAME_KEY, username.trim(), Date.now());
+
 const settingsService = {
 	getAutoBackupSettings,
 	getBudgetAlertsEnabled,
@@ -306,6 +318,7 @@ const settingsService = {
 	getFyStartMonth,
 	getNativeCurrencyDisplay,
 	getTodoReminderSettings,
+	getUsername,
 	updateAutoBackupDirectoryUri,
 	updateAutoBackupEnabled,
 	updateAutoBackupIntervalDays,
@@ -318,6 +331,7 @@ const settingsService = {
 	updateTodoReminderDaysBeforeDue,
 	updateTodoReminderRepeatHours,
 	updateTodoRemindersEnabled,
+	updateUsername,
 };
 
 export default settingsService;

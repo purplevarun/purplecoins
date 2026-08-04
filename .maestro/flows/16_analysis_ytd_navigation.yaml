@@ -1,0 +1,24 @@
+appId: ${APP_ID}
+---
+# Analysis YTD navigation: verify back/forward buttons navigate between years.
+
+- launchApp:
+    clearState: true
+- runFlow:
+    file: _find_and_tap.yaml
+    env:
+      element: "Finance"
+- runFlow:
+    file: _find_and_tap.yaml
+    env:
+      element: "Analysis"
+
+- runFlow:
+    file: _find_and_tap.yaml
+    env:
+      element: "YTD"
+- assertVisible: "YTD 2026"
+- tapOn: "Previous period"
+- assertVisible: "YTD 2025"
+- tapOn: "Next period"
+- assertVisible: "YTD 2026"

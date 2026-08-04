@@ -1,0 +1,69 @@
+appId: ${APP_ID}
+---
+# Greeting + username + home icon: verify greeting appears on launch,
+# username can be saved from settings, and home icon returns to greeting.
+
+- launchApp:
+    clearState: true
+- assertVisible: "Hello Guest"
+- assertVisible: "Finance"
+- assertVisible: "Tools"
+- assertVisible: "Vault"
+
+- runFlow:
+    file: _find_and_tap.yaml
+    env:
+      element: "Tools"
+- assertVisible: "Purplecoins"
+
+- runFlow:
+    file: _find_and_tap.yaml
+    env:
+      element: "Settings"
+- assertVisible: "Greeting"
+- runFlow:
+    file: _find_and_tap.yaml
+    env:
+      element: "Username"
+- eraseText
+- inputText: "Vik"
+- hideKeyboard
+- runFlow:
+    file: _find_and_tap.yaml
+    env:
+      element: "Save username"
+- assertVisible: "Username saved."
+- back
+
+- runFlow:
+    file: _find_and_tap.yaml
+    env:
+      element: "Go to greeting"
+- assertVisible: "Hello Vik"
+
+# Confirm all three greeting destination buttons remain usable.
+- runFlow:
+    file: _find_and_tap.yaml
+    env:
+      element: "Finance"
+- assertVisible: "Transactions"
+- runFlow:
+    file: _find_and_tap.yaml
+    env:
+      element: "Go to greeting"
+- assertVisible: "Hello Vik"
+- runFlow:
+    file: _find_and_tap.yaml
+    env:
+      element: "Vault"
+- assertVisible: "Passwords"
+- runFlow:
+    file: _find_and_tap.yaml
+    env:
+      element: "Go to greeting"
+- assertVisible: "Hello Vik"
+- runFlow:
+    file: _find_and_tap.yaml
+    env:
+      element: "Tools"
+- assertVisible: "Notes"

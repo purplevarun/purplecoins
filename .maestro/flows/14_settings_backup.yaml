@@ -11,6 +11,10 @@ appId: ${APP_ID}
 - runFlow:
     file: _find_and_tap.yaml
     env:
+      element: "Tools"
+- runFlow:
+    file: _find_and_tap.yaml
+    env:
       element: "Settings"
 - assertVisible: "Home screen"
 

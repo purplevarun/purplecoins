@@ -6,6 +6,11 @@ appId: ${APP_ID}
 - launchApp:
     clearState: true
 
+- runFlow:
+  file: _find_and_tap.yaml
+  env:
+    element: "Tools"
+
 # Tools: a note to search for.
 - runFlow:
     file: _find_and_tap.yaml

@@ -21,27 +21,22 @@ const getFyDateRange = (anchorDate: Date, fyStartMonth: number): DateRange => {
 	return { start, end };
 };
 
-const getYtdDateRange = (): DateRange => {
+const getYtdDateRange = (anchorDate: Date): DateRange => {
+	const year = anchorDate.getFullYear();
 	const now = new Date();
-	// Year to date: same date last year → today
-	const start = new Date(
-		now.getFullYear() - 1,
-		now.getMonth(),
-		now.getDate(),
-		0,
-		0,
-		0,
-		0,
-	).getTime();
-	const end = new Date(
-		now.getFullYear(),
-		now.getMonth(),
-		now.getDate(),
-		DAY_END_HOURS,
-		DAY_END_MINUTES,
-		DAY_END_SECONDS,
-		DAY_END_MILLISECONDS,
-	).getTime();
+	const isCurrentYear = year === now.getFullYear();
+	const start = new Date(year, 0, 1, 0, 0, 0, 0).getTime();
+	const end = isCurrentYear
+		? new Date(
+				now.getFullYear(),
+				now.getMonth(),
+				now.getDate(),
+				DAY_END_HOURS,
+				DAY_END_MINUTES,
+				DAY_END_SECONDS,
+				DAY_END_MILLISECONDS,
+			).getTime()
+		: new Date(year + 1, 0, 1).getTime() - 1;
 	return { start, end };
 };
 
@@ -57,7 +52,7 @@ const getAnalysisDateRange = (
 		return getFyDateRange(anchorDate, fyStartMonth);
 	}
 	if (period === "YTD") {
-		return getYtdDateRange();
+		return getYtdDateRange(anchorDate);
 	}
 	const year = anchorDate.getFullYear();
 	const month = anchorDate.getMonth();
@@ -82,7 +77,7 @@ const shiftAnalysisAnchor = (
 	const shiftedDate = new Date(anchorDate);
 	if (period === "MONTH") {
 		shiftedDate.setMonth(shiftedDate.getMonth() + direction);
-	} else if (period === "YEAR") {
+	} else if (period === "YEAR" || period === "YTD") {
 		shiftedDate.setFullYear(shiftedDate.getFullYear() + direction);
 	} else if (period === "FY") {
 		shiftedDate.setFullYear(shiftedDate.getFullYear() + direction);
@@ -102,7 +97,7 @@ const shiftAnalysisAnchor = (
 			return anchorDate;
 		}
 		if (
-			(period === "YEAR" || period === "FY") &&
+			(period === "YEAR" || period === "YTD" || period === "FY") &&
 			shiftedDate.getFullYear() < minAnchor.getFullYear()
 		) {
 			return anchorDate;
@@ -119,7 +114,7 @@ const shiftAnalysisAnchor = (
 			return anchorDate;
 		}
 		if (
-			(period === "YEAR" || period === "FY") &&
+			(period === "YEAR" || period === "YTD" || period === "FY") &&
 			shiftedDate.getFullYear() > maxAnchor.getFullYear()
 		) {
 			return anchorDate;
@@ -153,28 +148,9 @@ const getPreviousDateRange = (
 		return null;
 	}
 	if (period === "YTD") {
-		// Previous YTD: same-length window shifted back 1 year.
-		const now = new Date();
-		return {
-			start: new Date(
-				now.getFullYear() - 2,
-				now.getMonth(),
-				now.getDate(),
-				0,
-				0,
-				0,
-				0,
-			).getTime(),
-			end: new Date(
-				now.getFullYear() - 1,
-				now.getMonth(),
-				now.getDate(),
-				DAY_END_HOURS,
-				DAY_END_MINUTES,
-				DAY_END_SECONDS,
-				DAY_END_MILLISECONDS,
-			).getTime(),
-		};
+		const previousAnchor = new Date(anchorDate);
+		previousAnchor.setFullYear(previousAnchor.getFullYear() - 1);
+		return getAnalysisDateRange("YTD", previousAnchor, fyStartMonth);
 	}
 	const prevAnchor = new Date(anchorDate);
 	if (period === "MONTH") {

@@ -55,7 +55,7 @@ const SWITCH_ARROW_TRAVEL = 5;
 const getModeLabel = (mode: HomeMode): string =>
 	MODE_OPTIONS.find((option) => option.mode === mode)?.label ?? "Tools";
 
-const HomeScreen = ({ navigation }: HomeScreenProps): React.JSX.Element => {
+const HomeScreen = ({ navigation, route }: HomeScreenProps): React.JSX.Element => {
 	const { database } = useDatabaseContext();
 	const [mode, setMode] = useState<HomeMode>("TOOLS");
 	const [isModeMenuVisible, setIsModeMenuVisible] = useState(false);
@@ -63,11 +63,15 @@ const HomeScreen = ({ navigation }: HomeScreenProps): React.JSX.Element => {
 
 	useEffect(() => {
 		const loadDefaultMode = async (): Promise<void> => {
+			if (route.params?.mode) {
+				setMode(route.params.mode);
+				return;
+			}
 			const defaultMode = await getDefaultHomeMode(database);
 			setMode(defaultMode);
 		};
 		void loadDefaultMode();
-	}, [database]);
+	}, [database, route.params?.mode]);
 
 	const cycleMode = useCallback((direction: 1 | -1): void => {
 		setMode((currentMode) => {
@@ -344,9 +348,16 @@ const HomeScreen = ({ navigation }: HomeScreenProps): React.JSX.Element => {
 			<SafeAreaView style={styles.safeArea}>
 				<ScreenContainer>
 					<View style={styles.header}>
-						<CustomText numberOfLines={1} style={styles.appName}>
-							{APP_NAME}
-						</CustomText>
+						<View style={styles.brandRow}>
+							<CustomText numberOfLines={1} style={styles.appName}>
+								{APP_NAME}
+							</CustomText>
+							<HeaderIconButton
+								accessibilityLabel="Go to greeting"
+								icon="home-outline"
+								onPress={() => navigation.navigate("Greeting")}
+							/>
+						</View>
 						<View style={styles.modeRow}>
 							<CustomText style={styles.modeName}>
 								{getModeLabel(mode)}
@@ -495,8 +506,15 @@ const styles = StyleSheet.create({
 		marginBottom: 8,
 		gap: 8,
 	},
+	brandRow: {
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "space-between",
+		gap: 12,
+	},
 	appName: {
 		color: COLORS.text,
+		flex: 1,
 		fontSize: 36,
 		fontWeight: "900",
 		letterSpacing: 0,

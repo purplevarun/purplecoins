@@ -61,7 +61,7 @@ describe("date utilities", () => {
 		});
 
 		it("spans from the same date last year to today (start/end of day)", () => {
-			const range = getYtdDateRange();
+			const range = getYtdDateRange(new Date(2026, 6, 24));
 
 			expect(range.start).toBe(
 				new Date(2025, 6, 24, 0, 0, 0, 0).getTime(),
@@ -95,7 +95,7 @@ describe("date utilities", () => {
 			vi.setSystemTime(new Date(2026, 6, 24, 12, 0, 0));
 
 			expect(getAnalysisDateRange("YTD", new Date(2026, 6, 24))).toEqual(
-				getYtdDateRange(),
+				getYtdDateRange(new Date(2026, 6, 24)),
 			);
 
 			vi.useRealTimers();

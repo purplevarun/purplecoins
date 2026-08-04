@@ -49,6 +49,49 @@ const createAutoBackupFileName = (): string => {
 	return `${APP_NAME.toLowerCase()}-${date}${BACKUP_EXTENSION}`;
 };
 
+const createAutoBackupUniqueFileName = (): string => {
+	const isoTimestamp = new Date().toISOString().replace(/[:.]/g, "-");
+	return `${APP_NAME.toLowerCase()}-${isoTimestamp}${BACKUP_EXTENSION}`;
+};
+
+const writeBackupToSafDirectory = async (
+	database: SQLiteDatabase,
+	directoryUri: string,
+): Promise<void> => {
+	await StorageAccessFramework.readDirectoryAsync(directoryUri);
+
+	const tempFile = new File(Paths.cache, createAutoBackupUniqueFileName());
+	tempFile.create({ overwrite: true, intermediates: true });
+	tempFile.write(await database.serializeAsync());
+
+	const base64Content = await readAsStringAsync(tempFile.uri, {
+		encoding: BASE64_ENCODING,
+	});
+
+	let safFileUri: string;
+	try {
+		safFileUri = await StorageAccessFramework.createFileAsync(
+			directoryUri,
+			createAutoBackupFileName(),
+			BACKUP_MIME_TYPE,
+		);
+	} catch {
+		safFileUri = await StorageAccessFramework.createFileAsync(
+			directoryUri,
+			createAutoBackupUniqueFileName(),
+			BACKUP_MIME_TYPE,
+		);
+	}
+
+	await StorageAccessFramework.writeAsStringAsync(safFileUri, base64Content, {
+		encoding: BASE64_ENCODING,
+	});
+
+	if (tempFile.exists) {
+		tempFile.delete();
+	}
+};
+
 const loadNotificationsModule =
 	async (): Promise<NotificationsModule | null> => {
 		try {
@@ -95,32 +138,33 @@ const runAutoBackupIfDue = async (
 	}
 
 	try {
-		// Serialize the database to a temp cache file, read as base64, write to SAF.
-		const tempFile = new File(Paths.cache, createAutoBackupFileName());
-		tempFile.create({ overwrite: true, intermediates: true });
-		tempFile.write(await database.serializeAsync());
-
-		const base64Content = await readAsStringAsync(tempFile.uri, {
-			encoding: BASE64_ENCODING,
-		});
-
-		// createFileAsync expects the full filename including extension.
-		const safFileUri = await StorageAccessFramework.createFileAsync(
-			settings.directoryUri,
-			createAutoBackupFileName(),
-			BACKUP_MIME_TYPE,
-		);
-		await StorageAccessFramework.writeAsStringAsync(
-			safFileUri,
-			base64Content,
-			{ encoding: BASE64_ENCODING },
-		);
-
-		if (tempFile.exists) tempFile.delete();
-
+		await writeBackupToSafDirectory(database, settings.directoryUri);
 		await updateAutoBackupLastBackupAt(database, now);
 		return { result: "success" };
-	} catch {
+	} catch (caughtError: unknown) {
+		console.error("Auto-backup failed", caughtError);
+		return { result: "error" };
+	}
+};
+
+const runAutoBackupNow = async (
+	database: SQLiteDatabase,
+): Promise<AutoBackupSyncResult> => {
+	if ((await getPlatformOs()) !== "android") {
+		return { result: "not-android" };
+	}
+
+	const settings = await getAutoBackupSettings(database);
+	if (!settings.directoryUri) {
+		return { result: "no-directory" };
+	}
+
+	try {
+		await writeBackupToSafDirectory(database, settings.directoryUri);
+		await updateAutoBackupLastBackupAt(database, Date.now());
+		return { result: "success" };
+	} catch (caughtError: unknown) {
+		console.error("Manual auto-backup failed", caughtError);
 		return { result: "error" };
 	}
 };
@@ -247,6 +291,7 @@ const syncAutoBackupReminder = async (
 };
 
 const autoBackupService = {
+	runAutoBackupNow,
 	runAutoBackupIfDue,
 	syncAutoBackupReminder,
 };

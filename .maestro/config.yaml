@@ -20,3 +20,5 @@ executionOrder:
     - 12_vault_identity
     - 13_global_search
     - 14_settings_backup
+    - 15_greeting_username_home
+    - 16_analysis_ytd_navigation
