@@ -22,6 +22,7 @@ type AppButtonProps = Readonly<{
 	isLoading?: boolean;
 	isCompact?: boolean;
 	style?: ViewStyle;
+	testID?: string;
 }>;
 
 const getButtonColors = (
@@ -68,6 +69,7 @@ const AppButton = ({
 	isLoading = false,
 	isCompact = false,
 	style,
+	testID,
 }: AppButtonProps): React.JSX.Element => {
 	const colors = getButtonColors(variant);
 	const isUnavailable = isDisabled || isLoading;
@@ -87,6 +89,7 @@ const AppButton = ({
 			accessibilityRole="button"
 			disabled={isUnavailable}
 			onPress={onPress}
+			testID={testID}
 			style={({ pressed }) => [
 				buttonStyle,
 				pressed && !isUnavailable && styles.pressed,

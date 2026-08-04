@@ -207,13 +207,34 @@ jobs:
 
             echo "Running Maestro flows against $APP_ID..."
             set +e
-            maestro test -e APP_ID="$APP_ID" .maestro | tee artifacts/maestro-output.txt
+            maestro test \
+              --format=JUNIT \
+              --output=artifacts/maestro-report.xml \
+              --debug-output=artifacts/maestro-debug \
+              --flatten-debug-output \
+              --test-output-dir=artifacts/maestro-test-output \
+              -e APP_ID="$APP_ID" \
+              .maestro | tee artifacts/maestro-output.txt
             MAESTRO_EXIT=${PIPESTATUS[0]}
             set -e
 
             echo "--- Capturing post-run screenshot ---"
             adb shell screencap -p /sdcard/post-maestro.png || true
             adb pull /sdcard/post-maestro.png artifacts/post-maestro.png || true
+
+            first_failed_line=$(grep -E "^\[Failed\]" artifacts/maestro-output.txt | head -n 1 || true)
+            if [ -n "$first_failed_line" ]; then
+              first_failed_flow=$(echo "$first_failed_line" | sed -E 's/^\[Failed\] ([^()]+).*/\1/' | xargs)
+              first_failed_flow_safe=$(echo "$first_failed_flow" | tr ' ' '_' | tr -cd '[:alnum:]_-')
+
+              echo "--- Capturing failure context for $first_failed_flow ---"
+              adb shell screencap -p "/sdcard/failed-${first_failed_flow_safe}.png" || true
+              adb pull "/sdcard/failed-${first_failed_flow_safe}.png" "artifacts/failed-${first_failed_flow_safe}.png" || true
+              adb shell uiautomator dump /sdcard/view-hierarchy.xml || true
+              adb pull /sdcard/view-hierarchy.xml artifacts/view-hierarchy.xml || true
+              adb shell dumpsys window windows > artifacts/dumpsys-window.txt || true
+              adb shell dumpsys activity activities > artifacts/dumpsys-activity.txt || true
+            fi
 
             echo "--- Writing Maestro summary for job output ---"
             {
@@ -225,15 +246,17 @@ jobs:
                 | sed -E 's/^\[(Passed|Failed)\] ([^()]+) \(([^)]+)\).*/| \1 | \2 | \3 |/' \
                 || true
 
-              first_failed_line=$(grep -E "^\[Failed\]" artifacts/maestro-output.txt | head -n 1 || true)
               if [ -n "$first_failed_line" ]; then
-                first_failed_flow=$(echo "$first_failed_line" | sed -E 's/^\[Failed\] ([^()]+).*/\1/' | xargs)
                 echo ""
                 echo "- First failed flow: \`$first_failed_flow\`"
               else
                 echo ""
                 echo "- All flows passed."
               fi
+
+              echo ""
+              echo "### Artifact Files"
+              find artifacts -maxdepth 2 -type f -print | sed 's/^/- /'
             } >> "$GITHUB_STEP_SUMMARY"
 
             kill "$LOGCAT_PID" || true
@@ -255,9 +278,14 @@ jobs:
           name: android-maestro-debug
           path: |
             artifacts/maestro-debug/**
+            artifacts/maestro-test-output/**
             artifacts/logcat.txt
             artifacts/pre-maestro.png
             artifacts/post-maestro.png
+            artifacts/failed-*.png
+            artifacts/view-hierarchy.xml
+            artifacts/dumpsys-window.txt
+            artifacts/dumpsys-activity.txt
             artifacts/maestro-output.txt
           retention-days: 14
           if-no-files-found: ignore

@@ -523,6 +523,7 @@ const SettingsScreen = ({
 					</CustomText>
 					<TextField
 						autoCapitalize="words"
+						inputTestID="settings-username-input"
 						label="Username"
 						onChangeText={setUsername}
 						placeholder="Guest"
@@ -532,6 +533,7 @@ const SettingsScreen = ({
 						icon="save-outline"
 						label="Save username"
 						onPress={() => void handleSaveUsername()}
+						testID="settings-save-username"
 						variant="secondary"
 					/>
 				</View>
