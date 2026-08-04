@@ -207,9 +207,34 @@ jobs:
 
             echo "Running Maestro flows against $APP_ID..."
             set +e
-            maestro test -e APP_ID="$APP_ID" .maestro
-            MAESTRO_EXIT=$?
+            maestro test -e APP_ID="$APP_ID" .maestro | tee artifacts/maestro-output.txt
+            MAESTRO_EXIT=${PIPESTATUS[0]}
             set -e
+
+            echo "--- Capturing post-run screenshot ---"
+            adb shell screencap -p /sdcard/post-maestro.png || true
+            adb pull /sdcard/post-maestro.png artifacts/post-maestro.png || true
+
+            echo "--- Writing Maestro summary for job output ---"
+            {
+              echo "## Maestro E2E Summary"
+              echo ""
+              echo "| Status | Flow | Duration |"
+              echo "|---|---|---|"
+              grep -E "^\[(Passed|Failed)\]" artifacts/maestro-output.txt \
+                | sed -E 's/^\[(Passed|Failed)\] ([^()]+) \(([^)]+)\).*/| \1 | \2 | \3 |/' \
+                || true
+
+              first_failed_line=$(grep -E "^\[Failed\]" artifacts/maestro-output.txt | head -n 1 || true)
+              if [ -n "$first_failed_line" ]; then
+                first_failed_flow=$(echo "$first_failed_line" | sed -E 's/^\[Failed\] ([^()]+).*/\1/' | xargs)
+                echo ""
+                echo "- First failed flow: \`$first_failed_flow\`"
+              else
+                echo ""
+                echo "- All flows passed."
+              fi
+            } >> "$GITHUB_STEP_SUMMARY"
 
             kill "$LOGCAT_PID" || true
             exit $MAESTRO_EXIT
@@ -232,6 +257,8 @@ jobs:
             artifacts/maestro-debug/**
             artifacts/logcat.txt
             artifacts/pre-maestro.png
+            artifacts/post-maestro.png
+            artifacts/maestro-output.txt
           retention-days: 14
           if-no-files-found: ignore
           include-hidden-files: true

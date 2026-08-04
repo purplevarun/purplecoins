@@ -28,10 +28,10 @@ appId: ${APP_ID}
 - eraseText
 - inputText: "Vik"
 - hideKeyboard
-- runFlow:
-    file: _find_and_tap.yaml
-    env:
-      element: "Save username"
+- scrollUntilVisible:
+    element: "Save username"
+    direction: down
+- tapOn: "Save username"
 - assertVisible: "Username saved."
 - back
 
