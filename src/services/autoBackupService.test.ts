@@ -43,6 +43,7 @@ describe("autoBackupService", () => {
 		createFileAsync: ReturnType<typeof vi.fn>;
 		writeAsStringAsync: ReturnType<typeof vi.fn>;
 		readAsStringAsync: ReturnType<typeof vi.fn>;
+		readDirectoryAsync: ReturnType<typeof vi.fn>;
 		updateAutoBackupLastBackupAt: ReturnType<typeof vi.fn>;
 	} => {
 		const {
@@ -65,6 +66,7 @@ describe("autoBackupService", () => {
 		const readAsStringAsyncMock = vi
 			.fn()
 			.mockResolvedValue(readAsStringAsyncResult);
+		const readDirectoryAsyncMock = vi.fn().mockResolvedValue([]);
 		const deleteMock = vi.fn();
 
 		vi.doMock("react-native", () => ({
@@ -84,6 +86,7 @@ describe("autoBackupService", () => {
 		}));
 		vi.doMock("expo-file-system/legacy", () => ({
 			StorageAccessFramework: {
+				readDirectoryAsync: readDirectoryAsyncMock,
 				createFileAsync: createFileAsyncMock,
 				writeAsStringAsync: writeAsStringAsyncMock,
 				requestDirectoryPermissionsAsync: vi.fn(),
@@ -105,6 +108,7 @@ describe("autoBackupService", () => {
 			createFileAsync: createFileAsyncMock,
 			writeAsStringAsync: writeAsStringAsyncMock,
 			readAsStringAsync: readAsStringAsyncMock,
+			readDirectoryAsync: readDirectoryAsyncMock,
 			updateAutoBackupLastBackupAt: updateLastBackupAtMock,
 		};
 	};
@@ -175,6 +179,7 @@ describe("autoBackupService", () => {
 		}));
 		vi.doMock("expo-file-system/legacy", () => ({
 			StorageAccessFramework: {
+				readDirectoryAsync: vi.fn().mockResolvedValue([]),
 				createFileAsync: vi.fn(),
 				writeAsStringAsync: vi.fn(),
 			},
@@ -318,6 +323,7 @@ describe("autoBackupService", () => {
 			}));
 			vi.doMock("expo-file-system/legacy", () => ({
 				StorageAccessFramework: {
+					readDirectoryAsync: vi.fn().mockResolvedValue([]),
 					createFileAsync: vi
 						.fn()
 						.mockResolvedValue("content://dir/file"),

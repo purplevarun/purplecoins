@@ -60,11 +60,11 @@ describe("date utilities", () => {
 			vi.useRealTimers();
 		});
 
-		it("spans from the same date last year to today (start/end of day)", () => {
+		it("spans from Jan 1 of anchor year to either today or year-end", () => {
 			const range = getYtdDateRange(new Date(2026, 6, 24));
 
 			expect(range.start).toBe(
-				new Date(2025, 6, 24, 0, 0, 0, 0).getTime(),
+				new Date(2026, 0, 1, 0, 0, 0, 0).getTime(),
 			);
 			expect(range.end).toBe(
 				new Date(2026, 6, 24, 23, 59, 59, 999).getTime(),
@@ -147,7 +147,7 @@ describe("date utilities", () => {
 			);
 		});
 
-		it("returns an unchanged clone for ALL/CUSTOM/YTD", () => {
+		it("returns an unchanged clone for ALL/CUSTOM", () => {
 			const anchor = new Date(2026, 5, 15);
 			expect(shiftAnalysisAnchor("ALL", anchor, 1).getTime()).toBe(
 				anchor.getTime(),
@@ -155,8 +155,15 @@ describe("date utilities", () => {
 			expect(shiftAnalysisAnchor("CUSTOM", anchor, -1).getTime()).toBe(
 				anchor.getTime(),
 			);
-			expect(shiftAnalysisAnchor("YTD", anchor, 1).getTime()).toBe(
-				anchor.getTime(),
+		});
+
+		it("shifts YTD by one year", () => {
+			const anchor = new Date(2026, 5, 15);
+			expect(shiftAnalysisAnchor("YTD", anchor, 1).getFullYear()).toBe(
+				2027,
+			);
+			expect(shiftAnalysisAnchor("YTD", anchor, -1).getFullYear()).toBe(
+				2025,
 			);
 		});
 
@@ -334,7 +341,7 @@ describe("date utilities", () => {
 			expect(range?.end).toBe(new Date(2026, 3, 1).getTime() - 1);
 		});
 
-		it("returns the previous YTD window shifted back 1 year", () => {
+		it("returns the previous YTD year range", () => {
 			vi.useFakeTimers();
 			vi.setSystemTime(new Date(2026, 6, 15));
 
@@ -342,14 +349,12 @@ describe("date utilities", () => {
 
 			vi.useRealTimers();
 
-			// Current YTD: Jul 15 2025 → Jul 15 2026
-			// Previous YTD: Jul 15 2024 → Jul 15 2025
+			// Current YTD 2026 is Jan 1 2026 -> Jul 15 2026.
+			// Previous YTD 2025 resolves to full year end because 2025 is not current year.
 			expect(range?.start).toBe(
-				new Date(2024, 6, 15, 0, 0, 0, 0).getTime(),
+				new Date(2025, 0, 1, 0, 0, 0, 0).getTime(),
 			);
-			expect(range?.end).toBe(
-				new Date(2025, 6, 15, 23, 59, 59, 999).getTime(),
-			);
+			expect(range?.end).toBe(new Date(2026, 0, 1).getTime() - 1);
 		});
 	});
 });
