@@ -16,7 +16,6 @@ import AppButton from "@/components/AppButton";
 import GlassCard from "@/components/GlassCard";
 import Notice from "@/components/Notice";
 import ScreenContainer from "@/components/ScreenContainer";
-import SegmentedControl from "@/components/SegmentedControl";
 import SelectField from "@/components/SelectField";
 import TextField from "@/components/TextField";
 import COLORS from "@/constants/colors";
@@ -29,7 +28,6 @@ import settingsService from "@/services/settingsService";
 import todoReminderService from "@/services/todoReminderService";
 import tripService from "@/services/tripService";
 import upiDetectionService from "@/services/upiDetectionService";
-import type HomeMode from "@/types/HomeMode";
 import type RootStackParamList from "@/types/RootStackParamList";
 import type SelectOption from "@/types/SelectOption";
 import type Trip from "@/types/Trip";
@@ -43,7 +41,6 @@ const { syncBudgetAlerts } = budgetAlertService;
 const {
 	getAutoBackupSettings,
 	getBudgetAlertsEnabled,
-	getDefaultHomeMode,
 	getDefaultTripId,
 	getFyStartMonth,
 	getNativeCurrencyDisplay,
@@ -53,7 +50,6 @@ const {
 	updateAutoBackupEnabled,
 	updateAutoBackupIntervalDays,
 	updateBudgetAlertsEnabled,
-	updateDefaultHomeMode,
 	updateDefaultTripId,
 	updateFyStartMonth,
 	updateNativeCurrencyDisplay,
@@ -75,12 +71,6 @@ type SettingsScreenProps = NativeStackScreenProps<
 	RootStackParamList,
 	"Settings"
 >;
-
-const HOME_MODE_OPTIONS: readonly SelectOption[] = [
-	{ label: "Tools", value: "TOOLS" },
-	{ label: "Finance", value: "FINANCE" },
-	{ label: "Vault", value: "VAULT" },
-];
 
 const MONTH_OPTIONS: readonly SelectOption[] = [
 	{ label: "Jan", value: "1" },
@@ -143,7 +133,6 @@ const SettingsScreen = ({
 	const [message, setMessage] = useState("");
 	const [fyStartMonth, setFyStartMonth] = useState(4);
 	const [defaultTripId, setDefaultTripId] = useState("");
-	const [defaultHomeMode, setDefaultHomeMode] = useState<HomeMode>("TOOLS");
 	const [username, setUsername] = useState("");
 	const [todoRemindersEnabled, setTodoRemindersEnabled] = useState(true);
 	const [todoReminderDaysBeforeDue, setTodoReminderDaysBeforeDue] =
@@ -171,7 +160,6 @@ const SettingsScreen = ({
 				native,
 				fy,
 				tripId,
-				homeMode,
 				name,
 				reminderSettings,
 				loadedTrips,
@@ -181,7 +169,6 @@ const SettingsScreen = ({
 				getNativeCurrencyDisplay(database),
 				getFyStartMonth(database),
 				getDefaultTripId(database),
-				getDefaultHomeMode(database),
 				getUsername(database),
 				getTodoReminderSettings(database),
 				getTrips(database),
@@ -191,7 +178,6 @@ const SettingsScreen = ({
 			setIsNativeCurrency(native);
 			setFyStartMonth(fy);
 			setDefaultTripId(tripId ?? "");
-			setDefaultHomeMode(homeMode);
 			setUsername(name);
 			setTodoRemindersEnabled(reminderSettings.enabled);
 			setTodoReminderDaysBeforeDue(reminderSettings.daysBeforeDue);
@@ -337,15 +323,6 @@ const SettingsScreen = ({
 	const handleDefaultTripChange = async (value: string): Promise<void> => {
 		setDefaultTripId(value);
 		await updateDefaultTripId(database, value || null);
-		refreshData();
-	};
-
-	const handleDefaultHomeModeChange = async (
-		value: string,
-	): Promise<void> => {
-		const mode = value as HomeMode;
-		setDefaultHomeMode(mode);
-		await updateDefaultHomeMode(database, mode);
 		refreshData();
 	};
 
@@ -497,22 +474,6 @@ const SettingsScreen = ({
 						Local-first finance, tools and vault. No account and no
 						cloud dependency.
 					</CustomText>
-				</View>
-			</GlassCard>
-			<GlassCard>
-				<View style={styles.section}>
-					<CustomText style={styles.heading}>Home screen</CustomText>
-					<CustomText style={styles.description}>
-						Choose which homepage the app opens to by default. You
-						can still switch homepages anytime from the home screen.
-					</CustomText>
-					<SegmentedControl
-						onChange={(value) =>
-							void handleDefaultHomeModeChange(value)
-						}
-						options={HOME_MODE_OPTIONS}
-						value={defaultHomeMode}
-					/>
 				</View>
 			</GlassCard>
 			<GlassCard>
