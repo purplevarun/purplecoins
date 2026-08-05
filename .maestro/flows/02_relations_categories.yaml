@@ -6,77 +6,91 @@ appId: ${APP_ID}
 - launchApp:
     clearState: true
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Finance"
+      tap: true
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Categories"
+      tap: true
 
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Add"
+      tap: true
 - assertVisible: "New category"
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Category name"
+      tap: true
 - inputText: "Groceries"
 - hideKeyboard
 - assertVisible: "Expense"
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Save"
+      tap: true
 - assertVisible: "Groceries"
 - assertVisible: "Expense category"
 
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Add"
+      tap: true
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Category name"
+      tap: true
 - inputText: "Salary"
 - hideKeyboard
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Income"
+      tap: true
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Save"
+      tap: true
 - assertVisible: "Salary"
 - assertVisible: "Income category"
 
 # Editing an existing category's type prompts a confirmation because it
 # reclassifies historical analysis.
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Groceries"
+      tap: true
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Edit"
+      tap: true
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Income"
+      tap: true
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Save"
+      tap: true
 - assertVisible: "Change analysis classification?"
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Change"
+      tap: true
 - back
 - assertVisible: "Income category"
 
@@ -85,7 +99,8 @@ appId: ${APP_ID}
     text: "Archive"
     below: "Salary"
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Archive"
+      tap: true
 - assertNotVisible: "Salary"

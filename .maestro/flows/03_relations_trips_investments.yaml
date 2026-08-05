@@ -6,45 +6,53 @@ appId: ${APP_ID}
 - launchApp:
     clearState: true
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Finance"
+      tap: true
 
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Trips"
+      tap: true
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Add"
+      tap: true
 - assertVisible: "New trip"
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Trip name"
+      tap: true
 - inputText: "Goa Getaway"
 - hideKeyboard
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Save"
+      tap: true
 - assertVisible: "Goa Getaway"
 
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Add"
+      tap: true
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Trip name"
+      tap: true
 - inputText: "Goa Getaway"
 - hideKeyboard
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Save"
+      tap: true
 - assertVisible:
     text: ".*already exists.*"
     optional: true
@@ -52,22 +60,26 @@ appId: ${APP_ID}
 - back
 
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Investments"
+      tap: true
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Add"
+      tap: true
 - assertVisible: "New investment"
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Investment name"
+      tap: true
 - inputText: "Index Fund"
 - hideKeyboard
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Save"
+      tap: true
 - assertVisible: "Index Fund"

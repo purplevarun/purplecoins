@@ -5,73 +5,86 @@ appId: ${APP_ID}
 - launchApp:
     clearState: true
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Vault"
+      tap: true
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Identity"
+      tap: true
 
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Add"
+      tap: true
 - assertVisible: "New identity"
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Entry title"
+      tap: true
 - inputText: "Passport"
 - hideKeyboard
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Document number"
+      tap: true
 - inputText: "P1234567"
 - hideKeyboard
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Optional notes"
+      tap: true
 - inputText: "Expires 2030"
 - hideKeyboard
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Save entry"
+      tap: true
 - assertVisible: "Passport"
 - assertVisible: "P1234567"
 
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Passport"
+      tap: true
 - assertVisible: "Edit identity"
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Passport"
+      tap: true
 - eraseText
 - inputText: "Passport (renewed)"
 - hideKeyboard
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Save entry"
+      tap: true
 - assertVisible: "Passport (renewed)"
 
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Passport (renewed)"
+      tap: true
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Delete entry"
+      tap: true
 - assertVisible: "Delete vault entry?"
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Delete"
+      tap: true
 - assertNotVisible: "Passport (renewed)"

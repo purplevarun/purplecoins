@@ -15,9 +15,10 @@ appId: ${APP_ID}
 
 # Enter Finance from Greeting.
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Finance"
+      tap: true
 - assertVisible: "Purplecoins"
 - assertVisible: "Transactions"
 - assertVisible: "Sources"
@@ -30,42 +31,48 @@ appId: ${APP_ID}
 
 # Go back to Greeting via the new home icon and enter Vault.
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Go to greeting"
+      tap: true
 - assertVisible: "Hello Guest"
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Vault"
+      tap: true
 - assertVisible: "Passwords"
 - assertVisible: "Cards"
 - assertVisible: "Identity"
 
 # Back to Greeting via home icon, then enter Tools.
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Go to greeting"
+      tap: true
 - assertVisible: "Hello Guest"
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Tools"
+      tap: true
 - assertVisible: "Notes"
 
 # Settings screen is reachable from every mode.
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Settings"
+      tap: true
 - assertVisible: "Currency display"
 - back
 
 # Global search is reachable from every mode.
 - runFlow:
-    file: _find_and_tap.yaml
+    file: _scroll_find.yaml
     env:
       element: "Search Tools"
+      tap: true
 - assertVisible: "Type at least two characters."
 - back

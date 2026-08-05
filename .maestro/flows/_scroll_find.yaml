@@ -1,0 +1,32 @@
+appId: ${APP_ID}
+tags:
+  - utility
+---
+# Reusable mini flow: Search for text (scroll down then up) and assert visible.
+# Parameters:
+#   - element: the text/regex pattern to find and assert
+#   - tap (optional): set to true to tap the element after it is found
+# Usage:
+#   - runFlow:
+#       file: _scroll_find.yaml
+#       env:
+#         element: ".*FY ends in.*"
+#         tap: true
+
+- scrollUntilVisible:
+    element:
+      text: ${element}
+    direction: down
+    optional: true
+- scrollUntilVisible:
+    element:
+      text: ${element}
+    direction: up
+- assertVisible:
+    text: ${element}
+- runFlow:
+    when:
+      true: ${tap == true || tap == "true"}
+    commands:
+      - tapOn:
+          text: ${element}
