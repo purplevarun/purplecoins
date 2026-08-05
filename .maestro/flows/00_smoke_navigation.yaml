@@ -59,7 +59,7 @@ appId: ${APP_ID}
     file: _find_and_tap.yaml
     env:
       element: "Settings"
-- assertVisible: "Home screen"
+- assertVisible: "Currency display"
 - back
 
 # Global search is reachable from every mode.

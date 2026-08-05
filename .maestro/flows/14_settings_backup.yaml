@@ -16,7 +16,7 @@ appId: ${APP_ID}
     file: _find_and_tap.yaml
     env:
       element: "Settings"
-- assertVisible: "Home screen"
+- assertVisible: "Currency display"
 
 # Default home mode.
 - runFlow:

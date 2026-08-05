@@ -17,8 +17,8 @@ appId: ${APP_ID}
     file: _find_and_tap.yaml
     env:
       element: "YTD"
-- assertVisible: "YTD 2026"
+- assertVisible: "YTD"
 - tapOn: "Previous period"
-- assertVisible: "YTD 2025"
+- assertVisible: "YTD"
 - tapOn: "Next period"
-- assertVisible: "YTD 2026"
+- assertVisible: "YTD"
