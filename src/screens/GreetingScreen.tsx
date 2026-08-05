@@ -103,27 +103,27 @@ const GreetingScreen = ({
 		>
 			<SafeAreaView style={styles.safeArea}>
 				<ScreenContainer>
-					<View style={styles.topBar}>
-						<Pressable
-							accessibilityLabel="Greeting settings"
-							onPress={() => navigation.navigate("Settings")}
-							testID="greeting-settings-button"
-							style={({ pressed }) => [
-								styles.settingsButton,
-								pressed && styles.pressed,
-							]}
-						>
-							<Ionicons
-								color={COLORS.text}
-								name="settings-outline"
-								size={22}
-							/>
-						</Pressable>
-					</View>
 					<View style={styles.header}>
-						<CustomText style={styles.greeting}>
-							Hello {greetingName}
-						</CustomText>
+						<View style={styles.headerTopRow}>
+							<CustomText style={styles.greeting}>
+								Hello {greetingName}
+							</CustomText>
+							<Pressable
+								accessibilityLabel="Greeting settings"
+								onPress={() => navigation.navigate("Settings")}
+								testID="greeting-settings-button"
+								style={({ pressed }) => [
+									styles.settingsButton,
+									pressed && styles.pressed,
+								]}
+							>
+								<Ionicons
+									color={COLORS.text}
+									name="settings-outline"
+									size={22}
+								/>
+							</Pressable>
+						</View>
 						<CustomText style={styles.dateText}>
 							{dateText}
 						</CustomText>
@@ -185,10 +185,6 @@ const styles = StyleSheet.create({
 	safeArea: {
 		flex: 1,
 	},
-	topBar: {
-		alignItems: "flex-end",
-		marginBottom: 6,
-	},
 	settingsButton: {
 		width: 42,
 		height: 42,
@@ -203,10 +199,16 @@ const styles = StyleSheet.create({
 		gap: 8,
 		marginBottom: 10,
 	},
+	headerTopRow: {
+		alignItems: "center",
+		flexDirection: "row",
+		justifyContent: "space-between",
+	},
 	greeting: {
 		color: COLORS.text,
 		fontSize: 38,
 		fontWeight: "900",
+		flexShrink: 1,
 	},
 	dateText: {
 		color: COLORS.textMuted,
