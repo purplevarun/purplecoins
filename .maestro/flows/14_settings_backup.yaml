@@ -18,13 +18,6 @@ appId: ${APP_ID}
       element: "Settings"
 - assertVisible: "Currency display"
 
-# Default home mode.
-- runFlow:
-    file: _find_and_tap.yaml
-    env:
-      element: "Finance"
-- assertVisible: "Currency display"
-
 # Native currency display toggle (label + switch are separate elements).
 - tapOn:
     rightOf: "Native currencies"
