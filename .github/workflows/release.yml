@@ -181,7 +181,8 @@ jobs:
             adb shell input keyevent 82
             adb install -r "${{ needs.build-android.outputs.apk_name }}"
             APP_ID="${{ env.APP_ID }}"
-            maestro test -e APP_ID="$APP_ID" .maestro
+            APP_VERSION="${{ needs.build-android.outputs.version }}"
+            maestro test -e APP_ID="$APP_ID" -e APP_VERSION="$APP_VERSION" .maestro
 
   release:
     name: Create GitHub Release

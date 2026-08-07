@@ -71,7 +71,7 @@ case "$COMMAND" in
     echo ""
     echo "Running e2e tests..."
     _E2E_EXIT=0
-    bun run test:e2e >> "$LOG" 2>&1 || _E2E_EXIT=$?
+    maestro test -e APP_ID="$APP_ID" -e APP_VERSION="$VERSION" .maestro >> "$LOG" 2>&1 || _E2E_EXIT=$?
     grep -E "^(Flow|Error|FAILED|PASSED|Running)" "$LOG" || true
     if [ "$_E2E_EXIT" -eq 0 ]; then
       echo "E2E tests passed."
@@ -105,7 +105,7 @@ case "$COMMAND" in
     LOG="logs/run_flow_${PREFIX}.txt"
     echo "Running flow: $FLOW_FILE"
     _FLOW_EXIT=0
-    maestro test --format junit -e APP_ID="$APP_ID" "$FLOW_FILE" > "$LOG" 2>&1 || _FLOW_EXIT=$?
+    maestro test --format junit -e APP_ID="$APP_ID" -e APP_VERSION="$VERSION" "$FLOW_FILE" > "$LOG" 2>&1 || _FLOW_EXIT=$?
     grep -E "^(Flow|Error|FAILED|PASSED|Running)" "$LOG" || true
     if [ "$_FLOW_EXIT" -eq 0 ]; then
       echo "Flow passed."
