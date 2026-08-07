@@ -3,11 +3,11 @@ name: Release
 on:
   push:
     paths:
+      - .version
+      - .package
       - app.json
+      - package.json
   workflow_dispatch:
-
-env:
-  APP_ID: com.purple.coins.experimental
 
 jobs:
   sanity-checks:
@@ -47,6 +47,7 @@ jobs:
     needs: sanity-checks
     runs-on: ubuntu-latest
     outputs:
+      app_id: ${{ steps.release-meta.outputs.app_id }}
       version: ${{ steps.release-meta.outputs.version }}
       tag: ${{ steps.release-meta.outputs.tag }}
       name: ${{ steps.release-meta.outputs.name }}
@@ -105,11 +106,13 @@ jobs:
       - name: Resolve release metadata
         id: release-meta
         run: |
-          app_version=$(bun -e "const fs=require('fs');const j=JSON.parse(fs.readFileSync('app.json','utf8'));console.log(j.expo?.version ?? '')")
+          app_version=$(cat .version)
+          app_id=$(cat .package)
           branch_name="${GITHUB_REF_NAME}"
           safe_branch=$(echo "$branch_name" | tr '/' '-')
           tag="v${app_version}-${safe_branch}"
-          apk_name="${APP_ID}_${app_version}.apk"
+          apk_name="${app_id}_${app_version}.apk"
+          echo "app_id=$app_id" >> "$GITHUB_OUTPUT"
           echo "version=$app_version" >> "$GITHUB_OUTPUT"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "name=v${app_version} (${branch_name})" >> "$GITHUB_OUTPUT"
@@ -179,7 +182,7 @@ jobs:
             adb wait-for-device
             adb shell input keyevent 82
             adb install -r "${{ needs.build-android.outputs.apk_name }}"
-            APP_ID="${{ env.APP_ID }}"
+            APP_ID="${{ needs.build-android.outputs.app_id }}"
             APP_VERSION="${{ needs.build-android.outputs.version }}"
             maestro test -e APP_ID="$APP_ID" -e APP_VERSION="$APP_VERSION" .maestro
 

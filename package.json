@@ -1,6 +1,6 @@
 {
 	"name": "purplecoins",
-	"version": "5.6.20",
+	"version": "5.6.21",
 	"main": "index.ts",
 	"dependencies": {
 		"@expo/vector-icons": "^15.0.2",
@@ -62,8 +62,8 @@
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"test:coverage": "vitest run --coverage",
-		"test:e2e": "maestro test -e APP_ID=$(bun -e \"const j=require('./app.json');console.log(j.expo.android.package)\") .maestro",
-		"test:e2e:flow": "maestro test -e APP_ID=$(bun -e \"const j=require('./app.json');console.log(j.expo.android.package)\")",
+		"test:e2e": "maestro test -e APP_ID=$(cat .package) .maestro",
+		"test:e2e:flow": "maestro test -e APP_ID=$(cat .package)",
 		"check": "bun run format:check && bun run lint && bun run typecheck && bun run test && bun run expo-check",
 		"expo-check": "npx expo install --check"
 	},

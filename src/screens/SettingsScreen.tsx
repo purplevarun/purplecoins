@@ -1,6 +1,5 @@
 import appConstants from "@/constants/appConstants";
 
-import packageJson from "@/../package.json";
 import CustomText from "@/components/CustomText";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useEffect, useState } from "react";
@@ -18,6 +17,7 @@ import Notice from "@/components/Notice";
 import ScreenContainer from "@/components/ScreenContainer";
 import SelectField from "@/components/SelectField";
 import COLORS from "@/constants/colors";
+import VERSION from "@/constants/version";
 import useAppDialog from "@/hooks/useAppDialog";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import autoBackupService from "@/services/autoBackupService";
@@ -33,7 +33,6 @@ import type Trip from "@/types/Trip";
 import getErrorMessage from "@/utils/error";
 import { StorageAccessFramework } from "expo-file-system/legacy";
 const { APP_NAME } = appConstants;
-const { version } = packageJson;
 const { exportBackup, restoreBackup } = backupService;
 const { runAutoBackupNow } = autoBackupService;
 const { syncBudgetAlerts } = budgetAlertService;
@@ -457,7 +456,7 @@ const SettingsScreen = ({
 				<View style={styles.brand}>
 					<CustomText style={styles.appName}>{APP_NAME}</CustomText>
 					<CustomText style={styles.version}>
-						Version {version}
+						Version {VERSION}
 					</CustomText>
 					<CustomText style={styles.description}>
 						Local-first finance, tools and vault. No account and no

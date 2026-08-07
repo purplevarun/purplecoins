@@ -2,7 +2,7 @@
 	"expo": {
 		"name": "Purplecoins",
 		"slug": "purplecoins_2026_experimental",
-		"version": "5.6.20",
+		"version": "5.6.21",
 		"orientation": "portrait",
 		"icon": "./assets/icon.png",
 		"userInterfaceStyle": "dark",
@@ -16,7 +16,7 @@
 			},
 			"predictiveBackGestureEnabled": false,
 			"package": "com.purple.coins.experimental",
-			"versionCode": 50620
+			"versionCode": 50621
 		},
 		"web": {
 			"favicon": "./assets/icon.png"

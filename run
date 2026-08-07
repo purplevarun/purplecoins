@@ -27,6 +27,12 @@ write_json_file() {
   node -e 'const fs=require("fs"); const file=process.argv[1]; const shift=process.argv[2]; const json=JSON.parse(fs.readFileSync(file, "utf8")); const parts=shift.split("\n"); for (const part of parts) { const [pathExpr, rawValue] = part.split("="); const keys=pathExpr.split("."); let target=json; for (let i=0; i<keys.length-1; i++) target=target[keys[i]]; const key=keys[keys.length-1]; target[key] = /^\d+$/.test(rawValue) ? Number(rawValue) : rawValue; } fs.writeFileSync(file, JSON.stringify(json, null, "\t") + "\n");' "$FILE" "$SHIFT"
 }
 
+write_text_file() {
+  FILE="$1"
+  VALUE="$2"
+  printf '%s\n' "$VALUE" > "$FILE"
+}
+
 replace_text_in_file() {
   FILE="$1"
   PATTERN="$2"
@@ -47,7 +53,8 @@ validate_state() {
     PACKAGE_VERSION=$(read_json_value package.json version)
     APP_VERSION_CODE=$(read_json_value app.json expo.android.versionCode)
     EXPECTED_VERSION_CODE=$(version_code_from_version "$CANONICAL_VERSION")
-    RELEASE_APP_ID=$(grep -E '^[[:space:]]*APP_ID:' .github/workflows/release.yml | head -1 | sed 's/.*APP_ID:[[:space:]]*//')
+    RELEASE_APP_ID_SOURCE=$(grep -E 'app_id=\$\(cat \.package\)' .github/workflows/release.yml | head -1 || true)
+  GENERATED_VERSION=$(grep -E '^const VERSION = ' src/constants/version.ts | head -1 | sed 's/^const VERSION = "\(.*\)";$/\1/')
 
     if [ "$CANONICAL_VERSION" != "$APP_VERSION" ]; then
       echo "Version mismatch: .version=$CANONICAL_VERSION but app.json expo.version=$APP_VERSION"
@@ -64,13 +71,18 @@ validate_state() {
       exit 1
     fi
 
-    if [ "$RELEASE_APP_ID" != "$CANONICAL_PACKAGE" ]; then
-      echo "Package mismatch: .package=$CANONICAL_PACKAGE but .github/workflows/release.yml APP_ID=$RELEASE_APP_ID"
+    if [ -z "$RELEASE_APP_ID_SOURCE" ]; then
+      echo "Package mismatch: .github/workflows/release.yml does not read .package for release metadata"
       exit 1
     fi
 
     if [ "$APP_VERSION_CODE" != "$EXPECTED_VERSION_CODE" ]; then
       echo "VersionCode mismatch: app.json expo.android.versionCode=$APP_VERSION_CODE but expected $EXPECTED_VERSION_CODE from .version=$CANONICAL_VERSION"
+      exit 1
+    fi
+
+    if [ "$GENERATED_VERSION" != "$CANONICAL_VERSION" ]; then
+      echo "Version mismatch: .version=$CANONICAL_VERSION but src/constants/version.ts VERSION=$GENERATED_VERSION"
       exit 1
     fi
 
@@ -97,8 +109,9 @@ run_apply() {
 expo.android.package=$CANONICAL_PACKAGE
 expo.android.versionCode=$VERSION_CODE"
     write_json_file package.json "version=$CANONICAL_VERSION"
+  write_text_file src/constants/version.ts "const VERSION = \"$CANONICAL_VERSION\";
 
-    replace_text_in_file .github/workflows/release.yml '^  APP_ID: .*' "  APP_ID: $CANONICAL_PACKAGE"
+export default VERSION;"
 
     for FILE in plugins/native-files/java/com/purple/coins/*.kt; do
       replace_text_in_file "$FILE" '^package .*' "package $CANONICAL_PACKAGE"
