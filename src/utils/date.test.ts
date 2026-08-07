@@ -60,12 +60,14 @@ describe("date utilities", () => {
 			vi.useRealTimers();
 		});
 
-		it("spans from Jan 1 of anchor year to either today or year-end", () => {
+		it("spans rolling 12 months: same month/day last year to same month/day this year", () => {
 			const range = getYtdDateRange(new Date(2026, 6, 24));
 
+			// start = Jul 24, 2025 (one year before anchor)
 			expect(range.start).toBe(
-				new Date(2026, 0, 1, 0, 0, 0, 0).getTime(),
+				new Date(2025, 6, 24, 0, 0, 0, 0).getTime(),
 			);
+			// end = Jul 24, 2026 end-of-day (capped at today since anchor is current year)
 			expect(range.end).toBe(
 				new Date(2026, 6, 24, 23, 59, 59, 999).getTime(),
 			);
@@ -349,12 +351,14 @@ describe("date utilities", () => {
 
 			vi.useRealTimers();
 
-			// Current YTD 2026 is Jan 1 2026 -> Jul 15 2026.
-			// Previous YTD 2025 resolves to full year end because 2025 is not current year.
+			// Current YTD 2026: Jul 15, 2025 -> Jul 15, 2026.
+			// Previous YTD 2025: Jul 15, 2024 -> Jul 15, 2025 (end-of-day, not current year).
 			expect(range?.start).toBe(
-				new Date(2025, 0, 1, 0, 0, 0, 0).getTime(),
+				new Date(2024, 6, 15, 0, 0, 0, 0).getTime(),
 			);
-			expect(range?.end).toBe(new Date(2026, 0, 1).getTime() - 1);
+			expect(range?.end).toBe(
+				new Date(2025, 6, 15, 23, 59, 59, 999).getTime(),
+			);
 		});
 	});
 });

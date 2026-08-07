@@ -1,0 +1,41 @@
+#!/bin/sh
+set -e
+
+COMMAND="${1:-}"
+
+# Read version and app id without requiring node
+VERSION=$(grep '"version"' package.json | head -1 | sed 's/.*"version": "\(.*\)".*/\1/')
+APP_ID="com.purple.coins.experimental"
+
+case "$COMMAND" in
+  build:local)
+    echo "Building release APK..."
+    cd android && ./gradlew assembleRelease
+    cd ..
+
+    SRC="android/app/build/outputs/apk/release/app-release.apk"
+    DEST="android/app/build/outputs/apk/release/${APP_ID}_${VERSION}_local.apk"
+
+    mv "$SRC" "$DEST"
+
+    echo ""
+    echo "APK ready: $DEST"
+    ;;
+
+  test)
+    echo "Running unit tests..."
+    bun run test
+
+    echo ""
+    echo "Running e2e tests..."
+    bun run test:e2e
+    ;;
+
+  *)
+    echo "Usage: ./run <command>"
+    echo ""
+    echo "Commands:"
+    echo "  build:local   Build a release APK and rename it to <appid>_<version>_local.apk"
+    echo "  test          Run unit tests then e2e tests"
+    ;;
+esac

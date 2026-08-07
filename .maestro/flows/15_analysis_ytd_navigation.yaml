@@ -7,11 +7,6 @@ appId: ${APP_ID}
 - runFlow:
     file: _scroll_find.yaml
     env:
-      element: "Finance"
-      tap: true
-- runFlow:
-    file: _scroll_find.yaml
-    env:
       element: "Analysis"
       tap: true
 

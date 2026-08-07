@@ -91,7 +91,7 @@ const buildCategoryAnalysis = (
 		const current = totals.get(key) ?? {
 			categoryId: category.id,
 			categoryName: category.name,
-			type: category.type,
+			type: category.type ?? "EXPENSE",
 			currencyCode,
 			credits: ZERO_AMOUNT,
 			debits: ZERO_AMOUNT,

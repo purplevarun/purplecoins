@@ -17,7 +17,6 @@ import GlassCard from "@/components/GlassCard";
 import Notice from "@/components/Notice";
 import ScreenContainer from "@/components/ScreenContainer";
 import SelectField from "@/components/SelectField";
-import TextField from "@/components/TextField";
 import COLORS from "@/constants/colors";
 import useAppDialog from "@/hooks/useAppDialog";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
@@ -45,7 +44,6 @@ const {
 	getFyStartMonth,
 	getNativeCurrencyDisplay,
 	getTodoReminderSettings,
-	getUsername,
 	updateAutoBackupDirectoryUri,
 	updateAutoBackupEnabled,
 	updateAutoBackupIntervalDays,
@@ -56,7 +54,6 @@ const {
 	updateTodoReminderDaysBeforeDue,
 	updateTodoReminderRepeatHours,
 	updateTodoRemindersEnabled,
-	updateUsername,
 } = settingsService;
 const { syncTodoReminders } = todoReminderService;
 const {
@@ -133,7 +130,6 @@ const SettingsScreen = ({
 	const [message, setMessage] = useState("");
 	const [fyStartMonth, setFyStartMonth] = useState(4);
 	const [defaultTripId, setDefaultTripId] = useState("");
-	const [username, setUsername] = useState("");
 	const [todoRemindersEnabled, setTodoRemindersEnabled] = useState(true);
 	const [todoReminderDaysBeforeDue, setTodoReminderDaysBeforeDue] =
 		useState(2);
@@ -169,7 +165,6 @@ const SettingsScreen = ({
 				getNativeCurrencyDisplay(database),
 				getFyStartMonth(database),
 				getDefaultTripId(database),
-				getUsername(database),
 				getTodoReminderSettings(database),
 				getTrips(database),
 				getBudgetAlertsEnabled(database),
@@ -178,7 +173,7 @@ const SettingsScreen = ({
 			setIsNativeCurrency(native);
 			setFyStartMonth(fy);
 			setDefaultTripId(tripId ?? "");
-			setUsername(name);
+
 			setTodoRemindersEnabled(reminderSettings.enabled);
 			setTodoReminderDaysBeforeDue(reminderSettings.daysBeforeDue);
 			setTodoReminderRepeatHours(reminderSettings.repeatHours);
@@ -324,11 +319,6 @@ const SettingsScreen = ({
 		setDefaultTripId(value);
 		await updateDefaultTripId(database, value || null);
 		refreshData();
-	};
-
-	const handleSaveUsername = async (): Promise<void> => {
-		await updateUsername(database, username);
-		setMessage("Username saved.");
 	};
 
 	const handleTodoRemindersEnabledChange = async (
@@ -478,23 +468,11 @@ const SettingsScreen = ({
 			</GlassCard>
 			<GlassCard>
 				<View style={styles.section}>
-					<CustomText style={styles.heading}>Greeting</CustomText>
-					<CustomText style={styles.description}>
-						Used by the greeting screen when the app opens.
-					</CustomText>
-					<TextField
-						autoCapitalize="words"
-						inputTestID="settings-username-input"
-						label="Username"
-						onChangeText={setUsername}
-						placeholder="Guest"
-						value={username}
-					/>
+					<CustomText style={styles.heading}>Diagnostics</CustomText>
 					<AppButton
-						icon="save-outline"
-						label="Save username"
-						onPress={() => void handleSaveUsername()}
-						testID="settings-save-username"
+						icon="document-text-outline"
+						label="View app logs"
+						onPress={() => navigation.navigate("AppLogs")}
 						variant="secondary"
 					/>
 				</View>

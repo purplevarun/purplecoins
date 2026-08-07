@@ -11,11 +11,6 @@ appId: ${APP_ID}
 - runFlow:
     file: _scroll_find.yaml
     env:
-      element: "Tools"
-      tap: true
-- runFlow:
-    file: _scroll_find.yaml
-    env:
       element: "Settings"
       tap: true
 - assertVisible: "Currency display"

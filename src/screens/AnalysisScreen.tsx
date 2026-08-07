@@ -11,8 +11,6 @@ import DateField from "@/components/DateField";
 import DonutChart from "@/components/DonutChart";
 import EmptyState from "@/components/EmptyState";
 import GlassCard from "@/components/GlassCard";
-import type { LineSeries } from "@/components/LineChart";
-import LineChart from "@/components/LineChart";
 import Notice from "@/components/Notice";
 import ScreenContainer from "@/components/ScreenContainer";
 import SectionHeading from "@/components/SectionHeading";
@@ -22,11 +20,9 @@ import COLORS from "@/constants/colors";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import financeRepository from "@/repositories/financeRepository";
 import analysisService from "@/services/analysisService";
-import budgetService from "@/services/budgetService";
 import settingsService from "@/services/settingsService";
 import type AnalysisPeriod from "@/types/AnalysisPeriod";
 import type AnalysisSummary from "@/types/AnalysisSummary";
-import type Budget from "@/types/Budget";
 import type ChartDatum from "@/types/ChartDatum";
 import type DateRange from "@/types/DateRange";
 import type RootStackParamList from "@/types/RootStackParamList";
@@ -40,7 +36,6 @@ import runAfterRender from "@/utils/runAfterRender";
 const { DEFAULT_CURRENCY_CODE } = appConstants;
 const { getTransactionMinMaxDate, getTransactionRowsInRange } =
 	financeRepository;
-const { getBudgets } = budgetService;
 const { getAnalysisSummary, getInvestmentNetAmount, getInvestmentNetLabel } =
 	analysisService;
 const { getFyStartMonth } = settingsService;
@@ -81,13 +76,6 @@ type SummaryMetricInput = Readonly<{
 	color: string;
 	pctText?: string;
 	pctColor?: string;
-}>;
-
-type BudgetUtilizationItem = Readonly<{
-	categoryName: string;
-	spent: string;
-	budget: string;
-	percent: number;
 }>;
 
 const PERIOD_OPTIONS: readonly SelectOption[] = [
@@ -215,7 +203,6 @@ const AnalysisScreen = ({
 	const [transactions, setTransactions] = useState<readonly Transaction[]>(
 		[],
 	);
-	const [budgets, setBudgets] = useState<readonly Budget[]>([]);
 	const [error, setError] = useState("");
 	const [fyStartMonth, setFyStartMonth] = useState(4);
 	const [minTxnDate, setMinTxnDate] = useState<number | undefined>(undefined);
@@ -246,7 +233,6 @@ const AnalysisScreen = ({
 				fy,
 				prevSummaryResult,
 				txnRows,
-				budgetRows,
 			] = await Promise.all([
 				getAnalysisSummary(database, {
 					dateRange,
@@ -256,22 +242,20 @@ const AnalysisScreen = ({
 				getFyStartMonth(database),
 				previousDateRange
 					? getAnalysisSummary(database, {
-							dateRange: previousDateRange,
-							isNativeCurrency: false,
-						})
+						dateRange: previousDateRange,
+						isNativeCurrency: false,
+					})
 					: Promise.resolve(null),
 				getTransactionRowsInRange(
 					database,
 					dateRange.start,
 					dateRange.end,
 				),
-				getBudgets(database),
 			]);
 			setSummary(summaryResult);
 			setFyStartMonth(fy);
 			setPreviousSummary(prevSummaryResult);
 			setTransactions(txnRows);
-			setBudgets(budgetRows);
 			if (minMax) {
 				setMinTxnDate(minMax.minDate);
 				setMaxTxnDate(minMax.maxDate);
@@ -347,17 +331,17 @@ const AnalysisScreen = ({
 	const chartData: readonly ChartDatum[] = hasMissingCurrencies
 		? []
 		: (summary?.categories
-				.filter(
-					(category) =>
-						category.type !== "REFUND" &&
-						compareMoney(category.net, ZERO_AMOUNT) !== 0,
-				)
-				.slice(0, CHART_COLORS.length)
-				.map((category, index) => ({
-					label: category.categoryName,
-					value: Number(absoluteMoney(category.net)),
-					color: CHART_COLORS[index] ?? COLORS.primary,
-				})) ?? []);
+			.filter(
+				(category) =>
+					(category.type ?? "EXPENSE") !== "REFUND" &&
+					compareMoney(category.net, ZERO_AMOUNT) !== 0,
+			)
+			.slice(0, CHART_COLORS.length)
+			.map((category, index) => ({
+				label: category.categoryName,
+				value: Number(absoluteMoney(category.net)),
+				color: CHART_COLORS[index] ?? COLORS.primary,
+			})) ?? []);
 
 	const prevInvestmentNet = sumMoney(
 		previousSummary?.investments.map((investment) => investment.net) ?? [],
@@ -382,12 +366,12 @@ const AnalysisScreen = ({
 			color: COLORS.success,
 			...(previousSummary !== null
 				? buildPctDisplay(
-						getPercentChange(
-							summary?.totalIncome ?? ZERO_AMOUNT,
-							previousSummary.totalIncome,
-						),
-						true,
-					)
+					getPercentChange(
+						summary?.totalIncome ?? ZERO_AMOUNT,
+						previousSummary.totalIncome,
+					),
+					true,
+				)
 				: {}),
 		},
 		{
@@ -400,12 +384,12 @@ const AnalysisScreen = ({
 			color: COLORS.danger,
 			...(previousSummary !== null
 				? buildPctDisplay(
-						getPercentChange(
-							summary?.totalExpense ?? ZERO_AMOUNT,
-							previousSummary.totalExpense,
-						),
-						false,
-					)
+					getPercentChange(
+						summary?.totalExpense ?? ZERO_AMOUNT,
+						previousSummary.totalExpense,
+					),
+					false,
+				)
 				: {}),
 		},
 		{
@@ -427,12 +411,12 @@ const AnalysisScreen = ({
 					: COLORS.success,
 			...(previousSummary !== null
 				? buildPctDisplay(
-						getPercentChange(
-							summary?.netProfit ?? ZERO_AMOUNT,
-							previousSummary.netProfit,
-						),
-						true,
-					)
+					getPercentChange(
+						summary?.netProfit ?? ZERO_AMOUNT,
+						previousSummary.netProfit,
+					),
+					true,
+				)
 				: {}),
 		},
 		{
@@ -448,67 +432,15 @@ const AnalysisScreen = ({
 					: COLORS.success,
 			...(previousSummary !== null
 				? buildPctDisplay(
-						getPercentChange(
-							netAfterInvestments,
-							prevNetAfterInvestments,
-						),
-						true,
-					)
+					getPercentChange(
+						netAfterInvestments,
+						prevNetAfterInvestments,
+					),
+					true,
+				)
 				: {}),
 		},
 	];
-
-	const monthlyTrendSeries: readonly LineSeries[] = useMemo(() => {
-		const year = anchorDate.getFullYear();
-		const income = Array.from({ length: 12 }, () => 0);
-		const expense = Array.from({ length: 12 }, () => 0);
-
-		transactions.forEach((transaction) => {
-			if (transaction.classification !== "GENERAL") {
-				return;
-			}
-			const txnDate = new Date(transaction.transactionAt);
-			if (txnDate.getFullYear() !== year) {
-				return;
-			}
-			const monthIndex = txnDate.getMonth();
-			const amount = Number(transaction.amount);
-			if (!Number.isFinite(amount)) {
-				return;
-			}
-			if (transaction.type === "CREDIT") {
-				income[monthIndex] = (income[monthIndex] ?? 0) + amount;
-			}
-			if (transaction.type === "DEBIT") {
-				expense[monthIndex] = (expense[monthIndex] ?? 0) + amount;
-			}
-		});
-
-		const labels = Array.from({ length: 12 }, (_, index) =>
-			new Date(year, index, 1)
-				.toLocaleString("en-IN", { month: "short" })
-				.slice(0, 3),
-		);
-
-		return [
-			{
-				key: "Income",
-				color: COLORS.success,
-				data: labels.map((label, index) => ({
-					label,
-					value: income[index] ?? 0,
-				})),
-			},
-			{
-				key: "Expense",
-				color: COLORS.danger,
-				data: labels.map((label, index) => ({
-					label,
-					value: expense[index] ?? 0,
-				})),
-			},
-		];
-	}, [anchorDate, transactions]);
 
 	const topSpendingData: readonly BarDatum[] = useMemo(
 		() =>
@@ -523,43 +455,6 @@ const AnalysisScreen = ({
 				})) ?? [],
 		[summary?.categories],
 	);
-
-	const budgetUtilization: readonly BudgetUtilizationItem[] =
-		!summary?.categories.length || !budgets.length
-			? []
-			: (() => {
-					const debitsByCategory = new Map<string, string>();
-					summary.categories.forEach((category) => {
-						const current =
-							debitsByCategory.get(category.categoryId) ??
-							ZERO_AMOUNT;
-						debitsByCategory.set(
-							category.categoryId,
-							addMoney(current, category.debits),
-						);
-					});
-
-					return budgets
-						.map((budget) => {
-							const spent =
-								debitsByCategory.get(budget.categoryId) ??
-								ZERO_AMOUNT;
-							const budgetValue = Number(budget.amount);
-							const spentValue = Number(spent);
-							const percent =
-								budgetValue <= 0
-									? 0
-									: (spentValue / budgetValue) * 100;
-							return {
-								categoryName: budget.categoryName,
-								spent,
-								budget: budget.amount,
-								percent,
-							};
-						})
-						.sort((a, b) => b.percent - a.percent)
-						.slice(0, 8);
-				})();
 
 	const weekdaySpendingData: readonly BarDatum[] = useMemo(() => {
 		const totals = Array.from({ length: 7 }, () => 0);
@@ -592,89 +487,13 @@ const AnalysisScreen = ({
 		}));
 	}, [transactions]);
 
-	const savingsRateSeries: readonly LineSeries[] = useMemo(() => {
-		const year = anchorDate.getFullYear();
-		const income = Array.from({ length: 12 }, () => 0);
-		const expense = Array.from({ length: 12 }, () => 0);
-
-		transactions.forEach((transaction) => {
-			if (transaction.classification !== "GENERAL") {
-				return;
-			}
-			const txnDate = new Date(transaction.transactionAt);
-			if (txnDate.getFullYear() !== year) {
-				return;
-			}
-			const monthIndex = txnDate.getMonth();
-			const amount = Number(transaction.amount);
-			if (!Number.isFinite(amount)) {
-				return;
-			}
-			if (transaction.type === "CREDIT") {
-				income[monthIndex] = (income[monthIndex] ?? 0) + amount;
-			}
-			if (transaction.type === "DEBIT") {
-				expense[monthIndex] = (expense[monthIndex] ?? 0) + amount;
-			}
-		});
-
-		const labels = Array.from({ length: 12 }, (_, index) =>
-			new Date(year, index, 1)
-				.toLocaleString("en-IN", { month: "short" })
-				.slice(0, 3),
-		);
-
-		return [
-			{
-				key: "Savings rate",
-				color: COLORS.success,
-				data: labels.map((label, index) => {
-					const inVal = income[index] ?? 0;
-					const outVal = expense[index] ?? 0;
-					const value =
-						inVal <= 0 ? 0 : ((inVal - outVal) / inVal) * 100;
-					return { label, value };
-				}),
-			},
-		];
-	}, [anchorDate, transactions]);
-
-	const sourceSpendingData: readonly BarDatum[] = useMemo(() => {
-		const totals = new Map<string, number>();
-		transactions.forEach((transaction) => {
-			if (
-				transaction.classification !== "GENERAL" ||
-				transaction.type !== "DEBIT"
-			) {
-				return;
-			}
-			const amount = Number(transaction.amount);
-			if (!Number.isFinite(amount)) {
-				return;
-			}
-			totals.set(
-				transaction.sourceName,
-				(totals.get(transaction.sourceName) ?? 0) + amount,
-			);
-		});
-
-		return Array.from(totals.entries())
-			.sort((a, b) => b[1] - a[1])
-			.slice(0, 8)
-			.map(([sourceName, total]) => ({
-				label: sourceName.slice(0, 10),
-				value: total,
-				color: COLORS.blue,
-			}));
-	}, [transactions]);
-
 	const renderMetric = (metric: SummaryMetricInput): React.JSX.Element => (
 		<View
 			key={metric.label}
 			style={[
 				styles.summaryTile,
 				metric.label === "Net after investments" &&
-					styles.summaryTileFull,
+				styles.summaryTileFull,
 			]}
 		>
 			<GlassCard accent={metric.accent}>
@@ -804,21 +623,9 @@ const AnalysisScreen = ({
 						{summaryMetrics.map(renderMetric)}
 					</View>
 					<SectionHeading
-						subtitle="Deeper period insights for trends, spending pressure and budget control."
+						subtitle="Category spending and weekday patterns for the selected period."
 						title="Dashboards"
 					/>
-					<GlassCard>
-						<LineChart
-							formatValue={(value) =>
-								formatMoney(
-									value.toFixed(2),
-									DEFAULT_CURRENCY_CODE,
-								)
-							}
-							series={monthlyTrendSeries}
-							title="Monthly income vs expense"
-						/>
-					</GlassCard>
 					<GlassCard>
 						<BarChart
 							data={topSpendingData}
@@ -832,78 +639,6 @@ const AnalysisScreen = ({
 						/>
 					</GlassCard>
 					<GlassCard>
-						<CustomText style={styles.dashboardTitle}>
-							Budget utilization
-						</CustomText>
-						{budgetUtilization.length ? (
-							<View style={styles.budgetList}>
-								{budgetUtilization.map((item) => {
-									const pct = Math.max(0, item.percent);
-									const barWidth =
-										`${Math.min(pct, 100).toFixed(1)}%` as `${number}%`;
-									const toneColor =
-										pct >= 100
-											? COLORS.danger
-											: pct >= 80
-												? COLORS.warning
-												: COLORS.success;
-									return (
-										<View
-											key={item.categoryName}
-											style={styles.budgetItem}
-										>
-											<View style={styles.budgetHeader}>
-												<CustomText
-													style={styles.budgetName}
-												>
-													{item.categoryName}
-												</CustomText>
-												<CustomText
-													style={[
-														styles.budgetPct,
-														{ color: toneColor },
-													]}
-												>
-													{pct.toFixed(1)}%
-												</CustomText>
-											</View>
-											<View style={styles.budgetTrack}>
-												<View
-													style={[
-														styles.budgetFill,
-														{
-															width: barWidth,
-															backgroundColor:
-																toneColor,
-														},
-													]}
-												/>
-											</View>
-											<CustomText
-												style={styles.budgetCaption}
-											>
-												Spent{" "}
-												{formatMoney(
-													item.spent,
-													DEFAULT_CURRENCY_CODE,
-												)}{" "}
-												of{" "}
-												{formatMoney(
-													item.budget,
-													DEFAULT_CURRENCY_CODE,
-												)}
-											</CustomText>
-										</View>
-									);
-								})}
-							</View>
-						) : (
-							<CustomText style={styles.emptyDashboardText}>
-								No active budgets for this range.
-							</CustomText>
-						)}
-					</GlassCard>
-					<GlassCard>
 						<BarChart
 							data={weekdaySpendingData}
 							formatValue={(value) =>
@@ -913,25 +648,6 @@ const AnalysisScreen = ({
 								)
 							}
 							title="Avg spending by weekday"
-						/>
-					</GlassCard>
-					<GlassCard>
-						<LineChart
-							formatValue={(value) => `${value.toFixed(1)}%`}
-							series={savingsRateSeries}
-							title="Savings rate trend"
-						/>
-					</GlassCard>
-					<GlassCard>
-						<BarChart
-							data={sourceSpendingData}
-							formatValue={(value) =>
-								formatMoney(
-									value.toFixed(2),
-									DEFAULT_CURRENCY_CODE,
-								)
-							}
-							title="Spending by source"
 						/>
 					</GlassCard>
 					<SectionHeading
@@ -983,9 +699,9 @@ const AnalysisScreen = ({
 										<CustomText
 											style={styles.categoryBucket}
 										>
-											{category.type === "INCOME"
+											{(category.type ?? "EXPENSE") === "INCOME"
 												? "Income category"
-												: category.type === "REFUND"
+												: (category.type ?? "EXPENSE") === "REFUND"
 													? "Refund category"
 													: "Expense category"}
 										</CustomText>
@@ -1201,55 +917,6 @@ const styles = StyleSheet.create({
 		fontSize: 11,
 		fontWeight: "700",
 		marginTop: 3,
-	},
-	dashboardTitle: {
-		color: COLORS.textMuted,
-		fontSize: 13,
-		fontWeight: "800",
-		letterSpacing: 0.5,
-		textTransform: "uppercase",
-	},
-	budgetList: {
-		gap: 10,
-		marginTop: 8,
-	},
-	budgetItem: {
-		gap: 6,
-	},
-	budgetHeader: {
-		flexDirection: "row",
-		justifyContent: "space-between",
-		alignItems: "center",
-		gap: 8,
-	},
-	budgetName: {
-		color: COLORS.text,
-		fontSize: 13,
-		fontWeight: "800",
-		flex: 1,
-	},
-	budgetPct: {
-		fontSize: 12,
-		fontWeight: "900",
-	},
-	budgetTrack: {
-		height: 8,
-		borderRadius: 999,
-		backgroundColor: "rgba(255,255,255,0.08)",
-		overflow: "hidden",
-	},
-	budgetFill: {
-		height: "100%",
-		borderRadius: 999,
-	},
-	budgetCaption: {
-		color: COLORS.textDim,
-		fontSize: 11,
-	},
-	emptyDashboardText: {
-		color: COLORS.textDim,
-		fontSize: 12,
-		marginTop: 8,
 	},
 	categoryRow: {
 		flexDirection: "row",

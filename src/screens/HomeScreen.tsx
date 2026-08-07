@@ -358,11 +358,6 @@ const HomeScreen = ({
 							>
 								{APP_NAME}
 							</CustomText>
-							<HeaderIconButton
-								accessibilityLabel="Go to greeting"
-								icon="home-outline"
-								onPress={() => navigation.navigate("Greeting")}
-							/>
 						</View>
 						<View style={styles.modeRow}>
 							<CustomText style={styles.modeName}>
@@ -459,7 +454,7 @@ const HomeScreen = ({
 										style={[
 											styles.modeOption,
 											isSelected &&
-												styles.modeOptionActive,
+											styles.modeOptionActive,
 										]}
 									>
 										<View style={styles.modeOptionLeft}>
@@ -476,7 +471,7 @@ const HomeScreen = ({
 												style={[
 													styles.modeOptionText,
 													isSelected &&
-														styles.modeOptionTextActive,
+													styles.modeOptionTextActive,
 												]}
 											>
 												{option.label}

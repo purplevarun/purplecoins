@@ -1,25 +1,14 @@
 appId: ${APP_ID}
 ---
-# Smoke test covering app launch, home navigation, and the Tools / Finance /
-# Vault mode switcher. This is the fastest flow to run and is a good
-# first check that a build is healthy before running the deeper flows.
+# Smoke test: app launches directly on Finance, mode switcher works,
+# and Settings is reachable from the header.
 
 - launchApp:
     clearState: true
 
-# App opens on Greeting.
-- assertVisible: "Hello Guest"
-- assertVisible: "Finance"
-- assertVisible: "Tools"
-- assertVisible: "Vault"
-
-# Enter Finance from Greeting.
-- runFlow:
-    file: _scroll_find.yaml
-    env:
-      element: "Finance"
-      tap: true
+# App opens on Finance mode — verify key tiles are present.
 - assertVisible: "Purplecoins"
+- assertVisible: "Finance"
 - assertVisible: "Transactions"
 - assertVisible: "Sources"
 - assertVisible: "Categories"
@@ -29,13 +18,12 @@ appId: ${APP_ID}
 - assertVisible: "Analysis"
 - assertVisible: "Exchange rates"
 
-# Go back to Greeting via the new home icon and enter Vault.
+# Switch to Vault via the mode-switcher modal.
 - runFlow:
     file: _scroll_find.yaml
     env:
-      element: "Go to greeting"
+      element: "Switch homepage"
       tap: true
-- assertVisible: "Hello Guest"
 - runFlow:
     file: _scroll_find.yaml
     env:
@@ -45,19 +33,29 @@ appId: ${APP_ID}
 - assertVisible: "Cards"
 - assertVisible: "Identity"
 
-# Back to Greeting via home icon, then enter Tools.
+# Switch to Tools.
 - runFlow:
     file: _scroll_find.yaml
     env:
-      element: "Go to greeting"
+      element: "Switch homepage"
       tap: true
-- assertVisible: "Hello Guest"
 - runFlow:
     file: _scroll_find.yaml
     env:
       element: "Tools"
       tap: true
 - assertVisible: "Notes"
+- assertVisible: "Todos"
+
+# Settings is reachable from the header.
+- runFlow:
+    file: _scroll_find.yaml
+    env:
+      element: "Settings"
+      tap: true
+- assertVisible: "Currency display"
+- back
+
 
 # Settings screen is reachable from every mode.
 - runFlow:

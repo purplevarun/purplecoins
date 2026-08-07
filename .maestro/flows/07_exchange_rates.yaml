@@ -5,11 +5,6 @@ appId: ${APP_ID}
 
 - launchApp:
     clearState: true
-- runFlow:
-    file: _scroll_find.yaml
-    env:
-      element: "Finance"
-      tap: true
 
 - runFlow:
     file: _scroll_find.yaml

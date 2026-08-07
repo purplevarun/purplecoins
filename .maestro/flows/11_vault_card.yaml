@@ -8,6 +8,11 @@ appId: ${APP_ID}
 - runFlow:
     file: _scroll_find.yaml
     env:
+      element: "Switch homepage"
+      tap: true
+- runFlow:
+    file: _scroll_find.yaml
+    env:
       element: "Vault"
       tap: true
 - runFlow:

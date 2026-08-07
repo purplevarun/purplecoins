@@ -6,12 +6,12 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import COLORS from "@/constants/colors";
 import navigationRef from "@/navigation/navigationRef";
 import AnalysisScreen from "@/screens/AnalysisScreen";
+import AppLogsScreen from "@/screens/AppLogsScreen";
 import ArchivedRelationsScreen from "@/screens/ArchivedRelationsScreen";
 import BudgetFormScreen from "@/screens/BudgetFormScreen";
 import BudgetsScreen from "@/screens/BudgetsScreen";
 import ExchangeRatesScreen from "@/screens/ExchangeRatesScreen";
 import GlobalSearchScreen from "@/screens/GlobalSearchScreen";
-import GreetingScreen from "@/screens/GreetingScreen";
 import HomeScreen from "@/screens/HomeScreen";
 import LinkedTransactionsScreen from "@/screens/LinkedTransactionsScreen";
 import MergeCategoriesScreen from "@/screens/MergeCategoriesScreen";
@@ -47,7 +47,7 @@ const navigationTheme = {
 const AppNavigator = (): React.JSX.Element => (
 	<NavigationContainer ref={navigationRef} theme={navigationTheme}>
 		<Stack.Navigator
-			initialRouteName="Greeting"
+			initialRouteName="Home"
 			screenOptions={{
 				contentStyle: { backgroundColor: COLORS.background },
 				headerStyle: { backgroundColor: COLORS.backgroundElevated },
@@ -61,12 +61,8 @@ const AppNavigator = (): React.JSX.Element => (
 			}}
 		>
 			<Stack.Screen
-				component={GreetingScreen}
-				name="Greeting"
-				options={{ headerShown: false }}
-			/>
-			<Stack.Screen
 				component={HomeScreen}
+				initialParams={{ mode: "FINANCE" }}
 				name="Home"
 				options={{ headerShown: false }}
 			/>
@@ -159,8 +155,8 @@ const AppNavigator = (): React.JSX.Element => (
 						route.params.kind === "IDENTITY"
 							? "Identity"
 							: `${route.params.kind.charAt(0)}${route.params.kind
-									.slice(1)
-									.toLowerCase()}s`,
+								.slice(1)
+								.toLowerCase()}s`,
 				})}
 			/>
 			<Stack.Screen
@@ -177,6 +173,11 @@ const AppNavigator = (): React.JSX.Element => (
 				component={SettingsScreen}
 				name="Settings"
 				options={{ title: "Settings & backup" }}
+			/>
+			<Stack.Screen
+				component={AppLogsScreen}
+				name="AppLogs"
+				options={{ title: "App logs" }}
 			/>
 		</Stack.Navigator>
 	</NavigationContainer>

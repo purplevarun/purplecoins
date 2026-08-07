@@ -23,21 +23,25 @@ const getFyDateRange = (anchorDate: Date, fyStartMonth: number): DateRange => {
 
 const getYtdDateRange = (anchorDate: Date): DateRange => {
 	const year = anchorDate.getFullYear();
+	const month = anchorDate.getMonth();
+	const day = anchorDate.getDate();
+	// Rolling 12-month window: from this date last year to this date this year.
+	const start = new Date(year - 1, month, day, 0, 0, 0, 0).getTime();
 	const now = new Date();
 	const isCurrentYear = year === now.getFullYear();
-	const start = new Date(year, 0, 1, 0, 0, 0, 0).getTime();
-	const end = isCurrentYear
+	// Cap end at today for the current year so future dates are excluded.
+	const endDate = isCurrentYear
 		? new Date(
-				now.getFullYear(),
-				now.getMonth(),
-				now.getDate(),
-				DAY_END_HOURS,
-				DAY_END_MINUTES,
-				DAY_END_SECONDS,
-				DAY_END_MILLISECONDS,
-			).getTime()
-		: new Date(year + 1, 0, 1).getTime() - 1;
-	return { start, end };
+			now.getFullYear(),
+			now.getMonth(),
+			now.getDate(),
+			DAY_END_HOURS,
+			DAY_END_MINUTES,
+			DAY_END_SECONDS,
+			DAY_END_MILLISECONDS,
+		)
+		: new Date(year, month, day, DAY_END_HOURS, DAY_END_MINUTES, DAY_END_SECONDS, DAY_END_MILLISECONDS);
+	return { start, end: endDate.getTime() };
 };
 
 const getAnalysisDateRange = (
