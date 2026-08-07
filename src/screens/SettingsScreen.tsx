@@ -156,7 +156,6 @@ const SettingsScreen = ({
 				native,
 				fy,
 				tripId,
-				name,
 				reminderSettings,
 				loadedTrips,
 				budgetAlerts,
