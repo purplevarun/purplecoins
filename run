@@ -2,16 +2,27 @@
 set -e
 
 COMMAND="${1:-}"
+START_TIME=$(date +%s)
 
 # Read version and app id without requiring node
 VERSION=$(grep '"version"' package.json | head -1 | sed 's/.*"version": "\(.*\)".*/\1/')
 APP_ID="com.purple.coins.experimental"
 
+elapsed() {
+  echo $(( $(date +%s) - START_TIME ))
+}
+
 case "$COMMAND" in
-  build:local)
+  build)
+    LOG="logs/run_build.txt"
     echo "Building release APK..."
-    cd android && ./gradlew assembleRelease
+    cd android && ./gradlew assembleRelease > "../$LOG" 2>&1; _BUILD_EXIT=$?
+    grep -E "^BUILD |^FAILURE|^> Task :app:assemble" "../$LOG" || true
     cd ..
+    if [ "$_BUILD_EXIT" -ne 0 ]; then
+      echo "Build failed. See $LOG for details."
+      exit 1
+    fi
 
     SRC="android/app/build/outputs/apk/release/app-release.apk"
     DEST="android/app/build/outputs/apk/release/${APP_ID}_${VERSION}_local.apk"
@@ -20,22 +31,45 @@ case "$COMMAND" in
 
     echo ""
     echo "APK ready: $DEST"
+
+    # Install on any running AVD/device; skip silently if adb finds nothing.
+    if adb devices | grep -q "device$"; then
+      echo "Installing on device..."
+      adb install -r "$DEST" && echo "Installed successfully." || echo "Install failed (check adb output above)."
+    else
+      echo "No running AVD/device found - skipping install."
+    fi
+
+    echo ""
+    echo "Done in $(elapsed)s."
     ;;
 
   test)
+    LOG="logs/run_test.txt"
     echo "Running unit tests..."
-    bun run test
+    bun run test > "$LOG" 2>&1; _UNIT_EXIT=$?
+    grep -E "Test Files|^ *Tests |FAIL|PASS|error:" "$LOG" || true
+    if [ "$_UNIT_EXIT" -eq 0 ]; then
+      echo "Unit tests passed."
+    else
+      echo "Unit tests failed. See $LOG for details."
+      exit 1
+    fi
 
     echo ""
     echo "Running e2e tests..."
-    bun run test:e2e
+    bun run test:e2e >> "$LOG" 2>&1; _E2E_EXIT=$?
+    grep -E "^(Flow|Error|FAILED|PASSED|Running)" "$LOG" || true
+
+    echo ""
+    echo "Done in $(elapsed)s."
     ;;
 
   *)
     echo "Usage: ./run <command>"
     echo ""
     echo "Commands:"
-    echo "  build:local   Build a release APK and rename it to <appid>_<version>_local.apk"
+    echo "  build         Build a release APK and rename it to <appid>_<version>_local.apk"
     echo "  test          Run unit tests then e2e tests"
     ;;
 esac

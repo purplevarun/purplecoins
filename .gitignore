@@ -28,6 +28,9 @@ android/
 # debug
 npm-debug.*
 yarn-debug.*
+
+# run script logs
+logs/*.txt
 yarn-error.*
 
 # macOS
