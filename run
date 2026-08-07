@@ -37,7 +37,12 @@ case "$COMMAND" in
       echo "Installing on device..."
       adb install -r "$DEST" && echo "Installed successfully." || echo "Install failed (check adb output above)."
     else
-      echo "No running AVD/device found - skipping install."
+      echo "No device found - cold starting AVD..."
+      emulator -avd Medium_Phone -no-snapshot-load &
+      echo "Waiting for device to boot..."
+      adb wait-for-device shell 'while [ "$(getprop sys.boot_completed)" != "1" ]; do sleep 2; done'
+      echo "Device ready. Installing..."
+      adb install -r "$DEST" && echo "Installed successfully." || echo "Install failed (check adb output above)."
     fi
 
     echo ""
