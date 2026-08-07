@@ -8,6 +8,8 @@ START_TIME=$(date +%s)
 VERSION=$(grep '"version"' package.json | head -1 | sed 's/.*"version": "\(.*\)".*/\1/')
 APP_ID="com.purple.coins.experimental"
 
+rm -rf logs && mkdir logs
+
 elapsed() {
   echo $(( $(date +%s) - START_TIME ))
 }
@@ -81,11 +83,45 @@ case "$COMMAND" in
     echo "Done in $(elapsed)s."
     ;;
 
+  flow)
+    PREFIX="${2:-}"
+    if [ -z "$PREFIX" ]; then
+      echo "Usage: ./run flow <prefix>  e.g. ./run flow 15"
+      exit 1
+    fi
+    # Find flows whose filename starts with the given prefix (exclude helpers starting with _).
+    MATCHES=$(find .maestro/flows -maxdepth 1 -name "${PREFIX}*.yaml" ! -name "_*" | sort)
+    COUNT=$(echo "$MATCHES" | grep -c "." 2>/dev/null || echo 0)
+    if [ "$COUNT" -eq 0 ]; then
+      echo "No flow found matching prefix '${PREFIX}'."
+      exit 1
+    fi
+    if [ "$COUNT" -gt 1 ]; then
+      echo "Multiple flows match prefix '${PREFIX}' — be more specific:"
+      echo "$MATCHES"
+      exit 1
+    fi
+    FLOW_FILE="$MATCHES"
+    LOG="logs/run_flow_${PREFIX}.txt"
+    echo "Running flow: $FLOW_FILE"
+    _FLOW_EXIT=0
+    maestro test --format junit -e APP_ID="$APP_ID" "$FLOW_FILE" > "$LOG" 2>&1 || _FLOW_EXIT=$?
+    grep -E "^(Flow|Error|FAILED|PASSED|Running)" "$LOG" || true
+    if [ "$_FLOW_EXIT" -eq 0 ]; then
+      echo "Flow passed."
+    else
+      echo "Flow failed. See $LOG for details."
+    fi
+    echo ""
+    echo "Done in $(elapsed)s."
+    ;;
+
   *)
     echo "Usage: ./run <command>"
     echo ""
     echo "Commands:"
     echo "  build         Build a release APK and rename it to <appid>_<version>_local.apk"
     echo "  test          Run unit tests then e2e tests"
+    echo "  flow <prefix> Run a single Maestro flow matching the given prefix"
     ;;
 esac
