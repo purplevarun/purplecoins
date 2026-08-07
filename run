@@ -4,8 +4,10 @@ set -e
 START_TIME=$(date +%s)
 
 # Read version and app id without requiring node
-VERSION=$(grep '"version"' package.json | head -1 | sed 's/.*"version": "\(.*\)".*/\1/')
-APP_ID="com.purple.coins.experimental"
+CURRENT_VERSION=$(cat .version)
+CURRENT_PACKAGE=$(cat .package)
+VERSION="$CURRENT_VERSION"
+APP_ID="$CURRENT_PACKAGE"
 
 rm -rf logs && mkdir logs
 
@@ -13,120 +15,240 @@ elapsed() {
   echo $(( $(date +%s) - START_TIME ))
 }
 
-run_build() {
-    LOG="logs/run_build.txt"
-    # Run gradle in background so the foreground can show a live timer.
-    ( cd android && ./gradlew assembleRelease > "../$LOG" 2>&1 ) &
-    _GRADLE_PID=$!
-    _BUILD_SECS=0
-    while kill -0 "$_GRADLE_PID" 2>/dev/null; do
-      printf "\rBuilding release APK... %ds" "$_BUILD_SECS"
-      sleep 1
-      _BUILD_SECS=$(( _BUILD_SECS + 1 ))
+read_json_value() {
+  FILE="$1"
+  PATH_EXPR="$2"
+  node -e 'const fs=require("fs"); const file=process.argv[1]; const pathExpr=process.argv[2].split("."); const json=JSON.parse(fs.readFileSync(file, "utf8")); let value=json; for (const key of pathExpr) value=value[key]; process.stdout.write(String(value));' "$FILE" "$PATH_EXPR"
+}
+
+write_json_file() {
+  FILE="$1"
+  SHIFT="$2"
+  node -e 'const fs=require("fs"); const file=process.argv[1]; const shift=process.argv[2]; const json=JSON.parse(fs.readFileSync(file, "utf8")); const parts=shift.split("\n"); for (const part of parts) { const [pathExpr, rawValue] = part.split("="); const keys=pathExpr.split("."); let target=json; for (let i=0; i<keys.length-1; i++) target=target[keys[i]]; const key=keys[keys.length-1]; target[key] = /^\d+$/.test(rawValue) ? Number(rawValue) : rawValue; } fs.writeFileSync(file, JSON.stringify(json, null, "\t") + "\n");' "$FILE" "$SHIFT"
+}
+
+replace_text_in_file() {
+  FILE="$1"
+  PATTERN="$2"
+  REPLACEMENT="$3"
+  node -e 'const fs=require("fs"); const file=process.argv[1]; const pattern=process.argv[2]; const replacement=process.argv[3]; const content=fs.readFileSync(file, "utf8"); fs.writeFileSync(file, content.replace(new RegExp(pattern, "gm"), replacement));' "$FILE" "$PATTERN" "$REPLACEMENT"
+}
+
+version_code_from_version() {
+    CURRENT="$1"
+    node -e 'const current=process.argv[1]; const parts=current.split(".").map(Number); if (parts.length !== 3 || parts.some(Number.isNaN) || parts.some(part => part < 0 || part > 99)) process.exit(1); const code = (parts[0] * 10000) + (parts[1] * 100) + parts[2]; process.stdout.write(String(code));' "$CURRENT"
+}
+
+validate_state() {
+    CANONICAL_VERSION=$(cat .version)
+    CANONICAL_PACKAGE=$(cat .package)
+    APP_VERSION=$(read_json_value app.json expo.version)
+    APP_PACKAGE=$(read_json_value app.json expo.android.package)
+    PACKAGE_VERSION=$(read_json_value package.json version)
+    APP_VERSION_CODE=$(read_json_value app.json expo.android.versionCode)
+    EXPECTED_VERSION_CODE=$(version_code_from_version "$CANONICAL_VERSION")
+    RELEASE_APP_ID=$(grep -E '^[[:space:]]*APP_ID:' .github/workflows/release.yml | head -1 | sed 's/.*APP_ID:[[:space:]]*//')
+
+    if [ "$CANONICAL_VERSION" != "$APP_VERSION" ]; then
+      echo "Version mismatch: .version=$CANONICAL_VERSION but app.json expo.version=$APP_VERSION"
+      exit 1
+    fi
+
+    if [ "$CANONICAL_VERSION" != "$PACKAGE_VERSION" ]; then
+      echo "Version mismatch: .version=$CANONICAL_VERSION but package.json version=$PACKAGE_VERSION"
+      exit 1
+    fi
+
+    if [ "$APP_PACKAGE" != "$CANONICAL_PACKAGE" ]; then
+      echo "Package mismatch: .package=$CANONICAL_PACKAGE but app.json expo.android.package=$APP_PACKAGE"
+      exit 1
+    fi
+
+    if [ "$RELEASE_APP_ID" != "$CANONICAL_PACKAGE" ]; then
+      echo "Package mismatch: .package=$CANONICAL_PACKAGE but .github/workflows/release.yml APP_ID=$RELEASE_APP_ID"
+      exit 1
+    fi
+
+    if [ "$APP_VERSION_CODE" != "$EXPECTED_VERSION_CODE" ]; then
+      echo "VersionCode mismatch: app.json expo.android.versionCode=$APP_VERSION_CODE but expected $EXPECTED_VERSION_CODE from .version=$CANONICAL_VERSION"
+      exit 1
+    fi
+
+    for FILE in plugins/native-files/java/com/purple/coins/*.kt; do
+      FILE_PACKAGE=$(grep -E '^package ' "$FILE" | head -1 | sed 's/^package //')
+      if [ "$FILE_PACKAGE" != "$CANONICAL_PACKAGE" ]; then
+        echo "Package mismatch: .package=$CANONICAL_PACKAGE but $FILE package=$FILE_PACKAGE"
+        exit 1
+      fi
     done
-    _BUILD_EXIT=0
-    wait "$_GRADLE_PID" || _BUILD_EXIT=$?
-    printf "\rBuilding release APK... done (%ds)\n" "$_BUILD_SECS"
-    grep -E "^BUILD |^FAILURE|^> Task :app:assemble" "$LOG" || true
-    if [ "$_BUILD_EXIT" -ne 0 ]; then
-      echo "Build failed. See $LOG for details."
-      exit 1
-    fi
 
-    SRC="android/app/build/outputs/apk/release/app-release.apk"
-    DEST="android/app/build/outputs/apk/release/${APP_ID}_${VERSION}_local.apk"
+    CURRENT_VERSION="$CANONICAL_VERSION"
+    CURRENT_PACKAGE="$CANONICAL_PACKAGE"
+    VERSION="$CANONICAL_VERSION"
+    APP_ID="$CANONICAL_PACKAGE"
+}
 
-    mv "$SRC" "$DEST"
+run_apply() {
+    CANONICAL_VERSION=$(cat .version)
+    CANONICAL_PACKAGE=$(cat .package)
+    VERSION_CODE=$(version_code_from_version "$CANONICAL_VERSION")
 
-    echo ""
-    echo "APK ready: $DEST"
+    write_json_file app.json "expo.version=$CANONICAL_VERSION
+expo.android.package=$CANONICAL_PACKAGE
+expo.android.versionCode=$VERSION_CODE"
+    write_json_file package.json "version=$CANONICAL_VERSION"
 
-    # Install on any running AVD/device; skip silently if adb finds nothing.
-    if adb devices | grep -q "device$"; then
-      echo "Installing on device..."
-      adb install -r "$DEST" && echo "Installed successfully." || echo "Install failed (check adb output above)."
+    replace_text_in_file .github/workflows/release.yml '^  APP_ID: .*' "  APP_ID: $CANONICAL_PACKAGE"
+
+    for FILE in plugins/native-files/java/com/purple/coins/*.kt; do
+      replace_text_in_file "$FILE" '^package .*' "package $CANONICAL_PACKAGE"
+    done
+
+    CURRENT_VERSION="$CANONICAL_VERSION"
+    CURRENT_PACKAGE="$CANONICAL_PACKAGE"
+    VERSION="$CANONICAL_VERSION"
+    APP_ID="$CANONICAL_PACKAGE"
+
+    echo "Applied version $CANONICAL_VERSION"
+    echo "Applied package $CANONICAL_PACKAGE"
+    echo "Applied versionCode $VERSION_CODE"
+}
+
+run_build() {
+  LOG="logs/run_build.txt"
+  : > "$LOG"
+
+  validate_state
+
+  echo "Recreating native Android project (clean prebuild)..."
+  rm -rf android
+  npx expo prebuild --clean --platform android > "$LOG" 2>&1
+
+  # Run gradle in background so the foreground can show a live timer.
+  ( cd android && ./gradlew assembleRelease >> "../$LOG" 2>&1 ) &
+  _GRADLE_PID=$!
+  _BUILD_SECS=0
+  while kill -0 "$_GRADLE_PID" 2>/dev/null; do
+    printf "\rBuilding release APK... %ds" "$_BUILD_SECS"
+    sleep 1
+    _BUILD_SECS=$(( _BUILD_SECS + 1 ))
+  done
+  _BUILD_EXIT=0
+  wait "$_GRADLE_PID" || _BUILD_EXIT=$?
+  printf "\rBuilding release APK... done (%ds)\n" "$_BUILD_SECS"
+  grep -E "prebuild|config plugin|plugins|Generating" "$LOG" | tail -n 20 || true
+  grep -E "^BUILD |^FAILURE|^> Task :app:assemble" "$LOG" || true
+  if [ "$_BUILD_EXIT" -ne 0 ]; then
+    echo "Build failed. See $LOG for details."
+    exit 1
+  fi
+
+  SRC="android/app/build/outputs/apk/release/app-release.apk"
+  DEST="android/app/build/outputs/apk/release/${APP_ID}_${VERSION}_local.apk"
+
+  mv "$SRC" "$DEST"
+
+  echo ""
+  echo "APK ready: $DEST"
+
+  # Install on any running AVD/device; skip silently if adb finds nothing.
+  if adb devices | grep -q "device$"; then
+    echo "Installing on device..."
+    INSTALL_OUTPUT=$(adb install -r "$DEST" 2>&1) || _INSTALL_EXIT=$?
+    _INSTALL_EXIT=${_INSTALL_EXIT:-0}
+    echo "$INSTALL_OUTPUT"
+    if [ "$_INSTALL_EXIT" -eq 0 ]; then
+      echo "Installed successfully."
+    elif echo "$INSTALL_OUTPUT" | grep -q "INSTALL_FAILED_VERSION_DOWNGRADE"; then
+      echo "Downgrade detected. Reinstalling $APP_ID from scratch..."
+      adb uninstall "$APP_ID" >/dev/null 2>&1 || true
+      adb install "$DEST" && echo "Installed successfully after reinstall." || echo "Reinstall failed (check adb output above)."
     else
-      echo "No AVD/device running. Start one and re-run."
-      exit 1
+      echo "Install failed (check adb output above)."
     fi
+  else
+    echo "No AVD/device running. Start one and re-run."
+    exit 1
+  fi
 
-    echo ""
-    echo "Done in $(elapsed)s."
+  echo ""
+  echo "Done in $(elapsed)s."
 }
 
 run_test() {
-    LOG="logs/run_test.txt"
-    echo "Running unit tests..."
-    bun run test > "$LOG" 2>&1; _UNIT_EXIT=$?
-    grep -E "Test Files|^ *Tests |FAIL|PASS|error:" "$LOG" || true
-    if [ "$_UNIT_EXIT" -eq 0 ]; then
-      echo "Unit tests passed."
-    else
-      echo "Unit tests failed. See $LOG for details."
-      exit 1
-    fi
+  LOG="logs/run_test.txt"
+  echo "Running unit tests..."
+  bun run test > "$LOG" 2>&1; _UNIT_EXIT=$?
+  grep -E "Test Files|^ *Tests |FAIL|PASS|error:" "$LOG" || true
+  if [ "$_UNIT_EXIT" -eq 0 ]; then
+    echo "Unit tests passed."
+  else
+    echo "Unit tests failed. See $LOG for details."
+    exit 1
+  fi
 
-    echo ""
-    echo "Running e2e tests..."
-    _E2E_EXIT=0
-    maestro test -e APP_ID="$APP_ID" -e APP_VERSION="$VERSION" .maestro >> "$LOG" 2>&1 || _E2E_EXIT=$?
-    grep -E "^(Flow|Error|FAILED|PASSED|Running)" "$LOG" || true
-    if [ "$_E2E_EXIT" -eq 0 ]; then
-      echo "E2E tests passed."
-    else
-      echo "E2E tests failed. See $LOG for details."
-    fi
+  echo ""
+  echo "Running e2e tests..."
+  _E2E_EXIT=0
+  maestro test -e APP_ID="$APP_ID" -e APP_VERSION="$VERSION" .maestro >> "$LOG" 2>&1 || _E2E_EXIT=$?
+  grep -E "^(Flow|Error|FAILED|PASSED|Running)" "$LOG" || true
+  if [ "$_E2E_EXIT" -eq 0 ]; then
+    echo "E2E tests passed."
+  else
+    echo "E2E tests failed. See $LOG for details."
+  fi
 
-    echo ""
-    echo "Done in $(elapsed)s."
+  echo ""
+  echo "Done in $(elapsed)s."
 }
 
 run_flow() {
-    PREFIX="$1"
-    if [ -z "$PREFIX" ]; then
-      echo "Usage: ./run flow <prefix>  e.g. ./run flow 15"
-      exit 1
-    fi
-    # Find flows whose filename starts with the given prefix (exclude helpers starting with _).
-    MATCHES=$(find .maestro/flows -maxdepth 1 -name "${PREFIX}*.yaml" ! -name "_*" | sort)
-    COUNT=$(echo "$MATCHES" | grep -c "." 2>/dev/null || echo 0)
-    if [ "$COUNT" -eq 0 ]; then
-      echo "No flow found matching prefix '${PREFIX}'."
-      exit 1
-    fi
-    if [ "$COUNT" -gt 1 ]; then
-      echo "Multiple flows match prefix '${PREFIX}' — be more specific:"
-      echo "$MATCHES"
-      exit 1
-    fi
-    FLOW_FILE="$MATCHES"
-    LOG="logs/run_flow_${PREFIX}.txt"
-    echo "Running flow: $FLOW_FILE"
-    _FLOW_EXIT=0
-    maestro test --format junit -e APP_ID="$APP_ID" -e APP_VERSION="$VERSION" "$FLOW_FILE" > "$LOG" 2>&1 || _FLOW_EXIT=$?
-    grep -E "^(Flow|Error|FAILED|PASSED|Running)" "$LOG" || true
-    if [ "$_FLOW_EXIT" -eq 0 ]; then
-      echo "Flow passed."
-    else
-      echo "Flow failed. See $LOG for details."
-    fi
-    echo ""
-    echo "Done in $(elapsed)s."
+  PREFIX="$1"
+  if [ -z "$PREFIX" ]; then
+    echo "Usage: ./run flow <prefix>  e.g. ./run flow 15"
+    exit 1
+  fi
+  MATCHES=$(find .maestro/flows -maxdepth 1 -name "${PREFIX}*.yaml" ! -name "_*" | sort)
+  COUNT=$(echo "$MATCHES" | grep -c "." 2>/dev/null || echo 0)
+  if [ "$COUNT" -eq 0 ]; then
+    echo "No flow found matching prefix '${PREFIX}'."
+    exit 1
+  fi
+  if [ "$COUNT" -gt 1 ]; then
+    echo "Multiple flows match prefix '${PREFIX}' — be more specific:"
+    echo "$MATCHES"
+    exit 1
+  fi
+  FLOW_FILE="$MATCHES"
+  LOG="logs/run_flow_${PREFIX}.txt"
+  echo "Running flow: $FLOW_FILE"
+  _FLOW_EXIT=0
+  maestro test --format junit -e APP_ID="$APP_ID" -e APP_VERSION="$VERSION" "$FLOW_FILE" > "$LOG" 2>&1 || _FLOW_EXIT=$?
+  grep -E "^(Flow|Error|FAILED|PASSED|Running)" "$LOG" || true
+  if [ "$_FLOW_EXIT" -eq 0 ]; then
+    echo "Flow passed."
+  else
+    echo "Flow failed. See $LOG for details."
+  fi
+  echo ""
+  echo "Done in $(elapsed)s."
 }
 
 print_usage() {
-    echo "Usage: ./run <command> [command ...]"
-    echo ""
-    echo "Commands:"
-    echo "  build         Build a release APK and rename it to <appid>_<version>_local.apk"
-    echo "  test          Run unit tests then e2e tests"
-    echo "  flow <prefix> Run a single Maestro flow matching the given prefix"
-    echo ""
-    echo "Examples:"
-    echo "  ./run build"
-    echo "  ./run test"
-    echo "  ./run build test"
-    echo "  ./run build flow 15"
+  echo "Usage: ./run <command> [command ...]"
+  echo ""
+  echo "Commands:"
+  echo "  build         Recreate android via clean prebuild, then build a release APK"
+  echo "  apply         Copy .version/.package into app.json/package.json/release.yml/kt files"
+  echo "  test          Run unit tests then e2e tests"
+  echo "  flow <prefix> Run a single Maestro flow matching the given prefix"
+  echo ""
+  echo "Examples:"
+  echo "  ./run build"
+  echo "  ./run apply"
+  echo "  ./run test"
+  echo "  ./run build test"
+  echo "  ./run build flow 15"
 }
 
 if [ "$#" -eq 0 ]; then
@@ -141,6 +263,9 @@ while [ "$#" -gt 0 ]; do
   case "$COMMAND" in
     build)
       run_build
+      ;;
+    apply)
+      run_apply
       ;;
     test)
       run_test

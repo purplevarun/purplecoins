@@ -7,7 +7,6 @@ on:
   workflow_dispatch:
 
 env:
-  # TODO: replace with the prod package id when merging to main.
   APP_ID: com.purple.coins.experimental
 
 jobs:
