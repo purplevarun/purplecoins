@@ -66,11 +66,14 @@ appId: ${APP_ID}
           env:
             element: "Automatic backups"
             tap: true
-      - assertVisible: "Enable auto-backup"
-      - scrollUntilVisible:
-          element: "Choose backup folder"
-          direction: down
-      - assertVisible: "Choose backup folder"
+      - runFlow:
+          file: _scroll_find.yaml
+          env:
+            element: "Enable auto-backup"
+      - runFlow:
+          file: _scroll_find.yaml
+          env:
+            element: "Choose backup folder"
 
 # Export prepares a backup and invokes the native share sheet.
 - runFlow:
