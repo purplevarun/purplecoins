@@ -15,10 +15,19 @@ elapsed() {
 case "$COMMAND" in
   build)
     LOG="logs/run_build.txt"
-    echo "Building release APK..."
-    cd android && ./gradlew assembleRelease > "../$LOG" 2>&1; _BUILD_EXIT=$?
-    grep -E "^BUILD |^FAILURE|^> Task :app:assemble" "../$LOG" || true
-    cd ..
+    # Run gradle in background so the foreground can show a live timer.
+    ( cd android && ./gradlew assembleRelease > "../$LOG" 2>&1 ) &
+    _GRADLE_PID=$!
+    _BUILD_SECS=0
+    while kill -0 "$_GRADLE_PID" 2>/dev/null; do
+      printf "\rBuilding release APK... %ds" "$_BUILD_SECS"
+      sleep 1
+      _BUILD_SECS=$(( _BUILD_SECS + 1 ))
+    done
+    _BUILD_EXIT=0
+    wait "$_GRADLE_PID" || _BUILD_EXIT=$?
+    printf "\rBuilding release APK... done (%ds)\n" "$_BUILD_SECS"
+    grep -E "^BUILD |^FAILURE|^> Task :app:assemble" "$LOG" || true
     if [ "$_BUILD_EXIT" -ne 0 ]; then
       echo "Build failed. See $LOG for details."
       exit 1
@@ -37,12 +46,8 @@ case "$COMMAND" in
       echo "Installing on device..."
       adb install -r "$DEST" && echo "Installed successfully." || echo "Install failed (check adb output above)."
     else
-      echo "No device found - cold starting AVD..."
-      emulator -avd Medium_Phone -no-snapshot-load &
-      echo "Waiting for device to boot..."
-      adb wait-for-device shell 'while [ "$(getprop sys.boot_completed)" != "1" ]; do sleep 2; done'
-      echo "Device ready. Installing..."
-      adb install -r "$DEST" && echo "Installed successfully." || echo "Install failed (check adb output above)."
+      echo "No AVD/device running. Start one and re-run."
+      exit 1
     fi
 
     echo ""
