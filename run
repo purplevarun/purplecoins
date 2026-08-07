@@ -1,7 +1,6 @@
 #!/bin/sh
 set -e
 
-COMMAND="${1:-}"
 START_TIME=$(date +%s)
 
 # Read version and app id without requiring node
@@ -14,8 +13,7 @@ elapsed() {
   echo $(( $(date +%s) - START_TIME ))
 }
 
-case "$COMMAND" in
-  build)
+run_build() {
     LOG="logs/run_build.txt"
     # Run gradle in background so the foreground can show a live timer.
     ( cd android && ./gradlew assembleRelease > "../$LOG" 2>&1 ) &
@@ -54,9 +52,9 @@ case "$COMMAND" in
 
     echo ""
     echo "Done in $(elapsed)s."
-    ;;
+}
 
-  test)
+run_test() {
     LOG="logs/run_test.txt"
     echo "Running unit tests..."
     bun run test > "$LOG" 2>&1; _UNIT_EXIT=$?
@@ -81,10 +79,10 @@ case "$COMMAND" in
 
     echo ""
     echo "Done in $(elapsed)s."
-    ;;
+}
 
-  flow)
-    PREFIX="${2:-}"
+run_flow() {
+    PREFIX="$1"
     if [ -z "$PREFIX" ]; then
       echo "Usage: ./run flow <prefix>  e.g. ./run flow 15"
       exit 1
@@ -114,14 +112,52 @@ case "$COMMAND" in
     fi
     echo ""
     echo "Done in $(elapsed)s."
-    ;;
+}
 
-  *)
-    echo "Usage: ./run <command>"
+print_usage() {
+    echo "Usage: ./run <command> [command ...]"
     echo ""
     echo "Commands:"
     echo "  build         Build a release APK and rename it to <appid>_<version>_local.apk"
     echo "  test          Run unit tests then e2e tests"
     echo "  flow <prefix> Run a single Maestro flow matching the given prefix"
-    ;;
-esac
+    echo ""
+    echo "Examples:"
+    echo "  ./run build"
+    echo "  ./run test"
+    echo "  ./run build test"
+    echo "  ./run build flow 15"
+}
+
+if [ "$#" -eq 0 ]; then
+  print_usage
+  exit 1
+fi
+
+while [ "$#" -gt 0 ]; do
+  COMMAND="$1"
+  shift
+
+  case "$COMMAND" in
+    build)
+      run_build
+      ;;
+    test)
+      run_test
+      ;;
+    flow)
+      PREFIX="${1:-}"
+      if [ -z "$PREFIX" ]; then
+        echo "Usage: ./run flow <prefix>  e.g. ./run flow 15"
+        exit 1
+      fi
+      run_flow "$PREFIX"
+      shift
+      ;;
+    *)
+      echo "Unknown command: $COMMAND"
+      print_usage
+      exit 1
+      ;;
+  esac
+done
