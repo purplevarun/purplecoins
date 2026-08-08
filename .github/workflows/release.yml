@@ -25,14 +25,14 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      - name: Typecheck
-        run: bun run typecheck
+      - name: Make run executable
+        run: chmod +x run
 
-      - name: Lint
-        run: bun run lint
+      - name: Run sanity checks via run
+        run: ./run lint
 
-      - name: Unit tests
-        run: bun run test:coverage
+      - name: Unit tests with coverage
+        run: ./run test
 
       - name: Upload coverage report
         if: always()
@@ -70,8 +70,8 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      - name: Prebuild Android native project
-        run: npx expo prebuild --platform android --clean --no-install
+      - name: Make run executable
+        run: chmod +x run
 
       - name: Cache Gradle
         uses: actions/cache@v5
@@ -84,24 +84,8 @@ jobs:
           restore-keys: |
             gradle-${{ runner.os }}-
 
-      - name: Ensure debug keystore exists
-        run: |
-          if [ ! -f android/app/debug.keystore ]; then
-            keytool -genkeypair -v \
-              -storetype PKCS12 \
-              -keystore android/app/debug.keystore \
-              -storepass android \
-              -keypass android \
-              -alias androiddebugkey \
-              -keyalg RSA -keysize 2048 -validity 10000 \
-              -dname "CN=Android Debug,O=Android,C=US"
-          fi
-
-      - name: Build release APK
-        run: |
-          cd android
-          chmod +x gradlew
-          ./gradlew assembleRelease --no-daemon
+      - name: Build release APK via run
+        run: ./run buildCi
 
       - name: Resolve release metadata
         id: release-meta
@@ -111,17 +95,12 @@ jobs:
           branch_name="${GITHUB_REF_NAME}"
           safe_branch=$(echo "$branch_name" | tr '/' '-')
           tag="v${app_version}-${safe_branch}"
-          apk_name="${app_id}_${app_version}.apk"
+          apk_name="${app_id}_${app_version}_release.apk"
           echo "app_id=$app_id" >> "$GITHUB_OUTPUT"
           echo "version=$app_version" >> "$GITHUB_OUTPUT"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "name=v${app_version} (${branch_name})" >> "$GITHUB_OUTPUT"
           echo "apk_name=$apk_name" >> "$GITHUB_OUTPUT"
-
-      - name: Rename APK
-        run: |
-          mv android/app/build/outputs/apk/release/app-release.apk \
-             android/app/build/outputs/apk/release/${{ steps.release-meta.outputs.apk_name }}
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v6

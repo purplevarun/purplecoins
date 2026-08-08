@@ -127,7 +127,10 @@ export default VERSION;"
     echo "Applied versionCode $VERSION_CODE"
 }
 
-run_build() {
+run_build_core() {
+  INSTALL_ON_DEVICE="$1"
+  APK_SUFFIX="$2"
+
   LOG="logs/run_build.txt"
   : > "$LOG"
 
@@ -136,6 +139,17 @@ run_build() {
   echo "Recreating native Android project (clean prebuild)..."
   rm -rf android
   npx expo prebuild --clean --platform android > "$LOG" 2>&1
+
+  if [ ! -f android/app/debug.keystore ]; then
+    keytool -genkeypair -v \
+      -storetype PKCS12 \
+      -keystore android/app/debug.keystore \
+      -storepass android \
+      -keypass android \
+      -alias androiddebugkey \
+      -keyalg RSA -keysize 2048 -validity 10000 \
+      -dname "CN=Android Debug,O=Android,C=US" >> "$LOG" 2>&1
+  fi
 
   # Run gradle in background so the foreground can show a live timer.
   ( cd android && ./gradlew assembleRelease >> "../$LOG" 2>&1 ) &
@@ -157,58 +171,57 @@ run_build() {
   fi
 
   SRC="android/app/build/outputs/apk/release/app-release.apk"
-  DEST="android/app/build/outputs/apk/release/${APP_ID}_${VERSION}_local.apk"
+  DEST="android/app/build/outputs/apk/release/${APP_ID}_${VERSION}_${APK_SUFFIX}.apk"
 
   mv "$SRC" "$DEST"
 
   echo ""
   echo "APK ready: $DEST"
 
-  # Install on any running AVD/device; skip silently if adb finds nothing.
-  if adb devices | grep -q "device$"; then
-    echo "Installing on device..."
-    INSTALL_OUTPUT=$(adb install -r "$DEST" 2>&1) || _INSTALL_EXIT=$?
-    _INSTALL_EXIT=${_INSTALL_EXIT:-0}
-    echo "$INSTALL_OUTPUT"
-    if [ "$_INSTALL_EXIT" -eq 0 ]; then
-      echo "Installed successfully."
-    elif echo "$INSTALL_OUTPUT" | grep -q "INSTALL_FAILED_VERSION_DOWNGRADE"; then
-      echo "Downgrade detected. Reinstalling $APP_ID from scratch..."
-      adb uninstall "$APP_ID" >/dev/null 2>&1 || true
-      adb install "$DEST" && echo "Installed successfully after reinstall." || echo "Reinstall failed (check adb output above)."
+  if [ "$INSTALL_ON_DEVICE" = "yes" ]; then
+    # Install on any running AVD/device; skip silently if adb finds nothing.
+    if adb devices | grep -q "device$"; then
+      echo "Installing on device..."
+      INSTALL_OUTPUT=$(adb install -r "$DEST" 2>&1) || _INSTALL_EXIT=$?
+      _INSTALL_EXIT=${_INSTALL_EXIT:-0}
+      echo "$INSTALL_OUTPUT"
+      if [ "$_INSTALL_EXIT" -eq 0 ]; then
+        echo "Installed successfully."
+      elif echo "$INSTALL_OUTPUT" | grep -q "INSTALL_FAILED_VERSION_DOWNGRADE"; then
+        echo "Downgrade detected. Reinstalling $APP_ID from scratch..."
+        adb uninstall "$APP_ID" >/dev/null 2>&1 || true
+        adb install "$DEST" && echo "Installed successfully after reinstall." || echo "Reinstall failed (check adb output above)."
+      else
+        echo "Install failed (check adb output above)."
+      fi
     else
-      echo "Install failed (check adb output above)."
+      echo "No AVD/device running. Start one and re-run."
+      exit 1
     fi
-  else
-    echo "No AVD/device running. Start one and re-run."
-    exit 1
   fi
 
   echo ""
   echo "Done in $(elapsed)s."
 }
 
+run_build() {
+  run_build_core yes local
+}
+
+run_build_ci() {
+  run_build_core no release
+}
+
 run_test() {
   LOG="logs/run_test.txt"
-  echo "Running unit tests..."
-  bun run test > "$LOG" 2>&1; _UNIT_EXIT=$?
+  echo "Running unit tests with coverage..."
+  bun run test:coverage > "$LOG" 2>&1; _UNIT_EXIT=$?
   grep -E "Test Files|^ *Tests |FAIL|PASS|error:" "$LOG" || true
   if [ "$_UNIT_EXIT" -eq 0 ]; then
-    echo "Unit tests passed."
+    echo "Unit coverage tests passed."
   else
-    echo "Unit tests failed. See $LOG for details."
+    echo "Unit coverage tests failed. See $LOG for details."
     exit 1
-  fi
-
-  echo ""
-  echo "Running e2e tests..."
-  _E2E_EXIT=0
-  maestro test -e APP_ID="$APP_ID" -e APP_VERSION="$VERSION" .maestro >> "$LOG" 2>&1 || _E2E_EXIT=$?
-  grep -E "^(Flow|Error|FAILED|PASSED|Running)" "$LOG" || true
-  if [ "$_E2E_EXIT" -eq 0 ]; then
-    echo "E2E tests passed."
-  else
-    echo "E2E tests failed. See $LOG for details."
   fi
 
   echo ""
@@ -292,14 +305,16 @@ print_usage() {
   echo ""
   echo "Commands:"
   echo "  build         Recreate android via clean prebuild, then build a release APK"
+  echo "  buildCi       CI build: recreate android + build APK, no device install"
   echo "  apply         Copy .version/.package into app.json/package.json/release.yml/kt files"
   echo "  format        Run formatter (bun run format)"
   echo "  lint          Run full sanity checks (format, lint, typecheck, tests)"
-  echo "  test          Run unit tests then e2e tests"
+  echo "  test          Run unit tests with coverage"
   echo "  flow <prefix> Run a single Maestro flow matching the given prefix"
   echo ""
   echo "Examples:"
   echo "  ./run build"
+  echo "  ./run buildCi"
   echo "  ./run apply"
   echo "  ./run format"
   echo "  ./run lint"
@@ -320,6 +335,9 @@ while [ "$#" -gt 0 ]; do
   case "$COMMAND" in
     build)
       run_build
+      ;;
+    buildCi)
+      run_build_ci
       ;;
     apply)
       run_apply
