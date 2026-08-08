@@ -8,18 +8,18 @@ type RootStackParamList = {
 	AppLogs: undefined;
 	Transactions: undefined;
 	TransactionForm:
-	| {
-		transactionId?: string;
-		cloneFromTransactionId?: string;
-		prefillType?: TransactionType;
-		prefillAmount?: string;
-		prefillReason?: string;
-		prefillTransactionAt?: number;
-		prefillCategoryId?: string;
-		prefillSourceId?: string;
-		prefillMerchant?: string;
-	}
-	| undefined;
+		| {
+				transactionId?: string;
+				cloneFromTransactionId?: string;
+				prefillType?: TransactionType;
+				prefillAmount?: string;
+				prefillReason?: string;
+				prefillTransactionAt?: number;
+				prefillCategoryId?: string;
+				prefillSourceId?: string;
+				prefillMerchant?: string;
+		  }
+		| undefined;
 	Relations: { kind: RelationKind };
 	RelationForm: { kind: RelationKind; entityId?: string };
 	ArchivedRelations: undefined;

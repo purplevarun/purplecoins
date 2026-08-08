@@ -23,17 +23,28 @@ const add = (level: LogLevel, message: string, detail?: unknown): void => {
 					: JSON.stringify(detail, null, 2)
 			: undefined;
 
-	entries.push({ id: nextId++, level, message, timestamp: Date.now(), detail: detailStr });
+	entries.push({
+		id: nextId++,
+		level,
+		message,
+		timestamp: Date.now(),
+		detail: detailStr,
+	});
 	if (entries.length > MAX_ENTRIES) {
 		entries.splice(0, entries.length - MAX_ENTRIES);
 	}
 };
 
-const info = (message: string, detail?: unknown): void => add("info", message, detail);
-const warn = (message: string, detail?: unknown): void => add("warn", message, detail);
-const error = (message: string, detail?: unknown): void => add("error", message, detail);
+const info = (message: string, detail?: unknown): void =>
+	add("info", message, detail);
+const warn = (message: string, detail?: unknown): void =>
+	add("warn", message, detail);
+const error = (message: string, detail?: unknown): void =>
+	add("error", message, detail);
 const getLogs = (): readonly LogEntry[] => [...entries].reverse();
-const clearLogs = (): void => { entries.length = 0; };
+const clearLogs = (): void => {
+	entries.length = 0;
+};
 
 const appLogger = { info, warn, error, getLogs, clearLogs };
 export default appLogger;

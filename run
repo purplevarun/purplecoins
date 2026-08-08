@@ -215,6 +215,46 @@ run_test() {
   echo "Done in $(elapsed)s."
 }
 
+run_lint() {
+  LOG="logs/run_lint.txt"
+  echo "Running sanity checks (format, lint, typecheck, tests)..."
+  if bun run check > "$LOG" 2>&1; then
+    _CHECK_EXIT=0
+  else
+    _CHECK_EXIT=$?
+  fi
+  grep -E "Checking formatting|All matched files|^\$ eslint|^\$ tsc|Test Files|^ *Tests |FAIL|PASS|error:" "$LOG" || true
+  if [ "$_CHECK_EXIT" -eq 0 ]; then
+    echo "Sanity checks passed."
+  else
+    echo "Sanity checks failed. See $LOG for details."
+    exit 1
+  fi
+
+  echo ""
+  echo "Done in $(elapsed)s."
+}
+
+run_format() {
+  LOG="logs/run_format.txt"
+  echo "Running formatter..."
+  if bun run format > "$LOG" 2>&1; then
+    _FORMAT_EXIT=0
+  else
+    _FORMAT_EXIT=$?
+  fi
+  grep -E "prettier|formatted|error:" "$LOG" || true
+  if [ "$_FORMAT_EXIT" -eq 0 ]; then
+    echo "Formatting completed."
+  else
+    echo "Formatting failed. See $LOG for details."
+    exit 1
+  fi
+
+  echo ""
+  echo "Done in $(elapsed)s."
+}
+
 run_flow() {
   PREFIX="$1"
   if [ -z "$PREFIX" ]; then
@@ -253,12 +293,16 @@ print_usage() {
   echo "Commands:"
   echo "  build         Recreate android via clean prebuild, then build a release APK"
   echo "  apply         Copy .version/.package into app.json/package.json/release.yml/kt files"
+  echo "  format        Run formatter (bun run format)"
+  echo "  lint          Run full sanity checks (format, lint, typecheck, tests)"
   echo "  test          Run unit tests then e2e tests"
   echo "  flow <prefix> Run a single Maestro flow matching the given prefix"
   echo ""
   echo "Examples:"
   echo "  ./run build"
   echo "  ./run apply"
+  echo "  ./run format"
+  echo "  ./run lint"
   echo "  ./run test"
   echo "  ./run build test"
   echo "  ./run build flow 15"
@@ -279,6 +323,12 @@ while [ "$#" -gt 0 ]; do
       ;;
     apply)
       run_apply
+      ;;
+    format)
+      run_format
+      ;;
+    lint)
+      run_lint
       ;;
     test)
       run_test

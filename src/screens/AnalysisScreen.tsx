@@ -227,31 +227,26 @@ const AnalysisScreen = ({
 
 	const getScreenData = useCallback(async (): Promise<void> => {
 		try {
-			const [
-				summaryResult,
-				minMax,
-				fy,
-				prevSummaryResult,
-				txnRows,
-			] = await Promise.all([
-				getAnalysisSummary(database, {
-					dateRange,
-					isNativeCurrency: false,
-				}),
-				getTransactionMinMaxDate(database),
-				getFyStartMonth(database),
-				previousDateRange
-					? getAnalysisSummary(database, {
-						dateRange: previousDateRange,
+			const [summaryResult, minMax, fy, prevSummaryResult, txnRows] =
+				await Promise.all([
+					getAnalysisSummary(database, {
+						dateRange,
 						isNativeCurrency: false,
-					})
-					: Promise.resolve(null),
-				getTransactionRowsInRange(
-					database,
-					dateRange.start,
-					dateRange.end,
-				),
-			]);
+					}),
+					getTransactionMinMaxDate(database),
+					getFyStartMonth(database),
+					previousDateRange
+						? getAnalysisSummary(database, {
+								dateRange: previousDateRange,
+								isNativeCurrency: false,
+							})
+						: Promise.resolve(null),
+					getTransactionRowsInRange(
+						database,
+						dateRange.start,
+						dateRange.end,
+					),
+				]);
 			setSummary(summaryResult);
 			setFyStartMonth(fy);
 			setPreviousSummary(prevSummaryResult);
@@ -331,17 +326,17 @@ const AnalysisScreen = ({
 	const chartData: readonly ChartDatum[] = hasMissingCurrencies
 		? []
 		: (summary?.categories
-			.filter(
-				(category) =>
-					(category.type ?? "EXPENSE") !== "REFUND" &&
-					compareMoney(category.net, ZERO_AMOUNT) !== 0,
-			)
-			.slice(0, CHART_COLORS.length)
-			.map((category, index) => ({
-				label: category.categoryName,
-				value: Number(absoluteMoney(category.net)),
-				color: CHART_COLORS[index] ?? COLORS.primary,
-			})) ?? []);
+				.filter(
+					(category) =>
+						category.type !== "REFUND" &&
+						compareMoney(category.net, ZERO_AMOUNT) !== 0,
+				)
+				.slice(0, CHART_COLORS.length)
+				.map((category, index) => ({
+					label: category.categoryName,
+					value: Number(absoluteMoney(category.net)),
+					color: CHART_COLORS[index] ?? COLORS.primary,
+				})) ?? []);
 
 	const prevInvestmentNet = sumMoney(
 		previousSummary?.investments.map((investment) => investment.net) ?? [],
@@ -366,12 +361,12 @@ const AnalysisScreen = ({
 			color: COLORS.success,
 			...(previousSummary !== null
 				? buildPctDisplay(
-					getPercentChange(
-						summary?.totalIncome ?? ZERO_AMOUNT,
-						previousSummary.totalIncome,
-					),
-					true,
-				)
+						getPercentChange(
+							summary?.totalIncome ?? ZERO_AMOUNT,
+							previousSummary.totalIncome,
+						),
+						true,
+					)
 				: {}),
 		},
 		{
@@ -384,12 +379,12 @@ const AnalysisScreen = ({
 			color: COLORS.danger,
 			...(previousSummary !== null
 				? buildPctDisplay(
-					getPercentChange(
-						summary?.totalExpense ?? ZERO_AMOUNT,
-						previousSummary.totalExpense,
-					),
-					false,
-				)
+						getPercentChange(
+							summary?.totalExpense ?? ZERO_AMOUNT,
+							previousSummary.totalExpense,
+						),
+						false,
+					)
 				: {}),
 		},
 		{
@@ -411,12 +406,12 @@ const AnalysisScreen = ({
 					: COLORS.success,
 			...(previousSummary !== null
 				? buildPctDisplay(
-					getPercentChange(
-						summary?.netProfit ?? ZERO_AMOUNT,
-						previousSummary.netProfit,
-					),
-					true,
-				)
+						getPercentChange(
+							summary?.netProfit ?? ZERO_AMOUNT,
+							previousSummary.netProfit,
+						),
+						true,
+					)
 				: {}),
 		},
 		{
@@ -432,12 +427,12 @@ const AnalysisScreen = ({
 					: COLORS.success,
 			...(previousSummary !== null
 				? buildPctDisplay(
-					getPercentChange(
-						netAfterInvestments,
-						prevNetAfterInvestments,
-					),
-					true,
-				)
+						getPercentChange(
+							netAfterInvestments,
+							prevNetAfterInvestments,
+						),
+						true,
+					)
 				: {}),
 		},
 	];
@@ -477,14 +472,15 @@ const AnalysisScreen = ({
 		});
 
 		const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-		return dayLabels.map((label, index) => ({
-			label,
-			value:
-				(counts[index] ?? 0) > 0
-					? (totals[index] ?? 0) / (counts[index] ?? 1)
-					: 0,
-			color: COLORS.primary,
-		}));
+		return dayLabels.map((label, index) => {
+			const dayCount = counts[index] ?? 0;
+			const dayTotal = totals[index] ?? 0;
+			return {
+				label,
+				value: dayCount > 0 ? dayTotal / dayCount : 0,
+				color: COLORS.primary,
+			};
+		});
 	}, [transactions]);
 
 	const renderMetric = (metric: SummaryMetricInput): React.JSX.Element => (
@@ -493,7 +489,7 @@ const AnalysisScreen = ({
 			style={[
 				styles.summaryTile,
 				metric.label === "Net after investments" &&
-				styles.summaryTileFull,
+					styles.summaryTileFull,
 			]}
 		>
 			<GlassCard accent={metric.accent}>
@@ -699,9 +695,9 @@ const AnalysisScreen = ({
 										<CustomText
 											style={styles.categoryBucket}
 										>
-											{(category.type ?? "EXPENSE") === "INCOME"
+											{category.type === "INCOME"
 												? "Income category"
-												: (category.type ?? "EXPENSE") === "REFUND"
+												: category.type === "REFUND"
 													? "Refund category"
 													: "Expense category"}
 										</CustomText>

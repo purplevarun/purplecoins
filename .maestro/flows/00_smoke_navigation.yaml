@@ -56,7 +56,6 @@ appId: ${APP_ID}
 - assertVisible: "Currency display"
 - back
 
-
 # Settings screen is reachable from every mode.
 - runFlow:
     file: _scroll_find.yaml

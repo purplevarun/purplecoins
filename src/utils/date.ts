@@ -32,15 +32,23 @@ const getYtdDateRange = (anchorDate: Date): DateRange => {
 	// Cap end at today for the current year so future dates are excluded.
 	const endDate = isCurrentYear
 		? new Date(
-			now.getFullYear(),
-			now.getMonth(),
-			now.getDate(),
-			DAY_END_HOURS,
-			DAY_END_MINUTES,
-			DAY_END_SECONDS,
-			DAY_END_MILLISECONDS,
-		)
-		: new Date(year, month, day, DAY_END_HOURS, DAY_END_MINUTES, DAY_END_SECONDS, DAY_END_MILLISECONDS);
+				now.getFullYear(),
+				now.getMonth(),
+				now.getDate(),
+				DAY_END_HOURS,
+				DAY_END_MINUTES,
+				DAY_END_SECONDS,
+				DAY_END_MILLISECONDS,
+			)
+		: new Date(
+				year,
+				month,
+				day,
+				DAY_END_HOURS,
+				DAY_END_MINUTES,
+				DAY_END_SECONDS,
+				DAY_END_MILLISECONDS,
+			);
 	return { start, end: endDate.getTime() };
 };
 

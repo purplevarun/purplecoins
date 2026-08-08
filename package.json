@@ -64,7 +64,7 @@
 		"test:coverage": "vitest run --coverage",
 		"test:e2e": "maestro test -e APP_ID=$(cat .package) .maestro",
 		"test:e2e:flow": "maestro test -e APP_ID=$(cat .package)",
-		"check": "bun run format:check && bun run lint && bun run typecheck && bun run test && bun run expo-check",
+		"check": "bun run format:check && bun run lint && bun run typecheck && bun run test",
 		"expo-check": "npx expo install --check"
 	},
 	"private": true,

@@ -155,8 +155,8 @@ const AppNavigator = (): React.JSX.Element => (
 						route.params.kind === "IDENTITY"
 							? "Identity"
 							: `${route.params.kind.charAt(0)}${route.params.kind
-								.slice(1)
-								.toLowerCase()}s`,
+									.slice(1)
+									.toLowerCase()}s`,
 				})}
 			/>
 			<Stack.Screen

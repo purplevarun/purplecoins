@@ -454,7 +454,7 @@ const HomeScreen = ({
 										style={[
 											styles.modeOption,
 											isSelected &&
-											styles.modeOptionActive,
+												styles.modeOptionActive,
 										]}
 									>
 										<View style={styles.modeOptionLeft}>
@@ -471,7 +471,7 @@ const HomeScreen = ({
 												style={[
 													styles.modeOptionText,
 													isSelected &&
-													styles.modeOptionTextActive,
+														styles.modeOptionTextActive,
 												]}
 											>
 												{option.label}

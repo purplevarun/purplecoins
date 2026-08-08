@@ -1,15 +1,11 @@
 import CustomText from "@/components/CustomText";
 import ScreenContainer from "@/components/ScreenContainer";
 import COLORS from "@/constants/colors";
-import type RootStackParamList from "@/types/RootStackParamList";
 import type { LogEntry, LogLevel } from "@/utils/logger";
 import logger from "@/utils/logger";
 import { Ionicons } from "@expo/vector-icons";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useCallback, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
-
-type AppLogsScreenProps = NativeStackScreenProps<RootStackParamList, "AppLogs">;
 
 const LEVEL_COLORS: Record<LogLevel, string> = {
 	info: COLORS.text,
@@ -42,11 +38,13 @@ const LogRow = ({ entry }: { entry: LogEntry }): React.JSX.Element => {
 	const [expanded, setExpanded] = useState(false);
 	return (
 		<Pressable
-			onPress={() => entry.detail ? setExpanded((v) => !v) : undefined}
+			onPress={() => (entry.detail ? setExpanded((v) => !v) : undefined)}
 			style={[styles.row, { backgroundColor: LEVEL_BG[entry.level] }]}
 		>
 			<View style={styles.rowHeader}>
-				<CustomText style={[styles.level, { color: LEVEL_COLORS[entry.level] }]}>
+				<CustomText
+					style={[styles.level, { color: LEVEL_COLORS[entry.level] }]}
+				>
 					{entry.level.toUpperCase()}
 				</CustomText>
 				<CustomText style={styles.time}>
@@ -68,7 +66,7 @@ const LogRow = ({ entry }: { entry: LogEntry }): React.JSX.Element => {
 	);
 };
 
-const AppLogsScreen = ({ }: AppLogsScreenProps): React.JSX.Element => {
+const AppLogsScreen = (): React.JSX.Element => {
 	const [logs, setLogs] = useState(() => logger.getLogs());
 
 	const handleRefresh = useCallback((): void => {
@@ -84,19 +82,39 @@ const AppLogsScreen = ({ }: AppLogsScreenProps): React.JSX.Element => {
 		<ScreenContainer>
 			<View style={styles.toolbar}>
 				<Pressable onPress={handleRefresh} style={styles.toolbarButton}>
-					<Ionicons color={COLORS.primaryBright} name="refresh-outline" size={18} />
+					<Ionicons
+						color={COLORS.primaryBright}
+						name="refresh-outline"
+						size={18}
+					/>
 					<CustomText style={styles.toolbarLabel}>Refresh</CustomText>
 				</Pressable>
 				<Pressable onPress={handleClear} style={styles.toolbarButton}>
-					<Ionicons color={COLORS.danger} name="trash-outline" size={18} />
-					<CustomText style={[styles.toolbarLabel, { color: COLORS.danger }]}>Clear</CustomText>
+					<Ionicons
+						color={COLORS.danger}
+						name="trash-outline"
+						size={18}
+					/>
+					<CustomText
+						style={[styles.toolbarLabel, { color: COLORS.danger }]}
+					>
+						Clear
+					</CustomText>
 				</Pressable>
-				<CustomText style={styles.count}>{logs.length} entries</CustomText>
+				<CustomText style={styles.count}>
+					{logs.length} entries
+				</CustomText>
 			</View>
 			{logs.length === 0 ? (
 				<View style={styles.empty}>
-					<Ionicons color={COLORS.textDim} name="document-text-outline" size={40} />
-					<CustomText style={styles.emptyText}>No log entries yet.</CustomText>
+					<Ionicons
+						color={COLORS.textDim}
+						name="document-text-outline"
+						size={40}
+					/>
+					<CustomText style={styles.emptyText}>
+						No log entries yet.
+					</CustomText>
 				</View>
 			) : (
 				<View style={styles.list}>
