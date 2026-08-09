@@ -212,6 +212,55 @@ run_build_ci() {
   run_build_core no release
 }
 
+run_release() {
+  LOG="logs/run_release.txt"
+  : > "$LOG"
+
+  validate_state
+
+  if ! command -v gh >/dev/null 2>&1; then
+    echo "GitHub CLI (gh) is required for release upload."
+    exit 1
+  fi
+
+  if ! gh auth status >/dev/null 2>&1; then
+    echo "GitHub CLI is not authenticated. Run: gh auth login"
+    exit 1
+  fi
+
+  APK_PATH="android/app/build/outputs/apk/release/${APP_ID}_${VERSION}_release.apk"
+  if [ ! -f "$APK_PATH" ]; then
+    echo "Release APK not found at $APK_PATH"
+    echo "Build it first using: ./run buildCi"
+    exit 1
+  fi
+
+  BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+  SAFE_BRANCH=$(echo "$BRANCH_NAME" | tr '/' '-')
+  TAG="v${VERSION}-${SAFE_BRANCH}"
+  TITLE="v${VERSION} (${BRANCH_NAME})"
+  NOTES="Automated Android build from branch ${BRANCH_NAME} (app version ${VERSION})."
+  TARGET_SHA=$(git rev-parse HEAD)
+
+  if gh release view "$TAG" >/dev/null 2>&1; then
+    echo "Release $TAG already exists. Uploading/replacing APK asset..."
+    gh release upload "$TAG" "$APK_PATH" --clobber > "$LOG" 2>&1
+    gh release edit "$TAG" --latest >> "$LOG" 2>&1
+  else
+    echo "Creating release $TAG with APK asset..."
+    gh release create "$TAG" "$APK_PATH" \
+      --title "$TITLE" \
+      --notes "$NOTES" \
+      --target "$TARGET_SHA" \
+      --latest > "$LOG" 2>&1
+  fi
+
+  echo "Release upload complete: $TAG"
+  echo "Asset: $APK_PATH"
+  echo ""
+  echo "Done in $(elapsed)s."
+}
+
 run_test() {
   LOG="logs/run_test.txt"
   echo "Running unit tests with coverage..."
@@ -221,6 +270,26 @@ run_test() {
     echo "Unit coverage tests passed."
   else
     echo "Unit coverage tests failed. See $LOG for details."
+    exit 1
+  fi
+
+  echo ""
+  echo "Done in $(elapsed)s."
+}
+
+run_e2e() {
+  LOG="logs/run_e2e.txt"
+  echo "Running end-to-end tests..."
+  if bun run e2e > "$LOG" 2>&1; then
+    _E2E_EXIT=0
+  else
+    _E2E_EXIT=$?
+  fi
+  grep -E "^(Flow|Error|FAILED|PASSED|Running)|FAIL|PASS|error:" "$LOG" || true
+  if [ "$_E2E_EXIT" -eq 0 ]; then
+    echo "E2E tests passed."
+  else
+    echo "E2E tests failed. See $LOG for details."
     exit 1
   fi
 
@@ -274,7 +343,7 @@ run_flow() {
     echo "Usage: ./run flow <prefix>  e.g. ./run flow 15"
     exit 1
   fi
-  MATCHES=$(find .maestro/flows -maxdepth 1 -name "${PREFIX}*.yaml" ! -name "_*" | sort)
+  MATCHES=$(find .maestro/flows -maxdepth 1 \( -name "${PREFIX}*.yaml" -o -name "${PREFIX}*.yml" \) ! -name "_*" | sort)
   COUNT=$(echo "$MATCHES" | grep -c "." 2>/dev/null || echo 0)
   if [ "$COUNT" -eq 0 ]; then
     echo "No flow found matching prefix '${PREFIX}'."
@@ -295,6 +364,7 @@ run_flow() {
     echo "Flow passed."
   else
     echo "Flow failed. See $LOG for details."
+    exit 1
   fi
   echo ""
   echo "Done in $(elapsed)s."
@@ -310,6 +380,8 @@ print_usage() {
   echo "  format        Run formatter (bun run format)"
   echo "  lint          Run full sanity checks (format, lint, typecheck, tests)"
   echo "  test          Run unit tests with coverage"
+  echo "  e2e           Run end-to-end tests (bun run e2e)"
+  echo "  release       Upload release APK to GitHub Releases using gh CLI"
   echo "  flow <prefix> Run a single Maestro flow matching the given prefix"
   echo ""
   echo "Examples:"
@@ -319,6 +391,8 @@ print_usage() {
   echo "  ./run format"
   echo "  ./run lint"
   echo "  ./run test"
+  echo "  ./run e2e"
+  echo "  ./run release"
   echo "  ./run build test"
   echo "  ./run build flow 15"
 }
@@ -350,6 +424,12 @@ while [ "$#" -gt 0 ]; do
       ;;
     test)
       run_test
+      ;;
+    e2e)
+      run_e2e
+      ;;
+    release)
+      run_release
       ;;
     flow)
       PREFIX="${1:-}"

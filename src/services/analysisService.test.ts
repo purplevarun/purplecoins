@@ -9,6 +9,7 @@ import type Category from "@/types/Category";
 import type ExchangeRate from "@/types/ExchangeRate";
 import type Investment from "@/types/Investment";
 import type Transaction from "@/types/Transaction";
+import dateUtils from "@/utils/date";
 import type { SQLiteDatabase } from "expo-sqlite";
 
 const {
@@ -19,6 +20,7 @@ const {
 	getInvestmentNetAmount,
 	getInvestmentNetLabel,
 } = analysisService;
+const { getAnalysisDateRange } = dateUtils;
 const NOW = 1_780_754_481_000;
 
 const createTransaction = (overrides: Partial<Transaction>): Transaction => ({
@@ -756,5 +758,146 @@ describe("getAnalysisSummary (integration)", () => {
 		});
 
 		expect(summary.totalExpense).toBe("500");
+	});
+
+	it("handles high-volume multi-year transactions for Month, Year, FY, and YTD ranges", async () => {
+		const source = await dbFixtures.insertSource(database, {
+			name: "Main Bank",
+			currencyCode: "INR",
+		});
+		const destination = await dbFixtures.insertSource(database, {
+			name: "Wallet",
+			currencyCode: "INR",
+		});
+		const incomeCategory = await dbFixtures.insertCategory(database, {
+			name: "Salary",
+			type: "INCOME",
+		});
+		const expenseCategory = await dbFixtures.insertCategory(database, {
+			name: "Living",
+			type: "EXPENSE",
+		});
+
+		const txDate = (year: number, month1: number, day: number): number =>
+			new Date(year, month1 - 1, day, 12, 0, 0, 0).getTime();
+		let transactionIndex = 0;
+
+		for (const year of [2023, 2024, 2025]) {
+			for (const month of [1, 2, 3]) {
+				const createdAt = txDate(year, month, 1);
+				const rows = [
+					{
+						classification: "GENERAL" as const,
+						type: "CREDIT" as const,
+						sourceId: source.id,
+						categoryId: incomeCategory.id,
+						amount: "100000",
+						reason: `Salary ${year}-${month}`,
+						transactionAt: txDate(year, month, 5),
+					},
+					{
+						classification: "GENERAL" as const,
+						type: "DEBIT" as const,
+						sourceId: source.id,
+						categoryId: expenseCategory.id,
+						amount: "20000",
+						reason: `Rent ${year}-${month}`,
+						transactionAt: txDate(year, month, 10),
+					},
+					{
+						classification: "GENERAL" as const,
+						type: "DEBIT" as const,
+						sourceId: source.id,
+						categoryId: expenseCategory.id,
+						amount: "6000",
+						reason: `Groceries ${year}-${month}`,
+						transactionAt: txDate(year, month, 15),
+					},
+					{
+						classification: "GENERAL" as const,
+						type: "DEBIT" as const,
+						sourceId: source.id,
+						categoryId: expenseCategory.id,
+						amount: "4000",
+						reason: `Utilities ${year}-${month}`,
+						transactionAt: txDate(year, month, 20),
+					},
+					{
+						classification: "GENERAL" as const,
+						type: "CREDIT" as const,
+						sourceId: source.id,
+						categoryId: expenseCategory.id,
+						amount: "1000",
+						reason: `Expense refund ${year}-${month}`,
+						transactionAt: txDate(year, month, 25),
+					},
+					{
+						classification: "GENERAL" as const,
+						type: "TRANSFER" as const,
+						sourceId: source.id,
+						destinationSourceId: destination.id,
+						amount: "5000",
+						toAmount: "5000",
+						reason: `Move to wallet ${year}-${month}`,
+						transactionAt: txDate(year, month, 28),
+					},
+				];
+
+				for (const row of rows) {
+					transactionIndex += 1;
+					await financeRepository.createTransactionRow(
+						database,
+						row,
+						`txn-${transactionIndex}`,
+						createdAt,
+					);
+				}
+			}
+		}
+
+		const monthSummary = await getAnalysisSummary(database, {
+			dateRange: getAnalysisDateRange("MONTH", new Date(2025, 1, 20)),
+			isNativeCurrency: true,
+		});
+		expect(monthSummary.totalIncome).toBe("100000");
+		expect(monthSummary.totalExpense).toBe("29000");
+		expect(monthSummary.netProfit).toBe("71000");
+
+		const yearSummary = await getAnalysisSummary(database, {
+			dateRange: getAnalysisDateRange("YEAR", new Date(2024, 6, 1)),
+			isNativeCurrency: true,
+		});
+		expect(yearSummary.totalIncome).toBe("300000");
+		expect(yearSummary.totalExpense).toBe("87000");
+		expect(yearSummary.netProfit).toBe("213000");
+
+		const fySummary = await getAnalysisSummary(database, {
+			dateRange: getAnalysisDateRange("FY", new Date(2025, 1, 20), 4),
+			isNativeCurrency: true,
+		});
+		expect(fySummary.totalIncome).toBe("300000");
+		expect(fySummary.totalExpense).toBe("87000");
+		expect(fySummary.netProfit).toBe("213000");
+
+		const ytdSummary = await getAnalysisSummary(database, {
+			dateRange: getAnalysisDateRange("YTD", new Date(2025, 3, 1)),
+			isNativeCurrency: true,
+		});
+		expect(ytdSummary.totalIncome).toBe("300000");
+		expect(ytdSummary.totalExpense).toBe("87000");
+		expect(ytdSummary.netProfit).toBe("213000");
+
+		const minMax =
+			await financeRepository.getTransactionMinMaxDate(database);
+		expect(minMax).not.toBeNull();
+		expect(minMax?.minDate).toBe(txDate(2023, 1, 5));
+		expect(minMax?.maxDate).toBe(txDate(2025, 3, 28));
+
+		const yearRows = await financeRepository.getTransactionRowsInRange(
+			database,
+			getAnalysisDateRange("YEAR", new Date(2024, 6, 1)).start,
+			getAnalysisDateRange("YEAR", new Date(2024, 6, 1)).end,
+		);
+		expect(yearRows).toHaveLength(18);
 	});
 });
