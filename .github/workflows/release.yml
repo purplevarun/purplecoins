@@ -1,12 +1,6 @@
 name: Release
 
 on:
-  push:
-    paths:
-      - .version
-      - .package
-      - app.json
-      - package.json
   workflow_dispatch:
 
 jobs:
