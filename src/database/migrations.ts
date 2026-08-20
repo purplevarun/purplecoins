@@ -30,16 +30,6 @@ const SCHEMA_MIGRATIONS: readonly string[] = [
 );
 CREATE INDEX IF NOT EXISTS idx_merchant_category_rules_merchant_key
 	ON merchant_category_rules(merchant_key);`,
-	`CREATE TABLE IF NOT EXISTS budget_alert_state (
-	id TEXT PRIMARY KEY NOT NULL,
-	budget_id TEXT NOT NULL,
-	period_key TEXT NOT NULL,
-	threshold INTEGER NOT NULL CHECK (threshold IN (80, 100)),
-	notified_at INTEGER NOT NULL,
-	UNIQUE (budget_id, period_key, threshold)
-);
-CREATE INDEX IF NOT EXISTS idx_budget_alert_state_budget
-	ON budget_alert_state(budget_id);`,
 ];
 
 export default SCHEMA_MIGRATIONS;

@@ -7,8 +7,12 @@ const {
 	formatDateTime,
 	getAnalysisDateRange,
 	getCustomDateRange,
+	getDayWindows,
 	getFyDateRange,
+	getMonthWindowsInRange,
 	getPreviousDateRange,
+	getYearOverYearDateRange,
+	getYearWindowsInRange,
 	getYtdDateRange,
 	shiftAnalysisAnchor,
 } = dateUtils;
@@ -358,6 +362,149 @@ describe("date utilities", () => {
 			);
 			expect(range?.end).toBe(
 				new Date(2025, 6, 15, 23, 59, 59, 999).getTime(),
+			);
+		});
+	});
+
+	describe("getDayWindows", () => {
+		it("produces one window per day in the range", () => {
+			const start = new Date(2026, 0, 1).getTime();
+			const end = new Date(2026, 0, 3, 23, 59, 59, 999).getTime();
+			const windows = getDayWindows({ start, end });
+
+			expect(windows).toHaveLength(3);
+			expect(windows[0]?.start).toBe(
+				new Date(2026, 0, 1, 0, 0, 0, 0).getTime(),
+			);
+			expect(windows[0]?.end).toBe(
+				new Date(2026, 0, 1, 23, 59, 59, 999).getTime(),
+			);
+			expect(windows[2]?.start).toBe(
+				new Date(2026, 0, 3, 0, 0, 0, 0).getTime(),
+			);
+		});
+
+		it("produces a single window for a same-day range", () => {
+			const ts = new Date(2026, 5, 15, 10, 30).getTime();
+			const windows = getDayWindows({ start: ts, end: ts });
+
+			expect(windows).toHaveLength(1);
+			expect(windows[0]?.label).toBe("15 Jun");
+		});
+	});
+
+	describe("getMonthWindowsInRange", () => {
+		it("produces one window per calendar month in the range", () => {
+			const start = new Date(2026, 0, 15).getTime();
+			const end = new Date(2026, 2, 10).getTime();
+			const windows = getMonthWindowsInRange({ start, end });
+
+			expect(windows).toHaveLength(3); // Jan, Feb, Mar
+			expect(windows[0]?.start).toBe(new Date(2026, 0, 1).getTime());
+			expect(windows[0]?.end).toBe(new Date(2026, 1, 1).getTime() - 1);
+			expect(windows[2]?.start).toBe(new Date(2026, 2, 1).getTime());
+		});
+
+		it("produces a single window for a same-month range", () => {
+			const start = new Date(2026, 3, 5).getTime();
+			const end = new Date(2026, 3, 20).getTime();
+			const windows = getMonthWindowsInRange({ start, end });
+
+			expect(windows).toHaveLength(1);
+		});
+
+		it("includes partial months at both ends", () => {
+			const start = new Date(2026, 11, 25).getTime(); // Dec 25
+			const end = new Date(2027, 1, 5).getTime(); // Feb 5
+			const windows = getMonthWindowsInRange({ start, end });
+
+			expect(windows).toHaveLength(3); // Dec, Jan, Feb
+		});
+	});
+
+	describe("getYearWindowsInRange", () => {
+		it("produces one window per year between minDate and maxDate", () => {
+			const min = new Date(2024, 3, 1).getTime();
+			const max = new Date(2026, 8, 30).getTime();
+			const windows = getYearWindowsInRange(min, max);
+
+			expect(windows).toHaveLength(3); // 2024, 2025, 2026
+			expect(windows[0]?.label).toBe("2024");
+			expect(windows[0]?.start).toBe(new Date(2024, 0, 1).getTime());
+			expect(windows[0]?.end).toBe(new Date(2025, 0, 1).getTime() - 1);
+			expect(windows[2]?.label).toBe("2026");
+		});
+
+		it("produces a single window when minDate and maxDate are in the same year", () => {
+			const min = new Date(2026, 2, 1).getTime();
+			const max = new Date(2026, 9, 31).getTime();
+			const windows = getYearWindowsInRange(min, max);
+
+			expect(windows).toHaveLength(1);
+			expect(windows[0]?.label).toBe("2026");
+		});
+	});
+
+	describe("getYearOverYearDateRange", () => {
+		it("returns null for ALL period", () => {
+			expect(
+				getYearOverYearDateRange("ALL", new Date(2026, 6, 1)),
+			).toBeNull();
+		});
+
+		it("returns null for CUSTOM period", () => {
+			expect(
+				getYearOverYearDateRange("CUSTOM", new Date(2026, 6, 1)),
+			).toBeNull();
+		});
+
+		it("returns the same calendar month one year earlier for MONTH", () => {
+			const range = getYearOverYearDateRange(
+				"MONTH",
+				new Date(2026, 6, 15),
+			);
+
+			expect(range?.start).toBe(new Date(2025, 6, 1).getTime());
+			expect(range?.end).toBe(new Date(2025, 7, 1).getTime() - 1);
+		});
+
+		it("returns the same calendar year one year earlier for YEAR", () => {
+			const range = getYearOverYearDateRange(
+				"YEAR",
+				new Date(2026, 5, 1),
+			);
+
+			expect(range?.start).toBe(new Date(2025, 0, 1).getTime());
+			expect(range?.end).toBe(new Date(2026, 0, 1).getTime() - 1);
+		});
+
+		it("returns the same FY one year earlier for FY", () => {
+			// Anchor Jul 2026, FY start April → FY 2026–27
+			// YoY → anchor Jul 2025, same FY start → FY 2025–26
+			const range = getYearOverYearDateRange(
+				"FY",
+				new Date(2026, 6, 15),
+				4,
+			);
+
+			expect(range?.start).toBe(new Date(2025, 3, 1).getTime());
+			expect(range?.end).toBe(new Date(2026, 3, 1).getTime() - 1);
+		});
+
+		it("uses YTD date range one year earlier for YTD", () => {
+			vi.useFakeTimers();
+			vi.setSystemTime(new Date(2026, 6, 15));
+
+			const range = getYearOverYearDateRange(
+				"YTD",
+				new Date(2026, 6, 15),
+			);
+
+			vi.useRealTimers();
+
+			// YoY for YTD 2026 → YTD 2025 (anchor = Jul 15, 2025)
+			expect(range?.start).toBe(
+				new Date(2024, 6, 15, 0, 0, 0, 0).getTime(),
 			);
 		});
 	});

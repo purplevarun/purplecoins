@@ -12,7 +12,6 @@ const NATIVE_CURRENCY_KEY = "native_currency_display";
 const FY_START_MONTH_KEY = "fy_start_month";
 const DEFAULT_TRIP_ID_KEY = "default_trip_id";
 const DEFAULT_HOME_MODE_KEY = "default_home_mode";
-const BUDGET_ALERTS_ENABLED_KEY = "budget_alerts_enabled";
 const AUTO_BACKUP_ENABLED_KEY = "auto_backup_enabled";
 const AUTO_BACKUP_INTERVAL_DAYS_KEY = "auto_backup_interval_days";
 const AUTO_BACKUP_DIRECTORY_URI_KEY = "auto_backup_directory_uri";
@@ -123,25 +122,6 @@ const updateDefaultHomeMode = async (
 	mode: HomeMode,
 ): Promise<void> =>
 	upsertSettingRow(database, DEFAULT_HOME_MODE_KEY, mode, Date.now());
-
-// Budget overspend alerts (80%/100% thresholds) fire as local notifications.
-const getBudgetAlertsEnabled = async (
-	database: SQLiteDatabase,
-): Promise<boolean> => {
-	const value = await getSettingRow(database, BUDGET_ALERTS_ENABLED_KEY);
-	return value === null ? true : value === "true";
-};
-
-const updateBudgetAlertsEnabled = async (
-	database: SQLiteDatabase,
-	enabled: boolean,
-): Promise<void> =>
-	upsertSettingRow(
-		database,
-		BUDGET_ALERTS_ENABLED_KEY,
-		String(enabled),
-		Date.now(),
-	);
 
 // Automatic local backups (Android only — uses SAF for persisted directory access).
 const getAutoBackupSettings = async (
@@ -300,7 +280,6 @@ const updateTodoReminderRepeatHours = async (
 
 const settingsService = {
 	getAutoBackupSettings,
-	getBudgetAlertsEnabled,
 	getDefaultHomeMode,
 	getDefaultTripId,
 	getFyStartMonth,
@@ -310,7 +289,6 @@ const settingsService = {
 	updateAutoBackupEnabled,
 	updateAutoBackupIntervalDays,
 	updateAutoBackupLastBackupAt,
-	updateBudgetAlertsEnabled,
 	updateDefaultHomeMode,
 	updateDefaultTripId,
 	updateFyStartMonth,

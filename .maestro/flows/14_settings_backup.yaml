@@ -1,7 +1,7 @@
 appId: ${APP_ID}
 ---
 # Settings: default home mode, native-currency toggle, FY start month,
-# default trip, budget alerts, auto-backup (Android only), and the
+# default trip, auto-backup (Android only), and the
 # backup/restore entry points. The native OS share sheet (export) and
 # document picker (restore) are outside the app's own UI, so this flow
 # verifies the app-side triggers rather than driving the OS chooser itself.
@@ -48,14 +48,6 @@ appId: ${APP_ID}
       element: "Archived relations"
       tap: true
 - back
-
-# Budget alerts card is visible (Phase 2 — cross-platform).
-- runFlow:
-    file: _scroll_find.yaml
-    env:
-      element: "Budget alerts"
-      tap: true
-- assertVisible: "Enable budget alerts"
 
 # Automatic backups card is Android-only; the assertion is wrapped in a
 # conditional so the flow still passes on iOS builds.

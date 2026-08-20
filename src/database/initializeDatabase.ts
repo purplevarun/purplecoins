@@ -4,12 +4,11 @@ import SCHEMA_MIGRATIONS from "@/database/migrations";
 import SCHEMA_SQL from "@/database/schema";
 import { openDatabaseAsync, type SQLiteDatabase } from "expo-sqlite";
 
-const { DATABASE_NAME, SCHEMA_VERSION } = appConstants;
+const { DATABASE_NAME } = appConstants;
 
 const initializeDatabase = async (): Promise<SQLiteDatabase> => {
 	const database = await openDatabaseAsync(DATABASE_NAME);
 	await database.execAsync(SCHEMA_SQL);
-	await database.execAsync(`PRAGMA user_version = ${SCHEMA_VERSION};`);
 	// Safe column additions for existing installs (silently ignored if already present)
 	for (const migration of SCHEMA_MIGRATIONS) {
 		try {

@@ -1,5 +1,6 @@
 import type AnalysisPeriod from "@/types/AnalysisPeriod";
 import type DateRange from "@/types/DateRange";
+import type MonthWindow from "@/types/MonthWindow";
 
 const ALL_TIME_START = 0;
 const ALL_TIME_END = 8_640_000_000_000_000;
@@ -189,13 +190,122 @@ const formatDateTime = (timestamp: number): string =>
 		minute: "2-digit",
 	});
 
+// Trailing calendar-month windows ending on anchorDate's month (oldest first).
+// Used to bucket trend charts independently of the selected analysis period.
+const getTrailingMonthWindows = (
+	monthsCount: number,
+	anchorDate: Date,
+): readonly MonthWindow[] =>
+	Array.from({ length: monthsCount }, (_, index) => {
+		const offset = monthsCount - 1 - index;
+		const monthDate = new Date(
+			anchorDate.getFullYear(),
+			anchorDate.getMonth() - offset,
+			1,
+		);
+		const start = monthDate.getTime();
+		const end =
+			new Date(
+				monthDate.getFullYear(),
+				monthDate.getMonth() + 1,
+				1,
+			).getTime() - 1;
+		const label = monthDate.toLocaleString("en-IN", { month: "short" });
+		return { start, end, label };
+	});
+
+// One window per calendar day within the given range, oldest first.
+const getDayWindows = (dateRange: DateRange): readonly MonthWindow[] => {
+	const windows: MonthWindow[] = [];
+	const cursor = new Date(dateRange.start);
+	cursor.setHours(0, 0, 0, 0);
+	while (cursor.getTime() <= dateRange.end) {
+		const start = cursor.getTime();
+		const end = new Date(
+			cursor.getFullYear(),
+			cursor.getMonth(),
+			cursor.getDate(),
+			DAY_END_HOURS,
+			DAY_END_MINUTES,
+			DAY_END_SECONDS,
+			DAY_END_MILLISECONDS,
+		).getTime();
+		const label = cursor.toLocaleString("en-IN", {
+			day: "numeric",
+			month: "short",
+		});
+		windows.push({ start, end, label });
+		cursor.setDate(cursor.getDate() + 1);
+	}
+	return windows;
+};
+
+// One window per calendar month overlapping the given range, oldest first.
+const getMonthWindowsInRange = (
+	dateRange: DateRange,
+): readonly MonthWindow[] => {
+	const windows: MonthWindow[] = [];
+	const cursor = new Date(dateRange.start);
+	cursor.setDate(1);
+	cursor.setHours(0, 0, 0, 0);
+	while (cursor.getTime() <= dateRange.end) {
+		const start = cursor.getTime();
+		const end =
+			new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1).getTime() -
+			1;
+		const label = cursor.toLocaleString("en-IN", {
+			month: "short",
+			year: "2-digit",
+		});
+		windows.push({ start, end, label });
+		cursor.setMonth(cursor.getMonth() + 1);
+	}
+	return windows;
+};
+
+// One window per calendar year spanning minDate..maxDate, oldest first.
+const getYearWindowsInRange = (
+	minDate: number,
+	maxDate: number,
+): readonly MonthWindow[] => {
+	const windows: MonthWindow[] = [];
+	const startYear = new Date(minDate).getFullYear();
+	const endYear = new Date(maxDate).getFullYear();
+	for (let year = startYear; year <= endYear; year++) {
+		const start = new Date(year, 0, 1).getTime();
+		const end = new Date(year + 1, 0, 1).getTime() - 1;
+		windows.push({ start, end, label: String(year) });
+	}
+	return windows;
+};
+
+// Same date range as the given period but shifted back exactly one year.
+// Returns null for ALL/CUSTOM (year-over-year comparison is not meaningful).
+const getYearOverYearDateRange = (
+	period: AnalysisPeriod,
+	anchorDate: Date,
+	fyStartMonth = 4,
+): DateRange | null => {
+	if (period === "ALL" || period === "CUSTOM") {
+		return null;
+	}
+	const prevAnchor = new Date(anchorDate);
+	prevAnchor.setFullYear(prevAnchor.getFullYear() - 1);
+	return getAnalysisDateRange(period, prevAnchor, fyStartMonth);
+};
+
 const dateUtils = {
 	formatDate,
 	formatDateTime,
 	getAnalysisDateRange,
 	getCustomDateRange,
+	getDayWindows,
 	getFyDateRange,
+	getMonthWindowsInRange,
 	getPreviousDateRange,
+	getTrailingMonthWindows,
+	getYearOverYearDateRange,
+	getYearWindowsInRange,
 	getYtdDateRange,
 	shiftAnalysisAnchor,
 };

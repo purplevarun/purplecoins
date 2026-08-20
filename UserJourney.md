@@ -131,9 +131,8 @@ Automation:
 2. Native currency toggle.
 3. Financial year start month.
 4. Archived relations navigation.
-5. Budget alerts settings.
-6. Auto-backup settings (Android).
-7. Export and restore entry points.
+5. Auto-backup settings (Android).
+6. Export and restore entry points.
 
 Automation:
 

@@ -1,5 +1,6 @@
 import appConstants from "@/constants/appConstants";
 import financeRepository from "@/repositories/financeRepository";
+import type AnalysisPeriod from "@/types/AnalysisPeriod";
 import type AnalysisSummary from "@/types/AnalysisSummary";
 import type Category from "@/types/Category";
 import type CategoryAnalysis from "@/types/CategoryAnalysis";
@@ -9,6 +10,8 @@ import type ExchangeRate from "@/types/ExchangeRate";
 import type Investment from "@/types/Investment";
 import type InvestmentAnalysis from "@/types/InvestmentAnalysis";
 import type Transaction from "@/types/Transaction";
+import type TrendPoint from "@/types/TrendPoint";
+import dateUtils from "@/utils/date";
 import moneyUtils from "@/utils/money";
 import type { SQLiteDatabase } from "expo-sqlite";
 
@@ -19,6 +22,12 @@ const {
 	getInvestmentRows,
 	getTransactionRowsInRange,
 } = financeRepository;
+const {
+	getDayWindows,
+	getMonthWindowsInRange,
+	getTrailingMonthWindows,
+	getYearWindowsInRange,
+} = dateUtils;
 const {
 	absoluteMoney,
 	addMoney,
@@ -231,6 +240,28 @@ const getMissingCurrencies = (
 		),
 	].sort();
 
+// Shared by getAnalysisSummary and getMonthlyTrend so both derive totals the
+// same way. REFUND categories are intentionally excluded from both totals —
+// they're tracked per-category but don't move the income/expense needle.
+const sumIncomeAndExpense = (
+	categoryAnalysis: readonly CategoryAnalysis[],
+): Readonly<{ totalIncome: string; totalExpense: string }> => {
+	const totalIncome = sumMoney(
+		categoryAnalysis
+			.filter((category) => category.type === "INCOME")
+			.map((category) => category.net),
+	);
+	const expenseCategoryNet = sumMoney(
+		categoryAnalysis
+			.filter((category) => category.type === "EXPENSE")
+			.map((category) => category.net),
+	);
+	return {
+		totalIncome,
+		totalExpense: subtractMoney(ZERO_AMOUNT, expenseCategoryNet),
+	};
+};
+
 const getAnalysisSummary = async (
 	database: SQLiteDatabase,
 	options: AnalysisOptions,
@@ -258,17 +289,7 @@ const getAnalysisSummary = async (
 		options.isNativeCurrency,
 		rateMap,
 	);
-	const totalIncome = sumMoney(
-		categoryAnalysis
-			.filter((category) => category.type === "INCOME")
-			.map((category) => category.net),
-	);
-	const expenseCategoryNet = sumMoney(
-		categoryAnalysis
-			.filter((category) => category.type === "EXPENSE")
-			.map((category) => category.net),
-	);
-	const totalExpense = subtractMoney(ZERO_AMOUNT, expenseCategoryNet);
+	const { totalIncome, totalExpense } = sumIncomeAndExpense(categoryAnalysis);
 	return {
 		categories: categoryAnalysis,
 		investments: investmentAnalysis,
@@ -279,6 +300,93 @@ const getAnalysisSummary = async (
 			? []
 			: getMissingCurrencies(transactions, rateMap),
 	};
+};
+
+type PeriodTrendOptions = Readonly<{
+	dateRange: DateRange;
+	period: AnalysisPeriod;
+	anchorDate: Date;
+	fyStartMonth?: number;
+	minTxnDate?: number;
+	maxTxnDate?: number;
+}>;
+
+// Picks time-bucket granularity based on the selected period so the chart
+// always shows a meaningful number of bars regardless of zoom level.
+const getTrendWindows = (
+	options: PeriodTrendOptions,
+): ReturnType<typeof getDayWindows> => {
+	const {
+		dateRange,
+		period,
+		anchorDate,
+		fyStartMonth = 4,
+		minTxnDate,
+		maxTxnDate,
+	} = options;
+	switch (period) {
+		case "MONTH":
+			return getDayWindows(dateRange);
+		case "YEAR":
+		case "FY":
+			return getMonthWindowsInRange(dateRange);
+		case "YTD":
+			// Trailing 12 calendar months anchored to the selected year.
+			return getTrailingMonthWindows(12, anchorDate);
+		case "ALL": {
+			const min = minTxnDate ?? dateRange.start;
+			const max = maxTxnDate ?? dateRange.end;
+			return getYearWindowsInRange(min, max);
+		}
+		case "CUSTOM": {
+			const spanMs = dateRange.end - dateRange.start;
+			const DAY_MS = 86_400_000;
+			if (spanMs <= 62 * DAY_MS) return getDayWindows(dateRange);
+			if (spanMs <= 730 * DAY_MS)
+				return getMonthWindowsInRange(dateRange);
+			// Avoid using fyStartMonth for CUSTOM — full calendar years is clearest.
+			const min = dateRange.start;
+			const max = dateRange.end;
+			return getYearWindowsInRange(min, max);
+		}
+	}
+};
+
+const getPeriodTrend = async (
+	database: SQLiteDatabase,
+	options: PeriodTrendOptions,
+): Promise<readonly TrendPoint[]> => {
+	const windows = getTrendWindows(options);
+	if (windows.length === 0) return [];
+	const rangeStart = windows[0]?.start ?? options.dateRange.start;
+	const rangeEnd = windows.at(-1)?.end ?? options.dateRange.end;
+	const [transactions, categories, rates] = await Promise.all([
+		getTransactionRowsInRange(database, rangeStart, rangeEnd),
+		getCategoryRows(database),
+		getExchangeRateRows(database),
+	]);
+	const rateMap = getRateMap(rates);
+	return windows.map((window) => {
+		const windowTransactions = transactions.filter(
+			(tx) =>
+				tx.transactionAt >= window.start &&
+				tx.transactionAt <= window.end,
+		);
+		const categoryAnalysis = buildCategoryAnalysis(
+			windowTransactions,
+			categories,
+			false,
+			rateMap,
+		);
+		const { totalIncome, totalExpense } =
+			sumIncomeAndExpense(categoryAnalysis);
+		return {
+			label: window.label,
+			income: totalIncome,
+			expense: totalExpense,
+			net: subtractMoney(totalIncome, totalExpense),
+		};
+	});
 };
 
 const getInvestmentNetLabel = (net: string): string => {
@@ -301,6 +409,7 @@ const analysisService = {
 	getAnalysisSummary,
 	getInvestmentNetAmount,
 	getInvestmentNetLabel,
+	getPeriodTrend,
 };
 
 export default analysisService;

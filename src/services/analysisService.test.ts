@@ -19,6 +19,7 @@ const {
 	getAnalysisSummary,
 	getInvestmentNetAmount,
 	getInvestmentNetLabel,
+	getPeriodTrend,
 } = analysisService;
 const { getAnalysisDateRange } = dateUtils;
 const NOW = 1_780_754_481_000;
@@ -899,5 +900,163 @@ describe("getAnalysisSummary (integration)", () => {
 			getAnalysisDateRange("YEAR", new Date(2024, 6, 1)).end,
 		);
 		expect(yearRows).toHaveLength(18);
+	});
+});
+
+describe("getPeriodTrend (integration)", () => {
+	let database: SQLiteDatabase;
+
+	beforeEach(() => {
+		database = createTestDatabase();
+	});
+
+	const mkDate = (year: number, month1: number, day: number): number =>
+		new Date(year, month1 - 1, day, 12, 0, 0, 0).getTime();
+
+	it("buckets by day for MONTH period", async () => {
+		const source = await dbFixtures.insertSource(database, {
+			currencyCode: "INR",
+		});
+		const category = await dbFixtures.insertCategory(database, {
+			name: "Groceries",
+			type: "EXPENSE",
+		});
+		await financeRepository.createTransactionRow(
+			database,
+			{
+				classification: "GENERAL",
+				type: "DEBIT",
+				sourceId: source.id,
+				categoryId: category.id,
+				amount: "500",
+				reason: "Day 1",
+				transactionAt: mkDate(2026, 3, 1),
+			},
+			"txn-1",
+			NOW,
+		);
+		await financeRepository.createTransactionRow(
+			database,
+			{
+				classification: "GENERAL",
+				type: "DEBIT",
+				sourceId: source.id,
+				categoryId: category.id,
+				amount: "300",
+				reason: "Day 5",
+				transactionAt: mkDate(2026, 3, 5),
+			},
+			"txn-2",
+			NOW,
+		);
+
+		const anchorDate = new Date(2026, 2, 1); // March 2026
+		const dateRange = getAnalysisDateRange("MONTH", anchorDate);
+		const trend = await getPeriodTrend(database, {
+			dateRange,
+			period: "MONTH",
+			anchorDate,
+		});
+
+		// March has 31 days
+		expect(trend).toHaveLength(31);
+		// Day 1 net = -500
+		expect(trend[0]?.net).toBe("-500");
+		// Day 5 net = -300
+		expect(trend[4]?.net).toBe("-300");
+		// Day with no transactions has net = "0"
+		expect(trend[1]?.net).toBe("0");
+	});
+
+	it("buckets by month for YEAR period", async () => {
+		const source = await dbFixtures.insertSource(database, {
+			currencyCode: "INR",
+		});
+		const category = await dbFixtures.insertCategory(database, {
+			name: "Salary",
+			type: "INCOME",
+		});
+		// One salary credit each in Jan and Mar 2026
+		for (const month of [1, 3]) {
+			await financeRepository.createTransactionRow(
+				database,
+				{
+					classification: "GENERAL",
+					type: "CREDIT",
+					sourceId: source.id,
+					categoryId: category.id,
+					amount: "100000",
+					reason: `Salary month ${month}`,
+					transactionAt: mkDate(2026, month, 10),
+				},
+				`txn-${month}`,
+				NOW,
+			);
+		}
+
+		const anchorDate = new Date(2026, 0, 1); // year 2026
+		const dateRange = getAnalysisDateRange("YEAR", anchorDate);
+		const trend = await getPeriodTrend(database, {
+			dateRange,
+			period: "YEAR",
+			anchorDate,
+		});
+
+		expect(trend).toHaveLength(12); // 12 months
+		expect(trend[0]?.net).toBe("100000"); // January
+		expect(trend[1]?.net).toBe("0"); // February
+		expect(trend[2]?.net).toBe("100000"); // March
+	});
+
+	it("returns an empty array when there are no transactions in range", async () => {
+		const anchorDate = new Date(2026, 5, 1); // June 2026
+		const dateRange = getAnalysisDateRange("MONTH", anchorDate);
+		const trend = await getPeriodTrend(database, {
+			dateRange,
+			period: "MONTH",
+			anchorDate,
+		});
+
+		expect(trend).toHaveLength(30); // June has 30 days — windows exist, all zero
+		trend.forEach((point) => expect(point.net).toBe("0"));
+	});
+
+	it("buckets by year for ALL period using minTxnDate/maxTxnDate", async () => {
+		const source = await dbFixtures.insertSource(database, {
+			currencyCode: "INR",
+		});
+		const category = await dbFixtures.insertCategory(database, {
+			name: "Expenses",
+			type: "EXPENSE",
+		});
+		for (const year of [2024, 2025, 2026]) {
+			await financeRepository.createTransactionRow(
+				database,
+				{
+					classification: "GENERAL",
+					type: "DEBIT",
+					sourceId: source.id,
+					categoryId: category.id,
+					amount: "12000",
+					reason: `Annual expense ${year}`,
+					transactionAt: mkDate(year, 6, 1),
+				},
+				`txn-${year}`,
+				NOW,
+			);
+		}
+
+		const trend = await getPeriodTrend(database, {
+			dateRange: { start: 0, end: 8_640_000_000_000_000 },
+			period: "ALL",
+			anchorDate: new Date(),
+			minTxnDate: mkDate(2024, 1, 1),
+			maxTxnDate: mkDate(2026, 12, 31),
+		});
+
+		expect(trend).toHaveLength(3); // 2024, 2025, 2026
+		expect(trend[0]?.label).toBe("2024");
+		expect(trend[0]?.net).toBe("-12000");
+		expect(trend[2]?.label).toBe("2026");
 	});
 });

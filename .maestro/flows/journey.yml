@@ -870,13 +870,6 @@ tags:
       element: ".*FY ends in.*"
 
 - runFlow:
-    file: _scroll_find.yaml
-    env:
-      element: "Budget alerts"
-      tap: true
-- assertVisible: "Enable budget alerts"
-
-- runFlow:
     when:
       platform: Android
     commands:

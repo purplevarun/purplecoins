@@ -17,6 +17,7 @@ type BarChartProps = Readonly<{
 	positiveColor?: string;
 	negativeColor?: string;
 	height?: number;
+	showLegend?: boolean;
 }>;
 
 const BAR_WIDTH = 36;
@@ -32,6 +33,7 @@ const BarChart = ({
 	positiveColor = COLORS.primary,
 	negativeColor = COLORS.danger,
 	height = CHART_HEIGHT,
+	showLegend = false,
 }: BarChartProps): React.JSX.Element => {
 	if (!data.length) {
 		return (
@@ -102,7 +104,7 @@ const BarChart = ({
 					})}
 				</Svg>
 			</ScrollView>
-			{formatValue ? (
+			{formatValue && showLegend ? (
 				<View style={styles.legend}>
 					{data.slice(-3).map((d) => (
 						<CustomText key={d.label} style={styles.legendText}>

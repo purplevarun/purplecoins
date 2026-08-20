@@ -28,6 +28,7 @@ import type DateRange from "@/types/DateRange";
 import type RootStackParamList from "@/types/RootStackParamList";
 import type SelectOption from "@/types/SelectOption";
 import type Transaction from "@/types/Transaction";
+import type TrendPoint from "@/types/TrendPoint";
 import dateUtils from "@/utils/date";
 import getErrorMessage from "@/utils/error";
 import moneyUtils from "@/utils/money";
@@ -36,14 +37,19 @@ import runAfterRender from "@/utils/runAfterRender";
 const { DEFAULT_CURRENCY_CODE } = appConstants;
 const { getTransactionMinMaxDate, getTransactionRowsInRange } =
 	financeRepository;
-const { getAnalysisSummary, getInvestmentNetAmount, getInvestmentNetLabel } =
-	analysisService;
+const {
+	getAnalysisSummary,
+	getInvestmentNetAmount,
+	getInvestmentNetLabel,
+	getPeriodTrend,
+} = analysisService;
 const { getFyStartMonth } = settingsService;
 const {
 	formatDate,
 	getAnalysisDateRange,
 	getCustomDateRange,
 	getPreviousDateRange,
+	getYearOverYearDateRange,
 	shiftAnalysisAnchor,
 } = dateUtils;
 const {
@@ -140,6 +146,19 @@ const getPeriodTitle = (
 	return "Custom period";
 };
 
+const getDateRangeLabel = (
+	period: AnalysisPeriod,
+	dateRange: DateRange,
+): string => {
+	if (period === "ALL") {
+		return "All time";
+	}
+	if (period === "CUSTOM") {
+		return "Custom";
+	}
+	return `${formatDate(dateRange.start)} – ${formatDate(dateRange.end)}`;
+};
+
 const formatSignedMoney = (amount: string): string => {
 	const formattedAmount = formatMoney(amount, DEFAULT_CURRENCY_CODE);
 	return compareMoney(amount, ZERO_AMOUNT) > 0
@@ -207,6 +226,9 @@ const AnalysisScreen = ({
 	const [fyStartMonth, setFyStartMonth] = useState(4);
 	const [minTxnDate, setMinTxnDate] = useState<number | undefined>(undefined);
 	const [maxTxnDate, setMaxTxnDate] = useState<number | undefined>(undefined);
+	const [yoySummary, setYoySummary] = useState<AnalysisSummary | null>(null);
+	const [periodTrend, setPeriodTrend] = useState<readonly TrendPoint[]>([]);
+	const [carouselIndex, setCarouselIndex] = useState(0);
 
 	const dateRange = useMemo(
 		() =>
@@ -225,32 +247,59 @@ const AnalysisScreen = ({
 		[anchorDate, fyStartMonth, period],
 	);
 
+	const yoyDateRange = useMemo(
+		() => getYearOverYearDateRange(period, anchorDate, fyStartMonth),
+		[anchorDate, fyStartMonth, period],
+	);
+
 	const getScreenData = useCallback(async (): Promise<void> => {
 		try {
-			const [summaryResult, minMax, fy, prevSummaryResult, txnRows] =
-				await Promise.all([
-					getAnalysisSummary(database, {
-						dateRange,
+			const [
+				summaryResult,
+				minMax,
+				fy,
+				prevSummaryResult,
+				txnRows,
+				yoySummaryResult,
+			] = await Promise.all([
+				getAnalysisSummary(database, {
+					dateRange,
+					isNativeCurrency: false,
+				}),
+				getTransactionMinMaxDate(database),
+				getFyStartMonth(database),
+				previousDateRange
+					? getAnalysisSummary(database, {
+						dateRange: previousDateRange,
 						isNativeCurrency: false,
-					}),
-					getTransactionMinMaxDate(database),
-					getFyStartMonth(database),
-					previousDateRange
-						? getAnalysisSummary(database, {
-								dateRange: previousDateRange,
-								isNativeCurrency: false,
-							})
-						: Promise.resolve(null),
-					getTransactionRowsInRange(
-						database,
-						dateRange.start,
-						dateRange.end,
-					),
-				]);
+					})
+					: Promise.resolve(null),
+				getTransactionRowsInRange(
+					database,
+					dateRange.start,
+					dateRange.end,
+				),
+				yoyDateRange
+					? getAnalysisSummary(database, {
+						dateRange: yoyDateRange,
+						isNativeCurrency: false,
+					})
+					: Promise.resolve(null),
+			]);
+			const periodTrendResult = await getPeriodTrend(database, {
+				dateRange,
+				period,
+				anchorDate,
+				fyStartMonth: fy,
+				minTxnDate: minMax?.minDate,
+				maxTxnDate: minMax?.maxDate,
+			});
 			setSummary(summaryResult);
 			setFyStartMonth(fy);
 			setPreviousSummary(prevSummaryResult);
 			setTransactions(txnRows);
+			setYoySummary(yoySummaryResult);
+			setPeriodTrend(periodTrendResult);
 			if (minMax) {
 				setMinTxnDate(minMax.minDate);
 				setMaxTxnDate(minMax.maxDate);
@@ -259,7 +308,14 @@ const AnalysisScreen = ({
 		} catch (caughtError: unknown) {
 			setError(getErrorMessage(caughtError));
 		}
-	}, [database, dateRange, previousDateRange]);
+	}, [
+		anchorDate,
+		database,
+		dateRange,
+		period,
+		previousDateRange,
+		yoyDateRange,
+	]);
 
 	useEffect(
 		() =>
@@ -271,6 +327,7 @@ const AnalysisScreen = ({
 
 	const handlePeriodChange = (value: string): void => {
 		setPeriod(value as AnalysisPeriod);
+		setCarouselIndex(0);
 	};
 
 	const handleBack = (): void => {
@@ -314,7 +371,6 @@ const AnalysisScreen = ({
 		return next === anchorDate;
 	}, [anchorDate, maxTxnDate, minTxnDate, period]);
 
-	const hasMissingCurrencies = Boolean(summary?.missingCurrencies.length);
 	const investmentNet = sumMoney(
 		summary?.investments.map((investment) => investment.net) ?? [],
 	);
@@ -323,20 +379,19 @@ const AnalysisScreen = ({
 		summary?.netProfit ?? ZERO_AMOUNT,
 		investmentCashFlow,
 	);
-	const chartData: readonly ChartDatum[] = hasMissingCurrencies
-		? []
-		: (summary?.categories
-				.filter(
-					(category) =>
-						category.type !== "REFUND" &&
-						compareMoney(category.net, ZERO_AMOUNT) !== 0,
-				)
-				.slice(0, CHART_COLORS.length)
-				.map((category, index) => ({
-					label: category.categoryName,
-					value: Number(absoluteMoney(category.net)),
-					color: CHART_COLORS[index] ?? COLORS.primary,
-				})) ?? []);
+	const chartData: readonly ChartDatum[] =
+		summary?.categories
+			.filter(
+				(category) =>
+					category.type !== "REFUND" &&
+					compareMoney(category.net, ZERO_AMOUNT) !== 0,
+			)
+			.slice(0, CHART_COLORS.length)
+			.map((category, index) => ({
+				label: category.categoryName,
+				value: Number(absoluteMoney(category.net)),
+				color: CHART_COLORS[index] ?? COLORS.primary,
+			})) ?? [];
 
 	const prevInvestmentNet = sumMoney(
 		previousSummary?.investments.map((investment) => investment.net) ?? [],
@@ -350,6 +405,12 @@ const AnalysisScreen = ({
 		prevInvestmentCashFlow,
 	);
 
+	const savingsRateNum = (() => {
+		const income = Number(summary?.totalIncome ?? ZERO_AMOUNT);
+		if (income === 0) return null;
+		return (Number(summary?.netProfit ?? ZERO_AMOUNT) / income) * 100;
+	})();
+
 	const summaryMetrics: readonly SummaryMetricInput[] = [
 		{
 			label: "Income",
@@ -361,12 +422,12 @@ const AnalysisScreen = ({
 			color: COLORS.success,
 			...(previousSummary !== null
 				? buildPctDisplay(
-						getPercentChange(
-							summary?.totalIncome ?? ZERO_AMOUNT,
-							previousSummary.totalIncome,
-						),
-						true,
-					)
+					getPercentChange(
+						summary?.totalIncome ?? ZERO_AMOUNT,
+						previousSummary.totalIncome,
+					),
+					true,
+				)
 				: {}),
 		},
 		{
@@ -379,12 +440,12 @@ const AnalysisScreen = ({
 			color: COLORS.danger,
 			...(previousSummary !== null
 				? buildPctDisplay(
-						getPercentChange(
-							summary?.totalExpense ?? ZERO_AMOUNT,
-							previousSummary.totalExpense,
-						),
-						false,
-					)
+					getPercentChange(
+						summary?.totalExpense ?? ZERO_AMOUNT,
+						previousSummary.totalExpense,
+					),
+					false,
+				)
 				: {}),
 		},
 		{
@@ -406,12 +467,12 @@ const AnalysisScreen = ({
 					: COLORS.success,
 			...(previousSummary !== null
 				? buildPctDisplay(
-						getPercentChange(
-							summary?.netProfit ?? ZERO_AMOUNT,
-							previousSummary.netProfit,
-						),
-						true,
-					)
+					getPercentChange(
+						summary?.netProfit ?? ZERO_AMOUNT,
+						previousSummary.netProfit,
+					),
+					true,
+				)
 				: {}),
 		},
 		{
@@ -427,13 +488,30 @@ const AnalysisScreen = ({
 					: COLORS.success,
 			...(previousSummary !== null
 				? buildPctDisplay(
-						getPercentChange(
-							netAfterInvestments,
-							prevNetAfterInvestments,
-						),
-						true,
-					)
+					getPercentChange(
+						netAfterInvestments,
+						prevNetAfterInvestments,
+					),
+					true,
+				)
 				: {}),
+		},
+		{
+			label: "Savings rate",
+			value:
+				savingsRateNum !== null
+					? `${savingsRateNum.toFixed(1)}%`
+					: "\u2014",
+			accent:
+				savingsRateNum === null || savingsRateNum < 0
+					? "danger"
+					: savingsRateNum >= 20
+						? "success"
+						: "warning",
+			color:
+				savingsRateNum !== null && savingsRateNum >= 0
+					? COLORS.success
+					: COLORS.danger,
 		},
 	];
 
@@ -451,47 +529,69 @@ const AnalysisScreen = ({
 		[summary?.categories],
 	);
 
-	const weekdaySpendingData: readonly BarDatum[] = useMemo(() => {
-		const totals = Array.from({ length: 7 }, () => 0);
-		const counts = Array.from({ length: 7 }, () => 0);
+	const trendChartData: readonly BarDatum[] = useMemo(
+		() =>
+			periodTrend.map((point) => ({
+				label: point.label,
+				value: Math.abs(Number(point.net)),
+				color:
+					compareMoney(point.net, ZERO_AMOUNT) >= 0
+						? COLORS.success
+						: COLORS.danger,
+			})),
+		[periodTrend],
+	);
 
-		transactions.forEach((transaction) => {
-			if (
-				transaction.classification !== "GENERAL" ||
-				transaction.type !== "DEBIT"
-			) {
-				return;
-			}
-			const day = new Date(transaction.transactionAt).getDay();
-			const amount = Number(transaction.amount);
-			if (!Number.isFinite(amount)) {
-				return;
-			}
-			totals[day] = (totals[day] ?? 0) + amount;
-			counts[day] = (counts[day] ?? 0) + 1;
-		});
+	const incomeTrendData: readonly BarDatum[] = useMemo(
+		() =>
+			periodTrend.map((point) => ({
+				label: point.label,
+				value: Number(point.income),
+				color: COLORS.success,
+			})),
+		[periodTrend],
+	);
 
-		const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-		return dayLabels.map((label, index) => {
-			const dayCount = counts[index] ?? 0;
-			const dayTotal = totals[index] ?? 0;
-			return {
-				label,
-				value: dayCount > 0 ? dayTotal / dayCount : 0,
-				color: COLORS.primary,
-			};
-		});
-	}, [transactions]);
+	const expenseTrendData: readonly BarDatum[] = useMemo(
+		() =>
+			periodTrend.map((point) => ({
+				label: point.label,
+				value: Math.abs(Number(point.expense)),
+				color: COLORS.danger,
+			})),
+		[periodTrend],
+	);
+
+	const investmentTrendData: readonly BarDatum[] = useMemo(
+		() =>
+			periodTrend.map((point) => {
+				const income = Number(point.income);
+				const net = Number(point.net);
+				const investmentValue = income - net;
+				return {
+					label: point.label,
+					value: Math.max(0, investmentValue),
+					color: "#60A5FA",
+				};
+			}),
+		[periodTrend],
+	);
+
+	const netWorthTrendData: readonly BarDatum[] = useMemo(
+		() =>
+			periodTrend.map((point) => ({
+				label: point.label,
+				value: Number(point.net),
+				color:
+					compareMoney(point.net, ZERO_AMOUNT) >= 0
+						? COLORS.success
+						: COLORS.danger,
+			})),
+		[periodTrend],
+	);
 
 	const renderMetric = (metric: SummaryMetricInput): React.JSX.Element => (
-		<View
-			key={metric.label}
-			style={[
-				styles.summaryTile,
-				metric.label === "Net after investments" &&
-					styles.summaryTileFull,
-			]}
-		>
+		<View key={metric.label} style={styles.summaryTile}>
 			<GlassCard accent={metric.accent}>
 				<CustomText style={styles.summaryLabel}>
 					{metric.label}
@@ -599,253 +699,364 @@ const AnalysisScreen = ({
 				/>
 			) : null}
 			{error ? <Notice message={error} tone="danger" /> : null}
-			{hasMissingCurrencies ? (
-				<Pressable
-					onPress={() => navigation.navigate("ExchangeRates")}
-					style={styles.ratesLink}
-				>
-					<Ionicons
-						color={COLORS.primaryBright}
-						name="earth-outline"
-						size={18}
-					/>
-					<CustomText style={styles.ratesLinkText}>
-						Manage exchange rates
-					</CustomText>
-				</Pressable>
-			) : (
-				<>
-					<View style={styles.summaryGrid}>
-						{summaryMetrics.map(renderMetric)}
-					</View>
-					<SectionHeading
-						subtitle="Category spending and weekday patterns for the selected period."
-						title="Dashboards"
-					/>
-					<GlassCard>
-						<BarChart
-							data={topSpendingData}
-							formatValue={(value) =>
-								formatMoney(
-									value.toFixed(2),
-									DEFAULT_CURRENCY_CODE,
-								)
-							}
-							title="Top spending categories"
-						/>
-					</GlassCard>
-					<GlassCard>
-						<BarChart
-							data={weekdaySpendingData}
-							formatValue={(value) =>
-								formatMoney(
-									value.toFixed(2),
-									DEFAULT_CURRENCY_CODE,
-								)
-							}
-							title="Avg spending by weekday"
-						/>
-					</GlassCard>
-					<SectionHeading
-						subtitle="Credits minus debits for every category. Classification decides the analysis bucket."
-						title="Category net"
-					/>
-					{chartData.length ? (
-						<GlassCard>
-							<DonutChart
-								centerLabel={formatSignedMoney(
-									summary?.netProfit ?? ZERO_AMOUNT,
-								)}
-								data={chartData}
-							/>
-						</GlassCard>
-					) : (
-						<EmptyState
-							icon="pie-chart-outline"
-							message="Add categorized transactions in this period."
-							title="Nothing to analyse"
-						/>
-					)}
-					{summary?.categories.map((category) => (
-						<Pressable
-							key={`${category.categoryId}:${category.currencyCode}`}
-							onPress={() =>
-								navigation.navigate("LinkedTransactions", {
-									kind: "CATEGORY",
-									entityId: category.categoryId,
-									entityName: category.categoryName,
-									dateRangeStart: dateRange.start,
-									dateRangeEnd: dateRange.end,
-									dateRangeLabel: `${formatDate(dateRange.start)} – ${formatDate(dateRange.end)}`,
-								})
-							}
-						>
-							<GlassCard
-								accent={
-									compareMoney(category.net, ZERO_AMOUNT) >= 0
-										? "success"
-										: "danger"
-								}
-							>
-								<View style={styles.categoryRow}>
-									<View style={styles.categoryDetails}>
-										<CustomText style={styles.categoryName}>
-											{category.categoryName}
-										</CustomText>
-										<CustomText
-											style={styles.categoryBucket}
-										>
-											{category.type === "INCOME"
-												? "Income category"
-												: category.type === "REFUND"
-													? "Refund category"
-													: "Expense category"}
-										</CustomText>
-										<CustomText
-											style={styles.categoryBreakdown}
-										>
-											Credits{" "}
-											{formatMoney(
-												category.credits,
-												category.currencyCode,
-											)}
-											{" · "}Debits{" "}
-											{formatMoney(
-												category.debits,
-												category.currencyCode,
-											)}
-										</CustomText>
-									</View>
-									<View style={styles.categoryRight}>
-										<CustomText
-											style={[
-												styles.categoryNet,
-												{
-													color:
-														compareMoney(
-															category.net,
-															ZERO_AMOUNT,
-														) >= 0
-															? COLORS.success
-															: COLORS.danger,
-												},
-											]}
-										>
-											{formatMoney(
-												category.net,
-												category.currencyCode,
-											)}
-										</CustomText>
-										<Ionicons
-											color={COLORS.textDim}
-											name="chevron-forward"
-											size={14}
-										/>
-									</View>
-								</View>
-							</GlassCard>
-						</Pressable>
-					))}
-					<SectionHeading
-						subtitle="Investment transactions stay separate from income and expenses."
-						title="Investments"
-					/>
-					{summary?.investments.length ? (
-						summary.investments.map((investment) => (
+			<View style={styles.summaryGrid}>
+				{summaryMetrics.map(renderMetric)}
+			</View>
+			{trendChartData.length > 0 ? (
+				period === "ALL" ? (
+					<View style={styles.carouselWrapper}>
+						<View style={styles.carouselHeader}>
 							<Pressable
-								key={`${investment.investmentId}:${investment.currencyCode}`}
 								onPress={() =>
-									navigation.navigate("LinkedTransactions", {
-										kind: "INVESTMENT",
-										entityId: investment.investmentId,
-										entityName: investment.investmentName,
-										dateRangeStart: dateRange.start,
-										dateRangeEnd: dateRange.end,
-										dateRangeLabel: `${formatDate(dateRange.start)} – ${formatDate(dateRange.end)}`,
-									})
+									setCarouselIndex(
+										Math.max(0, carouselIndex - 1),
+									)
 								}
+								disabled={carouselIndex === 0}
+								style={[
+									styles.carouselButton,
+									carouselIndex === 0 &&
+									styles.carouselButtonDisabled,
+								]}
 							>
-								<GlassCard
-									accent={getInvestmentAccent(investment.net)}
-								>
-									<CustomText style={styles.categoryName}>
-										{investment.investmentName}
-									</CustomText>
-									<View style={styles.investmentRow}>
-										<View>
+								<Ionicons
+									name="chevron-back"
+									size={24}
+									color={
+										carouselIndex === 0
+											? COLORS.textDim
+											: COLORS.text
+									}
+								/>
+							</Pressable>
+							<CustomText style={styles.carouselIndicator}>
+								{carouselIndex + 1} / 4
+							</CustomText>
+							<Pressable
+								onPress={() =>
+									setCarouselIndex(
+										Math.min(3, carouselIndex + 1),
+									)
+								}
+								disabled={carouselIndex === 3}
+								style={[
+									styles.carouselButton,
+									carouselIndex === 3 &&
+									styles.carouselButtonDisabled,
+								]}
+							>
+								<Ionicons
+									name="chevron-forward"
+									size={24}
+									color={
+										carouselIndex === 3
+											? COLORS.textDim
+											: COLORS.text
+									}
+								/>
+							</Pressable>
+						</View>
+						<GlassCard style={styles.carouselCard}>
+							{carouselIndex === 0 && (
+								<BarChart
+									data={incomeTrendData}
+									title="Income Trend"
+								/>
+							)}
+							{carouselIndex === 1 && (
+								<BarChart
+									data={expenseTrendData}
+									title="Expense Trend"
+								/>
+							)}
+							{carouselIndex === 2 && (
+								<BarChart
+									data={investmentTrendData}
+									title="Investment Trend"
+								/>
+							)}
+							{carouselIndex === 3 && (
+								<BarChart
+									data={netWorthTrendData}
+									title="Net Worth Trend"
+								/>
+							)}
+						</GlassCard>
+					</View>
+				) : (
+					<GlassCard>
+						<BarChart data={trendChartData} title="Trend" />
+					</GlassCard>
+				)
+			) : null}
+			{yoySummary !== null ? (
+				<>
+					<SectionHeading
+						subtitle="Compared to the same period last year."
+						title="Year over year"
+					/>
+					<GlassCard>
+						{(
+							[
+								{
+									label: "Income",
+									current:
+										summary?.totalIncome ?? ZERO_AMOUNT,
+									previous: yoySummary.totalIncome,
+									higherIsBetter: true,
+								},
+								{
+									label: "Expenses",
+									current:
+										summary?.totalExpense ?? ZERO_AMOUNT,
+									previous: yoySummary.totalExpense,
+									higherIsBetter: false,
+								},
+								{
+									label: "Net",
+									current: summary?.netProfit ?? ZERO_AMOUNT,
+									previous: yoySummary.netProfit,
+									higherIsBetter: true,
+								},
+							] as const
+						).map(
+							({ label, current, previous, higherIsBetter }) => {
+								const { pctText, pctColor } = buildPctDisplay(
+									getPercentChange(current, previous),
+									higherIsBetter,
+								);
+								return (
+									<View key={label} style={styles.yoyRow}>
+										<CustomText style={styles.summaryLabel}>
+											{label}
+										</CustomText>
+										<View style={styles.yoyRight}>
 											<CustomText
-												style={styles.summaryLabel}
+												style={[
+													styles.yoyPct,
+													{ color: pctColor },
+												]}
 											>
-												Total invested
+												{pctText}
 											</CustomText>
 											<CustomText
-												style={styles.investmentValue}
+												style={styles.yoyPrevValue}
 											>
+												vs{" "}
 												{formatMoney(
-													investment.totalInvested,
-													investment.currencyCode,
-												)}
-											</CustomText>
-										</View>
-										<View>
-											<CustomText
-												style={styles.summaryLabel}
-											>
-												Total redeemed
-											</CustomText>
-											<CustomText
-												style={styles.investmentValue}
-											>
-												{formatMoney(
-													investment.totalRedeemed,
-													investment.currencyCode,
+													previous,
+													DEFAULT_CURRENCY_CODE,
 												)}
 											</CustomText>
 										</View>
 									</View>
-									<CustomText
-										style={[
-											styles.investmentNet,
-											{
-												color: getInvestmentColor(
-													investment.net,
-												),
-											},
-										]}
-									>
-										{getInvestmentNetLabel(investment.net)}:{" "}
+								);
+							},
+						)}
+					</GlassCard>
+				</>
+			) : null}
+			<SectionHeading
+				subtitle="Highest-spend categories in the selected period."
+				title="Top spending"
+			/>
+			<GlassCard>
+				<BarChart
+					data={topSpendingData}
+					formatValue={(value) =>
+						formatMoney(value.toFixed(2), DEFAULT_CURRENCY_CODE)
+					}
+					title="Top spending categories"
+				/>
+			</GlassCard>
+			<SectionHeading
+				subtitle="Credits minus debits for every category. Classification decides the analysis bucket."
+				title="Category net"
+			/>
+			{chartData.length ? (
+				<GlassCard>
+					<DonutChart
+						centerLabel={formatSignedMoney(
+							summary?.netProfit ?? ZERO_AMOUNT,
+						)}
+						data={chartData}
+					/>
+				</GlassCard>
+			) : (
+				<EmptyState
+					icon="pie-chart-outline"
+					message="Add categorized transactions in this period."
+					title="Nothing to analyse"
+				/>
+			)}
+			{summary?.categories.map((category) => (
+				<Pressable
+					key={`${category.categoryId}:${category.currencyCode}`}
+					onPress={() =>
+						navigation.navigate("LinkedTransactions", {
+							kind: "CATEGORY",
+							entityId: category.categoryId,
+							entityName: category.categoryName,
+							dateRangeStart: dateRange.start,
+							dateRangeEnd: dateRange.end,
+							dateRangeLabel: getDateRangeLabel(
+								period,
+								dateRange,
+							),
+						})
+					}
+				>
+					<GlassCard
+						accent={
+							compareMoney(category.net, ZERO_AMOUNT) >= 0
+								? "success"
+								: "danger"
+						}
+					>
+						<View style={styles.categoryRow}>
+							<View style={styles.categoryDetails}>
+								<CustomText style={styles.categoryName}>
+									{category.categoryName}
+								</CustomText>
+								<CustomText style={styles.categoryBucket}>
+									{category.type === "INCOME"
+										? "Income category"
+										: category.type === "REFUND"
+											? "Refund category"
+											: "Expense category"}
+								</CustomText>
+								<CustomText style={styles.categoryBreakdown}>
+									Credits{" "}
+									{formatMoney(
+										category.credits,
+										category.currencyCode,
+									)}
+									{" · "}Debits{" "}
+									{formatMoney(
+										category.debits,
+										category.currencyCode,
+									)}
+								</CustomText>
+							</View>
+							<View style={styles.categoryRight}>
+								<CustomText
+									style={[
+										styles.categoryNet,
+										{
+											color:
+												compareMoney(
+													category.net,
+													ZERO_AMOUNT,
+												) >= 0
+													? COLORS.success
+													: COLORS.danger,
+										},
+									]}
+								>
+									{formatMoney(
+										category.net,
+										category.currencyCode,
+									)}
+								</CustomText>
+								<Ionicons
+									color={COLORS.textDim}
+									name="chevron-forward"
+									size={14}
+								/>
+							</View>
+						</View>
+					</GlassCard>
+				</Pressable>
+			))}
+			<SectionHeading
+				subtitle="Investment transactions stay separate from income and expenses."
+				title="Investments"
+			/>
+			{summary?.investments.length ? (
+				summary.investments.map((investment) => (
+					<Pressable
+						key={`${investment.investmentId}:${investment.currencyCode}`}
+						onPress={() =>
+							navigation.navigate("LinkedTransactions", {
+								kind: "INVESTMENT",
+								entityId: investment.investmentId,
+								entityName: investment.investmentName,
+								dateRangeStart: dateRange.start,
+								dateRangeEnd: dateRange.end,
+								dateRangeLabel: getDateRangeLabel(
+									period,
+									dateRange,
+								),
+							})
+						}
+					>
+						<GlassCard accent={getInvestmentAccent(investment.net)}>
+							<CustomText style={styles.categoryName}>
+								{investment.investmentName}
+							</CustomText>
+							<View style={styles.investmentRow}>
+								<View>
+									<CustomText style={styles.summaryLabel}>
+										Total invested
+									</CustomText>
+									<CustomText style={styles.investmentValue}>
 										{formatMoney(
-											getInvestmentNetAmount(
-												investment.net,
-											),
+											investment.totalInvested,
 											investment.currencyCode,
 										)}
 									</CustomText>
-								</GlassCard>
-							</Pressable>
-						))
-					) : (
-						<EmptyState
-							icon="trending-up"
-							message="No investment transactions in this period."
-							title="No investment activity"
-						/>
-					)}
-					<Pressable
-						onPress={() => navigation.navigate("ExchangeRates")}
-						style={styles.ratesLink}
-					>
-						<Ionicons
-							color={COLORS.primaryBright}
-							name="earth-outline"
-							size={18}
-						/>
-						<CustomText style={styles.ratesLinkText}>
-							Manage exchange rates
-						</CustomText>
+								</View>
+								<View>
+									<CustomText style={styles.summaryLabel}>
+										Total redeemed
+									</CustomText>
+									<CustomText style={styles.investmentValue}>
+										{formatMoney(
+											investment.totalRedeemed,
+											investment.currencyCode,
+										)}
+									</CustomText>
+								</View>
+							</View>
+							<CustomText
+								style={[
+									styles.investmentNet,
+									{
+										color: getInvestmentColor(
+											investment.net,
+										),
+									},
+								]}
+							>
+								{getInvestmentNetLabel(investment.net)}:{" "}
+								{formatMoney(
+									getInvestmentNetAmount(investment.net),
+									investment.currencyCode,
+								)}
+							</CustomText>
+						</GlassCard>
 					</Pressable>
-				</>
+				))
+			) : (
+				<EmptyState
+					icon="trending-up"
+					message="No investment transactions in this period."
+					title="No investment activity"
+				/>
 			)}
+			<Pressable
+				onPress={() => navigation.navigate("ExchangeRates")}
+				style={styles.ratesLink}
+			>
+				<Ionicons
+					color={COLORS.primaryBright}
+					name="earth-outline"
+					size={18}
+				/>
+				<CustomText style={styles.ratesLinkText}>
+					Manage exchange rates
+				</CustomText>
+			</Pressable>
 		</ScreenContainer>
 	);
 };
@@ -976,6 +1187,60 @@ const styles = StyleSheet.create({
 		color: COLORS.primaryBright,
 		fontSize: 13,
 		fontWeight: "800",
+	},
+	yoyRow: {
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "space-between",
+		paddingVertical: 6,
+	},
+	yoyRight: {
+		alignItems: "flex-end",
+	},
+	yoyPct: {
+		fontSize: 14,
+		fontWeight: "900",
+	},
+	yoyPrevValue: {
+		color: COLORS.textMuted,
+		fontSize: 11,
+		marginTop: 2,
+	},
+	carouselContainer: {
+		gap: 12,
+		paddingHorizontal: 16,
+		paddingVertical: 12,
+	},
+	carouselCard: {
+		minWidth: 360,
+	},
+	carouselWrapper: {
+		gap: 10,
+	},
+	carouselHeader: {
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "space-between",
+		paddingHorizontal: 12,
+	},
+	carouselButton: {
+		width: 44,
+		height: 44,
+		borderRadius: 12,
+		backgroundColor: "rgba(255,255,255,0.08)",
+		borderWidth: 1,
+		borderColor: COLORS.border,
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	carouselButtonDisabled: {
+		opacity: 0.4,
+	},
+	carouselIndicator: {
+		color: COLORS.textMuted,
+		fontSize: 12,
+		fontWeight: "700",
+		letterSpacing: 0.5,
 	},
 });
 

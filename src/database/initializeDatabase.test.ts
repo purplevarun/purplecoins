@@ -11,7 +11,7 @@ vi.mock("expo-sqlite", () => ({
 	openDatabaseAsync: vi.fn(),
 }));
 
-const { DATABASE_NAME, SCHEMA_VERSION } = appConstants;
+const { DATABASE_NAME } = appConstants;
 const openDatabaseAsyncMock = vi.mocked(openDatabaseAsync);
 
 describe("initializeDatabase", () => {
@@ -19,7 +19,7 @@ describe("initializeDatabase", () => {
 		vi.clearAllMocks();
 	});
 
-	it("opens the app's database, applies the schema, sets the schema version, then applies migrations in order", async () => {
+	it("opens the app's database, applies the schema, then applies migrations in order", async () => {
 		const execAsyncMock = vi.fn().mockResolvedValue(undefined);
 		openDatabaseAsyncMock.mockResolvedValue({
 			execAsync: execAsyncMock,
@@ -32,10 +32,7 @@ describe("initializeDatabase", () => {
 			(call: readonly unknown[]) => call[0],
 		);
 		expect(executedStatements[0]).toBe(SCHEMA_SQL);
-		expect(executedStatements[1]).toBe(
-			`PRAGMA user_version = ${SCHEMA_VERSION};`,
-		);
-		expect(executedStatements.slice(2)).toEqual(SCHEMA_MIGRATIONS);
+		expect(executedStatements.slice(1)).toEqual(SCHEMA_MIGRATIONS);
 		expect(database).toMatchObject({ execAsync: execAsyncMock });
 	});
 
@@ -55,7 +52,7 @@ describe("initializeDatabase", () => {
 		await expect(initializeDatabase()).resolves.toBeDefined();
 		// Every migration was still attempted despite the first one failing.
 		expect(execAsyncMock).toHaveBeenCalledTimes(
-			2 + SCHEMA_MIGRATIONS.length,
+			1 + SCHEMA_MIGRATIONS.length,
 		);
 	});
 

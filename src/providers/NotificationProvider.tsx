@@ -10,7 +10,6 @@ import { AppState, Platform } from "react-native";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import navigationRef from "@/navigation/navigationRef";
 import autoBackupService from "@/services/autoBackupService";
-import budgetAlertService from "@/services/budgetAlertService";
 import merchantCategoryService from "@/services/merchantCategoryService";
 import todoReminderService from "@/services/todoReminderService";
 import upiDetectionService from "@/services/upiDetectionService";
@@ -19,7 +18,6 @@ import type { DetectedTransactionPayload } from "@/services/upiDetectionService"
 import type TransactionType from "@/types/TransactionType";
 
 const { runAutoBackupIfDue, syncAutoBackupReminder } = autoBackupService;
-const { syncBudgetAlerts } = budgetAlertService;
 const { syncTodoReminders } = todoReminderService;
 const { consumeDetectedTransaction } = upiDetectionService;
 const { getSuggestionForMerchant } = merchantCategoryService;
@@ -98,7 +96,6 @@ const NotificationProvider = ({ children }: PropsWithChildren): ReactNode => {
 	const syncNotifications = useCallback(async (): Promise<void> => {
 		await Promise.all([
 			syncTodoReminders(database),
-			syncBudgetAlerts(database),
 			runAutoBackupIfDue(database),
 			syncAutoBackupReminder(database),
 		]);
