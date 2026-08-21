@@ -270,9 +270,9 @@ const AnalysisScreen = ({
 				getFyStartMonth(database),
 				previousDateRange
 					? getAnalysisSummary(database, {
-						dateRange: previousDateRange,
-						isNativeCurrency: false,
-					})
+							dateRange: previousDateRange,
+							isNativeCurrency: false,
+						})
 					: Promise.resolve(null),
 				getTransactionRowsInRange(
 					database,
@@ -281,9 +281,9 @@ const AnalysisScreen = ({
 				),
 				yoyDateRange
 					? getAnalysisSummary(database, {
-						dateRange: yoyDateRange,
-						isNativeCurrency: false,
-					})
+							dateRange: yoyDateRange,
+							isNativeCurrency: false,
+						})
 					: Promise.resolve(null),
 			]);
 			const periodTrendResult = await getPeriodTrend(database, {
@@ -422,12 +422,12 @@ const AnalysisScreen = ({
 			color: COLORS.success,
 			...(previousSummary !== null
 				? buildPctDisplay(
-					getPercentChange(
-						summary?.totalIncome ?? ZERO_AMOUNT,
-						previousSummary.totalIncome,
-					),
-					true,
-				)
+						getPercentChange(
+							summary?.totalIncome ?? ZERO_AMOUNT,
+							previousSummary.totalIncome,
+						),
+						true,
+					)
 				: {}),
 		},
 		{
@@ -440,12 +440,12 @@ const AnalysisScreen = ({
 			color: COLORS.danger,
 			...(previousSummary !== null
 				? buildPctDisplay(
-					getPercentChange(
-						summary?.totalExpense ?? ZERO_AMOUNT,
-						previousSummary.totalExpense,
-					),
-					false,
-				)
+						getPercentChange(
+							summary?.totalExpense ?? ZERO_AMOUNT,
+							previousSummary.totalExpense,
+						),
+						false,
+					)
 				: {}),
 		},
 		{
@@ -467,12 +467,12 @@ const AnalysisScreen = ({
 					: COLORS.success,
 			...(previousSummary !== null
 				? buildPctDisplay(
-					getPercentChange(
-						summary?.netProfit ?? ZERO_AMOUNT,
-						previousSummary.netProfit,
-					),
-					true,
-				)
+						getPercentChange(
+							summary?.netProfit ?? ZERO_AMOUNT,
+							previousSummary.netProfit,
+						),
+						true,
+					)
 				: {}),
 		},
 		{
@@ -488,12 +488,12 @@ const AnalysisScreen = ({
 					: COLORS.success,
 			...(previousSummary !== null
 				? buildPctDisplay(
-					getPercentChange(
-						netAfterInvestments,
-						prevNetAfterInvestments,
-					),
-					true,
-				)
+						getPercentChange(
+							netAfterInvestments,
+							prevNetAfterInvestments,
+						),
+						true,
+					)
 				: {}),
 		},
 		{
@@ -716,7 +716,7 @@ const AnalysisScreen = ({
 								style={[
 									styles.carouselButton,
 									carouselIndex === 0 &&
-									styles.carouselButtonDisabled,
+										styles.carouselButtonDisabled,
 								]}
 							>
 								<Ionicons
@@ -742,7 +742,7 @@ const AnalysisScreen = ({
 								style={[
 									styles.carouselButton,
 									carouselIndex === 3 &&
-									styles.carouselButtonDisabled,
+										styles.carouselButtonDisabled,
 								]}
 							>
 								<Ionicons
