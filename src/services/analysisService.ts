@@ -316,14 +316,7 @@ type PeriodTrendOptions = Readonly<{
 const getTrendWindows = (
 	options: PeriodTrendOptions,
 ): ReturnType<typeof getDayWindows> => {
-	const {
-		dateRange,
-		period,
-		anchorDate,
-		fyStartMonth = 4,
-		minTxnDate,
-		maxTxnDate,
-	} = options;
+	const { dateRange, period, anchorDate, minTxnDate, maxTxnDate } = options;
 	switch (period) {
 		case "MONTH":
 			return getDayWindows(dateRange);

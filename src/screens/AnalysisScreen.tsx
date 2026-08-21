@@ -27,7 +27,6 @@ import type ChartDatum from "@/types/ChartDatum";
 import type DateRange from "@/types/DateRange";
 import type RootStackParamList from "@/types/RootStackParamList";
 import type SelectOption from "@/types/SelectOption";
-import type Transaction from "@/types/Transaction";
 import type TrendPoint from "@/types/TrendPoint";
 import dateUtils from "@/utils/date";
 import getErrorMessage from "@/utils/error";
@@ -35,8 +34,7 @@ import moneyUtils from "@/utils/money";
 import runAfterRender from "@/utils/runAfterRender";
 
 const { DEFAULT_CURRENCY_CODE } = appConstants;
-const { getTransactionMinMaxDate, getTransactionRowsInRange } =
-	financeRepository;
+const { getTransactionMinMaxDate } = financeRepository;
 const {
 	getAnalysisSummary,
 	getInvestmentNetAmount,
@@ -219,9 +217,6 @@ const AnalysisScreen = ({
 	const [summary, setSummary] = useState<AnalysisSummary | null>(null);
 	const [previousSummary, setPreviousSummary] =
 		useState<AnalysisSummary | null>(null);
-	const [transactions, setTransactions] = useState<readonly Transaction[]>(
-		[],
-	);
 	const [error, setError] = useState("");
 	const [fyStartMonth, setFyStartMonth] = useState(4);
 	const [minTxnDate, setMinTxnDate] = useState<number | undefined>(undefined);
@@ -259,7 +254,6 @@ const AnalysisScreen = ({
 				minMax,
 				fy,
 				prevSummaryResult,
-				txnRows,
 				yoySummaryResult,
 			] = await Promise.all([
 				getAnalysisSummary(database, {
@@ -274,11 +268,6 @@ const AnalysisScreen = ({
 							isNativeCurrency: false,
 						})
 					: Promise.resolve(null),
-				getTransactionRowsInRange(
-					database,
-					dateRange.start,
-					dateRange.end,
-				),
 				yoyDateRange
 					? getAnalysisSummary(database, {
 							dateRange: yoyDateRange,
@@ -297,7 +286,6 @@ const AnalysisScreen = ({
 			setSummary(summaryResult);
 			setFyStartMonth(fy);
 			setPreviousSummary(prevSummaryResult);
-			setTransactions(txnRows);
 			setYoySummary(yoySummaryResult);
 			setPeriodTrend(periodTrendResult);
 			if (minMax) {
