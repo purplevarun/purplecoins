@@ -1,4 +1,4 @@
-package com.purple.coins.experimental
+package com.purple.coins
 
 import android.app.Notification
 import android.service.notification.NotificationListenerService

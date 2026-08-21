@@ -1,4 +1,4 @@
-package com.purple.coins.experimental
+package com.purple.coins
 
 import java.util.Locale
 import java.util.regex.Pattern

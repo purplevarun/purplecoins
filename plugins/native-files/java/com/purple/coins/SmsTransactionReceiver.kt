@@ -1,4 +1,4 @@
-package com.purple.coins.experimental
+package com.purple.coins
 
 import android.content.BroadcastReceiver
 import android.content.Context

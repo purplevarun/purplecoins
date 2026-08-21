@@ -42,7 +42,7 @@ replace_text_in_file() {
 
 version_code_from_version() {
     CURRENT="$1"
-    node -e 'const current=process.argv[1]; const parts=current.split(".").map(Number); if (parts.length !== 3 || parts.some(Number.isNaN) || parts.some(part => part < 0 || part > 99)) process.exit(1); const code = (parts[0] * 10000) + (parts[1] * 100) + parts[2]; process.stdout.write(String(code));' "$CURRENT"
+  node -e 'const current=process.argv[1]; const parts=current.split(".").map(Number); if ((parts.length !== 2 && parts.length !== 3) || parts.some(Number.isNaN) || parts.some(part => part < 0 || part > 99)) process.exit(1); const normalized = parts.length === 2 ? [parts[0], parts[1], 0] : parts; const code = (normalized[0] * 10000) + (normalized[1] * 100) + normalized[2]; process.stdout.write(String(code));' "$CURRENT"
 }
 
 validate_state() {
