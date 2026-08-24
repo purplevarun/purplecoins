@@ -4,8 +4,6 @@ import Svg, { Circle } from "react-native-svg";
 
 import COLORS from "@/constants/colors";
 import type ChartDatum from "@/types/ChartDatum";
-import donutChartUtils from "@/utils/donutChart";
-const { computeDonutSegments } = donutChartUtils;
 
 type DonutChartProps = Readonly<{
 	data: readonly ChartDatum[];
@@ -21,7 +19,8 @@ const DonutChart = ({
 	data,
 	centerLabel,
 }: DonutChartProps): React.JSX.Element => {
-	const segments = computeDonutSegments(data, CIRCUMFERENCE);
+	const total = data.reduce((sum, datum) => sum + datum.value, 0);
+	let accumulatedFraction = 0;
 
 	return (
 		<View style={styles.container}>
@@ -35,22 +34,31 @@ const DonutChart = ({
 						stroke="rgba(255,255,255,0.06)"
 						strokeWidth={STROKE_WIDTH}
 					/>
-					{segments.map((segment) => (
-						<Circle
-							key={segment.label}
-							cx={CHART_SIZE / 2}
-							cy={CHART_SIZE / 2}
-							fill="transparent"
-							r={RADIUS}
-							rotation="-90"
-							origin={`${CHART_SIZE / 2}, ${CHART_SIZE / 2}`}
-							stroke={segment.color}
-							strokeDasharray={`${segment.dashLength} ${CIRCUMFERENCE - segment.dashLength}`}
-							strokeDashoffset={segment.dashOffset}
-							strokeLinecap="round"
-							strokeWidth={STROKE_WIDTH}
-						/>
-					))}
+					{total > 0
+						? data.map((datum) => {
+								const fraction = datum.value / total;
+								const dashLength = fraction * CIRCUMFERENCE;
+								const dashOffset =
+									-accumulatedFraction * CIRCUMFERENCE;
+								accumulatedFraction += fraction;
+								return (
+									<Circle
+										key={datum.label}
+										cx={CHART_SIZE / 2}
+										cy={CHART_SIZE / 2}
+										fill="transparent"
+										r={RADIUS}
+										rotation="-90"
+										origin={`${CHART_SIZE / 2}, ${CHART_SIZE / 2}`}
+										stroke={datum.color}
+										strokeDasharray={`${dashLength} ${CIRCUMFERENCE - dashLength}`}
+										strokeDashoffset={dashOffset}
+										strokeLinecap="round"
+										strokeWidth={STROKE_WIDTH}
+									/>
+								);
+							})
+						: null}
 				</Svg>
 				<View style={styles.center}>
 					<CustomText style={styles.centerLabel}>

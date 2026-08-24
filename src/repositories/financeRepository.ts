@@ -223,7 +223,7 @@ const getCategoryRows = async (
 		SELECT
 			category.id,
 			category.name,
-			COALESCE(category.type, 'EXPENSE') AS type,
+			category.is_income AS isIncome,
 			category.created_at AS createdAt,
 			category.updated_at AS updatedAt,
 			COALESCE(category.archived, 0) AS archived
@@ -244,7 +244,7 @@ const getArchivedCategoryRows = async (
 		SELECT
 			id,
 			name,
-			type AS type,
+			is_income AS isIncome,
 			created_at AS createdAt,
 			updated_at AS updatedAt,
 			COALESCE(archived, 0) AS archived
@@ -262,7 +262,7 @@ const getCategoryRow = async (
 			SELECT
 				id,
 				name,
-				type AS type,
+				is_income AS isIncome,
 				created_at AS createdAt,
 				updated_at AS updatedAt,
 				COALESCE(archived, 0) AS archived
@@ -279,16 +279,16 @@ const upsertCategoryRow = async (
 	await database.runAsync(
 		`
 			INSERT INTO categories (
-				id, name, type, created_at, updated_at
+				id, name, is_income, created_at, updated_at
 			) VALUES (?, ?, ?, ?, ?)
 			ON CONFLICT(id) DO UPDATE SET
 				name = excluded.name,
-				type = excluded.type,
+				is_income = excluded.is_income,
 				updated_at = excluded.updated_at;
 		`,
 		category.id,
 		category.name,
-		category.type,
+		category.isIncome ? 1 : 0,
 		category.createdAt,
 		category.updatedAt,
 	);

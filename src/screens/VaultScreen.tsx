@@ -62,10 +62,8 @@ const CopyRow = ({
 				<CustomText style={styles.copyValue}>{value}</CustomText>
 			</View>
 			<Pressable
-				accessibilityLabel={`Copy ${label}`}
 				onPress={() => onCopy(value, label)}
 				style={styles.copyBtn}
-				testID={`copy-${label.toLowerCase().replace(/\s+/g, "-")}`}
 			>
 				<Ionicons
 					color={COLORS.primaryBright}

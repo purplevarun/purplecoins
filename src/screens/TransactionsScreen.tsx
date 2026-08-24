@@ -55,6 +55,7 @@ const TransactionsScreen = ({
 	const [searchVisible, setSearchVisible] = useState(false);
 	const [searchQuery, setSearchQuery] = useState("");
 	const [searchDebounced, setSearchDebounced] = useState("");
+
 	const getScreenData = useCallback(async (): Promise<void> => {
 		try {
 			setTransactions(await getTransactions(database));

@@ -12,8 +12,7 @@ dist/
 web-build/
 expo-env.d.ts
 
-# Native (fully generated via `expo prebuild`; custom native code lives in plugins/)
-android/
+# Native
 .kotlin/
 *.orig.*
 *.jks
@@ -28,9 +27,6 @@ android/
 # debug
 npm-debug.*
 yarn-debug.*
-
-# run script logs
-logs/*.txt
 yarn-error.*
 
 # macOS
@@ -43,17 +39,6 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
-# local npm registry override (machine-specific proxy workaround)
-.npmrc
-
-# test coverage reports
-coverage/
-
-package-lock.json
-yarn.lock
-/build/eas-archive-inspect/
-/build/eas-archive-inspect-2/
-
-*.purplecoins*
-
-report.xml
+# generated native folders
+/ios
+/android

@@ -18,7 +18,6 @@ import useAttachment from "@/hooks/useAttachment";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import categoryService from "@/services/categoryService";
 import investmentService from "@/services/investmentService";
-import merchantCategoryService from "@/services/merchantCategoryService";
 import settingsService from "@/services/settingsService";
 import sourceService from "@/services/sourceService";
 import transactionService from "@/services/transactionService";
@@ -35,7 +34,6 @@ import getErrorMessage from "@/utils/error";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 const { getCategories } = categoryService;
 const { getInvestments } = investmentService;
-const { recordMerchantChoice } = merchantCategoryService;
 const { getDefaultTripId } = settingsService;
 const { getSources } = sourceService;
 const { deleteTransaction, getTransaction, saveTransaction } =
@@ -61,34 +59,12 @@ const INVESTMENT_TYPE_OPTIONS: readonly SelectOption[] = [
 	{ label: "Credit", value: "CREDIT" },
 ];
 
-const getDefaultCategoryForType = (
-	allCategories: readonly Category[],
-	type: TransactionType,
-): string => {
-	if (type === "CREDIT") {
-		return (
-			allCategories.find((category) => category.type === "INCOME")?.id ??
-			""
-		);
-	}
-	return (
-		allCategories.find((category) => category.type === "EXPENSE")?.id ?? ""
-	);
-};
-
 const TransactionFormScreen = ({
 	navigation,
 	route,
 }: TransactionFormScreenProps): React.JSX.Element => {
 	const transactionId = route.params?.transactionId;
 	const cloneFromTransactionId = route.params?.cloneFromTransactionId;
-	const prefillType = route.params?.prefillType;
-	const prefillAmount = route.params?.prefillAmount;
-	const prefillReason = route.params?.prefillReason;
-	const prefillTransactionAt = route.params?.prefillTransactionAt;
-	const prefillCategoryId = route.params?.prefillCategoryId;
-	const prefillSourceId = route.params?.prefillSourceId;
-	const prefillMerchant = route.params?.prefillMerchant;
 	const { database, refreshData } = useDatabaseContext();
 	const dialog = useAppDialog();
 	const attachment = useAttachment("TRANSACTION", transactionId);
@@ -140,49 +116,6 @@ const TransactionFormScreen = ({
 				setTrips(loadedTrips);
 				setInvestments(loadedInvestments);
 				if (!existingTransaction) {
-					if (!sourceId) {
-						if (
-							prefillType === "CREDIT" ||
-							prefillType === "DEBIT"
-						) {
-							setType(prefillType);
-							const matchedCategoryId = getDefaultCategoryForType(
-								loadedCategories,
-								prefillType,
-							);
-							if (matchedCategoryId) {
-								setCategoryId(matchedCategoryId);
-							}
-						}
-						if (
-							prefillCategoryId &&
-							loadedCategories.some(
-								(category) => category.id === prefillCategoryId,
-							)
-						) {
-							setCategoryId(prefillCategoryId);
-						}
-						if (
-							prefillSourceId &&
-							loadedSources.some(
-								(source) => source.id === prefillSourceId,
-							)
-						) {
-							setSourceId(prefillSourceId);
-						}
-						if (prefillAmount) {
-							setAmount(prefillAmount);
-						}
-						if (prefillReason) {
-							setReason(prefillReason);
-						}
-						if (
-							typeof prefillTransactionAt === "number" &&
-							Number.isFinite(prefillTransactionAt)
-						) {
-							setTransactionAt(prefillTransactionAt);
-						}
-					}
 					// Prefill default trip for new transactions
 					if (defaultTrip) {
 						setTripId(defaultTrip);
@@ -210,17 +143,7 @@ const TransactionFormScreen = ({
 			}
 		};
 		void getFormData();
-	}, [
-		database,
-		transactionId,
-		cloneFromTransactionId,
-		prefillType,
-		prefillAmount,
-		prefillReason,
-		prefillTransactionAt,
-		prefillCategoryId,
-		prefillSourceId,
-	]);
+	}, [database, transactionId, cloneFromTransactionId]);
 
 	const selectedSource = sources.find((source) => source.id === sourceId);
 	const selectedDestination = sources.find(
@@ -241,12 +164,7 @@ const TransactionFormScreen = ({
 		(category) => ({
 			label: category.name,
 			value: category.id,
-			description:
-				category.type === "INCOME"
-					? "Income"
-					: category.type === "REFUND"
-						? "Refund"
-						: "Expense",
+			description: category.isIncome ? "Income" : "Expense",
 		}),
 	);
 	const tripOptions: readonly SelectOption[] = trips.map((trip) => ({
@@ -314,18 +232,6 @@ const TransactionFormScreen = ({
 				reason,
 				transactionAt,
 			});
-			if (
-				prefillMerchant &&
-				classification === "GENERAL" &&
-				type !== "TRANSFER"
-			) {
-				await recordMerchantChoice(
-					database,
-					prefillMerchant,
-					categoryId || null,
-					sourceId || null,
-				);
-			}
 			await attachment.processAttachment(savedId);
 			refreshData();
 			navigation.goBack();

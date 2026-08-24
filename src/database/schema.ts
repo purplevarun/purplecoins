@@ -1,11 +1,3 @@
-// ╔══════════════════════════════════════════════════════════════════════════╗
-// ║  FROZEN — DO NOT MODIFY THIS FILE                                        ║
-// ║                                                                          ║
-// ║  SCHEMA_SQL must always equal exactly what shipped on the main branch.   ║
-// ║  We have production users. Any schema change (new table, new column,     ║
-// ║  dropped column, index, constraint) MUST go through migrations.ts, NOT   ║
-// ║  this file. Editing here will corrupt existing installs.                 ║
-// ╚══════════════════════════════════════════════════════════════════════════╝
 const SCHEMA_SQL = `
 PRAGMA foreign_keys = ON;
 PRAGMA journal_mode = WAL;

@@ -16,7 +16,6 @@ type TextFieldProps = Readonly<{
 	isSecure?: boolean;
 	isEditable?: boolean;
 	autoCapitalize?: "none" | "sentences" | "words" | "characters";
-	inputTestID?: string;
 }>;
 
 const TextField = ({
@@ -29,7 +28,6 @@ const TextField = ({
 	isSecure = false,
 	isEditable = true,
 	autoCapitalize = "sentences",
-	inputTestID,
 }: TextFieldProps): React.JSX.Element => {
 	const [showSecret, setShowSecret] = useState(false);
 
@@ -46,7 +44,6 @@ const TextField = ({
 					placeholder={placeholder}
 					placeholderTextColor={COLORS.textDim}
 					secureTextEntry={isSecure && !showSecret}
-					testID={inputTestID}
 					style={[
 						styles.input,
 						isMultiline && styles.multiline,

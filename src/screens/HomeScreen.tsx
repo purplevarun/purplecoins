@@ -3,13 +3,7 @@ import CustomText from "@/components/CustomText";
 import { Ionicons } from "@expo/vector-icons";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { LinearGradient } from "expo-linear-gradient";
-import {
-	type ComponentProps,
-	useCallback,
-	useEffect,
-	useMemo,
-	useState,
-} from "react";
+import { type ComponentProps, useCallback, useMemo, useState } from "react";
 import { Animated, Modal, Pressable, StyleSheet, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -20,12 +14,9 @@ import ScreenContainer from "@/components/ScreenContainer";
 import appConstants from "@/constants/appConstants";
 import COLORS from "@/constants/colors";
 import HOME_MODES from "@/constants/homeModes";
-import useDatabaseContext from "@/hooks/useDatabaseContext";
-import settingsService from "@/services/settingsService";
 import type HomeMode from "@/types/HomeMode";
 import type RootStackParamList from "@/types/RootStackParamList";
 const { ALLOW_CLICK_SWITCH, ALLOW_SWIPE_SWITCH, APP_NAME } = appConstants;
-const { getDefaultHomeMode } = settingsService;
 
 type HomeScreenProps = NativeStackScreenProps<RootStackParamList, "Home">;
 
@@ -49,39 +40,21 @@ const MODE_OPTIONS: readonly HomeModeOption[] = [
 	{ mode: "VAULT", label: "Vault", icon: "lock-closed-outline" },
 ];
 
-const SWIPE_THRESHOLD = 28;
+const SWIPE_DOWN_THRESHOLD = 28;
 const SWITCH_ARROW_TRAVEL = 5;
 
 const getModeLabel = (mode: HomeMode): string =>
 	MODE_OPTIONS.find((option) => option.mode === mode)?.label ?? "Tools";
 
-const HomeScreen = ({
-	navigation,
-	route,
-}: HomeScreenProps): React.JSX.Element => {
-	const { database } = useDatabaseContext();
+const HomeScreen = ({ navigation }: HomeScreenProps): React.JSX.Element => {
 	const [mode, setMode] = useState<HomeMode>("TOOLS");
 	const [isModeMenuVisible, setIsModeMenuVisible] = useState(false);
 	const [switchDragProgress] = useState(() => new Animated.Value(0));
 
-	useEffect(() => {
-		const loadDefaultMode = async (): Promise<void> => {
-			if (route.params?.mode) {
-				setMode(route.params.mode);
-				return;
-			}
-			const defaultMode = await getDefaultHomeMode(database);
-			setMode(defaultMode);
-		};
-		void loadDefaultMode();
-	}, [database, route.params?.mode]);
-
-	const cycleMode = useCallback((direction: 1 | -1): void => {
+	const cycleMode = useCallback((): void => {
 		setMode((currentMode) => {
-			const modeCount = HOME_MODES.length;
 			const currentIndex = HOME_MODES.indexOf(currentMode);
-			const nextIndex =
-				(currentIndex + direction + modeCount) % modeCount;
+			const nextIndex = (currentIndex + 1) % HOME_MODES.length;
 			return HOME_MODES[nextIndex] ?? "TOOLS";
 		});
 		setIsModeMenuVisible(false);
@@ -89,16 +62,13 @@ const HomeScreen = ({
 
 	const updateSwitchDragProgress = useCallback(
 		(translationX: number, translationY: number): void => {
-			const isVertical = Math.abs(translationY) > Math.abs(translationX);
-			if (!isVertical) {
-				switchDragProgress.setValue(0);
-				return;
-			}
-			const clampedTranslation = Math.max(
-				Math.min(translationY, SWIPE_THRESHOLD),
-				-SWIPE_THRESHOLD,
-			);
-			switchDragProgress.setValue(clampedTranslation / SWIPE_THRESHOLD);
+			const isDownward =
+				translationY > 0 &&
+				Math.abs(translationY) > Math.abs(translationX);
+			const progress = isDownward
+				? Math.min(translationY / SWIPE_DOWN_THRESHOLD, 1)
+				: 0;
+			switchDragProgress.setValue(progress);
 		},
 		[switchDragProgress],
 	);
@@ -125,16 +95,12 @@ const HomeScreen = ({
 					);
 				})
 				.onEnd((event) => {
-					const isVertical =
+					if (
+						event.translationY >= SWIPE_DOWN_THRESHOLD &&
 						Math.abs(event.translationY) >
-						Math.abs(event.translationX);
-					if (isVertical && event.translationY >= SWIPE_THRESHOLD) {
-						cycleMode(1);
-					} else if (
-						isVertical &&
-						event.translationY <= -SWIPE_THRESHOLD
+							Math.abs(event.translationX)
 					) {
-						cycleMode(-1);
+						cycleMode();
 					}
 					resetSwitchDragProgress();
 				})
@@ -149,12 +115,8 @@ const HomeScreen = ({
 			transform: [
 				{
 					translateY: switchDragProgress.interpolate({
-						inputRange: [-1, 0, 1],
-						outputRange: [
-							-SWITCH_ARROW_TRAVEL,
-							0,
-							-SWITCH_ARROW_TRAVEL,
-						],
+						inputRange: [0, 1],
+						outputRange: [0, -SWITCH_ARROW_TRAVEL],
 					}),
 				},
 			],
@@ -167,12 +129,8 @@ const HomeScreen = ({
 			transform: [
 				{
 					translateY: switchDragProgress.interpolate({
-						inputRange: [-1, 0, 1],
-						outputRange: [
-							SWITCH_ARROW_TRAVEL,
-							0,
-							SWITCH_ARROW_TRAVEL,
-						],
+						inputRange: [0, 1],
+						outputRange: [0, SWITCH_ARROW_TRAVEL],
 					}),
 				},
 			],
@@ -351,14 +309,9 @@ const HomeScreen = ({
 			<SafeAreaView style={styles.safeArea}>
 				<ScreenContainer>
 					<View style={styles.header}>
-						<View style={styles.brandRow}>
-							<CustomText
-								numberOfLines={1}
-								style={styles.appName}
-							>
-								{APP_NAME}
-							</CustomText>
-						</View>
+						<CustomText numberOfLines={1} style={styles.appName}>
+							{APP_NAME}
+						</CustomText>
 						<View style={styles.modeRow}>
 							<CustomText style={styles.modeName}>
 								{getModeLabel(mode)}
@@ -507,15 +460,8 @@ const styles = StyleSheet.create({
 		marginBottom: 8,
 		gap: 8,
 	},
-	brandRow: {
-		flexDirection: "row",
-		alignItems: "center",
-		justifyContent: "space-between",
-		gap: 12,
-	},
 	appName: {
 		color: COLORS.text,
-		flex: 1,
 		fontSize: 36,
 		fontWeight: "900",
 		letterSpacing: 0,

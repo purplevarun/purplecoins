@@ -39,7 +39,7 @@ const exportBackup = async (database: SQLiteDatabase): Promise<void> => {
 	}
 	await Sharing.shareAsync(output.uri, {
 		mimeType: BACKUP_MIME_TYPE,
-		dialogTitle: `Export ${APP_NAME} backup`,
+		dialogTitle: "Export Purplecoins backup",
 	});
 };
 

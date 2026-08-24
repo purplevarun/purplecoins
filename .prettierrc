@@ -6,22 +6,5 @@
 	"trailingComma": "all",
 	"bracketSpacing": true,
 	"endOfLine": "lf",
-	"plugins": ["prettier-plugin-organize-imports", "@prettier/plugin-xml"],
-	"overrides": [
-		{
-			"files": "*.xml",
-			"options": {
-				"tabWidth": 4,
-				"useTabs": false,
-				"xmlWhitespaceSensitivity": "ignore"
-			}
-		},
-		{
-			"files": ["*.yml", "*.yaml"],
-			"options": {
-				"tabWidth": 2,
-				"useTabs": false
-			}
-		}
-	]
+	"plugins": ["prettier-plugin-organize-imports"]
 }

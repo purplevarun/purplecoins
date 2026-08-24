@@ -4,9 +4,7 @@ import { DarkTheme, NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import COLORS from "@/constants/colors";
-import navigationRef from "@/navigation/navigationRef";
 import AnalysisScreen from "@/screens/AnalysisScreen";
-import AppLogsScreen from "@/screens/AppLogsScreen";
 import ArchivedRelationsScreen from "@/screens/ArchivedRelationsScreen";
 import BudgetFormScreen from "@/screens/BudgetFormScreen";
 import BudgetsScreen from "@/screens/BudgetsScreen";
@@ -14,7 +12,6 @@ import ExchangeRatesScreen from "@/screens/ExchangeRatesScreen";
 import GlobalSearchScreen from "@/screens/GlobalSearchScreen";
 import HomeScreen from "@/screens/HomeScreen";
 import LinkedTransactionsScreen from "@/screens/LinkedTransactionsScreen";
-import MergeCategoriesScreen from "@/screens/MergeCategoriesScreen";
 import NoteFormScreen from "@/screens/NoteFormScreen";
 import NotesScreen from "@/screens/NotesScreen";
 import RelationFormScreen from "@/screens/RelationFormScreen";
@@ -45,7 +42,7 @@ const navigationTheme = {
 };
 
 const AppNavigator = (): React.JSX.Element => (
-	<NavigationContainer ref={navigationRef} theme={navigationTheme}>
+	<NavigationContainer theme={navigationTheme}>
 		<Stack.Navigator
 			initialRouteName="Home"
 			screenOptions={{
@@ -62,7 +59,6 @@ const AppNavigator = (): React.JSX.Element => (
 		>
 			<Stack.Screen
 				component={HomeScreen}
-				initialParams={{ mode: "FINANCE" }}
 				name="Home"
 				options={{ headerShown: false }}
 			/>
@@ -165,19 +161,9 @@ const AppNavigator = (): React.JSX.Element => (
 				options={{ title: "Vault entry" }}
 			/>
 			<Stack.Screen
-				component={MergeCategoriesScreen}
-				name="MergeCategories"
-				options={{ title: "Merge categories" }}
-			/>
-			<Stack.Screen
 				component={SettingsScreen}
 				name="Settings"
 				options={{ title: "Settings & backup" }}
-			/>
-			<Stack.Screen
-				component={AppLogsScreen}
-				name="AppLogs"
-				options={{ title: "App logs" }}
 			/>
 		</Stack.Navigator>
 	</NavigationContainer>

@@ -1,39 +1,21 @@
 import { Ionicons } from "@expo/vector-icons";
-import type { ComponentProps } from "react";
 import { Pressable, StyleSheet } from "react-native";
 
 import COLORS from "@/constants/colors";
 
 type FloatingAddButtonProps = Readonly<{
 	onPress: () => void;
-	accessibilityLabel?: string;
-	icon?: ComponentProps<typeof Ionicons>["name"];
-	bottomOffset?: number;
-	tone?: "primary" | "secondary";
 }>;
 
 const FloatingAddButton = ({
 	onPress,
-	accessibilityLabel = "Add",
-	icon = "add",
-	bottomOffset = 24,
-	tone = "primary",
 }: FloatingAddButtonProps): React.JSX.Element => (
 	<Pressable
-		accessibilityLabel={accessibilityLabel}
+		accessibilityLabel="Add"
 		onPress={onPress}
-		style={({ pressed }) => [
-			styles.button,
-			tone === "secondary" ? styles.secondaryButton : null,
-			{ bottom: bottomOffset },
-			pressed && styles.pressed,
-		]}
+		style={({ pressed }) => [styles.button, pressed && styles.pressed]}
 	>
-		<Ionicons
-			color={tone === "secondary" ? COLORS.text : COLORS.background}
-			name={icon}
-			size={30}
-		/>
+		<Ionicons color={COLORS.background} name="add" size={30} />
 	</Pressable>
 );
 
@@ -58,11 +40,6 @@ const styles = StyleSheet.create({
 	},
 	pressed: {
 		transform: [{ scale: 0.95 }],
-	},
-	secondaryButton: {
-		backgroundColor: COLORS.backgroundElevated,
-		borderColor: COLORS.blue,
-		shadowColor: COLORS.blue,
 	},
 });
 

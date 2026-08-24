@@ -1,6 +1,6 @@
 {
 	"name": "purplecoins",
-	"version": "5.1",
+	"version": "5.0",
 	"main": "index.ts",
 	"dependencies": {
 		"@expo/vector-icons": "^15.0.2",
@@ -17,8 +17,6 @@
 		"expo-file-system": "~56.0.7",
 		"expo-font": "~56.0.5",
 		"expo-linear-gradient": "~56.0.4",
-		"expo-notifications": "~56.0.22",
-		"expo-quick-actions": "^6.0.2",
 		"expo-sharing": "~56.0.16",
 		"expo-splash-screen": "~56.0.10",
 		"expo-sqlite": "~56.0.4",
@@ -29,16 +27,14 @@
 		"react-native-gesture-handler": "~2.31.1",
 		"react-native-reanimated": "4.3.1",
 		"react-native-safe-area-context": "~5.7.0",
-		"react-native-screens": "~4.26.0",
+		"react-native-screens": "4.25.2",
 		"react-native-svg": "15.15.4",
 		"react-native-worklets": "0.8.3",
 		"zod": "^4.4.3"
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.39.4",
-		"@prettier/plugin-xml": "^3.4.2",
 		"@types/react": "~19.2.2",
-		"@vitest/coverage-v8": "^4.1.10",
 		"eslint": "^9.39.4",
 		"eslint-import-resolver-typescript": "^4.4.5",
 		"eslint-plugin-import": "^2.32.0",
@@ -52,24 +48,17 @@
 	},
 	"scripts": {
 		"android": "expo run:android",
-		"android:clean": "npx expo prebuild --clean --platform android && expo run:android",
-		"clean": "rm -rf node_modules yarn.lock bun.lock package-lock.json .expo && bun install",
+		"android:clean": "(test -f android/gradlew && cd android && ./gradlew clean && cd ..) || true && npx expo prebuild --clean --platform android && expo run:android",
+		"clean": "rm -rf node_modules yarn.lock bun.lock .expo && bun install",
 		"doctor": "npx expo-doctor",
 		"format": "prettier --write .",
 		"format:check": "prettier --check .",
 		"lint": "eslint . --max-warnings=0",
 		"typecheck": "tsc --noEmit",
 		"test": "vitest run",
-		"test:watch": "vitest",
-		"test:coverage": "vitest run --coverage",
-		"e2e": "bun run test:e2e",
-		"test:e2e": "maestro test -e APP_ID=$(cat .package) .maestro",
-		"test:e2e:flow": "maestro test -e APP_ID=$(cat .package)",
-		"check": "bun run format:check && bun run lint && bun run typecheck && bun run test",
+		"check": "bun run format:check && bun run lint && bun run typecheck && bun run test && bun run expo-check",
+		"build": "eas build --profile preview --platform android",
 		"expo-check": "npx expo install --check"
 	},
-	"private": true,
-	"overrides": {
-		"@expo/config-plugins": "56.0.14"
-	}
+	"private": true
 }

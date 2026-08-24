@@ -1,6 +1,5 @@
 import { BlurView } from "expo-blur";
 import type { PropsWithChildren, ReactNode } from "react";
-import type { ViewStyle } from "react-native";
 import { StyleSheet, View } from "react-native";
 
 import COLORS from "@/constants/colors";
@@ -8,8 +7,6 @@ import COLORS from "@/constants/colors";
 type GlassCardProps = PropsWithChildren<
 	Readonly<{
 		accent?: "default" | "success" | "danger" | "warning";
-		borderWidth?: number;
-		style?: ViewStyle;
 	}>
 >;
 
@@ -29,17 +26,8 @@ const getAccentColor = (accent: GlassCardProps["accent"]): string => {
 const GlassCard = ({
 	children,
 	accent = "default",
-	borderWidth,
-	style,
 }: GlassCardProps): ReactNode => (
-	<View
-		style={[
-			styles.wrapper,
-			{ borderColor: getAccentColor(accent) },
-			borderWidth !== undefined && { borderWidth },
-			style,
-		]}
-	>
+	<View style={[styles.wrapper, { borderColor: getAccentColor(accent) }]}>
 		<BlurView intensity={32} tint="dark" style={styles.blur}>
 			<View style={styles.content}>{children}</View>
 		</BlurView>

@@ -1,9 +1,7 @@
-import type CategoryType from "@/types/CategoryType";
-
 type Category = Readonly<{
 	id: string;
 	name: string;
-	type: CategoryType;
+	isIncome: boolean;
 	createdAt: number;
 	updatedAt: number;
 	archived: boolean;

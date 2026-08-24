@@ -23,7 +23,6 @@ const ScreenContainer = ({
 }: ScreenContainerProps): ReactNode => {
 	const content = isScrollable ? (
 		<ScrollView
-			bounces={false}
 			contentContainerStyle={styles.scrollContent}
 			keyboardShouldPersistTaps="handled"
 			showsVerticalScrollIndicator={false}

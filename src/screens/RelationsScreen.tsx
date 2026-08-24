@@ -35,7 +35,6 @@ import tripService from "@/services/tripService";
 import tripTotalService from "@/services/tripTotalService";
 import type AnalysisSummary from "@/types/AnalysisSummary";
 import type Category from "@/types/Category";
-import type CategoryType from "@/types/CategoryType";
 import type ExchangeRate from "@/types/ExchangeRate";
 import type Investment from "@/types/Investment";
 import type RootStackParamList from "@/types/RootStackParamList";
@@ -102,34 +101,6 @@ const RowActionIcon = ({
 		/>
 	</Pressable>
 );
-
-const getCategoryAccent = (
-	type: CategoryType,
-): "success" | "default" | "warning" => {
-	if (type === "INCOME") return "success";
-	if (type === "REFUND") return "warning";
-	return "default";
-};
-
-const getCategoryIconColor = (type: CategoryType): string => {
-	if (type === "INCOME") return COLORS.success;
-	if (type === "REFUND") return COLORS.warning;
-	return COLORS.warning;
-};
-
-const getCategoryIconName = (
-	type: CategoryType,
-): ComponentProps<typeof Ionicons>["name"] => {
-	if (type === "INCOME") return "arrow-down-circle-outline";
-	if (type === "REFUND") return "repeat-outline";
-	return "pricetag-outline";
-};
-
-const getCategoryLabel = (type: CategoryType): string => {
-	if (type === "INCOME") return "Income category";
-	if (type === "REFUND") return "Refund category (excluded from totals)";
-	return "Expense category";
-};
 
 const RelationsScreen = ({
 	navigation,
@@ -469,10 +440,7 @@ const RelationsScreen = ({
 							})
 						}
 					>
-						<GlassCard
-							accent={isValidated ? "success" : "default"}
-							borderWidth={isValidated ? 2 : undefined}
-						>
+						<GlassCard accent={isValidated ? "success" : "default"}>
 							<View style={styles.row}>
 								<View style={styles.iconBox}>
 									<Ionicons
@@ -486,6 +454,20 @@ const RelationsScreen = ({
 										<CustomText style={styles.title}>
 											{source.name}
 										</CustomText>
+										{isValidated ? (
+											<View style={styles.validatedBadge}>
+												<Ionicons
+													color={COLORS.success}
+													name="checkmark-circle"
+													size={14}
+												/>
+												<CustomText
+													style={styles.validatedText}
+												>
+													Validated
+												</CustomText>
+											</View>
+										) : null}
 									</View>
 									<CustomText style={styles.meta}>
 										{source.currencyCode}
@@ -572,16 +554,22 @@ const RelationsScreen = ({
 							})
 						}
 					>
-						<GlassCard accent={getCategoryAccent(category.type)}>
+						<GlassCard
+							accent={category.isIncome ? "success" : "default"}
+						>
 							<View style={styles.row}>
 								<View style={styles.iconBox}>
 									<Ionicons
-										color={getCategoryIconColor(
-											category.type,
-										)}
-										name={getCategoryIconName(
-											category.type,
-										)}
+										color={
+											category.isIncome
+												? COLORS.success
+												: COLORS.warning
+										}
+										name={
+											category.isIncome
+												? "arrow-down-circle-outline"
+												: "pricetag-outline"
+										}
 										size={22}
 									/>
 								</View>
@@ -590,7 +578,9 @@ const RelationsScreen = ({
 										{category.name}
 									</CustomText>
 									<CustomText style={styles.meta}>
-										{getCategoryLabel(category.type)}
+										{category.isIncome
+											? "Income category"
+											: "Expense category"}
 									</CustomText>
 									{totals.length === 0 ? (
 										<CustomText style={styles.amount}>
@@ -932,6 +922,20 @@ const styles = StyleSheet.create({
 		fontSize: 13,
 		fontWeight: "900",
 		marginTop: 1,
+	},
+	validatedBadge: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 4,
+		borderRadius: 999,
+		paddingHorizontal: 8,
+		paddingVertical: 3,
+		backgroundColor: COLORS.successMuted,
+	},
+	validatedText: {
+		color: COLORS.success,
+		fontSize: 10,
+		fontWeight: "900",
 	},
 	actions: {
 		marginTop: 12,

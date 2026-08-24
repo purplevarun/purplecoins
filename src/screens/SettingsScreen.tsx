@@ -1,15 +1,10 @@
 import appConstants from "@/constants/appConstants";
 
+import packageJson from "@/../package.json";
 import CustomText from "@/components/CustomText";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useEffect, useState } from "react";
-import {
-	PermissionsAndroid,
-	Platform,
-	StyleSheet,
-	Switch,
-	View,
-} from "react-native";
+import { StyleSheet, Switch, View } from "react-native";
 
 import AppButton from "@/components/AppButton";
 import GlassCard from "@/components/GlassCard";
@@ -17,46 +12,26 @@ import Notice from "@/components/Notice";
 import ScreenContainer from "@/components/ScreenContainer";
 import SelectField from "@/components/SelectField";
 import COLORS from "@/constants/colors";
-import VERSION from "@/constants/version";
 import useAppDialog from "@/hooks/useAppDialog";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
-import autoBackupService from "@/services/autoBackupService";
 import backupService from "@/services/backupService";
 import settingsService from "@/services/settingsService";
-import todoReminderService from "@/services/todoReminderService";
 import tripService from "@/services/tripService";
-import upiDetectionService from "@/services/upiDetectionService";
 import type RootStackParamList from "@/types/RootStackParamList";
 import type SelectOption from "@/types/SelectOption";
 import type Trip from "@/types/Trip";
 import getErrorMessage from "@/utils/error";
-import { StorageAccessFramework } from "expo-file-system/legacy";
 const { APP_NAME } = appConstants;
+const { version } = packageJson;
 const { exportBackup, restoreBackup } = backupService;
-const { runAutoBackupNow } = autoBackupService;
 const {
-	getAutoBackupSettings,
 	getDefaultTripId,
 	getFyStartMonth,
 	getNativeCurrencyDisplay,
-	getTodoReminderSettings,
-	updateAutoBackupDirectoryUri,
-	updateAutoBackupEnabled,
-	updateAutoBackupIntervalDays,
 	updateDefaultTripId,
 	updateFyStartMonth,
 	updateNativeCurrencyDisplay,
-	updateTodoReminderDaysBeforeDue,
-	updateTodoReminderRepeatHours,
-	updateTodoRemindersEnabled,
 } = settingsService;
-const { syncTodoReminders } = todoReminderService;
-const {
-	getDetectionEnabled,
-	isNotificationAccessEnabled,
-	openNotificationAccessSettings,
-	setDetectionEnabled,
-} = upiDetectionService;
 const { getTrips } = tripService;
 
 type SettingsScreenProps = NativeStackScreenProps<
@@ -79,36 +54,6 @@ const MONTH_OPTIONS: readonly SelectOption[] = [
 	{ label: "Dec", value: "12" },
 ];
 
-const TODO_REMINDER_DAYS_OPTIONS: readonly SelectOption[] = Array.from(
-	{ length: 31 },
-	(_, index) => {
-		let label = `${index} days before`;
-		if (index === 0) {
-			label = "Same day";
-		} else if (index === 1) {
-			label = "1 day before";
-		}
-		return {
-			label,
-			value: String(index),
-		};
-	},
-);
-
-const TODO_REMINDER_REPEAT_HOURS_OPTIONS: readonly SelectOption[] = [
-	1, 2, 3, 4, 6, 8, 12, 24,
-].map((hours) => ({
-	label: hours === 1 ? "Every hour" : `Every ${hours} hours`,
-	value: String(hours),
-}));
-
-const AUTO_BACKUP_INTERVAL_OPTIONS: readonly SelectOption[] = [
-	{ label: "Daily", value: "1" },
-	{ label: "Every 2 days", value: "2" },
-	{ label: "Every 3 days", value: "3" },
-	{ label: "Weekly", value: "7" },
-];
-
 const getFyEndMonthLabel = (startMonth: number): string => {
 	const endMonth = startMonth === 1 ? 12 : startMonth - 1;
 	return MONTH_OPTIONS[endMonth - 1]?.label ?? "Mar";
@@ -125,143 +70,23 @@ const SettingsScreen = ({
 	const [message, setMessage] = useState("");
 	const [fyStartMonth, setFyStartMonth] = useState(4);
 	const [defaultTripId, setDefaultTripId] = useState("");
-	const [todoRemindersEnabled, setTodoRemindersEnabled] = useState(true);
-	const [todoReminderDaysBeforeDue, setTodoReminderDaysBeforeDue] =
-		useState(2);
-	const [todoReminderRepeatHours, setTodoReminderRepeatHours] = useState(12);
 	const [trips, setTrips] = useState<readonly Trip[]>([]);
-	const [reminderNotice, setReminderNotice] = useState("");
-	const [autoBackupEnabled, setAutoBackupEnabled] = useState(false);
-	const [autoBackupIntervalDays, setAutoBackupIntervalDays] = useState(1);
-	const [autoBackupDirectoryUri, setAutoBackupDirectoryUri] = useState<
-		string | null
-	>(null);
-	const [autoBackupLastBackupAt, setAutoBackupLastBackupAt] = useState(0);
-	const [autoBackupNotice, setAutoBackupNotice] = useState("");
-	const [upiDetectionEnabled, setUpiDetectionEnabled] = useState(false);
-	const [hasNotificationAccess, setHasNotificationAccess] = useState(false);
-	const [hasSmsPermission, setHasSmsPermission] = useState(false);
-	const [upiDetectionNotice, setUpiDetectionNotice] = useState("");
 
 	useEffect(() => {
 		const getSettings = async (): Promise<void> => {
-			const [
-				native,
-				fy,
-				tripId,
-				reminderSettings,
-				loadedTrips,
-				autoBackup,
-			] = await Promise.all([
+			const [native, fy, tripId, loadedTrips] = await Promise.all([
 				getNativeCurrencyDisplay(database),
 				getFyStartMonth(database),
 				getDefaultTripId(database),
-				getTodoReminderSettings(database),
 				getTrips(database),
-				getAutoBackupSettings(database),
 			]);
 			setIsNativeCurrency(native);
 			setFyStartMonth(fy);
 			setDefaultTripId(tripId ?? "");
-
-			setTodoRemindersEnabled(reminderSettings.enabled);
-			setTodoReminderDaysBeforeDue(reminderSettings.daysBeforeDue);
-			setTodoReminderRepeatHours(reminderSettings.repeatHours);
 			setTrips(loadedTrips);
-			setAutoBackupEnabled(autoBackup.enabled);
-			setAutoBackupIntervalDays(autoBackup.intervalDays);
-			setAutoBackupDirectoryUri(autoBackup.directoryUri);
-			setAutoBackupLastBackupAt(autoBackup.lastBackupAt);
 		};
 		void getSettings();
 	}, [database]);
-
-	useEffect(() => {
-		const getUpiDetectionSettings = async (): Promise<void> => {
-			if (Platform.OS !== "android") {
-				return;
-			}
-			try {
-				const [enabled, access, smsGranted] = await Promise.all([
-					getDetectionEnabled(),
-					isNotificationAccessEnabled(),
-					PermissionsAndroid.check("android.permission.RECEIVE_SMS"),
-				]);
-				setUpiDetectionEnabled(enabled);
-				setHasNotificationAccess(access);
-				setHasSmsPermission(smsGranted);
-				setUpiDetectionNotice(
-					access
-						? "Detection is active in background for transaction notifications."
-						: "Grant notification access so PurpleCoins can detect UPI/card alerts from all apps.",
-				);
-			} catch {
-				setUpiDetectionNotice(
-					"Unable to read detection status on this build.",
-				);
-			}
-		};
-		void getUpiDetectionSettings();
-	}, []);
-
-	const syncReminderSettings = async (): Promise<void> => {
-		const result = await syncTodoReminders(database);
-		if (result.permissionState === "denied") {
-			setReminderNotice(
-				"Allow notifications from system settings to receive todo reminders.",
-			);
-			return;
-		}
-		if (result.permissionState === "unavailable") {
-			setReminderNotice(
-				"Notifications dependency is not installed locally yet. Reinstall dependencies and rebuild the app to enable reminders.",
-			);
-			return;
-		}
-		if (result.permissionState === "disabled") {
-			setReminderNotice("Todo reminders are turned off.");
-			return;
-		}
-		if (result.scheduledCount > 0) {
-			const reminderSuffix = result.scheduledCount === 1 ? "" : "s";
-			setReminderNotice(
-				`Scheduled ${result.scheduledCount} upcoming todo reminder${reminderSuffix}.`,
-			);
-			return;
-		}
-		setReminderNotice(
-			"No upcoming due-date reminders to schedule right now.",
-		);
-	};
-
-	const handleUpiDetectionToggle = (value: boolean): void => {
-		setUpiDetectionEnabled(value);
-		setDetectionEnabled(value);
-		setUpiDetectionNotice(
-			value
-				? hasNotificationAccess
-					? "Detection enabled. PurpleCoins will prompt when UPI/card notifications look like transactions."
-					: "Detection enabled, but notification access is still required."
-				: "Detection disabled.",
-		);
-	};
-
-	const handleOpenNotificationAccess = (): void => {
-		openNotificationAccessSettings();
-		// Delay a quick status refresh for users who return immediately.
-		setTimeout(() => {
-			void (async () => {
-				setHasNotificationAccess(await isNotificationAccessEnabled());
-			})();
-		}, 1000);
-	};
-
-	const handleRequestSmsPermission = async (): Promise<void> => {
-		const result = await PermissionsAndroid.request(
-			"android.permission.RECEIVE_SMS",
-		);
-		setHasSmsPermission(result === PermissionsAndroid.RESULTS.GRANTED);
-	};
 
 	const handleCurrencyToggle = async (value: boolean): Promise<void> => {
 		setIsNativeCurrency(value);
@@ -270,7 +95,7 @@ const SettingsScreen = ({
 	};
 
 	const handleFyStartMonthChange = async (value: string): Promise<void> => {
-		const month = Number.parseInt(value, 10);
+		const month = parseInt(value, 10);
 		setFyStartMonth(month);
 		await updateFyStartMonth(database, month);
 		refreshData();
@@ -280,81 +105,6 @@ const SettingsScreen = ({
 		setDefaultTripId(value);
 		await updateDefaultTripId(database, value || null);
 		refreshData();
-	};
-
-	const handleTodoRemindersEnabledChange = async (
-		value: boolean,
-	): Promise<void> => {
-		setTodoRemindersEnabled(value);
-		await updateTodoRemindersEnabled(database, value);
-		await syncReminderSettings();
-	};
-
-	const handleTodoReminderDaysBeforeDueChange = async (
-		value: string,
-	): Promise<void> => {
-		const days = Number.parseInt(value, 10);
-		setTodoReminderDaysBeforeDue(days);
-		await updateTodoReminderDaysBeforeDue(database, days);
-		await syncReminderSettings();
-	};
-
-	const handleTodoReminderRepeatHoursChange = async (
-		value: string,
-	): Promise<void> => {
-		const hours = Number.parseInt(value, 10);
-		setTodoReminderRepeatHours(hours);
-		await updateTodoReminderRepeatHours(database, hours);
-		await syncReminderSettings();
-	};
-
-	const handleAutoBackupEnabledChange = async (
-		value: boolean,
-	): Promise<void> => {
-		setAutoBackupEnabled(value);
-		await updateAutoBackupEnabled(database, value);
-	};
-
-	const handleAutoBackupIntervalChange = async (
-		value: string,
-	): Promise<void> => {
-		const days = Number.parseInt(value, 10);
-		setAutoBackupIntervalDays(days);
-		await updateAutoBackupIntervalDays(database, days);
-	};
-
-	const handleChooseAutoBackupFolder = async (): Promise<void> => {
-		const result =
-			await StorageAccessFramework.requestDirectoryPermissionsAsync(
-				autoBackupDirectoryUri ?? null,
-			);
-		if (!result.granted) {
-			return;
-		}
-		setAutoBackupDirectoryUri(result.directoryUri);
-		await updateAutoBackupDirectoryUri(database, result.directoryUri);
-		setAutoBackupNotice("Folder saved. Auto-backup will run when due.");
-	};
-
-	const handleRunAutoBackupNow = async (): Promise<void> => {
-		setAutoBackupNotice("Running backup\u2026");
-		const { result } = await runAutoBackupNow(database);
-		if (result === "success") {
-			setAutoBackupLastBackupAt(Date.now());
-			setAutoBackupNotice("Backup complete.");
-		} else if (result === "no-directory") {
-			setAutoBackupNotice("Choose a folder first.");
-		} else if (result === "not-android") {
-			setAutoBackupNotice("Auto-backup is only available on Android.");
-		} else if (result === "disabled") {
-			setAutoBackupNotice("Enable auto-backup first.");
-		} else if (result === "up-to-date") {
-			setAutoBackupNotice("Backup already up to date.");
-		} else {
-			setAutoBackupNotice(
-				"Backup failed. Re-select the backup folder and try again.",
-			);
-		}
 	};
 
 	const handleExport = async (): Promise<void> => {
@@ -411,23 +161,12 @@ const SettingsScreen = ({
 				<View style={styles.brand}>
 					<CustomText style={styles.appName}>{APP_NAME}</CustomText>
 					<CustomText style={styles.version}>
-						Version {VERSION}
+						Version {version}
 					</CustomText>
 					<CustomText style={styles.description}>
 						Local-first finance, tools and vault. No account and no
 						cloud dependency.
 					</CustomText>
-				</View>
-			</GlassCard>
-			<GlassCard>
-				<View style={styles.section}>
-					<CustomText style={styles.heading}>Diagnostics</CustomText>
-					<AppButton
-						icon="document-text-outline"
-						label="View app logs"
-						onPress={() => navigation.navigate("AppLogs")}
-						variant="secondary"
-					/>
 				</View>
 			</GlassCard>
 			<GlassCard>
@@ -491,128 +230,11 @@ const SettingsScreen = ({
 			</GlassCard>
 			<GlassCard>
 				<View style={styles.section}>
-					<CustomText style={styles.heading}>
-						Todo reminders
-					</CustomText>
-					<CustomText style={styles.description}>
-						Due-date reminders are scheduled locally on this device.
-						The first reminder goes out at 9:00 AM on the chosen
-						start day, then repeats every few hours until the due
-						date ends.
-					</CustomText>
-					<View style={styles.switchRow}>
-						<View style={styles.switchDetails}>
-							<CustomText style={styles.switchTitle}>
-								Enable todo reminders
-							</CustomText>
-							<CustomText style={styles.switchDescription}>
-								Todos without a due date, completed todos and
-								overdue todos are skipped automatically.
-							</CustomText>
-						</View>
-						<Switch
-							onValueChange={(value) =>
-								void handleTodoRemindersEnabledChange(value)
-							}
-							value={todoRemindersEnabled}
-						/>
-					</View>
-					<SelectField
-						label="Start reminders"
-						onChange={(value) =>
-							void handleTodoReminderDaysBeforeDueChange(value)
-						}
-						options={TODO_REMINDER_DAYS_OPTIONS}
-						value={String(todoReminderDaysBeforeDue)}
-					/>
-					<SelectField
-						label="Repeat cadence"
-						onChange={(value) =>
-							void handleTodoReminderRepeatHoursChange(value)
-						}
-						options={TODO_REMINDER_REPEAT_HOURS_OPTIONS}
-						value={String(todoReminderRepeatHours)}
-					/>
-					<CustomText style={styles.switchDescription}>
-						Keep opening the app occasionally so future reminders
-						can be refreshed within the device&apos;s
-						pending-notification limit.
-					</CustomText>
-					{reminderNotice ? (
-						<Notice message={reminderNotice} />
-					) : null}
-				</View>
-			</GlassCard>
-			{Platform.OS === "android" ? (
-				<GlassCard>
-					<View style={styles.section}>
-						<CustomText style={styles.heading}>
-							UPI/card background detection
-						</CustomText>
-						<CustomText style={styles.description}>
-							PurpleCoins watches transaction-style notifications
-							from UPI and bank/card apps, and can also read
-							incoming SMS bank alerts, then asks if you want to
-							add the transaction.
-						</CustomText>
-						<View style={styles.switchRow}>
-							<View style={styles.switchDetails}>
-								<CustomText style={styles.switchTitle}>
-									Enable background detection
-								</CustomText>
-								<CustomText style={styles.switchDescription}>
-									Works best when notification access is
-									granted.
-								</CustomText>
-							</View>
-							<Switch
-								onValueChange={handleUpiDetectionToggle}
-								value={upiDetectionEnabled}
-							/>
-						</View>
-						<Notice
-							message={`Notification access: ${hasNotificationAccess ? "Granted" : "Not granted"}`}
-							tone={hasNotificationAccess ? "info" : "warning"}
-						/>
-						<AppButton
-							icon="notifications-outline"
-							label="Open notification access"
-							onPress={handleOpenNotificationAccess}
-							variant="secondary"
-						/>
-						<Notice
-							message={`SMS detection: ${hasSmsPermission ? "Granted" : "Not granted"}`}
-							tone={hasSmsPermission ? "info" : "warning"}
-						/>
-						{!hasSmsPermission ? (
-							<AppButton
-								icon="chatbox-outline"
-								label="Grant SMS permission"
-								onPress={() =>
-									void handleRequestSmsPermission()
-								}
-								variant="secondary"
-							/>
-						) : null}
-						{upiDetectionNotice ? (
-							<Notice message={upiDetectionNotice} />
-						) : null}
-					</View>
-				</GlassCard>
-			) : null}
-			<GlassCard>
-				<View style={styles.section}>
 					<CustomText style={styles.heading}>Relations</CustomText>
 					<CustomText style={styles.description}>
-						Archive recovery and category maintenance tools live
-						here.
+						Sources, categories, trips and investments that have
+						been archived can be found and restored here.
 					</CustomText>
-					<AppButton
-						icon="shuffle-outline"
-						label="Merge categories"
-						onPress={() => navigation.navigate("MergeCategories")}
-						variant="secondary"
-					/>
 					<AppButton
 						icon="archive-outline"
 						label="Archived relations"
@@ -621,77 +243,6 @@ const SettingsScreen = ({
 					/>
 				</View>
 			</GlassCard>
-			{Platform.OS === "android" ? (
-				<GlassCard>
-					<View style={styles.section}>
-						<CustomText style={styles.heading}>
-							Automatic backups
-						</CustomText>
-						<CustomText style={styles.description}>
-							Silently saves a .purplecoins file to a folder you
-							choose. Runs each time you open the app if the
-							interval has passed.
-						</CustomText>
-						<View style={styles.switchRow}>
-							<View style={styles.switchDetails}>
-								<CustomText style={styles.switchTitle}>
-									Enable auto-backup
-								</CustomText>
-								<CustomText style={styles.switchDescription}>
-									Requires a folder to be chosen below.
-								</CustomText>
-							</View>
-							<Switch
-								onValueChange={(value) =>
-									void handleAutoBackupEnabledChange(value)
-								}
-								value={autoBackupEnabled}
-							/>
-						</View>
-						<SelectField
-							label="Backup interval"
-							onChange={(value) =>
-								void handleAutoBackupIntervalChange(value)
-							}
-							options={AUTO_BACKUP_INTERVAL_OPTIONS}
-							value={String(autoBackupIntervalDays)}
-						/>
-						<AppButton
-							icon="folder-open-outline"
-							label={
-								autoBackupDirectoryUri
-									? "Change backup folder"
-									: "Choose backup folder"
-							}
-							onPress={() => void handleChooseAutoBackupFolder()}
-							variant="secondary"
-						/>
-						{autoBackupDirectoryUri ? (
-							<CustomText
-								style={styles.switchDescription}
-								numberOfLines={2}
-							>
-								{autoBackupDirectoryUri}
-							</CustomText>
-						) : null}
-						<CustomText style={styles.switchDescription}>
-							{autoBackupLastBackupAt > 0
-								? `Last backup: ${new Date(autoBackupLastBackupAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}`
-								: "Never backed up automatically."}
-						</CustomText>
-						<AppButton
-							icon="save-outline"
-							isDisabled={!autoBackupDirectoryUri}
-							label="Back up now"
-							onPress={() => void handleRunAutoBackupNow()}
-							variant="secondary"
-						/>
-						{autoBackupNotice ? (
-							<Notice message={autoBackupNotice} />
-						) : null}
-					</View>
-				</GlassCard>
-			) : null}
 			<GlassCard>
 				<View style={styles.section}>
 					<CustomText style={styles.heading}>

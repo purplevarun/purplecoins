@@ -5,6 +5,7 @@ const BACKUP_MIME_TYPE = "application/x-sqlite3";
 const ATTACHMENT_MAX_BYTES = 2 * 1024 * 1024;
 const DEFAULT_CURRENCY_CODE = "INR";
 const DEFAULT_PAGE_SIZE = 100;
+const SCHEMA_VERSION = 1;
 const EXCHANGE_RATE_API_URL = "https://api.frankfurter.dev/v2/rates";
 const MILLISECONDS_PER_DAY = 86_400_000;
 const HOMEPAGE_SWITCH_FLAGS: Readonly<{
@@ -12,7 +13,7 @@ const HOMEPAGE_SWITCH_FLAGS: Readonly<{
 	ALLOW_CLICK_SWITCH: boolean;
 }> = {
 	ALLOW_SWIPE_SWITCH: true,
-	ALLOW_CLICK_SWITCH: true,
+	ALLOW_CLICK_SWITCH: false,
 };
 const { ALLOW_CLICK_SWITCH, ALLOW_SWIPE_SWITCH } = HOMEPAGE_SWITCH_FLAGS;
 
@@ -28,6 +29,7 @@ const appConstants = {
 	DEFAULT_PAGE_SIZE,
 	EXCHANGE_RATE_API_URL,
 	MILLISECONDS_PER_DAY,
+	SCHEMA_VERSION,
 };
 
 export default appConstants;
