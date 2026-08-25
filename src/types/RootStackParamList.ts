@@ -6,8 +6,7 @@ type RootStackParamList = {
 	Home: undefined;
 	Transactions: undefined;
 	TransactionForm:
-		| { transactionId?: string; cloneFromTransactionId?: string }
-		| undefined;
+		{ transactionId?: string; cloneFromTransactionId?: string } | undefined;
 	Relations: { kind: RelationKind };
 	RelationForm: { kind: RelationKind; entityId?: string };
 	ArchivedRelations: undefined;
