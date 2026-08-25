@@ -18,19 +18,16 @@ import analysisService from "@/services/analysisService";
 import budgetService from "@/services/budgetService";
 import type AnalysisSummary from "@/types/AnalysisSummary";
 import type Budget from "@/types/Budget";
-import type RootStackParamList from "@/types/RootStackParamList";
+import type BudgetsScreenProps from "@/types/BudgetsScreenProps";
 import dateUtils from "@/utils/date";
 import getErrorMessage from "@/utils/error";
 import moneyUtils from "@/utils/money";
 import runAfterRender from "@/utils/runAfterRender";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 const { DEFAULT_CURRENCY_CODE } = appConstants;
 const { getAnalysisSummary } = analysisService;
 const { deleteBudget, getBudgets } = budgetService;
 const { getAnalysisDateRange } = dateUtils;
 const { compareMoney, formatMoney, subtractMoney, ZERO_AMOUNT } = moneyUtils;
-
-type BudgetsScreenProps = NativeStackScreenProps<RootStackParamList, "Budgets">;
 
 const BudgetsScreen = ({
 	navigation,

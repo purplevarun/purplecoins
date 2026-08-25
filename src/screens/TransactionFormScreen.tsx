@@ -24,14 +24,13 @@ import transactionService from "@/services/transactionService";
 import tripService from "@/services/tripService";
 import type Category from "@/types/Category";
 import type Investment from "@/types/Investment";
-import type RootStackParamList from "@/types/RootStackParamList";
 import type SelectOption from "@/types/SelectOption";
 import type Source from "@/types/Source";
 import type TransactionClassification from "@/types/TransactionClassification";
+import type TransactionFormScreenProps from "@/types/TransactionFormScreenProps";
 import type TransactionType from "@/types/TransactionType";
 import type Trip from "@/types/Trip";
 import getErrorMessage from "@/utils/error";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 const { getCategories } = categoryService;
 const { getInvestments } = investmentService;
 const { getDefaultTripId } = settingsService;
@@ -39,11 +38,6 @@ const { getSources } = sourceService;
 const { deleteTransaction, getTransaction, saveTransaction } =
 	transactionService;
 const { getTrips } = tripService;
-
-type TransactionFormScreenProps = NativeStackScreenProps<
-	RootStackParamList,
-	"TransactionForm"
->;
 
 const CLASSIFICATION_OPTIONS: readonly SelectOption[] = [
 	{ label: "General", value: "GENERAL" },

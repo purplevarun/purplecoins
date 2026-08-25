@@ -17,17 +17,11 @@ import useDatabaseContext from "@/hooks/useDatabaseContext";
 import cardService from "@/services/cardService";
 import identityService from "@/services/identityService";
 import passwordService from "@/services/passwordService";
-import type RootStackParamList from "@/types/RootStackParamList";
+import type VaultFormScreenProps from "@/types/VaultFormScreenProps";
 import getErrorMessage from "@/utils/error";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 const { deleteCard, getCard, saveCard } = cardService;
 const { deleteIdentity, getIdentity, saveIdentity } = identityService;
 const { deletePassword, getPassword, savePassword } = passwordService;
-
-type VaultFormScreenProps = NativeStackScreenProps<
-	RootStackParamList,
-	"VaultForm"
->;
 
 const VaultFormScreen = ({
 	navigation,

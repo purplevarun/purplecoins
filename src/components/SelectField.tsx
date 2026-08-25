@@ -5,16 +5,7 @@ import { useMemo, useState } from "react";
 import { Modal, Pressable, ScrollView, StyleSheet, View } from "react-native";
 
 import COLORS from "@/constants/colors";
-import type SelectOption from "@/types/SelectOption";
-
-type SelectFieldProps = Readonly<{
-	label: string;
-	value: string;
-	options: readonly SelectOption[];
-	onChange: (value: string) => void;
-	placeholder?: string;
-	isOptional?: boolean;
-}>;
+import type SelectFieldProps from "@/types/SelectFieldProps";
 
 const SelectField = ({
 	label,

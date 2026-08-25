@@ -17,15 +17,9 @@ import useAttachment from "@/hooks/useAttachment";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import useFolders from "@/hooks/useFolders";
 import todoService from "@/services/todoService";
-import type RootStackParamList from "@/types/RootStackParamList";
+import type TodoFormScreenProps from "@/types/TodoFormScreenProps";
 import getErrorMessage from "@/utils/error";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 const { deleteTodo, getTodo, saveTodo } = todoService;
-
-type TodoFormScreenProps = NativeStackScreenProps<
-	RootStackParamList,
-	"TodoForm"
->;
 
 const TodoFormScreen = ({
 	navigation,

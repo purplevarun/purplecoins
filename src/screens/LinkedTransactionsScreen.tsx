@@ -1,7 +1,6 @@
 import categoryService from "@/services/categoryService";
 
 import { Ionicons } from "@expo/vector-icons";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 
@@ -20,8 +19,8 @@ import investmentService from "@/services/investmentService";
 import sourceService from "@/services/sourceService";
 import transactionService from "@/services/transactionService";
 import tripService from "@/services/tripService";
+import type LinkedTransactionsScreenProps from "@/types/LinkedTransactionsScreenProps";
 import type RelationKind from "@/types/RelationKind";
-import type RootStackParamList from "@/types/RootStackParamList";
 import type Transaction from "@/types/Transaction";
 import getErrorMessage from "@/utils/error";
 import getRelationLabels from "@/utils/relation";
@@ -31,11 +30,6 @@ const { deleteInvestment } = investmentService;
 const { deleteSource } = sourceService;
 const { getLinkedTransactions } = transactionService;
 const { deleteTrip } = tripService;
-
-type LinkedTransactionsScreenProps = NativeStackScreenProps<
-	RootStackParamList,
-	"LinkedTransactions"
->;
 
 const getRelationIcon = (
 	kind: RelationKind,

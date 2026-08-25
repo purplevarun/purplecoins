@@ -3,12 +3,7 @@ import { StyleSheet, View } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 
 import COLORS from "@/constants/colors";
-import type ChartDatum from "@/types/ChartDatum";
-
-type DonutChartProps = Readonly<{
-	data: readonly ChartDatum[];
-	centerLabel: string;
-}>;
+import type DonutChartProps from "@/types/DonutChartProps";
 
 const CHART_SIZE = 190;
 const STROKE_WIDTH = 24;

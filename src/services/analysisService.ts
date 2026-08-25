@@ -1,10 +1,10 @@
 import appConstants from "@/constants/appConstants";
 import financeRepository from "@/repositories/financeRepository";
+import type AnalysisOptions from "@/types/AnalysisOptions";
 import type AnalysisSummary from "@/types/AnalysisSummary";
 import type Category from "@/types/Category";
 import type CategoryAnalysis from "@/types/CategoryAnalysis";
 import type CategoryCurrencySummary from "@/types/CategoryCurrencySummary";
-import type DateRange from "@/types/DateRange";
 import type ExchangeRate from "@/types/ExchangeRate";
 import type Investment from "@/types/Investment";
 import type InvestmentAnalysis from "@/types/InvestmentAnalysis";
@@ -28,11 +28,6 @@ const {
 	sumMoney,
 	ZERO_AMOUNT,
 } = moneyUtils;
-
-type AnalysisOptions = Readonly<{
-	dateRange: DateRange;
-	isNativeCurrency: boolean;
-}>;
 
 const getRateMap = (
 	rates: readonly ExchangeRate[],

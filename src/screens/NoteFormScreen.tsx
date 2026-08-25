@@ -16,15 +16,9 @@ import useAttachment from "@/hooks/useAttachment";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import useFolders from "@/hooks/useFolders";
 import noteService from "@/services/noteService";
-import type RootStackParamList from "@/types/RootStackParamList";
+import type NoteFormScreenProps from "@/types/NoteFormScreenProps";
 import getErrorMessage from "@/utils/error";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 const { deleteNote, getNote, saveNote } = noteService;
-
-type NoteFormScreenProps = NativeStackScreenProps<
-	RootStackParamList,
-	"NoteForm"
->;
 
 const NoteFormScreen = ({
 	navigation,

@@ -1,7 +1,6 @@
 import CustomText from "@/components/CustomText";
 
 import { Ionicons } from "@expo/vector-icons";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 
@@ -18,16 +17,14 @@ import useAppDialog from "@/hooks/useAppDialog";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import useFolders from "@/hooks/useFolders";
 import todoService from "@/services/todoService";
-import type RootStackParamList from "@/types/RootStackParamList";
 import type Todo from "@/types/Todo";
+import type TodosScreenProps from "@/types/TodosScreenProps";
 import dateUtils from "@/utils/date";
 import getErrorMessage from "@/utils/error";
 import runAfterRender from "@/utils/runAfterRender";
 const { FOLDER_FILTER_ALL, FOLDER_FILTER_NONE } = folderConstants;
 const { getTodos, toggleTodo } = todoService;
 const { formatDate } = dateUtils;
-
-type TodosScreenProps = NativeStackScreenProps<RootStackParamList, "Todos">;
 
 const TodosScreen = ({ navigation }: TodosScreenProps): React.JSX.Element => {
 	const { database, dataVersion, refreshData } = useDatabaseContext();

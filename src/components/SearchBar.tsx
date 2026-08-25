@@ -3,13 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet, View } from "react-native";
 
 import COLORS from "@/constants/colors";
-
-type SearchBarProps = Readonly<{
-	value: string;
-	onChangeText: (text: string) => void;
-	placeholder?: string;
-	autoFocus?: boolean;
-}>;
+import type SearchBarProps from "@/types/SearchBarProps";
 
 const SearchBar = ({
 	value,

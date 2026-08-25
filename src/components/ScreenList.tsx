@@ -1,14 +1,11 @@
-import { FlashList, type FlashListProps } from "@shopify/flash-list";
+import { FlashList } from "@shopify/flash-list";
 import { LinearGradient } from "expo-linear-gradient";
 import type { ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import COLORS from "@/constants/colors";
-
-type ScreenListProps<T> = Readonly<
-	Omit<FlashListProps<T>, "contentContainerStyle">
->;
+import type ScreenListProps from "@/types/ScreenListProps";
 
 const ListSeparator = (): ReactNode => <View style={styles.separator} />;
 

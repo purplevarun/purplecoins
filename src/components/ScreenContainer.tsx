@@ -1,5 +1,5 @@
 import { LinearGradient } from "expo-linear-gradient";
-import type { PropsWithChildren, ReactNode } from "react";
+import type { ReactNode } from "react";
 import {
 	KeyboardAvoidingView,
 	Platform,
@@ -10,12 +10,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import COLORS from "@/constants/colors";
-
-type ScreenContainerProps = PropsWithChildren<
-	Readonly<{
-		isScrollable?: boolean;
-	}>
->;
+import type ScreenContainerProps from "@/types/ScreenContainerProps";
 
 const ScreenContainer = ({
 	children,

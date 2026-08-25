@@ -1,5 +1,3 @@
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-
 import {
 	useCallback,
 	useEffect,
@@ -21,9 +19,9 @@ import TransactionCard from "@/components/TransactionCard";
 import COLORS from "@/constants/colors";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import transactionService from "@/services/transactionService";
-import type RootStackParamList from "@/types/RootStackParamList";
 import type SelectOption from "@/types/SelectOption";
 import type Transaction from "@/types/Transaction";
+import type TransactionsScreenProps from "@/types/TransactionsScreenProps";
 import dateUtils from "@/utils/date";
 import getErrorMessage from "@/utils/error";
 import moneyUtils from "@/utils/money";
@@ -31,11 +29,6 @@ import runAfterRender from "@/utils/runAfterRender";
 const { getTransactionDisplayReason, getTransactions } = transactionService;
 const { formatDate } = dateUtils;
 const { formatMoney } = moneyUtils;
-
-type TransactionsScreenProps = NativeStackScreenProps<
-	RootStackParamList,
-	"Transactions"
->;
 
 const FILTER_OPTIONS: readonly SelectOption[] = [
 	{ label: "All", value: "ALL" },

@@ -1,7 +1,6 @@
 import CustomText from "@/components/CustomText";
 
 import { Ionicons } from "@expo/vector-icons";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
@@ -28,8 +27,8 @@ import transactionService from "@/services/transactionService";
 import tripService from "@/services/tripService";
 import type GlobalSearchResult from "@/types/GlobalSearchResult";
 import type GlobalSearchResultKind from "@/types/GlobalSearchResultKind";
+import type GlobalSearchScreenProps from "@/types/GlobalSearchScreenProps";
 import type HomeMode from "@/types/HomeMode";
-import type RootStackParamList from "@/types/RootStackParamList";
 import dateUtils from "@/utils/date";
 import getErrorMessage from "@/utils/error";
 import moneyUtils from "@/utils/money";
@@ -48,11 +47,6 @@ const { getTransactionDisplayReason, getTransactions } = transactionService;
 const { getTrips } = tripService;
 const { formatDate } = dateUtils;
 const { formatMoney } = moneyUtils;
-
-type GlobalSearchScreenProps = NativeStackScreenProps<
-	RootStackParamList,
-	"GlobalSearch"
->;
 
 const MINIMUM_SEARCH_LENGTH = 2;
 

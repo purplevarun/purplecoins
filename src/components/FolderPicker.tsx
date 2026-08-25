@@ -6,15 +6,8 @@ import AppButton from "@/components/AppButton";
 import SelectField from "@/components/SelectField";
 import TextField from "@/components/TextField";
 import COLORS from "@/constants/colors";
-import type Folder from "@/types/Folder";
+import type FolderPickerProps from "@/types/FolderPickerProps";
 import type SelectOption from "@/types/SelectOption";
-
-type FolderPickerProps = Readonly<{
-	value: string;
-	folders: readonly Folder[];
-	onChange: (value: string) => void;
-	onCreateFolder: (name: string) => Promise<string>;
-}>;
 
 const FolderPicker = ({
 	value,

@@ -1,7 +1,6 @@
 import CustomText from "@/components/CustomText";
 
 import { Ionicons } from "@expo/vector-icons";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import * as Clipboard from "expo-clipboard";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
@@ -23,8 +22,9 @@ import passwordService from "@/services/passwordService";
 import type CardEntry from "@/types/CardEntry";
 import type IdentityEntry from "@/types/IdentityEntry";
 import type PasswordEntry from "@/types/PasswordEntry";
-import type RootStackParamList from "@/types/RootStackParamList";
 import type VaultKind from "@/types/VaultKind";
+import type VaultListItem from "@/types/VaultListItem";
+import type VaultScreenProps from "@/types/VaultScreenProps";
 import dateUtils from "@/utils/date";
 import getErrorMessage from "@/utils/error";
 import runAfterRender from "@/utils/runAfterRender";
@@ -32,13 +32,6 @@ const { deleteCard, getCards } = cardService;
 const { deleteIdentity, getIdentities } = identityService;
 const { deletePassword, getPasswords } = passwordService;
 const { formatDate } = dateUtils;
-
-type VaultScreenProps = NativeStackScreenProps<RootStackParamList, "Vault">;
-
-type VaultListItem =
-	| { kind: "PASSWORD"; entry: PasswordEntry }
-	| { kind: "CARD"; entry: CardEntry }
-	| { kind: "IDENTITY"; entry: IdentityEntry };
 
 const CARD_TYPE_LABEL: Record<string, string> = {
 	CREDIT_CARD: "Credit card",

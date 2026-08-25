@@ -2,7 +2,6 @@ import appConstants from "@/constants/appConstants";
 
 import packageJson from "@/../package.json";
 import CustomText from "@/components/CustomText";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useEffect, useState } from "react";
 import { StyleSheet, Switch, View } from "react-native";
 
@@ -17,8 +16,8 @@ import useDatabaseContext from "@/hooks/useDatabaseContext";
 import backupService from "@/services/backupService";
 import settingsService from "@/services/settingsService";
 import tripService from "@/services/tripService";
-import type RootStackParamList from "@/types/RootStackParamList";
 import type SelectOption from "@/types/SelectOption";
+import type SettingsScreenProps from "@/types/SettingsScreenProps";
 import type Trip from "@/types/Trip";
 import getErrorMessage from "@/utils/error";
 const { APP_NAME } = appConstants;
@@ -33,11 +32,6 @@ const {
 	updateNativeCurrencyDisplay,
 } = settingsService;
 const { getTrips } = tripService;
-
-type SettingsScreenProps = NativeStackScreenProps<
-	RootStackParamList,
-	"Settings"
->;
 
 const MONTH_OPTIONS: readonly SelectOption[] = [
 	{ label: "Jan", value: "1" },

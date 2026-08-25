@@ -1,7 +1,6 @@
 import CustomText from "@/components/CustomText";
 
 import { Ionicons } from "@expo/vector-icons";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
@@ -19,12 +18,14 @@ import useDatabaseContext from "@/hooks/useDatabaseContext";
 import financeRepository from "@/repositories/financeRepository";
 import analysisService from "@/services/analysisService";
 import settingsService from "@/services/settingsService";
+import type AnalysisDateRangeInput from "@/types/AnalysisDateRangeInput";
 import type AnalysisPeriod from "@/types/AnalysisPeriod";
+import type AnalysisScreenProps from "@/types/AnalysisScreenProps";
 import type AnalysisSummary from "@/types/AnalysisSummary";
 import type ChartDatum from "@/types/ChartDatum";
 import type DateRange from "@/types/DateRange";
-import type RootStackParamList from "@/types/RootStackParamList";
 import type SelectOption from "@/types/SelectOption";
+import type SummaryMetricInput from "@/types/SummaryMetricInput";
 import dateUtils from "@/utils/date";
 import getErrorMessage from "@/utils/error";
 import moneyUtils from "@/utils/money";
@@ -49,26 +50,6 @@ const {
 	sumMoney,
 	ZERO_AMOUNT,
 } = moneyUtils;
-
-type AnalysisScreenProps = NativeStackScreenProps<
-	RootStackParamList,
-	"Analysis"
->;
-
-type AnalysisDateRangeInput = Readonly<{
-	period: AnalysisPeriod;
-	anchorDate: Date;
-	customStartAt: number;
-	customEndAt: number;
-	fyStartMonth: number;
-}>;
-
-type SummaryMetricInput = Readonly<{
-	label: string;
-	value: string;
-	accent: "success" | "danger" | "warning" | "default";
-	color: string;
-}>;
 
 const PERIOD_OPTIONS: readonly SelectOption[] = [
 	{ label: "Month", value: "MONTH" },

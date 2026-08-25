@@ -1,14 +1,9 @@
 import { BlurView } from "expo-blur";
-import type { PropsWithChildren, ReactNode } from "react";
+import type { ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
 
 import COLORS from "@/constants/colors";
-
-type GlassCardProps = PropsWithChildren<
-	Readonly<{
-		accent?: "default" | "success" | "danger" | "warning";
-	}>
->;
+import type GlassCardProps from "@/types/GlassCardProps";
 
 const getAccentColor = (accent: GlassCardProps["accent"]): string => {
 	if (accent === "success") {

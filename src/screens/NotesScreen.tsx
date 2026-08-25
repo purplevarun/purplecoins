@@ -1,7 +1,6 @@
 import CustomText from "@/components/CustomText";
 
 import { Ionicons } from "@expo/vector-icons";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 
@@ -19,15 +18,13 @@ import useDatabaseContext from "@/hooks/useDatabaseContext";
 import useFolders from "@/hooks/useFolders";
 import noteService from "@/services/noteService";
 import type Note from "@/types/Note";
-import type RootStackParamList from "@/types/RootStackParamList";
+import type NotesScreenProps from "@/types/NotesScreenProps";
 import dateUtils from "@/utils/date";
 import getErrorMessage from "@/utils/error";
 import runAfterRender from "@/utils/runAfterRender";
 const { FOLDER_FILTER_ALL, FOLDER_FILTER_NONE } = folderConstants;
 const { getNotes } = noteService;
 const { formatDateTime } = dateUtils;
-
-type NotesScreenProps = NativeStackScreenProps<RootStackParamList, "Notes">;
 
 const NotesScreen = ({ navigation }: NotesScreenProps): React.JSX.Element => {
 	const { database, dataVersion } = useDatabaseContext();

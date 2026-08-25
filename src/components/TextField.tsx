@@ -5,18 +5,7 @@ import { useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
 import COLORS from "@/constants/colors";
-
-type TextFieldProps = Readonly<{
-	label: string;
-	value: string;
-	onChangeText: (value: string) => void;
-	placeholder?: string;
-	keyboardType?: "default" | "decimal-pad" | "number-pad" | "url";
-	isMultiline?: boolean;
-	isSecure?: boolean;
-	isEditable?: boolean;
-	autoCapitalize?: "none" | "sentences" | "words" | "characters";
-}>;
+import type TextFieldProps from "@/types/TextFieldProps";
 
 const TextField = ({
 	label,

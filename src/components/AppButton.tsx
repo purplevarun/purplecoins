@@ -1,28 +1,9 @@
 import CustomText from "@/components/CustomText";
 import { Ionicons } from "@expo/vector-icons";
-import type { ComponentProps } from "react";
-import {
-	ActivityIndicator,
-	Pressable,
-	StyleSheet,
-	type ViewStyle,
-} from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet } from "react-native";
 
 import COLORS from "@/constants/colors";
-import type ButtonVariant from "@/types/ButtonVariant";
-
-type IconName = ComponentProps<typeof Ionicons>["name"];
-
-type AppButtonProps = Readonly<{
-	label: string;
-	onPress: () => void;
-	variant?: ButtonVariant;
-	icon?: IconName;
-	isDisabled?: boolean;
-	isLoading?: boolean;
-	isCompact?: boolean;
-	style?: ViewStyle;
-}>;
+import type AppButtonProps from "@/types/AppButtonProps";
 
 const getButtonColors = (
 	variant: AppButtonProps["variant"],

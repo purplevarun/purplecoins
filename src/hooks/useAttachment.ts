@@ -6,6 +6,7 @@ import useDatabaseContext from "@/hooks/useDatabaseContext";
 import type AttachmentInput from "@/types/AttachmentInput";
 import type AttachmentMetadata from "@/types/AttachmentMetadata";
 import type AttachmentOwnerType from "@/types/AttachmentOwnerType";
+import type UseAttachmentResult from "@/types/UseAttachmentResult";
 const {
 	deleteAttachment,
 	getAttachmentMetadata,
@@ -13,16 +14,6 @@ const {
 	pickAttachment,
 	saveAttachment,
 } = attachmentService;
-
-type UseAttachmentResult = Readonly<{
-	existingAttachment: AttachmentMetadata | null;
-	pendingAttachment: AttachmentInput | null;
-	isRemoved: boolean;
-	handlePick: () => Promise<void>;
-	handleOpen: () => Promise<void>;
-	handleRemove: () => void;
-	processAttachment: (ownerId: string) => Promise<void>;
-}>;
 
 const useAttachment = (
 	ownerType: AttachmentOwnerType,

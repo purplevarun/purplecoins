@@ -13,22 +13,12 @@ import AppButton from "@/components/AppButton";
 import GlassCard from "@/components/GlassCard";
 import COLORS from "@/constants/colors";
 import AppDialogContext from "@/providers/AppDialogContext";
+import type ActiveDialog from "@/types/ActiveDialog";
 import type AppDialogConfirmOptions from "@/types/AppDialogConfirmOptions";
 import type AppDialogContextValue from "@/types/AppDialogContextValue";
 import type AppDialogMessageOptions from "@/types/AppDialogMessageOptions";
 import type ButtonVariant from "@/types/ButtonVariant";
-
-type ActiveDialog =
-	| Readonly<{
-			mode: "CONFIRM";
-			options: AppDialogConfirmOptions;
-	  }>
-	| Readonly<{
-			mode: "MESSAGE";
-			options: AppDialogMessageOptions;
-	  }>;
-
-type DialogAccent = "default" | "success" | "danger" | "warning";
+import type DialogAccent from "@/types/DialogAccent";
 
 const DEFAULT_CANCEL_LABEL = "Cancel";
 const DEFAULT_CLOSE_LABEL = "Close";

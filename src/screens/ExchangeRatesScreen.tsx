@@ -16,23 +16,17 @@ import useDatabaseContext from "@/hooks/useDatabaseContext";
 import exchangeRateService from "@/services/exchangeRateService";
 import sourceService from "@/services/sourceService";
 import type ExchangeRate from "@/types/ExchangeRate";
-import type RootStackParamList from "@/types/RootStackParamList";
+import type ExchangeRatesScreenProps from "@/types/ExchangeRatesScreenProps";
 import dateUtils from "@/utils/date";
 import getErrorMessage from "@/utils/error";
 import moneyUtils from "@/utils/money";
 import runAfterRender from "@/utils/runAfterRender";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 const { DEFAULT_CURRENCY_CODE } = appConstants;
 const { fetchExchangeRates, getExchangeRates, saveManualExchangeRate } =
 	exchangeRateService;
 const { getSources } = sourceService;
 const { formatDateTime } = dateUtils;
 const { formatMoney } = moneyUtils;
-
-type ExchangeRatesScreenProps = NativeStackScreenProps<
-	RootStackParamList,
-	"ExchangeRates"
->;
 
 const ExchangeRatesScreen = (
 	_props: ExchangeRatesScreenProps,

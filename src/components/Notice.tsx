@@ -3,11 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet, View } from "react-native";
 
 import COLORS from "@/constants/colors";
-
-type NoticeProps = Readonly<{
-	message: string;
-	tone?: "info" | "warning" | "danger";
-}>;
+import type NoticeProps from "@/types/NoticeProps";
 
 const getToneColor = (tone: NoticeProps["tone"]): string => {
 	if (tone === "danger") {

@@ -16,19 +16,13 @@ import categoryService from "@/services/categoryService";
 import investmentService from "@/services/investmentService";
 import sourceService from "@/services/sourceService";
 import tripService from "@/services/tripService";
-import type RootStackParamList from "@/types/RootStackParamList";
+import type RelationFormScreenProps from "@/types/RelationFormScreenProps";
 import getErrorMessage from "@/utils/error";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 const { DEFAULT_CURRENCY_CODE } = appConstants;
 const { getCategory, saveCategory } = categoryService;
 const { getInvestment, saveInvestment } = investmentService;
 const { createSource, getSource, updateSourceName } = sourceService;
 const { getTrip, saveTrip } = tripService;
-
-type RelationFormScreenProps = NativeStackScreenProps<
-	RootStackParamList,
-	"RelationForm"
->;
 
 const RelationFormScreen = ({
 	navigation,

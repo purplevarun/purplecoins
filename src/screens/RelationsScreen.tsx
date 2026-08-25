@@ -2,10 +2,8 @@ import CustomText from "@/components/CustomText";
 
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import Decimal from "decimal.js";
 import {
-	type ComponentProps,
 	useCallback,
 	useEffect,
 	useLayoutEffect,
@@ -37,7 +35,9 @@ import type AnalysisSummary from "@/types/AnalysisSummary";
 import type Category from "@/types/Category";
 import type ExchangeRate from "@/types/ExchangeRate";
 import type Investment from "@/types/Investment";
-import type RootStackParamList from "@/types/RootStackParamList";
+import type RelationListItem from "@/types/RelationListItem";
+import type RelationsScreenProps from "@/types/RelationsScreenProps";
+import type RowActionIconProps from "@/types/RowActionIconProps";
 import type Source from "@/types/Source";
 import type Trip from "@/types/Trip";
 import type TripTotal from "@/types/TripTotal";
@@ -56,26 +56,8 @@ const { getTrips, setTripArchived } = tripService;
 const { getTripTotals } = tripTotalService;
 const { compareMoney, formatMoney, ZERO_AMOUNT } = moneyUtils;
 
-type RelationsScreenProps = NativeStackScreenProps<
-	RootStackParamList,
-	"Relations"
->;
-
-type RelationListItem =
-	| { kind: "SOURCE"; entity: Source }
-	| { kind: "CATEGORY"; entity: Category }
-	| { kind: "TRIP"; entity: Trip }
-	| { kind: "INVESTMENT"; entity: Investment };
-
 const ALL_TIME_START = 0;
 const ALL_TIME_END = 8_640_000_000_000_000;
-
-type RowActionIconProps = Readonly<{
-	icon: ComponentProps<typeof Ionicons>["name"];
-	accessibilityLabel: string;
-	onPress: () => void;
-	tone?: "default" | "success";
-}>;
 
 const RowActionIcon = ({
 	icon,

@@ -2,7 +2,6 @@ import CustomText from "@/components/CustomText";
 
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import {
 	type ComponentProps,
 	useCallback,
@@ -25,10 +24,12 @@ import categoryService from "@/services/categoryService";
 import investmentService from "@/services/investmentService";
 import sourceService from "@/services/sourceService";
 import tripService from "@/services/tripService";
+import type ArchivedEntity from "@/types/ArchivedEntity";
+import type ArchivedListRow from "@/types/ArchivedListRow";
+import type ArchivedRelationsScreenProps from "@/types/ArchivedRelationsScreenProps";
 import type Category from "@/types/Category";
 import type Investment from "@/types/Investment";
 import type RelationKind from "@/types/RelationKind";
-import type RootStackParamList from "@/types/RootStackParamList";
 import type Source from "@/types/Source";
 import type Trip from "@/types/Trip";
 import getErrorMessage from "@/utils/error";
@@ -37,22 +38,6 @@ const { getArchivedCategories, setCategoryArchived } = categoryService;
 const { getArchivedInvestments, setInvestmentArchived } = investmentService;
 const { getArchivedSources, setSourceArchived } = sourceService;
 const { getArchivedTrips, setTripArchived } = tripService;
-
-type ArchivedRelationsScreenProps = NativeStackScreenProps<
-	RootStackParamList,
-	"ArchivedRelations"
->;
-
-type ArchivedEntity = Source | Category | Trip | Investment;
-
-type ArchivedListRow =
-	| { type: "header"; key: string; label: string }
-	| {
-			type: "entity";
-			key: string;
-			kind: RelationKind;
-			entity: ArchivedEntity;
-	  };
 
 const KIND_ICON: Record<RelationKind, ComponentProps<typeof Ionicons>["name"]> =
 	{

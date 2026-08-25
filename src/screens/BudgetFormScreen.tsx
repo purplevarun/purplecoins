@@ -15,20 +15,14 @@ import COLORS from "@/constants/colors";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import budgetService from "@/services/budgetService";
 import categoryService from "@/services/categoryService";
+import type BudgetFormScreenProps from "@/types/BudgetFormScreenProps";
 import type BudgetPeriod from "@/types/BudgetPeriod";
 import type Category from "@/types/Category";
-import type RootStackParamList from "@/types/RootStackParamList";
 import type SelectOption from "@/types/SelectOption";
 import getErrorMessage from "@/utils/error";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 const { DEFAULT_CURRENCY_CODE } = appConstants;
 const { getBudget, saveBudget } = budgetService;
 const { getCategories } = categoryService;
-
-type BudgetFormScreenProps = NativeStackScreenProps<
-	RootStackParamList,
-	"BudgetForm"
->;
 
 const PERIOD_OPTIONS: readonly SelectOption[] = [
 	{ label: "Monthly", value: "MONTHLY" },

@@ -6,14 +6,9 @@ import { useState } from "react";
 import { Platform, Pressable, StyleSheet, View } from "react-native";
 
 import COLORS from "@/constants/colors";
+import type DateFieldProps from "@/types/DateFieldProps";
 import dateUtils from "@/utils/date";
 const { formatDate } = dateUtils;
-
-type DateFieldProps = Readonly<{
-	label: string;
-	value: number;
-	onChange: (value: number) => void;
-}>;
 
 const DateField = ({
 	label,

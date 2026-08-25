@@ -2,10 +2,7 @@ import CustomText from "@/components/CustomText";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 
 import COLORS from "@/constants/colors";
-
-type LoadingScreenProps = Readonly<{
-	error?: string | null;
-}>;
+import type LoadingScreenProps from "@/types/LoadingScreenProps";
 
 const LoadingScreen = ({ error }: LoadingScreenProps): React.JSX.Element => (
 	<View style={styles.container}>

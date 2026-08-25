@@ -2,11 +2,7 @@ import CustomText from "@/components/CustomText";
 import { StyleSheet, View } from "react-native";
 
 import COLORS from "@/constants/colors";
-
-type SectionHeadingProps = Readonly<{
-	title: string;
-	subtitle?: string;
-}>;
+import type SectionHeadingProps from "@/types/SectionHeadingProps";
 
 const SectionHeading = ({
 	title,

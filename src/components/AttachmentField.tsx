@@ -4,17 +4,7 @@ import { StyleSheet, View } from "react-native";
 
 import AppButton from "@/components/AppButton";
 import COLORS from "@/constants/colors";
-import type AttachmentInput from "@/types/AttachmentInput";
-import type AttachmentMetadata from "@/types/AttachmentMetadata";
-
-type AttachmentFieldProps = Readonly<{
-	existingAttachment: AttachmentMetadata | null;
-	pendingAttachment: AttachmentInput | null;
-	isRemoved: boolean;
-	onPick: () => void;
-	onOpen: () => void;
-	onRemove: () => void;
-}>;
+import type AttachmentFieldProps from "@/types/AttachmentFieldProps";
 
 const formatFileSize = (sizeBytes: number): string =>
 	sizeBytes < 1024 * 1024

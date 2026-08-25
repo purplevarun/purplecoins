@@ -1,14 +1,8 @@
-import type { SQLiteDatabase } from "expo-sqlite";
-import { useState, type PropsWithChildren, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 
 import DatabaseContext from "@/providers/DatabaseContext";
 import type DatabaseContextValue from "@/types/DatabaseContextValue";
-
-type DatabaseProviderProps = PropsWithChildren<
-	Readonly<{
-		database: SQLiteDatabase;
-	}>
->;
+import type DatabaseProviderProps from "@/types/DatabaseProviderProps";
 
 const DatabaseProvider = ({
 	children,

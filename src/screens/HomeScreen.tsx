@@ -1,9 +1,8 @@
 import CustomText from "@/components/CustomText";
 
 import { Ionicons } from "@expo/vector-icons";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { LinearGradient } from "expo-linear-gradient";
-import { type ComponentProps, useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Animated, Modal, Pressable, StyleSheet, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -15,24 +14,10 @@ import appConstants from "@/constants/appConstants";
 import COLORS from "@/constants/colors";
 import HOME_MODES from "@/constants/homeModes";
 import type HomeMode from "@/types/HomeMode";
-import type RootStackParamList from "@/types/RootStackParamList";
+import type HomeModeOption from "@/types/HomeModeOption";
+import type HomeScreenProps from "@/types/HomeScreenProps";
+import type HomeTile from "@/types/HomeTile";
 const { APP_NAME } = appConstants;
-
-type HomeScreenProps = NativeStackScreenProps<RootStackParamList, "Home">;
-
-type HomeTile = Readonly<{
-	label: string;
-	subtitle: string;
-	icon: ComponentProps<typeof Ionicons>["name"];
-	color: string;
-	handlePress: () => void;
-}>;
-
-type HomeModeOption = Readonly<{
-	mode: HomeMode;
-	label: string;
-	icon: ComponentProps<typeof Ionicons>["name"];
-}>;
 
 const MODE_OPTIONS: readonly HomeModeOption[] = [
 	{ mode: "TOOLS", label: "Tools", icon: "construct-outline" },

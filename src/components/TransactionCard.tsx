@@ -7,17 +7,12 @@ import GlassCard from "@/components/GlassCard";
 import COLORS from "@/constants/colors";
 import transactionService from "@/services/transactionService";
 import type Transaction from "@/types/Transaction";
+import type TransactionCardProps from "@/types/TransactionCardProps";
 import dateUtils from "@/utils/date";
 import moneyUtils from "@/utils/money";
 const { getTransactionDisplayReason } = transactionService;
 const { formatDate } = dateUtils;
 const { formatMoney } = moneyUtils;
-
-type TransactionCardProps = Readonly<{
-	transaction: Transaction;
-	onPress: () => void;
-	onLongPress?: () => void;
-}>;
 
 const getTransactionColor = (transaction: Transaction): string => {
 	if (transaction.type === "CREDIT") {

@@ -9,15 +9,8 @@ import CustomTextInput from "@/components/CustomTextInput";
 import COLORS from "@/constants/colors";
 import folderConstants from "@/constants/folderConstants";
 import type Folder from "@/types/Folder";
+import type FolderFilterChipsProps from "@/types/FolderFilterChipsProps";
 const { FOLDER_FILTER_ALL, FOLDER_FILTER_NONE } = folderConstants;
-
-type FolderFilterChipsProps = Readonly<{
-	folders: readonly Folder[];
-	selectedFolderId: string;
-	onSelectFolder: (folderId: string) => void;
-	onDeleteFolder?: (folder: Folder) => void;
-	onRenameFolder?: (folder: Folder, newName: string) => void;
-}>;
 
 const FolderFilterChips = ({
 	folders,

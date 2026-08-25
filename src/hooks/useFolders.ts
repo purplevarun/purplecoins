@@ -4,14 +4,8 @@ import { useEffect, useState } from "react";
 
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import type Folder from "@/types/Folder";
+import type UseFoldersResult from "@/types/UseFoldersResult";
 const { createFolder, deleteFolder, getFolders, renameFolder } = folderService;
-
-type UseFoldersResult = Readonly<{
-	folders: readonly Folder[];
-	handleCreateFolder: (name: string) => Promise<string>;
-	handleDeleteFolder: (id: string) => Promise<void>;
-	handleRenameFolder: (id: string, name: string) => Promise<void>;
-}>;
 
 const useFolders = (type: "NOTE" | "TODO"): UseFoldersResult => {
 	const { database, dataVersion, refreshData } = useDatabaseContext();
