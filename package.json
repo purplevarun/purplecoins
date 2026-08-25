@@ -57,7 +57,7 @@
 		"typecheck": "tsc --noEmit",
 		"test": "vitest run",
 		"check": "bun run format:check && bun run lint && bun run typecheck && bun run test && bun run expo-check",
-		"build": "eas build --profile preview --platform android",
+		"build": "./run build",
 		"expo-check": "npx expo install --check"
 	},
 	"private": true
