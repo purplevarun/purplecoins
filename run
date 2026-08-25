@@ -1,0 +1,232 @@
+#!/bin/sh
+set -eu
+
+version_code_from_version() {
+  VERSION_INPUT="$1"
+  node -e 'const raw=process.argv[1].trim(); const v=raw.startsWith("v") ? raw.slice(1) : raw; const parts=v.split("."); if (parts.length !== 2 && parts.length !== 3) { console.error("Invalid .version format. Use MAJOR.MINOR or MAJOR.MINOR.PATCH with each part 0-99."); process.exit(1); } const nums=parts.map(Number); if (nums.some(Number.isNaN) || nums.some(p => p < 0 || p > 99)) { console.error("Invalid .version format. Use MAJOR.MINOR or MAJOR.MINOR.PATCH with each part 0-99."); process.exit(1); } const major=nums[0]; const minor=nums[1]; const patch=nums.length === 3 ? nums[2] : 0; const code=(major*10000)+(minor*100)+patch; process.stdout.write(String(code));' "$VERSION_INPUT"
+}
+
+get_version() {
+  tr -d '[:space:]' < .version
+}
+
+get_app_id() {
+  node -e 'const fs=require("fs"); const json=JSON.parse(fs.readFileSync("app.json", "utf8")); process.stdout.write(String(json.expo.android.package));'
+}
+
+get_apk_path() {
+  APP_ID=$(get_app_id)
+  VERSION=$(get_version)
+  echo "android/app/build/outputs/apk/release/${APP_ID}_${VERSION}.apk"
+}
+
+require_cmd() {
+  if ! command -v "$1" >/dev/null 2>&1; then
+    echo "Missing required command: $1"
+    exit 1
+  fi
+}
+
+validate_files_exist() {
+  for file in .version app.json package.json; do
+    if [ ! -f "$file" ]; then
+      echo "Missing required file: $file"
+      exit 1
+    fi
+  done
+}
+
+validate_state() {
+  validate_files_exist
+
+  FILE_VERSION=$(get_version)
+  if [ -z "$FILE_VERSION" ]; then
+    echo ".version is empty"
+    exit 1
+  fi
+
+  EXPECTED_CODE=$(version_code_from_version "$FILE_VERSION")
+  node -e 'const fs=require("fs"); const expectedVersion=process.argv[1]; const expectedCode=Number(process.argv[2]); const app=JSON.parse(fs.readFileSync("app.json", "utf8")); const pkg=JSON.parse(fs.readFileSync("package.json", "utf8")); if (app.expo.version !== expectedVersion) { console.error(`Version mismatch: .version=${expectedVersion} but app.json expo.version=${app.expo.version}`); process.exit(1); } if (pkg.version !== expectedVersion) { console.error(`Version mismatch: .version=${expectedVersion} but package.json version=${pkg.version}`); process.exit(1); } if (Number(app.expo.android.versionCode) !== expectedCode) { console.error(`VersionCode mismatch: app.json expo.android.versionCode=${app.expo.android.versionCode} but expected ${expectedCode}`); process.exit(1); }' "$FILE_VERSION" "$EXPECTED_CODE"
+}
+
+run_format() {
+  if command -v bun >/dev/null 2>&1; then
+    bun run format
+  else
+    npm run format
+  fi
+}
+
+run_test() {
+  if command -v bun >/dev/null 2>&1; then
+    bun run test
+  else
+    npm run test
+  fi
+}
+
+run_apply() {
+  validate_files_exist
+
+  FILE_VERSION=$(get_version)
+  VERSION_CODE=$(version_code_from_version "$FILE_VERSION")
+
+  node -e 'const fs=require("fs"); const v=process.argv[1]; const vc=Number(process.argv[2]); const app=JSON.parse(fs.readFileSync("app.json", "utf8")); const pkg=JSON.parse(fs.readFileSync("package.json", "utf8")); app.expo.version=v; app.expo.android.versionCode=vc; pkg.version=v; fs.writeFileSync("app.json", JSON.stringify(app, null, "\t") + "\n"); fs.writeFileSync("package.json", JSON.stringify(pkg, null, "\t") + "\n");' "$FILE_VERSION" "$VERSION_CODE"
+
+  echo "Applied version: $FILE_VERSION"
+  echo "Applied versionCode: $VERSION_CODE"
+}
+
+run_build() {
+  mkdir -p logs
+  LOG="logs/run_build.txt"
+  : > "$LOG"
+
+  validate_state
+
+  echo "Recreating native Android project (clean prebuild)..."
+  rm -rf android
+  npx expo prebuild --clean --platform android >> "$LOG" 2>&1
+
+  if [ ! -f android/app/debug.keystore ]; then
+    keytool -genkeypair -v \
+      -storetype PKCS12 \
+      -keystore android/app/debug.keystore \
+      -storepass android \
+      -keypass android \
+      -alias androiddebugkey \
+      -keyalg RSA -keysize 2048 -validity 10000 \
+      -dname "CN=Android Debug,O=Android,C=US" >> "$LOG" 2>&1
+  fi
+
+  (
+    cd android
+    ./gradlew assembleRelease >> "../$LOG" 2>&1
+  )
+
+  APP_ID=$(get_app_id)
+  VERSION=$(get_version)
+  SRC="android/app/build/outputs/apk/release/app-release.apk"
+  DEST="android/app/build/outputs/apk/release/${APP_ID}_${VERSION}.apk"
+
+  if [ ! -f "$SRC" ]; then
+    echo "Release APK not found at $SRC"
+    exit 1
+  fi
+
+  mv "$SRC" "$DEST"
+  echo "APK ready: $DEST"
+}
+
+run_install() {
+  require_cmd adb
+  validate_state
+
+  APP_ID=$(get_app_id)
+  APK_PATH=$(get_apk_path)
+
+  if [ ! -f "$APK_PATH" ]; then
+    echo "APK not found at $APK_PATH"
+    echo "Run ./run build first."
+    exit 1
+  fi
+
+  if ! adb devices | grep -q "device$"; then
+    echo "No AVD/device running. Start one and rerun."
+    exit 1
+  fi
+
+  echo "Installing on local AVD/device..."
+  INSTALL_OUTPUT=$(adb install -r "$APK_PATH" 2>&1) || INSTALL_EXIT=$?
+  INSTALL_EXIT=${INSTALL_EXIT:-0}
+  echo "$INSTALL_OUTPUT"
+
+  if [ "$INSTALL_EXIT" -eq 0 ]; then
+    echo "Installed successfully."
+    return
+  fi
+
+  if echo "$INSTALL_OUTPUT" | grep -q "INSTALL_FAILED_VERSION_DOWNGRADE"; then
+    echo "Downgrade detected. Reinstalling..."
+    adb uninstall "$APP_ID" >/dev/null 2>&1 || true
+    adb install "$APK_PATH"
+    echo "Installed successfully after reinstall."
+    return
+  fi
+
+  echo "Install failed."
+  exit 1
+}
+
+run_release() {
+  require_cmd gh
+  validate_state
+
+  if ! gh auth status >/dev/null 2>&1; then
+    echo "GitHub CLI is not authenticated. Run: gh auth login"
+    exit 1
+  fi
+
+  VERSION=$(get_version)
+  TAG="v${VERSION}"
+  APK_PATH=$(get_apk_path)
+
+  if [ ! -f "$APK_PATH" ]; then
+    echo "APK not found at $APK_PATH"
+    echo "Run ./run build first."
+    exit 1
+  fi
+
+  if ! git rev-parse "$TAG" >/dev/null 2>&1; then
+    git tag "$TAG"
+    git push origin "$TAG"
+  fi
+
+  if gh release view "$TAG" >/dev/null 2>&1; then
+    gh release upload "$TAG" "$APK_PATH" --clobber
+    gh release edit "$TAG" --title "$TAG"
+  else
+    gh release create "$TAG" "$APK_PATH" --title "$TAG" --notes "Release $TAG"
+  fi
+
+  echo "Release published: $TAG"
+}
+
+show_help() {
+  cat <<'HELP'
+Usage: ./run <command>
+
+Commands:
+  format   Run prettier
+  test     Run unit tests
+  apply    Apply .version to app.json and package.json, and compute versionCode
+  build    Clean prebuild Android and assemble release APK with Gradle
+  install  Install existing APK on local AVD/device
+  release  Create tag v{version} and publish GitHub release v{version} with existing APK
+HELP
+}
+
+case "${1:-}" in
+  format)
+    run_format
+    ;;
+  test)
+    run_test
+    ;;
+  apply)
+    run_apply
+    ;;
+  build)
+    run_build
+    ;;
+  install)
+    run_install
+    ;;
+  release)
+    run_release
+    ;;
+  *)
+    show_help
+    exit 1
+    ;;
+esac
