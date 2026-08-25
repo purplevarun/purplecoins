@@ -16,7 +16,7 @@ import COLORS from "@/constants/colors";
 import HOME_MODES from "@/constants/homeModes";
 import type HomeMode from "@/types/HomeMode";
 import type RootStackParamList from "@/types/RootStackParamList";
-const { ALLOW_CLICK_SWITCH, ALLOW_SWIPE_SWITCH, APP_NAME } = appConstants;
+const { APP_NAME } = appConstants;
 
 type HomeScreenProps = NativeStackScreenProps<RootStackParamList, "Home">;
 
@@ -47,7 +47,7 @@ const getModeLabel = (mode: HomeMode): string =>
 	MODE_OPTIONS.find((option) => option.mode === mode)?.label ?? "Tools";
 
 const HomeScreen = ({ navigation }: HomeScreenProps): React.JSX.Element => {
-	const [mode, setMode] = useState<HomeMode>("TOOLS");
+	const [mode, setMode] = useState<HomeMode>("FINANCE");
 	const [isModeMenuVisible, setIsModeMenuVisible] = useState(false);
 	const [switchDragProgress] = useState(() => new Animated.Value(0));
 
@@ -55,7 +55,7 @@ const HomeScreen = ({ navigation }: HomeScreenProps): React.JSX.Element => {
 		setMode((currentMode) => {
 			const currentIndex = HOME_MODES.indexOf(currentMode);
 			const nextIndex = (currentIndex + 1) % HOME_MODES.length;
-			return HOME_MODES[nextIndex] ?? "TOOLS";
+			return HOME_MODES[nextIndex] ?? "FINANCE";
 		});
 		setIsModeMenuVisible(false);
 	}, []);
@@ -85,7 +85,7 @@ const HomeScreen = ({ navigation }: HomeScreenProps): React.JSX.Element => {
 	const switchGesture = useMemo(
 		() =>
 			Gesture.Pan()
-				.enabled(ALLOW_SWIPE_SWITCH)
+				.enabled(true)
 				.minDistance(4)
 				.runOnJS(true)
 				.onUpdate((event) => {
@@ -258,9 +258,7 @@ const HomeScreen = ({ navigation }: HomeScreenProps): React.JSX.Element => {
 	};
 
 	const handleSwitchPress = (): void => {
-		if (ALLOW_CLICK_SWITCH) {
-			setIsModeMenuVisible(true);
-		}
+		setIsModeMenuVisible(true);
 	};
 
 	const renderTiles = (tiles: readonly HomeTile[]): React.JSX.Element => (
@@ -384,66 +382,63 @@ const HomeScreen = ({ navigation }: HomeScreenProps): React.JSX.Element => {
 					{renderTiles(tilesByMode[mode])}
 				</ScreenContainer>
 			</SafeAreaView>
-			{ALLOW_CLICK_SWITCH ? (
-				<Modal
-					animationType="fade"
-					onRequestClose={() => setIsModeMenuVisible(false)}
-					transparent
-					visible={isModeMenuVisible}
+			<Modal
+				animationType="fade"
+				onRequestClose={() => setIsModeMenuVisible(false)}
+				transparent
+				visible={isModeMenuVisible}
+			>
+				<Pressable
+					onPress={() => setIsModeMenuVisible(false)}
+					style={styles.menuOverlay}
 				>
-					<Pressable
-						onPress={() => setIsModeMenuVisible(false)}
-						style={styles.menuOverlay}
-					>
-						<Pressable style={styles.modeMenu}>
-							{MODE_OPTIONS.map((option) => {
-								const isSelected = option.mode === mode;
-								return (
-									<Pressable
-										key={option.mode}
-										onPress={() =>
-											handleSelectMode(option.mode)
-										}
-										style={[
-											styles.modeOption,
-											isSelected &&
-												styles.modeOptionActive,
-										]}
-									>
-										<View style={styles.modeOptionLeft}>
-											<Ionicons
-												color={
-													isSelected
-														? COLORS.primaryBright
-														: COLORS.textMuted
-												}
-												name={option.icon}
-												size={19}
-											/>
-											<CustomText
-												style={[
-													styles.modeOptionText,
-													isSelected &&
-														styles.modeOptionTextActive,
-												]}
-											>
-												{option.label}
-											</CustomText>
-										</View>
-										{isSelected ? (
-											<Ionicons
-												color={COLORS.primaryBright}
-												name="checkmark-circle"
-												size={19}
-											/>
-										) : null}
-									</Pressable>
-								);
-							})}
-						</Pressable>
+					<Pressable style={styles.modeMenu}>
+						{MODE_OPTIONS.map((option) => {
+							const isSelected = option.mode === mode;
+							return (
+								<Pressable
+									key={option.mode}
+									onPress={() =>
+										handleSelectMode(option.mode)
+									}
+									style={[
+										styles.modeOption,
+										isSelected && styles.modeOptionActive,
+									]}
+								>
+									<View style={styles.modeOptionLeft}>
+										<Ionicons
+											color={
+												isSelected
+													? COLORS.primaryBright
+													: COLORS.textMuted
+											}
+											name={option.icon}
+											size={19}
+										/>
+										<CustomText
+											style={[
+												styles.modeOptionText,
+												isSelected &&
+													styles.modeOptionTextActive,
+											]}
+										>
+											{option.label}
+										</CustomText>
+									</View>
+									{isSelected ? (
+										<Ionicons
+											color={COLORS.primaryBright}
+											name="checkmark-circle"
+											size={19}
+										/>
+									) : null}
+								</Pressable>
+							);
+						})}
 					</Pressable>
-				</Modal>
-			) : null}
+				</Pressable>
+			</Modal>
 		</LinearGradient>
 	);
 };

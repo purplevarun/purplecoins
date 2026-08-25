@@ -136,21 +136,16 @@ run_install() {
     exit 1
   fi
 
+  echo "Uninstalling existing app ($APP_ID) if present..."
+  adb uninstall "$APP_ID" >/dev/null 2>&1 || true
+
   echo "Installing on local AVD/device..."
-  INSTALL_OUTPUT=$(adb install -r "$APK_PATH" 2>&1) || INSTALL_EXIT=$?
+  INSTALL_OUTPUT=$(adb install "$APK_PATH" 2>&1) || INSTALL_EXIT=$?
   INSTALL_EXIT=${INSTALL_EXIT:-0}
   echo "$INSTALL_OUTPUT"
 
   if [ "$INSTALL_EXIT" -eq 0 ]; then
     echo "Installed successfully."
-    return
-  fi
-
-  if echo "$INSTALL_OUTPUT" | grep -q "INSTALL_FAILED_VERSION_DOWNGRADE"; then
-    echo "Downgrade detected. Reinstalling..."
-    adb uninstall "$APP_ID" >/dev/null 2>&1 || true
-    adb install "$APK_PATH"
-    echo "Installed successfully after reinstall."
     return
   fi
 
