@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS sources (
 	id TEXT PRIMARY KEY NOT NULL,
 	name TEXT NOT NULL CHECK (length(trim(name)) > 0),
 	currency_code TEXT NOT NULL CHECK (length(currency_code) = 3),
+	archived INTEGER,
 	validated_at INTEGER,
 	created_at INTEGER NOT NULL,
 	updated_at INTEGER NOT NULL
@@ -15,6 +16,7 @@ CREATE TABLE IF NOT EXISTS categories (
 	id TEXT PRIMARY KEY NOT NULL,
 	name TEXT NOT NULL CHECK (length(trim(name)) > 0),
 	is_income INTEGER NOT NULL CHECK (is_income IN (0, 1)),
+	archived INTEGER,
 	created_at INTEGER NOT NULL,
 	updated_at INTEGER NOT NULL
 );
@@ -22,6 +24,7 @@ CREATE TABLE IF NOT EXISTS categories (
 CREATE TABLE IF NOT EXISTS trips (
 	id TEXT PRIMARY KEY NOT NULL,
 	name TEXT NOT NULL CHECK (length(trim(name)) > 0),
+	archived INTEGER,
 	created_at INTEGER NOT NULL,
 	updated_at INTEGER NOT NULL
 );
@@ -29,6 +32,7 @@ CREATE TABLE IF NOT EXISTS trips (
 CREATE TABLE IF NOT EXISTS investments (
 	id TEXT PRIMARY KEY NOT NULL,
 	name TEXT NOT NULL CHECK (length(trim(name)) > 0),
+	archived INTEGER,
 	created_at INTEGER NOT NULL,
 	updated_at INTEGER NOT NULL
 );
@@ -152,6 +156,7 @@ CREATE TABLE IF NOT EXISTS cards (
 	id TEXT PRIMARY KEY NOT NULL,
 	name TEXT NOT NULL CHECK (length(trim(name)) > 0),
 	card_number TEXT NOT NULL,
+	card_type TEXT NOT NULL DEFAULT 'CREDIT_CARD',
 	expiry TEXT NOT NULL DEFAULT '',
 	cvv TEXT NOT NULL DEFAULT '',
 	pin TEXT NOT NULL DEFAULT '',

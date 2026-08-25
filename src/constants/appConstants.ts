@@ -5,7 +5,6 @@ const BACKUP_MIME_TYPE = "application/x-sqlite3";
 const ATTACHMENT_MAX_BYTES = 2 * 1024 * 1024;
 const DEFAULT_CURRENCY_CODE = "INR";
 const DEFAULT_PAGE_SIZE = 100;
-const SCHEMA_VERSION = 1;
 const EXCHANGE_RATE_API_URL = "https://api.frankfurter.dev/v2/rates";
 const MILLISECONDS_PER_DAY = 86_400_000;
 
@@ -19,7 +18,6 @@ const appConstants = {
 	DEFAULT_PAGE_SIZE,
 	EXCHANGE_RATE_API_URL,
 	MILLISECONDS_PER_DAY,
-	SCHEMA_VERSION,
 };
 
 export default appConstants;
