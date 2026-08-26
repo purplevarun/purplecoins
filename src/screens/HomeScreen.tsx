@@ -31,29 +31,89 @@ const SWITCH_ARROW_TRAVEL = 5;
 const getModeLabel = (mode: HomeMode): string =>
 	MODE_OPTIONS.find((option) => option.mode === mode)?.label ?? "Tools";
 
+const getNextMode = (currentMode: HomeMode): HomeMode => {
+	const currentIndex = HOME_MODES.indexOf(currentMode);
+	const nextIndex = (currentIndex + 1) % HOME_MODES.length;
+	return HOME_MODES[nextIndex] ?? "FINANCE";
+};
+
+const getSwitchDragProgress = (
+	translationX: number,
+	translationY: number,
+): number => {
+	const isDownward =
+		translationY > 0 && Math.abs(translationY) > Math.abs(translationX);
+	return isDownward
+		? Math.min(translationY / SWIPE_DOWN_THRESHOLD, 1)
+		: 0;
+};
+
+const shouldCycleFromGesture = (
+	translationX: number,
+	translationY: number,
+): boolean =>
+	translationY >= SWIPE_DOWN_THRESHOLD &&
+	Math.abs(translationY) > Math.abs(translationX);
+
+const getModeOptionState = (
+	optionMode: HomeMode,
+	currentMode: HomeMode,
+): Readonly<{
+	isSelected: boolean;
+	iconColor: string;
+	showCheckmark: boolean;
+	textColor: string;
+}> => {
+	const isSelected = optionMode === currentMode;
+	return {
+		isSelected,
+		iconColor: isSelected ? COLORS.primaryBright : COLORS.textMuted,
+		showCheckmark: isSelected,
+		textColor: isSelected ? COLORS.primaryBright : COLORS.text,
+	};
+};
+
+const getPressableScaleStyle = (pressed: boolean): readonly unknown[] => [
+	pressed && styles.pressed,
+];
+
+const getTileIconBackgroundColor = (color: string): string => `${color}20`;
+
+const getModeMenuOptions = (
+	currentMode: HomeMode,
+): ReadonlyArray<
+	HomeModeOption &
+		Readonly<{
+			iconColor: string;
+			isSelected: boolean;
+			showCheckmark: boolean;
+		}>
+> =>
+	MODE_OPTIONS.map((option) => {
+		const optionState = getModeOptionState(option.mode, currentMode);
+		return {
+			...option,
+			iconColor: optionState.iconColor,
+			isSelected: optionState.isSelected,
+			showCheckmark: optionState.showCheckmark,
+		};
+	});
+
 const HomeScreen = ({ navigation }: HomeScreenProps): React.JSX.Element => {
 	const [mode, setMode] = useState<HomeMode>("FINANCE");
 	const [isModeMenuVisible, setIsModeMenuVisible] = useState(false);
 	const [switchDragProgress] = useState(() => new Animated.Value(0));
 
 	const cycleMode = useCallback((): void => {
-		setMode((currentMode) => {
-			const currentIndex = HOME_MODES.indexOf(currentMode);
-			const nextIndex = (currentIndex + 1) % HOME_MODES.length;
-			return HOME_MODES[nextIndex] ?? "FINANCE";
-		});
+		setMode((currentMode) => getNextMode(currentMode));
 		setIsModeMenuVisible(false);
 	}, []);
 
 	const updateSwitchDragProgress = useCallback(
 		(translationX: number, translationY: number): void => {
-			const isDownward =
-				translationY > 0 &&
-				Math.abs(translationY) > Math.abs(translationX);
-			const progress = isDownward
-				? Math.min(translationY / SWIPE_DOWN_THRESHOLD, 1)
-				: 0;
-			switchDragProgress.setValue(progress);
+			switchDragProgress.setValue(
+				getSwitchDragProgress(translationX, translationY),
+			);
 		},
 		[switchDragProgress],
 	);
@@ -81,9 +141,10 @@ const HomeScreen = ({ navigation }: HomeScreenProps): React.JSX.Element => {
 				})
 				.onEnd((event) => {
 					if (
-						event.translationY >= SWIPE_DOWN_THRESHOLD &&
-						Math.abs(event.translationY) >
-							Math.abs(event.translationX)
+						shouldCycleFromGesture(
+							event.translationX,
+							event.translationY,
+						)
 					) {
 						cycleMode();
 					}
@@ -252,17 +313,14 @@ const HomeScreen = ({ navigation }: HomeScreenProps): React.JSX.Element => {
 				<Pressable
 					key={tile.label}
 					onPress={tile.handlePress}
-					style={({ pressed }) => [
-						styles.tileWrapper,
-						pressed && styles.pressed,
-					]}
+					style={({ pressed }) => [styles.tileWrapper, ...getPressableScaleStyle(pressed)]}
 				>
 					<GlassCard>
 						<View style={styles.tile}>
 							<View
 								style={[
 									styles.tileIcon,
-									{ backgroundColor: `${tile.color}20` },
+									{ backgroundColor: getTileIconBackgroundColor(tile.color) },
 								]}
 							>
 								<Ionicons
@@ -378,8 +436,7 @@ const HomeScreen = ({ navigation }: HomeScreenProps): React.JSX.Element => {
 					style={styles.menuOverlay}
 				>
 					<Pressable style={styles.modeMenu}>
-						{MODE_OPTIONS.map((option) => {
-							const isSelected = option.mode === mode;
+						{getModeMenuOptions(mode).map((option) => {
 							return (
 								<Pressable
 									key={option.mode}
@@ -388,30 +445,27 @@ const HomeScreen = ({ navigation }: HomeScreenProps): React.JSX.Element => {
 									}
 									style={[
 										styles.modeOption,
-										isSelected && styles.modeOptionActive,
+										option.isSelected &&
+											styles.modeOptionActive,
 									]}
 								>
 									<View style={styles.modeOptionLeft}>
 										<Ionicons
-											color={
-												isSelected
-													? COLORS.primaryBright
-													: COLORS.textMuted
-											}
+											color={option.iconColor}
 											name={option.icon}
 											size={19}
 										/>
 										<CustomText
 											style={[
 												styles.modeOptionText,
-												isSelected &&
+												option.isSelected &&
 													styles.modeOptionTextActive,
 											]}
 										>
 											{option.label}
 										</CustomText>
 									</View>
-									{isSelected ? (
+									{option.showCheckmark ? (
 										<Ionicons
 											color={COLORS.primaryBright}
 											name="checkmark-circle"
@@ -591,3 +645,12 @@ const styles = StyleSheet.create({
 export default HomeScreen;
 
 export { getModeLabel, MODE_OPTIONS, SWITCH_ARROW_TRAVEL, SWIPE_DOWN_THRESHOLD };
+export {
+	getModeOptionState,
+	getModeMenuOptions,
+	getNextMode,
+	getPressableScaleStyle,
+	getSwitchDragProgress,
+	getTileIconBackgroundColor,
+	shouldCycleFromGesture,
+};

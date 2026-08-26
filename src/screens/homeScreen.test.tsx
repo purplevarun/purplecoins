@@ -105,7 +105,15 @@ import HomeScreen, {
 	SWIPE_DOWN_THRESHOLD,
 	SWITCH_ARROW_TRAVEL,
 	getModeLabel,
+	getModeMenuOptions,
+	getModeOptionState,
+	getNextMode,
+	getPressableScaleStyle,
+	getSwitchDragProgress,
+	getTileIconBackgroundColor,
+	shouldCycleFromGesture,
 } from "@/screens/HomeScreen";
+import COLORS from "@/constants/colors";
 
 const findByPredicate = (
 	node: any,
@@ -284,6 +292,54 @@ describe("HomeScreen", () => {
 		expect(getModeLabel("FINANCE")).toBe("Finance");
 		expect(getModeLabel("VAULT")).toBe("Vault");
 		expect(getModeLabel("UNKNOWN" as any)).toBe("Tools");
+		expect(getNextMode("TOOLS")).toBe("FINANCE");
+		expect(getNextMode("FINANCE")).toBe("VAULT");
+		expect(getNextMode("VAULT")).toBe("TOOLS");
+		expect(getSwitchDragProgress(1, 40)).toBe(1);
+		expect(getSwitchDragProgress(40, 1)).toBe(0);
+		expect(shouldCycleFromGesture(1, 40)).toBe(true);
+		expect(shouldCycleFromGesture(40, 20)).toBe(false);
+		expect(getPressableScaleStyle(true)).toEqual([{ transform: [{ scale: 0.98 }] }]);
+		expect(getPressableScaleStyle(false)).toEqual([false]);
+		expect(getTileIconBackgroundColor("#123456")).toBe("#12345620");
+		expect(getModeOptionState("VAULT", "VAULT")).toEqual({
+			isSelected: true,
+			iconColor: COLORS.primaryBright,
+			showCheckmark: true,
+			textColor: COLORS.primaryBright,
+		});
+		expect(getModeOptionState("TOOLS", "VAULT")).toEqual({
+			isSelected: false,
+			iconColor: COLORS.textMuted,
+			showCheckmark: false,
+			textColor: COLORS.text,
+		});
+		expect(getModeMenuOptions("FINANCE")).toEqual([
+			{
+				mode: "TOOLS",
+				label: "Tools",
+				icon: "construct-outline",
+				iconColor: COLORS.textMuted,
+				isSelected: false,
+				showCheckmark: false,
+			},
+			{
+				mode: "FINANCE",
+				label: "Finance",
+				icon: "wallet-outline",
+				iconColor: COLORS.primaryBright,
+				isSelected: true,
+				showCheckmark: true,
+			},
+			{
+				mode: "VAULT",
+				label: "Vault",
+				icon: "lock-closed-outline",
+				iconColor: COLORS.textMuted,
+				isSelected: false,
+				showCheckmark: false,
+			},
+		]);
 		expect(SWIPE_DOWN_THRESHOLD).toBe(28);
 		expect(SWITCH_ARROW_TRAVEL).toBe(5);
 	});

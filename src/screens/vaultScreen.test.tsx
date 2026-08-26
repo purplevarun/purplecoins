@@ -117,7 +117,11 @@ vi.mock("@/utils/runAfterRender", () => ({
 import VaultScreen, {
 	CARD_TYPE_LABEL,
 	CopyRow,
+	getCardSubtitle,
+	getIdentitySubtitle,
+	getPasswordSubtitle,
 	getVaultFormParams,
+	getVaultListData,
 } from "@/screens/VaultScreen";
 
 const flush = async (): Promise<void> => {
@@ -333,6 +337,13 @@ describe("VaultScreen", () => {
 	it("covers CopyRow and card label helpers directly", () => {
 		expect(CARD_TYPE_LABEL.CREDIT_CARD).toBe("Credit card");
 		expect(CARD_TYPE_LABEL.DEBIT_CARD).toBe("Debit card");
+		expect(getPasswordSubtitle("user", "site")).toBe("user");
+		expect(getPasswordSubtitle("", "site")).toBe("site");
+		expect(getPasswordSubtitle("", "")).toBe("No username");
+		expect(getCardSubtitle("CREDIT_CARD", "VISA")).toBe("Credit card · VISA");
+		expect(getCardSubtitle("CUSTOM", "")).toBe("CUSTOM");
+		expect(getIdentitySubtitle("ID1")).toBe("ID1");
+		expect(getIdentitySubtitle("")).toBe("No ID number");
 		expect(getVaultFormParams("PASSWORD")).toEqual({ kind: "PASSWORD" });
 		expect(getVaultFormParams("CARD", "c1")).toEqual({
 			kind: "CARD",
@@ -342,6 +353,33 @@ describe("VaultScreen", () => {
 			kind: "IDENTITY",
 			entryId: "i1",
 		});
+		expect(
+			getVaultListData(
+				"PASSWORD",
+				[{ id: "p1", title: "Github", username: "user", website: "" } as any],
+				[],
+				[],
+				"git",
+			),
+		).toHaveLength(1);
+		expect(
+			getVaultListData(
+				"CARD",
+				[],
+				[{ id: "c1", name: "Visa", network: "VISA", cardNumber: "1111", cardType: "CREDIT_CARD" } as any],
+				[],
+				"visa",
+			),
+		).toHaveLength(1);
+		expect(
+			getVaultListData(
+				"IDENTITY",
+				[],
+				[],
+				[{ id: "i1", title: "Passport", idNumber: "P1" } as any],
+				"p1",
+			),
+		).toHaveLength(1);
 
 		const onCopy = vi.fn();
 		expect(CopyRow({ label: "PIN", value: "", onCopy } as any)).toBeNull();

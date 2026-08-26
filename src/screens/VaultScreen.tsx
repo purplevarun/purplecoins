@@ -44,6 +44,49 @@ const getVaultFormParams = (
 ): { kind: VaultKind; entryId?: string } =>
 	entryId ? { kind, entryId } : { kind };
 
+const getPasswordSubtitle = (
+	username: string,
+	website: string,
+): string => username || website || "No username";
+
+const getCardSubtitle = (cardType: string, network: string): string =>
+	`${CARD_TYPE_LABEL[cardType] ?? cardType}${network ? ` · ${network}` : ""}`;
+
+const getIdentitySubtitle = (idNumber: string): string =>
+	idNumber || "No ID number";
+
+const getVaultListData = (
+	kind: VaultKind,
+	passwords: readonly PasswordEntry[],
+	cards: readonly CardEntry[],
+	identities: readonly IdentityEntry[],
+	normalizedSearch: string,
+): readonly VaultListItem[] => {
+	if (kind === "PASSWORD") {
+		return passwords
+			.filter((entry) =>
+				`${entry.title} ${entry.username} ${entry.website}`
+					.toLowerCase()
+					.includes(normalizedSearch),
+			)
+			.map((entry) => ({ kind: "PASSWORD" as const, entry }));
+	}
+	if (kind === "CARD") {
+		return cards
+			.filter((entry) =>
+				`${entry.name} ${entry.network} ${entry.cardNumber} ${entry.cardType}`
+					.toLowerCase()
+					.includes(normalizedSearch),
+			)
+			.map((entry) => ({ kind: "CARD" as const, entry }));
+	}
+	return identities
+		.filter((entry) =>
+			`${entry.title} ${entry.idNumber}`.toLowerCase().includes(normalizedSearch),
+		)
+		.map((entry) => ({ kind: "IDENTITY" as const, entry }));
+};
+
 const CopyRow = ({
 	label,
 	value,
@@ -149,33 +192,17 @@ const VaultScreen = ({
 	);
 
 	const normalizedSearch = search.trim().toLowerCase();
-	const listData = useMemo((): readonly VaultListItem[] => {
-		if (kind === "PASSWORD") {
-			return passwords
-				.filter((entry) =>
-					`${entry.title} ${entry.username} ${entry.website}`
-						.toLowerCase()
-						.includes(normalizedSearch),
-				)
-				.map((entry) => ({ kind: "PASSWORD" as const, entry }));
-		}
-		if (kind === "CARD") {
-			return cards
-				.filter((entry) =>
-					`${entry.name} ${entry.network} ${entry.cardNumber} ${entry.cardType}`
-						.toLowerCase()
-						.includes(normalizedSearch),
-				)
-				.map((entry) => ({ kind: "CARD" as const, entry }));
-		}
-		return identities
-			.filter((entry) =>
-				`${entry.title} ${entry.idNumber}`
-					.toLowerCase()
-					.includes(normalizedSearch),
-			)
-			.map((entry) => ({ kind: "IDENTITY" as const, entry }));
-	}, [cards, identities, kind, normalizedSearch, passwords]);
+	const listData = useMemo(
+		(): readonly VaultListItem[] =>
+			getVaultListData(
+				kind,
+				passwords,
+				cards,
+				identities,
+				normalizedSearch,
+			),
+		[cards, identities, kind, normalizedSearch, passwords],
+	);
 
 	const renderVaultItem = useCallback(
 		({ item }: { item: VaultListItem }): React.JSX.Element => {
@@ -202,9 +229,10 @@ const VaultScreen = ({
 										{entry.title}
 									</CustomText>
 									<CustomText style={styles.meta}>
-										{entry.username ||
-											entry.website ||
-											"No username"}
+										{getPasswordSubtitle(
+											entry.username,
+											entry.website,
+										)}
 									</CustomText>
 									<CustomText style={styles.updatedAt}>
 										Updated {formatDate(entry.updatedAt)}
@@ -265,11 +293,10 @@ const VaultScreen = ({
 										{entry.name}
 									</CustomText>
 									<CustomText style={styles.meta}>
-										{CARD_TYPE_LABEL[entry.cardType] ??
-											entry.cardType}
-										{entry.network
-											? ` · ${entry.network}`
-											: ""}
+										{getCardSubtitle(
+											entry.cardType,
+											entry.network,
+										)}
 									</CustomText>
 								</View>
 								{entry.hasAttachment ? (
@@ -354,7 +381,7 @@ const VaultScreen = ({
 									{entry.title}
 								</CustomText>
 								<CustomText style={styles.meta}>
-									{entry.idNumber || "No ID number"}
+									{getIdentitySubtitle(entry.idNumber)}
 								</CustomText>
 							</View>
 							{entry.hasAttachment ? (
@@ -499,4 +526,12 @@ const styles = StyleSheet.create({
 
 export default VaultScreen;
 
-export { CARD_TYPE_LABEL, CopyRow, getVaultFormParams };
+export {
+	CARD_TYPE_LABEL,
+	CopyRow,
+	getCardSubtitle,
+	getIdentitySubtitle,
+	getPasswordSubtitle,
+	getVaultFormParams,
+	getVaultListData,
+};
