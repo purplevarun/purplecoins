@@ -123,12 +123,16 @@ import AnalysisScreen, {
 	formatSignedMoney,
 	getChartData,
 	getCategoryAccent,
+	getCategoryBreakdownText,
 	getCategoryBucketLabel,
 	getCategoryNetColor,
+	getDateRangeLabel,
 	getInvestmentAccent,
 	getInvestmentColor,
+	getInvestmentNetText,
 	getLinkedCategoryParams,
 	getLinkedInvestmentParams,
+	getMissingRatesMessage,
 	getPeriodTitle,
 	getSelectedDateRange,
 	getSummaryMetrics,
@@ -436,6 +440,22 @@ describe("AnalysisScreen", () => {
 		expect(getCategoryBucketLabel(false)).toBe("Expense category");
 		expect(getCategoryNetColor("1")).toBe(COLORS.success);
 		expect(getCategoryNetColor("-1")).toBe(COLORS.danger);
+		expect(getDateRangeLabel({ start: 1, end: 2 })).toBe("date:1 – date:2");
+		expect(getMissingRatesMessage(["USD", "EUR"])).toBe(
+			"Update INR exchange rates for USD, EUR before analysis can include those transactions.",
+		);
+		expect(
+			getCategoryBreakdownText({
+				categoryId: "c1",
+				categoryName: "Food",
+				currencyCode: "INR",
+				credits: "1",
+				debits: "2",
+				net: "-1",
+				isIncome: false,
+			}),
+		).toBe("Credits INR 1 · Debits INR 2");
+		expect(getInvestmentNetText("3", "INR")).toBe("Net: INR 3");
 		expect(
 			getLinkedCategoryParams(
 				{

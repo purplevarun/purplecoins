@@ -186,6 +186,25 @@ const getLinkedInvestmentParams = (
 	dateRangeLabel: `${formatDate(dateRange.start)} – ${formatDate(dateRange.end)}`,
 });
 
+const getDateRangeLabel = (dateRange: DateRange): string =>
+	`${formatDate(dateRange.start)} – ${formatDate(dateRange.end)}`;
+
+const getMissingRatesMessage = (
+	missingCurrencies: readonly string[],
+): string =>
+	`Update INR exchange rates for ${missingCurrencies.join(", ")} before analysis can include those transactions.`;
+
+const getCategoryBreakdownText = (
+	category: AnalysisSummary["categories"][number],
+): string =>
+	`Credits ${formatMoney(category.credits, category.currencyCode)} · Debits ${formatMoney(category.debits, category.currencyCode)}`;
+
+const getInvestmentNetText = (
+	net: string,
+	currencyCode: string,
+): string =>
+	`${getInvestmentNetLabel(net)}: ${formatMoney(getInvestmentNetAmount(net), currencyCode)}`;
+
 const getChartData = (
 	summary: AnalysisSummary | null,
 	hasMissingCurrencies: boolean,
@@ -479,7 +498,7 @@ const AnalysisScreen = ({
 			) : null}
 			{summary?.missingCurrencies.length ? (
 				<Notice
-					message={`Update INR exchange rates for ${summary.missingCurrencies.join(", ")} before analysis can include those transactions.`}
+						message={getMissingRatesMessage(summary.missingCurrencies)}
 					tone="warning"
 				/>
 			) : null}
@@ -549,16 +568,7 @@ const AnalysisScreen = ({
 										<CustomText
 											style={styles.categoryBreakdown}
 										>
-											Credits{" "}
-											{formatMoney(
-												category.credits,
-												category.currencyCode,
-											)}
-											{" · "}Debits{" "}
-											{formatMoney(
-												category.debits,
-												category.currencyCode,
-											)}
+											{getCategoryBreakdownText(category)}
 										</CustomText>
 									</View>
 									<View style={styles.categoryRight}>
@@ -649,11 +659,8 @@ const AnalysisScreen = ({
 											},
 										]}
 									>
-										{getInvestmentNetLabel(investment.net)}:{" "}
-										{formatMoney(
-											getInvestmentNetAmount(
-												investment.net,
-											),
+										{getInvestmentNetText(
+											investment.net,
 											investment.currencyCode,
 										)}
 									</CustomText>
@@ -817,11 +824,15 @@ export {
 	getChartData,
 	getCategoryAccent,
 	getCategoryBucketLabel,
+	getCategoryBreakdownText,
 	getCategoryNetColor,
+	getDateRangeLabel,
 	getInvestmentAccent,
 	getInvestmentColor,
+	getInvestmentNetText,
 	getLinkedCategoryParams,
 	getLinkedInvestmentParams,
+	getMissingRatesMessage,
 	getPeriodTitle,
 	getSelectedDateRange,
 	getSummaryMetrics,
