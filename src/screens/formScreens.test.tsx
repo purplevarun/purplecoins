@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import COLORS from "@/constants/colors";
+
 const reactMocks = vi.hoisted(() => ({
 	useEffect: vi.fn(),
 	useState: vi.fn(),
@@ -446,6 +448,62 @@ describe("form screens", () => {
 		expect(serviceMocks.saveTrip).toHaveBeenCalled();
 		expect(serviceMocks.getInvestment).toHaveBeenCalledWith({ id: "db" }, "i1");
 		expect(serviceMocks.saveInvestment).toHaveBeenCalled();
+	});
+
+	it("covers RelationFormScreen load-error and category switch/error render branches", async () => {
+		const navigation = { goBack: vi.fn() };
+		serviceMocks.getInvestment.mockRejectedValueOnce(new Error("investment load failed"));
+
+		const setError = vi.fn();
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 6) return ["", setError];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		RelationFormScreen({
+			navigation,
+			route: {
+				key: "k-investment-load-fail",
+				name: "RelationForm",
+				params: { kind: "INVESTMENT", entityId: "i1" },
+			},
+		} as any);
+		await flush();
+		await flush();
+
+		expect(setError).toHaveBeenCalledWith("investment load failed");
+
+		stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 3) return [false, vi.fn()];
+			if (stateCall === 6) return ["manual error", vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const categoryTree = RelationFormScreen({
+			navigation,
+			route: {
+				key: "k-category-false-switch",
+				name: "RelationForm",
+				params: { kind: "CATEGORY", entityId: "c1" },
+			},
+		} as any);
+		await flush();
+
+		const switchNode = findByPredicate(
+			categoryTree,
+			(node) => typeof node?.props?.onValueChange === "function" && node?.props?.thumbColor,
+		)[0];
+		expect(switchNode?.props?.thumbColor).toBe(COLORS.textMuted);
+		expect(
+			findByPredicate(
+				categoryTree,
+				(node) => node?.props?.message === "manual error" && node?.props?.tone === "danger",
+			),
+		).not.toHaveLength(0);
 	});
 
 	it("executes VaultFormScreen branches for password card and identity", async () => {
