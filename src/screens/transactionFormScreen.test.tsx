@@ -367,4 +367,183 @@ describe("TransactionFormScreen", () => {
 		expect(serviceMocks.deleteTransaction).toHaveBeenCalledWith({ id: "db" }, "tx1");
 		expect(navigation.goBack).not.toHaveBeenCalled();
 	});
+
+	it("preloads existing transaction fields and keeps date in edit mode", async () => {
+		const navigation = { goBack: vi.fn() };
+		serviceMocks.getTransaction.mockResolvedValueOnce({
+			id: "tx1",
+			classification: "GENERAL",
+			type: "DEBIT",
+			sourceId: "s1",
+			destinationSourceId: null,
+			amount: "77",
+			toAmount: null,
+			categoryId: "c1",
+			tripId: "tr1",
+			investmentId: null,
+			reason: "Lunch",
+			transactionAt: 12345,
+		});
+
+		const setTransactionAt = vi.fn();
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 11) return [111, setTransactionAt];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		TransactionFormScreen({
+			navigation,
+			route: { key: "k6", name: "TransactionForm", params: { transactionId: "tx1" } },
+		} as any);
+		await flush();
+		await flush();
+
+		expect(setTransactionAt).toHaveBeenCalledWith(12345);
+	});
+
+	it("does not copy original date when cloning a transaction", async () => {
+		const navigation = { goBack: vi.fn() };
+		serviceMocks.getTransaction.mockResolvedValueOnce({
+			id: "tx1",
+			classification: "GENERAL",
+			type: "DEBIT",
+			sourceId: "s1",
+			destinationSourceId: null,
+			amount: "77",
+			toAmount: null,
+			categoryId: "c1",
+			tripId: "tr1",
+			investmentId: null,
+			reason: "Lunch",
+			transactionAt: 12345,
+		});
+
+		const setTransactionAt = vi.fn();
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 11) return [111, setTransactionAt];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		TransactionFormScreen({
+			navigation,
+			route: { key: "k7", name: "TransactionForm", params: { cloneFromTransactionId: "tx1" } },
+		} as any);
+		await flush();
+		await flush();
+
+		expect(setTransactionAt).not.toHaveBeenCalled();
+	});
+
+	it("covers classification and type segmented-control handlers", async () => {
+		const navigation = { goBack: vi.fn() };
+		const setClassification = vi.fn();
+		const setType = vi.fn();
+
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 1) return ["GENERAL", setClassification];
+			if (stateCall === 2) return ["TRANSFER", setType];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = TransactionFormScreen({
+			navigation,
+			route: { key: "k8", name: "TransactionForm", params: {} },
+		} as any);
+		await flush();
+
+		const segmentedControls = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.onChange === "function" && Array.isArray(node?.props?.options),
+		);
+		segmentedControls[0]?.props?.onChange("INVESTMENT");
+		segmentedControls[1]?.props?.onChange("CREDIT");
+		segmentedControls[1]?.props?.onChange("SOMETHING_ELSE");
+
+		expect(setClassification).toHaveBeenCalledWith("INVESTMENT");
+		expect(setType).toHaveBeenCalledWith("CREDIT");
+		expect(setType).toHaveBeenCalledWith("DEBIT");
+	});
+
+	it("covers initial form load error branch", async () => {
+		const navigation = { goBack: vi.fn() };
+		serviceMocks.getSources.mockRejectedValueOnce(new Error("load failed"));
+		const setError = vi.fn();
+
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 17) return ["", setError];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = TransactionFormScreen({
+			navigation,
+			route: { key: "k10", name: "TransactionForm", params: {} },
+		} as any);
+		await flush();
+		await flush();
+
+		expect(setError).toHaveBeenCalledWith("load failed");
+		expect(tree).toBeTruthy();
+	});
+
+	it("saves GENERAL non-transfer with category and trip payload fields", async () => {
+		const navigation = { goBack: vi.fn() };
+
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 1) return ["GENERAL", vi.fn()];
+			if (stateCall === 2) return ["DEBIT", vi.fn()];
+			if (stateCall === 3) return ["s1", vi.fn()];
+			if (stateCall === 4) return ["", vi.fn()];
+			if (stateCall === 5) return ["300", vi.fn()];
+			if (stateCall === 6) return ["", vi.fn()];
+			if (stateCall === 7) return ["c1", vi.fn()];
+			if (stateCall === 8) return ["tr1", vi.fn()];
+			if (stateCall === 9) return ["", vi.fn()];
+			if (stateCall === 10) return ["Groceries", vi.fn()];
+			if (stateCall === 11) return [789, vi.fn()];
+			if (stateCall === 12)
+				return [[{ id: "s1", name: "Cash", currencyCode: "INR", balance: "0" }], vi.fn()];
+			if (stateCall === 13)
+				return [[{ id: "c1", name: "Food", isIncome: false }], vi.fn()];
+			if (stateCall === 14) return [[{ id: "tr1", name: "Goa" }], vi.fn()];
+			if (stateCall === 15) return [[{ id: "i1", name: "MF" }], vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = TransactionFormScreen({
+			navigation,
+			route: { key: "k9", name: "TransactionForm", params: {} },
+		} as any);
+		await flush();
+
+		findByPredicate(
+			tree,
+			(node) => node?.props?.label === "Save transaction" && typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
+		await flush();
+
+		expect(serviceMocks.saveTransaction).toHaveBeenCalledWith({ id: "db" }, {
+			id: undefined,
+			classification: "GENERAL",
+			type: "DEBIT",
+			sourceId: "s1",
+			destinationSourceId: undefined,
+			amount: "300",
+			toAmount: undefined,
+			categoryId: "c1",
+			tripId: "tr1",
+			investmentId: undefined,
+			reason: "Groceries",
+			transactionAt: 789,
+		});
+	});
 });

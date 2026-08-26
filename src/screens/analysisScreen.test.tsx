@@ -276,15 +276,23 @@ describe("AnalysisScreen", () => {
 	});
 
 	it("renders missing-currency branch and exchange-rate shortcut", async () => {
-		serviceMocks.getAnalysisSummary.mockResolvedValue({
-			missingCurrencies: ["USD"],
-			totalIncome: "0",
-			totalExpense: "0",
-			netProfit: "0",
-			categories: [],
-			investments: [],
-		});
 		const navigation = { navigate: vi.fn() };
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 5) {
+				return [{
+					missingCurrencies: ["USD"],
+					totalIncome: "0",
+					totalExpense: "0",
+					netProfit: "0",
+					categories: [],
+					investments: [],
+				}, vi.fn()];
+			}
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
 		const tree = AnalysisScreen({ navigation } as any);
 		await flush();
 
@@ -386,6 +394,111 @@ describe("AnalysisScreen", () => {
 					),
 			),
 		).not.toHaveLength(0);
+	});
+
+	it("covers load-error catch branch and period arrow updater callbacks", async () => {
+		const navigation = { navigate: vi.fn() };
+		serviceMocks.getAnalysisSummary.mockRejectedValueOnce(new Error("analysis failed"));
+
+		const anchorSetter = vi.fn((updater: (prev: Date) => Date) => {
+			updater(new Date("2026-01-01T00:00:00.000Z"));
+		});
+		const setError = vi.fn();
+
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 2) return [new Date("2026-01-01T00:00:00.000Z"), anchorSetter];
+			if (stateCall === 6) return ["", setError];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = AnalysisScreen({ navigation } as any);
+		await flush();
+		await flush();
+
+		expect(setError).toHaveBeenCalledWith("analysis failed");
+
+		const arrowButtons = findByPredicate(
+			tree,
+			(node) =>
+				typeof node?.props?.onPress === "function" &&
+				Object.prototype.hasOwnProperty.call(node?.props ?? {}, "disabled"),
+		);
+		expect(arrowButtons).toHaveLength(2);
+		arrowButtons[0].props.onPress();
+		arrowButtons[1].props.onPress();
+
+		expect(serviceMocks.shiftAnalysisAnchor).toHaveBeenCalledWith(
+			"MONTH",
+			expect.any(Date),
+			-1,
+			undefined,
+			undefined,
+		);
+		expect(serviceMocks.shiftAnalysisAnchor).toHaveBeenCalledWith(
+			"MONTH",
+			expect.any(Date),
+			1,
+			undefined,
+			undefined,
+		);
+	});
+
+	it("covers preloaded summary category and investment map branches", async () => {
+		const navigation = { navigate: vi.fn() };
+
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 5) {
+				return [{
+					missingCurrencies: [],
+					totalIncome: "1000",
+					totalExpense: "400",
+					netProfit: "600",
+					categories: [
+						{
+							categoryId: "c1",
+							categoryName: "Food",
+							currencyCode: "INR",
+							credits: "100",
+							debits: "300",
+							net: "-200",
+							isIncome: false,
+						},
+					],
+					investments: [
+						{
+							investmentId: "i1",
+							investmentName: "MF",
+							currencyCode: "INR",
+							totalInvested: "500",
+							totalRedeemed: "100",
+							net: "400",
+						},
+					],
+				}, vi.fn()];
+			}
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = AnalysisScreen({ navigation } as any);
+		await flush();
+
+		findByPredicate(
+			tree,
+			(node) => typeof node?.props?.onPress === "function",
+		).forEach((node) => node.props.onPress());
+
+		expect(navigation.navigate).toHaveBeenCalledWith(
+			"LinkedTransactions",
+			expect.objectContaining({ kind: "CATEGORY", entityId: "c1" }),
+		);
+		expect(navigation.navigate).toHaveBeenCalledWith(
+			"LinkedTransactions",
+			expect.objectContaining({ kind: "INVESTMENT", entityId: "i1" }),
+		);
 	});
 
 	it("covers AnalysisScreen helper branches directly", () => {
