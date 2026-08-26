@@ -38,6 +38,12 @@ const CARD_TYPE_LABEL: Record<string, string> = {
 	DEBIT_CARD: "Debit card",
 };
 
+const getVaultFormParams = (
+	kind: VaultKind,
+	entryId?: string,
+): { kind: VaultKind; entryId?: string } =>
+	entryId ? { kind, entryId } : { kind };
+
 const CopyRow = ({
 	label,
 	value,
@@ -178,10 +184,10 @@ const VaultScreen = ({
 				return (
 					<Pressable
 						onPress={() =>
-							navigation.navigate("VaultForm", {
-								kind: "PASSWORD",
-								entryId: entry.id,
-							})
+							navigation.navigate(
+								"VaultForm",
+								getVaultFormParams("PASSWORD", entry.id),
+							)
 						}
 					>
 						<GlassCard>
@@ -241,10 +247,10 @@ const VaultScreen = ({
 				return (
 					<Pressable
 						onPress={() =>
-							navigation.navigate("VaultForm", {
-								kind: "CARD",
-								entryId: entry.id,
-							})
+							navigation.navigate(
+								"VaultForm",
+								getVaultFormParams("CARD", entry.id),
+							)
 						}
 					>
 						<GlassCard>
@@ -330,10 +336,10 @@ const VaultScreen = ({
 			return (
 				<Pressable
 					onPress={() =>
-						navigation.navigate("VaultForm", {
-							kind: "IDENTITY",
-							entryId: entry.id,
-						})
+						navigation.navigate(
+							"VaultForm",
+							getVaultFormParams("IDENTITY", entry.id),
+						)
 					}
 				>
 					<GlassCard>
@@ -418,7 +424,9 @@ const VaultScreen = ({
 				renderItem={renderVaultItem}
 			/>
 			<FloatingAddButton
-				onPress={() => navigation.navigate("VaultForm", { kind })}
+				onPress={() =>
+					navigation.navigate("VaultForm", getVaultFormParams(kind))
+				}
 			/>
 		</View>
 	);
@@ -491,4 +499,4 @@ const styles = StyleSheet.create({
 
 export default VaultScreen;
 
-export { CARD_TYPE_LABEL, CopyRow };
+export { CARD_TYPE_LABEL, CopyRow, getVaultFormParams };

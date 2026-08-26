@@ -134,6 +134,58 @@ const getInvestmentAccent = (net: string): "success" | "danger" | "default" => {
 	return "default";
 };
 
+const isShiftNavigationDisabled = (
+	period: AnalysisPeriod,
+	anchorDate: Date,
+	direction: -1 | 1,
+	minTxnDate: number | undefined,
+	maxTxnDate: number | undefined,
+): boolean => {
+	if (direction === -1 && minTxnDate === undefined) return false;
+	if (direction === 1 && maxTxnDate === undefined) return false;
+	const shifted = shiftAnalysisAnchor(
+		period,
+		anchorDate,
+		direction,
+		minTxnDate,
+		maxTxnDate,
+	);
+	return shifted === anchorDate;
+};
+
+const getCategoryAccent = (net: string): "success" | "danger" =>
+	compareMoney(net, ZERO_AMOUNT) >= 0 ? "success" : "danger";
+
+const getCategoryBucketLabel = (isIncome: boolean): string =>
+	isIncome ? "Income category" : "Expense category";
+
+const getCategoryNetColor = (net: string): string =>
+	compareMoney(net, ZERO_AMOUNT) >= 0 ? COLORS.success : COLORS.danger;
+
+const getLinkedCategoryParams = (
+	category: AnalysisSummary["categories"][number],
+	dateRange: DateRange,
+) => ({
+	kind: "CATEGORY" as const,
+	entityId: category.categoryId,
+	entityName: category.categoryName,
+	dateRangeStart: dateRange.start,
+	dateRangeEnd: dateRange.end,
+	dateRangeLabel: `${formatDate(dateRange.start)} – ${formatDate(dateRange.end)}`,
+});
+
+const getLinkedInvestmentParams = (
+	investment: AnalysisSummary["investments"][number],
+	dateRange: DateRange,
+) => ({
+	kind: "INVESTMENT" as const,
+	entityId: investment.investmentId,
+	entityName: investment.investmentName,
+	dateRangeStart: dateRange.start,
+	dateRangeEnd: dateRange.end,
+	dateRangeLabel: `${formatDate(dateRange.start)} – ${formatDate(dateRange.end)}`,
+});
+
 const getChartData = (
 	summary: AnalysisSummary | null,
 	hasMissingCurrencies: boolean,
@@ -281,27 +333,23 @@ const AnalysisScreen = ({
 
 	// Determine if arrows are disabled
 	const isBackDisabled = useMemo((): boolean => {
-		if (minTxnDate === undefined) return false;
-		const prev = shiftAnalysisAnchor(
+		return isShiftNavigationDisabled(
 			period,
 			anchorDate,
 			-1,
 			minTxnDate,
 			maxTxnDate,
 		);
-		return prev === anchorDate;
 	}, [anchorDate, maxTxnDate, minTxnDate, period]);
 
 	const isForwardDisabled = useMemo((): boolean => {
-		if (maxTxnDate === undefined) return false;
-		const next = shiftAnalysisAnchor(
+		return isShiftNavigationDisabled(
 			period,
 			anchorDate,
 			1,
 			minTxnDate,
 			maxTxnDate,
 		);
-		return next === anchorDate;
 	}, [anchorDate, maxTxnDate, minTxnDate, period]);
 
 	const hasMissingCurrencies = Boolean(summary?.missingCurrencies.length);
@@ -479,22 +527,14 @@ const AnalysisScreen = ({
 						<Pressable
 							key={`${category.categoryId}:${category.currencyCode}`}
 							onPress={() =>
-								navigation.navigate("LinkedTransactions", {
-									kind: "CATEGORY",
-									entityId: category.categoryId,
-									entityName: category.categoryName,
-									dateRangeStart: dateRange.start,
-									dateRangeEnd: dateRange.end,
-									dateRangeLabel: `${formatDate(dateRange.start)} – ${formatDate(dateRange.end)}`,
-								})
+								navigation.navigate(
+									"LinkedTransactions",
+									getLinkedCategoryParams(category, dateRange),
+								)
 							}
 						>
 							<GlassCard
-								accent={
-									compareMoney(category.net, ZERO_AMOUNT) >= 0
-										? "success"
-										: "danger"
-								}
+								accent={getCategoryAccent(category.net)}
 							>
 								<View style={styles.categoryRow}>
 									<View style={styles.categoryDetails}>
@@ -504,9 +544,7 @@ const AnalysisScreen = ({
 										<CustomText
 											style={styles.categoryBucket}
 										>
-											{category.isIncome
-												? "Income category"
-												: "Expense category"}
+											{getCategoryBucketLabel(category.isIncome)}
 										</CustomText>
 										<CustomText
 											style={styles.categoryBreakdown}
@@ -529,12 +567,7 @@ const AnalysisScreen = ({
 												styles.categoryNet,
 												{
 													color:
-														compareMoney(
-															category.net,
-															ZERO_AMOUNT,
-														) >= 0
-															? COLORS.success
-															: COLORS.danger,
+														getCategoryNetColor(category.net),
 												},
 											]}
 										>
@@ -562,14 +595,10 @@ const AnalysisScreen = ({
 							<Pressable
 								key={`${investment.investmentId}:${investment.currencyCode}`}
 								onPress={() =>
-									navigation.navigate("LinkedTransactions", {
-										kind: "INVESTMENT",
-										entityId: investment.investmentId,
-										entityName: investment.investmentName,
-										dateRangeStart: dateRange.start,
-										dateRangeEnd: dateRange.end,
-										dateRangeLabel: `${formatDate(dateRange.start)} – ${formatDate(dateRange.end)}`,
-									})
+									navigation.navigate(
+										"LinkedTransactions",
+										getLinkedInvestmentParams(investment, dateRange),
+									)
 								}
 							>
 								<GlassCard
@@ -786,10 +815,16 @@ export default AnalysisScreen;
 export {
 	formatSignedMoney,
 	getChartData,
+	getCategoryAccent,
+	getCategoryBucketLabel,
+	getCategoryNetColor,
 	getInvestmentAccent,
 	getInvestmentColor,
+	getLinkedCategoryParams,
+	getLinkedInvestmentParams,
 	getPeriodTitle,
 	getSelectedDateRange,
 	getSummaryMetrics,
 	HAS_ARROWS,
+	isShiftNavigationDisabled,
 };

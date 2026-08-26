@@ -114,7 +114,11 @@ vi.mock("@/utils/runAfterRender", () => ({
 	default: (fn: () => void) => fn(),
 }));
 
-import VaultScreen, { CARD_TYPE_LABEL, CopyRow } from "@/screens/VaultScreen";
+import VaultScreen, {
+	CARD_TYPE_LABEL,
+	CopyRow,
+	getVaultFormParams,
+} from "@/screens/VaultScreen";
 
 const flush = async (): Promise<void> => {
 	await Promise.resolve();
@@ -329,6 +333,15 @@ describe("VaultScreen", () => {
 	it("covers CopyRow and card label helpers directly", () => {
 		expect(CARD_TYPE_LABEL.CREDIT_CARD).toBe("Credit card");
 		expect(CARD_TYPE_LABEL.DEBIT_CARD).toBe("Debit card");
+		expect(getVaultFormParams("PASSWORD")).toEqual({ kind: "PASSWORD" });
+		expect(getVaultFormParams("CARD", "c1")).toEqual({
+			kind: "CARD",
+			entryId: "c1",
+		});
+		expect(getVaultFormParams("IDENTITY", "i1")).toEqual({
+			kind: "IDENTITY",
+			entryId: "i1",
+		});
 
 		const onCopy = vi.fn();
 		expect(CopyRow({ label: "PIN", value: "", onCopy } as any)).toBeNull();

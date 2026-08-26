@@ -122,11 +122,17 @@ import AnalysisScreen, {
 	HAS_ARROWS,
 	formatSignedMoney,
 	getChartData,
+	getCategoryAccent,
+	getCategoryBucketLabel,
+	getCategoryNetColor,
 	getInvestmentAccent,
 	getInvestmentColor,
+	getLinkedCategoryParams,
+	getLinkedInvestmentParams,
 	getPeriodTitle,
 	getSelectedDateRange,
 	getSummaryMetrics,
+	isShiftNavigationDisabled,
 } from "@/screens/AnalysisScreen";
 
 const flush = async (): Promise<void> => {
@@ -416,6 +422,61 @@ describe("AnalysisScreen", () => {
 		expect(getInvestmentAccent("20")).toBe("danger");
 		expect(getInvestmentAccent("-20")).toBe("success");
 		expect(getInvestmentAccent("0")).toBe("default");
+		expect(isShiftNavigationDisabled("MONTH", anchorDate, -1, undefined, 10)).toBe(
+			false,
+		);
+		expect(isShiftNavigationDisabled("MONTH", anchorDate, 1, 1, undefined)).toBe(
+			false,
+		);
+		expect(isShiftNavigationDisabled("MONTH", anchorDate, -1, 1, 10)).toBe(true);
+		expect(isShiftNavigationDisabled("MONTH", anchorDate, 1, 1, 10)).toBe(true);
+		expect(getCategoryAccent("1")).toBe("success");
+		expect(getCategoryAccent("-1")).toBe("danger");
+		expect(getCategoryBucketLabel(true)).toBe("Income category");
+		expect(getCategoryBucketLabel(false)).toBe("Expense category");
+		expect(getCategoryNetColor("1")).toBe(COLORS.success);
+		expect(getCategoryNetColor("-1")).toBe(COLORS.danger);
+		expect(
+			getLinkedCategoryParams(
+				{
+					categoryId: "c1",
+					categoryName: "Food",
+					currencyCode: "INR",
+					credits: "1",
+					debits: "2",
+					net: "-1",
+					isIncome: false,
+				},
+				{ start: 1, end: 2 },
+			),
+		).toEqual({
+			kind: "CATEGORY",
+			entityId: "c1",
+			entityName: "Food",
+			dateRangeStart: 1,
+			dateRangeEnd: 2,
+			dateRangeLabel: "date:1 – date:2",
+		});
+		expect(
+			getLinkedInvestmentParams(
+				{
+					investmentId: "i1",
+					investmentName: "MF",
+					currencyCode: "INR",
+					totalInvested: "5",
+					totalRedeemed: "2",
+					net: "3",
+				},
+				{ start: 1, end: 2 },
+			),
+		).toEqual({
+			kind: "INVESTMENT",
+			entityId: "i1",
+			entityName: "MF",
+			dateRangeStart: 1,
+			dateRangeEnd: 2,
+			dateRangeLabel: "date:1 – date:2",
+		});
 
 		expect(getChartData(null, true)).toEqual([]);
 		expect(
