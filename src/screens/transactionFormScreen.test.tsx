@@ -314,4 +314,57 @@ describe("TransactionFormScreen", () => {
 			),
 		).not.toHaveLength(0);
 	});
+
+	it("covers attachment actions", async () => {
+		const navigation = { goBack: vi.fn() };
+
+		const tree = TransactionFormScreen({
+			navigation,
+			route: { key: "k4", name: "TransactionForm", params: {} },
+		} as any);
+		await flush();
+
+		const attachment = findByPredicate(
+			tree,
+			(node) =>
+				typeof node?.props?.onOpen === "function" &&
+				typeof node?.props?.onPick === "function" &&
+				typeof node?.props?.onRemove === "function",
+		)[0];
+		await attachment?.props?.onOpen();
+		await attachment?.props?.onPick();
+		attachment?.props?.onRemove();
+
+		expect(hookMocks.handleOpen).toHaveBeenCalled();
+		expect(hookMocks.handlePick).toHaveBeenCalled();
+		expect(hookMocks.handleRemove).toHaveBeenCalled();
+	});
+
+	it("covers save and delete error branches", async () => {
+		const navigation = { goBack: vi.fn() };
+		serviceMocks.saveTransaction.mockRejectedValueOnce(new Error("save failed"));
+		serviceMocks.deleteTransaction.mockRejectedValueOnce(new Error("delete failed"));
+
+		const tree = TransactionFormScreen({
+			navigation,
+			route: { key: "k5", name: "TransactionForm", params: { transactionId: "tx1" } },
+		} as any);
+		await flush();
+
+		findByPredicate(
+			tree,
+			(node) => node?.props?.label === "Save transaction" && typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
+		await flush();
+
+		findByPredicate(
+			tree,
+			(node) => node?.props?.label === "Delete transaction" && typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
+		await flush();
+
+		expect(serviceMocks.saveTransaction).toHaveBeenCalled();
+		expect(serviceMocks.deleteTransaction).toHaveBeenCalledWith({ id: "db" }, "tx1");
+		expect(navigation.goBack).not.toHaveBeenCalled();
+	});
 });

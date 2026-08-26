@@ -251,4 +251,92 @@ describe("TransactionsScreen", () => {
 		expect(screenList.props.data).toHaveLength(1);
 		expect(screenList.props.data[0].id).toBe("t1");
 	});
+
+	it("covers search cleanup, load error branch, and list key extractor", async () => {
+		const navigation = { navigate: vi.fn(), setOptions: vi.fn() };
+		const clearSpy = vi.spyOn(globalThis, "clearTimeout");
+		serviceMocks.getTransactions.mockRejectedValueOnce(new Error("load failed"));
+
+		reactMocks.useEffect.mockImplementation((effect: () => void) => {
+			const cleanup = effect();
+			if (typeof cleanup === "function") {
+				cleanup();
+			}
+		});
+
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 1) {
+				return [
+					[
+						{
+							id: "t1",
+							classification: "GENERAL",
+							amount: "100",
+							sourceName: "Cash",
+							sourceCurrencyCode: "INR",
+							transactionAt: 10,
+							reason: "Lunch",
+						},
+					],
+					vi.fn(),
+				];
+			}
+			if (stateCall === 2) return ["ALL", vi.fn()];
+			if (stateCall === 3) return ["load failed", vi.fn()];
+			if (stateCall === 4) return [true, vi.fn()];
+			if (stateCall === 5) return ["cash", vi.fn()];
+			if (stateCall === 6) return ["cash", vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = TransactionsScreen({ navigation } as any);
+		await flush();
+
+		expect(serviceMocks.getTransactions).toHaveBeenCalledWith({ id: "db" });
+		expect(clearSpy).toHaveBeenCalled();
+		expect(findByPredicate(tree, (node) => node?.props?.placeholder === "Search transactions...")).not.toHaveLength(0);
+		expect(findByPredicate(tree, (node) => node?.props?.message === "load failed")).not.toHaveLength(0);
+
+		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		expect(screenList.props.keyExtractor({ id: "t1" })).toBe("t1");
+	});
+
+	it("covers search match branches beyond reason text", async () => {
+		const navigation = { navigate: vi.fn(), setOptions: vi.fn() };
+
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 1) {
+				return [
+					[
+						{
+							id: "t2",
+							classification: "GENERAL",
+							amount: "200",
+							sourceName: "Wallet",
+							sourceCurrencyCode: "INR",
+							transactionAt: 20,
+							reason: "No match",
+							categoryName: "Groceries",
+						},
+					],
+					vi.fn(),
+				];
+			}
+			if (stateCall === 2) return ["ALL", vi.fn()];
+			if (stateCall === 4) return [true, vi.fn()];
+			if (stateCall === 6) return ["wallet", vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = TransactionsScreen({ navigation } as any);
+		await flush();
+
+		const screenList = findByPredicate(tree, (node) => typeof node?.props?.data !== "undefined")[0];
+		expect(screenList.props.data).toHaveLength(1);
+		expect(screenList.props.data[0].id).toBe("t2");
+	});
 });
