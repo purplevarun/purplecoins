@@ -480,6 +480,44 @@ describe("form screens", () => {
 		expect(navigation.goBack).toHaveBeenCalled();
 	});
 
+	it("covers BudgetFormScreen load and save error branches", async () => {
+		const navigation = { goBack: vi.fn() };
+		serviceMocks.getCategories.mockRejectedValueOnce(new Error("load failed"));
+		serviceMocks.saveBudget.mockRejectedValueOnce(new Error("save failed"));
+
+		const tree = BudgetFormScreen({
+			navigation,
+			route: { key: "k-err", name: "BudgetForm", params: {} },
+		} as any);
+		await flush();
+
+		const saveNode = findByPredicate(
+			tree,
+			(node) => node?.props?.label === "Save budget" && typeof node?.props?.onPress === "function",
+		)[0];
+		saveNode?.props?.onPress();
+		await flush();
+
+		expect(navigation.goBack).not.toHaveBeenCalled();
+	});
+
+	it("renders BudgetFormScreen error notice branch", async () => {
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 6) return ["boom", vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = BudgetFormScreen({
+			navigation: { goBack: vi.fn() },
+			route: { key: "k-render", name: "BudgetForm", params: {} },
+		} as any);
+		await flush();
+
+		expect(findByPredicate(tree, (node) => node?.props?.message === "boom")).not.toHaveLength(0);
+	});
+
 	it("executes NoteFormScreen save and delete paths", async () => {
 		const navigation = { goBack: vi.fn() };
 		hookMocks.confirm.mockImplementation(({ onConfirm }: any) => {

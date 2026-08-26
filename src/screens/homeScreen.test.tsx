@@ -164,4 +164,31 @@ describe("HomeScreen", () => {
 		expect(navigation.navigate).toHaveBeenCalledWith("Analysis");
 		expect(navigation.navigate).toHaveBeenCalledWith("ExchangeRates");
 	});
+
+	it("renders tools mode tiles and vault mode menu selection branches", () => {
+		const navigation = { navigate: vi.fn() };
+		const setMode = vi.fn();
+		const setMenuVisible = vi.fn();
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 1) return ["TOOLS", setMode];
+			if (call === 2) return [true, setMenuVisible];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = HomeScreen({ navigation } as any);
+
+		findByPredicate(
+			tree,
+			(node) => typeof node?.props?.onPress === "function",
+		).forEach((node) => node.props.onPress());
+
+		expect(navigation.navigate).toHaveBeenCalledWith("Notes");
+		expect(navigation.navigate).toHaveBeenCalledWith("Todos");
+		expect(setMode).toHaveBeenCalledWith("TOOLS");
+		expect(setMode).toHaveBeenCalledWith("FINANCE");
+		expect(setMode).toHaveBeenCalledWith("VAULT");
+		expect(setMenuVisible).toHaveBeenCalledWith(false);
+	});
 });

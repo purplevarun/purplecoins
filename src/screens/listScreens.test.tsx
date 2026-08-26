@@ -351,6 +351,66 @@ describe("list screens", () => {
 		expect(hookMocks.refreshData).toHaveBeenCalled();
 	});
 
+	it("covers ExchangeRatesScreen no-count fetch and missing-rate save branch", async () => {
+		serviceMocks.fetchExchangeRates.mockResolvedValue(0);
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 1) return [["EUR"], vi.fn()];
+			if (call === 2) return [[], vi.fn()];
+			if (call === 3) return [{}, vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = ExchangeRatesScreen({} as any);
+		await flush();
+
+		findByPredicate(
+			tree,
+			(node) => node?.props?.label === "Fetch latest rates" && typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
+		await flush();
+
+		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const row = screenList.props.renderItem({ item: "EUR" });
+		findByPredicate(
+			row,
+			(node) => node?.props?.label === "Save manual rate" && typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
+		await flush();
+
+		expect(serviceMocks.saveManualExchangeRate).toHaveBeenCalledWith(
+			{ id: "db" },
+			"EUR",
+			"",
+		);
+	});
+
+	it("renders ExchangeRatesScreen error and unset-rate branches", async () => {
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 1) return [["EUR"], vi.fn()];
+			if (call === 2) return [[], vi.fn()];
+			if (call === 3) return [{ EUR: "" }, vi.fn()];
+			if (call === 5) return ["boom", vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = ExchangeRatesScreen({} as any);
+		await flush();
+
+		expect(
+			findByPredicate(tree, (node) => node?.props?.message === "boom"),
+		).not.toHaveLength(0);
+
+		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const row = screenList.props.renderItem({ item: "EUR" });
+		expect(
+			findByPredicate(row, (node) => String(node?.props?.children ?? "").includes("Rate not set")),
+		).not.toHaveLength(0);
+	});
+
 	it("executes ArchivedRelationsScreen list and restore flow", async () => {
 		hookMocks.confirm.mockImplementation(({ onConfirm }: any) => onConfirm());
 
@@ -384,6 +444,65 @@ describe("list screens", () => {
 		expect(serviceMocks.getArchivedInvestments).toHaveBeenCalledWith({ id: "db" });
 		expect(serviceMocks.setSourceArchived).toHaveBeenCalledWith({ id: "db" }, "s1", false);
 		expect(hookMocks.refreshData).toHaveBeenCalled();
+	});
+
+	it("covers ArchivedRelationsScreen search-empty message and investment restore branch", async () => {
+		hookMocks.confirm.mockImplementation(({ onConfirm }: any) => onConfirm());
+
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 1) return [[], vi.fn()];
+			if (call === 2) return [[], vi.fn()];
+			if (call === 3) return [[], vi.fn()];
+			if (call === 4) return [[{ id: "i1", name: "MF" }], vi.fn()];
+			if (call === 6) return ["mf", vi.fn()];
+			if (call === 7) return ["mf", vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = ArchivedRelationsScreen({} as any);
+		await flush();
+
+		expect(
+			findByPredicate(
+				tree,
+				(node) => node?.props?.placeholder === "Search archived relations...",
+			),
+		).not.toHaveLength(0);
+
+		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const entityRow = screenList.props.data.find((row: any) => row.kind === "INVESTMENT");
+		const rendered = screenList.props.renderItem({ item: entityRow });
+		findByPredicate(rendered, (node) => typeof node?.props?.onPress === "function")[0]?.props?.onPress();
+		await flush();
+
+		expect(serviceMocks.setInvestmentArchived).toHaveBeenCalledWith({ id: "db" }, "i1", false);
+	});
+
+	it("renders ArchivedRelationsScreen header row and error branch", async () => {
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 1) return [[{ id: "s1", name: "Cash" }], vi.fn()];
+			if (call === 2) return [[], vi.fn()];
+			if (call === 3) return [[], vi.fn()];
+			if (call === 4) return [[], vi.fn()];
+			if (call === 5) return ["broken", vi.fn()];
+			if (call === 6) return ["", vi.fn()];
+			if (call === 7) return ["", vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = ArchivedRelationsScreen({} as any);
+		await flush();
+
+		expect(findByPredicate(tree, (node) => node?.props?.message === "broken")).not.toHaveLength(0);
+
+		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const headerRow = screenList.props.data.find((row: any) => row.type === "header");
+		const rendered = screenList.props.renderItem({ item: headerRow });
+		expect(String(JSON.stringify(rendered) ?? "")).toContain("SOURCE TITLE");
 	});
 
 	it.each([

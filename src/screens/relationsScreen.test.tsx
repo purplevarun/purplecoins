@@ -382,4 +382,42 @@ describe("RelationsScreen", () => {
 			entityName: "MF",
 		});
 	});
+
+	it("shows search bar, missing-currency notice and add button branch", async () => {
+		const navigation = { navigate: vi.fn(), setOptions: vi.fn() };
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 2) return [[{ id: "c1", name: "Food", isIncome: false }], vi.fn()];
+			if (stateCall === 6) {
+				return [{ categories: [{ categoryId: "c1", net: "50", currencyCode: "INR" }], investments: [], missingCurrencies: ["EUR"] }, vi.fn()];
+			}
+			if (stateCall === 8) return [[{ currencyCode: "USD", rateToInr: "80" }], vi.fn()];
+			if (stateCall === 10) return [true, vi.fn()];
+			if (stateCall === 11) return ["fo", vi.fn()];
+			if (stateCall === 12) return ["fo", vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = RelationsScreen({
+			navigation,
+			route: { key: "k5", name: "Relations", params: { kind: "CATEGORY" } },
+		} as any);
+		await flush();
+
+		expect(
+			findByPredicate(
+				tree,
+				(node) => node?.props?.placeholder === "Search categorys...",
+			),
+		).not.toHaveLength(0);
+		expect(
+			findByPredicate(
+				tree,
+				(node) =>
+					typeof node?.props?.message === "string" &&
+					node.props.message.includes("Missing INR rates: EUR"),
+			),
+		).not.toHaveLength(0);
+	});
 });
