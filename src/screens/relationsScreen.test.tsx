@@ -527,4 +527,78 @@ describe("RelationsScreen", () => {
 		});
 		expect(navigation.navigate).toHaveBeenCalledWith("RelationForm", { kind: "SOURCE" });
 	});
+
+	it("covers SOURCE converted INR amount branch and row-action pressed styles", async () => {
+		const navigation = { navigate: vi.fn(), setOptions: vi.fn() };
+
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 1) {
+				return [[{ id: "s1", name: "Cash", currencyCode: "USD", balance: "10", validatedAt: null, latestTransactionCreatedAt: 4 }], vi.fn()];
+			}
+			if (stateCall === 7) return [false, vi.fn()];
+			if (stateCall === 8) return [[{ currencyCode: "USD", rateToInr: "80" }], vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = RelationsScreen({
+			navigation,
+			route: { key: "k9", name: "Relations", params: { kind: "SOURCE" } },
+		} as any);
+		await flush();
+
+		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const row = screenList.props.renderItem({ item: { kind: "SOURCE", entity: { id: "s1", name: "Cash", currencyCode: "USD", balance: "10", validatedAt: null, latestTransactionCreatedAt: 4 } } });
+
+		expect(String(JSON.stringify(row) ?? "")).toContain("≈");
+
+		const validateIcon = findByPredicate(
+			row,
+			(node) => node?.props?.accessibilityLabel === "Validate" && typeof node?.props?.style === "function",
+		)[0];
+		const archiveIcon = findByPredicate(
+			row,
+			(node) => node?.props?.accessibilityLabel === "Archive" && typeof node?.props?.style === "function",
+		)[0];
+
+		validateIcon?.props?.style({ pressed: true });
+		archiveIcon?.props?.style({ pressed: true });
+	});
+
+	it("covers INVESTMENT list sorting comparator with multiple entities", async () => {
+		const navigation = { navigate: vi.fn(), setOptions: vi.fn() };
+
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 5) {
+				return [[{ id: "i1", name: "High" }, { id: "i2", name: "Low" }], vi.fn()];
+			}
+			if (stateCall === 6) {
+				return [{
+					categories: [],
+					investments: [
+						{ investmentId: "i1", totalInvested: "100", totalRedeemed: "10", net: "10", currencyCode: "USD" },
+						{ investmentId: "i2", totalInvested: "100", totalRedeemed: "90", net: "20", currencyCode: "INR" },
+					],
+					missingCurrencies: [],
+				}, vi.fn()];
+			}
+			if (stateCall === 7) return [false, vi.fn()];
+			if (stateCall === 8) return [[{ currencyCode: "USD", rateToInr: "80" }], vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = RelationsScreen({
+			navigation,
+			route: { key: "k10", name: "Relations", params: { kind: "INVESTMENT" } },
+		} as any);
+		await flush();
+
+		const screenList = findByPredicate(tree, (node) => typeof node?.props?.data !== "undefined")[0];
+		expect(screenList.props.data).toHaveLength(2);
+		expect(screenList.props.data[0].entity.id).toBe("i1");
+		expect(screenList.props.data[1].entity.id).toBe("i2");
+	});
 });
