@@ -736,6 +736,93 @@ describe("RelationsScreen", () => {
 			(node) => typeof node?.type === "function" && node?.props?.accessibilityLabel === "Validate",
 		)[0];
 		const resolved = rowAction.type(rowAction.props);
+		resolved?.props?.style?.({ pressed: true });
 		expect(resolved?.props?.accessibilityLabel).toBe("Validate");
+	});
+
+	it("covers CATEGORY/TRIP/INVESTMENT remaining render branches", async () => {
+		const navigation = { navigate: vi.fn(), setOptions: vi.fn() };
+
+		let tripStateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			tripStateCall += 1;
+			if (tripStateCall === 3) {
+				return [[{ id: "t1", name: "Trip" }], vi.fn()];
+			}
+			if (tripStateCall === 4) {
+				return [[{ tripId: "t1", total: "-5", currencyCode: "USD" }], vi.fn()];
+			}
+			if (tripStateCall === 7) return [false, vi.fn()];
+			if (tripStateCall === 8) return [[{ currencyCode: "USD", rateToInr: "80" }], vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tripTree = RelationsScreen({
+			navigation,
+			route: { key: "k15", name: "Relations", params: { kind: "TRIP" } },
+		} as any);
+		await flush();
+
+		const tripList = findByPredicate(tripTree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const tripRow = tripList.props.renderItem({ item: { kind: "TRIP", entity: { id: "t1", name: "Trip" } } });
+		expect(String(JSON.stringify(tripRow) ?? "")).toContain("USD -5");
+		expect(String(JSON.stringify(tripRow) ?? "")).toContain("INR 400");
+
+		let categoryStateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			categoryStateCall += 1;
+			if (categoryStateCall === 2) {
+				return [[{ id: "c2", name: "Salary", isIncome: true }], vi.fn()];
+			}
+			if (categoryStateCall === 6) {
+				return [{ categories: [], investments: [], missingCurrencies: [] }, vi.fn()];
+			}
+			if (categoryStateCall === 7) return [false, vi.fn()];
+			if (categoryStateCall === 8) return [[{ currencyCode: "USD", rateToInr: "80" }], vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const categoryTree = RelationsScreen({
+			navigation,
+			route: { key: "k16", name: "Relations", params: { kind: "CATEGORY" } },
+		} as any);
+		await flush();
+
+		const categoryList = findByPredicate(categoryTree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const categoryRow = categoryList.props.renderItem({ item: { kind: "CATEGORY", entity: { id: "c2", name: "Salary", isIncome: true } } });
+		expect(String(JSON.stringify(categoryRow) ?? "")).toContain("Income category");
+		expect(String(JSON.stringify(categoryRow) ?? "")).toContain("INR 0");
+
+		let investmentStateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			investmentStateCall += 1;
+			if (investmentStateCall === 5) {
+				return [[{ id: "i1", name: "Fund" }], vi.fn()];
+			}
+			if (investmentStateCall === 6) {
+				return [{
+					categories: [],
+					investments: [
+						{ investmentId: "i1", totalInvested: "40", totalRedeemed: "50", net: "-10", currencyCode: "USD" },
+						{ investmentId: "i1", totalInvested: "50", totalRedeemed: "50", net: "0", currencyCode: "INR" },
+					],
+					missingCurrencies: [],
+				}, vi.fn()];
+			}
+			if (investmentStateCall === 7) return [true, vi.fn()];
+			if (investmentStateCall === 8) return [[{ currencyCode: "USD", rateToInr: "80" }], vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const investmentTree = RelationsScreen({
+			navigation,
+			route: { key: "k17", name: "Relations", params: { kind: "INVESTMENT" } },
+		} as any);
+		await flush();
+
+		const investmentList = findByPredicate(investmentTree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const investmentRow = investmentList.props.renderItem({ item: { kind: "INVESTMENT", entity: { id: "i1", name: "Fund" } } });
+		expect(String(JSON.stringify(investmentRow) ?? "")).toContain("USD -10");
+		expect(String(JSON.stringify(investmentRow) ?? "")).toContain("INR 0");
 	});
 });
