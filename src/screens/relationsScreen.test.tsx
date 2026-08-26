@@ -601,4 +601,141 @@ describe("RelationsScreen", () => {
 		expect(screenList.props.data[0].entity.id).toBe("i1");
 		expect(screenList.props.data[1].entity.id).toBe("i2");
 	});
+
+	it("covers SOURCE, CATEGORY and TRIP sort comparator branches", async () => {
+		const sourceNav = { navigate: vi.fn(), setOptions: vi.fn() };
+		let sourceStateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			sourceStateCall += 1;
+			if (sourceStateCall === 1) {
+				return [[
+					{ id: "s1", name: "USD", currencyCode: "USD", balance: "10", validatedAt: null, latestTransactionCreatedAt: 4 },
+					{ id: "s2", name: "INR", currencyCode: "INR", balance: "500", validatedAt: null, latestTransactionCreatedAt: 3 },
+				], vi.fn()];
+			}
+			if (sourceStateCall === 7) return [false, vi.fn()];
+			if (sourceStateCall === 8) return [[{ currencyCode: "USD", rateToInr: "80" }], vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+		const sourceTree = RelationsScreen({
+			navigation: sourceNav,
+			route: { key: "k11", name: "Relations", params: { kind: "SOURCE" } },
+		} as any);
+		await flush();
+		const sourceList = findByPredicate(sourceTree, (node) => typeof node?.props?.data !== "undefined")[0];
+		expect(sourceList.props.data[0].entity.id).toBe("s2");
+		expect(sourceList.props.data[1].entity.id).toBe("s1");
+
+		const categoryNav = { navigate: vi.fn(), setOptions: vi.fn() };
+		let categoryStateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			categoryStateCall += 1;
+			if (categoryStateCall === 2) {
+				return [[
+					{ id: "c1", name: "Low", isIncome: false },
+					{ id: "c2", name: "High", isIncome: true },
+				], vi.fn()];
+			}
+			if (categoryStateCall === 6) {
+				return [{
+					categories: [
+						{ categoryId: "c1", net: "10", currencyCode: "INR" },
+						{ categoryId: "c2", net: "5", currencyCode: "USD" },
+					],
+					investments: [],
+					missingCurrencies: [],
+				}, vi.fn()];
+			}
+			if (categoryStateCall === 7) return [false, vi.fn()];
+			if (categoryStateCall === 8) return [[{ currencyCode: "USD", rateToInr: "80" }], vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+		const categoryTree = RelationsScreen({
+			navigation: categoryNav,
+			route: { key: "k12", name: "Relations", params: { kind: "CATEGORY" } },
+		} as any);
+		await flush();
+		const categoryList = findByPredicate(categoryTree, (node) => typeof node?.props?.data !== "undefined")[0];
+		expect(categoryList.props.data[0].entity.id).toBe("c1");
+		expect(categoryList.props.data[1].entity.id).toBe("c2");
+
+		const tripNav = { navigate: vi.fn(), setOptions: vi.fn() };
+		let tripStateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			tripStateCall += 1;
+			if (tripStateCall === 3) {
+				return [[{ id: "t1", name: "Less" }, { id: "t2", name: "More" }], vi.fn()];
+			}
+			if (tripStateCall === 4) {
+				return [[
+					{ tripId: "t1", total: "10", currencyCode: "INR" },
+					{ tripId: "t2", total: "5", currencyCode: "USD" },
+				], vi.fn()];
+			}
+			if (tripStateCall === 7) return [false, vi.fn()];
+			if (tripStateCall === 8) return [[{ currencyCode: "USD", rateToInr: "80" }], vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+		const tripTree = RelationsScreen({
+			navigation: tripNav,
+			route: { key: "k13", name: "Relations", params: { kind: "TRIP" } },
+		} as any);
+		await flush();
+		const tripList = findByPredicate(tripTree, (node) => typeof node?.props?.data !== "undefined")[0];
+		expect(tripList.props.data[0].entity.id).toBe("t2");
+		expect(tripList.props.data[1].entity.id).toBe("t1");
+	});
+
+	it("covers close-search header callback and row action component function body", async () => {
+		const navigation = { navigate: vi.fn(), setOptions: vi.fn() };
+		const setSearchVisible = vi.fn();
+		const setSearchQuery = vi.fn();
+		const setSearchDebounced = vi.fn();
+
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 1) {
+				return [[{ id: "s1", name: "Cash", currencyCode: "USD", balance: "10", validatedAt: null, latestTransactionCreatedAt: 4 }], vi.fn()];
+			}
+			if (stateCall === 7) return [false, vi.fn()];
+			if (stateCall === 10) return [true, setSearchVisible];
+			if (stateCall === 11) return ["cash", setSearchQuery];
+			if (stateCall === 12) return ["cash", setSearchDebounced];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = RelationsScreen({
+			navigation,
+			route: { key: "k14", name: "Relations", params: { kind: "SOURCE" } },
+		} as any);
+		await flush();
+
+		const headerRight = navigation.setOptions.mock.calls[0][0].headerRight;
+		const header = headerRight();
+		findByPredicate(
+			header,
+			(node) =>
+				node?.props?.accessibilityLabel === "Close search" &&
+				typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
+
+		expect(setSearchVisible).toHaveBeenCalled();
+		expect(setSearchQuery).toHaveBeenCalledWith("");
+		expect(setSearchDebounced).toHaveBeenCalledWith("");
+
+		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const row = screenList.props.renderItem({
+			item: {
+				kind: "SOURCE",
+				entity: { id: "s1", name: "Cash", currencyCode: "USD", balance: "10", validatedAt: null, latestTransactionCreatedAt: 4 },
+			},
+		});
+		const rowAction = findByPredicate(
+			row,
+			(node) => typeof node?.type === "function" && node?.props?.accessibilityLabel === "Validate",
+		)[0];
+		const resolved = rowAction.type(rowAction.props);
+		expect(resolved?.props?.accessibilityLabel).toBe("Validate");
+	});
 });
