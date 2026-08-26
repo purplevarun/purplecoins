@@ -420,4 +420,111 @@ describe("RelationsScreen", () => {
 			),
 		).not.toHaveLength(0);
 	});
+
+	it("shows load error notice when initial fetch fails", async () => {
+		const navigation = { navigate: vi.fn(), setOptions: vi.fn() };
+		serviceMocks.getNativeCurrencyDisplay.mockRejectedValueOnce(new Error("load failed"));
+		const setError = vi.fn();
+
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 9) return ["", setError];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = RelationsScreen({
+			navigation,
+			route: { key: "k6", name: "Relations", params: { kind: "SOURCE" } },
+		} as any);
+		await flush();
+		await flush();
+
+		expect(setError).toHaveBeenCalledWith("load failed");
+		expect(tree).toBeTruthy();
+	});
+
+	it("shows validation error dialog branch", async () => {
+		const navigation = { navigate: vi.fn(), setOptions: vi.fn() };
+		serviceMocks.validateSource.mockRejectedValueOnce(new Error("validate failed"));
+
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 1) {
+				return [[{ id: "s1", name: "Cash", currencyCode: "USD", balance: "10", validatedAt: null, latestTransactionCreatedAt: 4 }], vi.fn()];
+			}
+			if (stateCall === 7) return [false, vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = RelationsScreen({
+			navigation,
+			route: { key: "k7", name: "Relations", params: { kind: "SOURCE" } },
+		} as any);
+		await flush();
+
+		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const row = screenList.props.renderItem({ item: { kind: "SOURCE", entity: { id: "s1", name: "Cash", currencyCode: "USD", balance: "10", validatedAt: null, latestTransactionCreatedAt: 4 } } });
+		findByPredicate(
+			row,
+			(node) => node?.props?.accessibilityLabel === "Validate" && typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
+		await flush();
+
+		expect(hookMocks.showMessage).toHaveBeenCalledWith(
+			expect.objectContaining({
+				title: "Unable to validate",
+				message: "validate failed",
+				variant: "danger",
+			}),
+		);
+	});
+
+	it("shows archive error dialog plus keyExtractor and floating add callbacks", async () => {
+		const navigation = { navigate: vi.fn(), setOptions: vi.fn() };
+		serviceMocks.setSourceArchived.mockRejectedValueOnce(new Error("archive failed"));
+
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 1) {
+				return [[{ id: "s1", name: "Cash", currencyCode: "USD", balance: "10", validatedAt: 5, latestTransactionCreatedAt: 4 }], vi.fn()];
+			}
+			if (stateCall === 7) return [false, vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = RelationsScreen({
+			navigation,
+			route: { key: "k8", name: "Relations", params: { kind: "SOURCE" } },
+		} as any);
+		await flush();
+
+		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		expect(screenList.props.keyExtractor({ entity: { id: "e1" } })).toBe("e1");
+
+		const row = screenList.props.renderItem({ item: { kind: "SOURCE", entity: { id: "s1", name: "Cash", currencyCode: "USD", balance: "10", validatedAt: 5, latestTransactionCreatedAt: 4 } } });
+		findByPredicate(
+			row,
+			(node) => node?.props?.accessibilityLabel === "Archive" && typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
+		await flush();
+
+		expect(hookMocks.showMessage).toHaveBeenCalledWith(
+			expect.objectContaining({
+				title: "Unable to archive",
+				message: "archive failed",
+				variant: "danger",
+			}),
+		);
+
+		findByPredicate(
+			tree,
+			(node) => typeof node?.props?.onPress === "function" && typeof node?.props?.onLongPress !== "function",
+		).forEach((node) => {
+			node.props.onPress();
+		});
+		expect(navigation.navigate).toHaveBeenCalledWith("RelationForm", { kind: "SOURCE" });
+	});
 });
