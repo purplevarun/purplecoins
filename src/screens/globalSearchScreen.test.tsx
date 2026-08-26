@@ -344,4 +344,91 @@ describe("GlobalSearchScreen", () => {
 		expect(navigation.navigate).toHaveBeenCalledWith("VaultForm", { kind: "CARD", entryId: "ca1" });
 		expect(navigation.navigate).toHaveBeenCalledWith("VaultForm", { kind: "IDENTITY", entryId: "id1" });
 	});
+
+	it("covers short-query empty results and key extraction", async () => {
+		const navigation = { navigate: vi.fn() };
+
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 1) {
+				return [
+					[
+						{
+							id: "n1",
+							kind: "NOTE",
+							title: "Note",
+							subtitle: "Home",
+							icon: "document-text-outline",
+							color: "#00f",
+						},
+					],
+					vi.fn(),
+				];
+			}
+			if (stateCall === 2) return ["a", vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = GlobalSearchScreen({
+			navigation,
+			route: { key: "k4", name: "GlobalSearch", params: { mode: "TOOLS" } },
+		} as any);
+		await flush();
+
+		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		expect(screenList.props.data).toEqual([]);
+		expect(screenList.props.keyExtractor({ kind: "NOTE", id: "n1" })).toBe("NOTE:n1");
+	});
+
+	it("covers result filtering callback and TOOLS load error branch", async () => {
+		const navigation = { navigate: vi.fn() };
+		serviceMocks.getNotes.mockRejectedValueOnce(new Error("search load failed"));
+
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 1) {
+				return [
+					[
+						{
+							id: "custom-1",
+							kind: "PASSWORD",
+							title: "Vault Entry",
+							subtitle: "",
+							icon: "key-outline",
+							color: "#fa0",
+							searchExtra: "special token",
+						},
+					],
+					vi.fn(),
+				];
+			}
+			if (stateCall === 2) return ["token", vi.fn()];
+			if (stateCall === 3) return ["search load failed", vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = GlobalSearchScreen({
+			navigation,
+			route: { key: "k5", name: "GlobalSearch", params: { mode: "TOOLS" } },
+		} as any);
+		await flush();
+
+		expect(serviceMocks.getNotes).toHaveBeenCalledWith({ id: "db" });
+		expect(
+			findByPredicate(tree, (node) => node?.props?.message === "search load failed"),
+		).not.toHaveLength(0);
+
+		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		expect(screenList.props.data).toHaveLength(1);
+		const row = screenList.props.renderItem({ item: screenList.props.data[0] });
+		findByPredicate(row, (node) => typeof node?.props?.onPress === "function")[0]?.props?.onPress();
+
+		expect(navigation.navigate).toHaveBeenCalledWith("VaultForm", {
+			kind: "PASSWORD",
+			entryId: "custom-1",
+		});
+		expect(String(JSON.stringify(row) ?? "")).toContain("No details");
+	});
 });
