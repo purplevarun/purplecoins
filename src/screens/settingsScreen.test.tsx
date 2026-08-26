@@ -206,4 +206,88 @@ describe("SettingsScreen", () => {
 
 		expect(serviceMocks.restoreBackup).toHaveBeenCalledWith({ id: "db" });
 	});
+
+	it("covers export and restore error branches", async () => {
+		serviceMocks.exportBackup.mockRejectedValueOnce(new Error("export failed"));
+		serviceMocks.restoreBackup.mockRejectedValueOnce(new Error("restore failed"));
+		const tree = SettingsScreen({ navigation: { navigate: vi.fn() } } as any);
+		await flush();
+
+		findByPredicate(
+			tree,
+			(node) => node?.props?.label === "Export .purplecoins" && typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
+		await flush();
+
+		findByPredicate(
+			tree,
+			(node) => node?.props?.label === "Restore .purplecoins" && typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
+		await flush();
+
+		expect(serviceMocks.exportBackup).toHaveBeenCalledWith({ id: "db" });
+		expect(serviceMocks.restoreBackup).toHaveBeenCalledWith({ id: "db" });
+	});
+
+	it("covers null default trip load and empty default trip update", async () => {
+		serviceMocks.getDefaultTripId.mockResolvedValue(null);
+		const tree = SettingsScreen({ navigation: { navigate: vi.fn() } } as any);
+		await flush();
+
+		findByPredicate(
+			tree,
+			(node) => node?.props?.label === "Default trip" && typeof node?.props?.onChange === "function",
+		)[0]?.props?.onChange("");
+		await flush();
+
+		expect(serviceMocks.getDefaultTripId).toHaveBeenCalledWith({ id: "db" });
+		expect(serviceMocks.updateDefaultTripId).toHaveBeenCalledWith({ id: "db" }, null);
+	});
+
+	it("covers FY-end label branches and mapped trip options", async () => {
+		const navigation = { navigate: vi.fn() };
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 5) return [1, vi.fn()];
+			if (call === 7) {
+				return [
+					[
+						{ id: "trip1", name: "Goa" },
+						{ id: "trip2", name: "Mysore" },
+					],
+					vi.fn(),
+				];
+			}
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = SettingsScreen({ navigation } as any);
+		await flush();
+
+		expect(String(JSON.stringify(tree) ?? "")).toContain("Dec");
+		const defaultTripSelect = findByPredicate(tree, (node) => node?.props?.label === "Default trip")[0];
+		expect(defaultTripSelect?.props?.options).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({ value: "" }),
+				expect.objectContaining({ value: "trip1" }),
+				expect.objectContaining({ value: "trip2" }),
+			]),
+		);
+	});
+
+	it("covers FY-end fallback label", async () => {
+		const navigation = { navigate: vi.fn() };
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 5) return [0, vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = SettingsScreen({ navigation } as any);
+		await flush();
+
+		expect(String(JSON.stringify(tree) ?? "")).toContain("Mar");
+	});
 });
