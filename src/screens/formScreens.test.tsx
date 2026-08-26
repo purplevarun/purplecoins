@@ -589,6 +589,51 @@ describe("form screens", () => {
 		expect(findByPredicate(tree, (node) => node?.props?.message === "boom")).not.toHaveLength(0);
 	});
 
+	it("covers BudgetFormScreen category mapping and period toggle branches", async () => {
+		const setPeriod = vi.fn();
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (initial === "MONTHLY") return ["MONTHLY", setPeriod];
+			if (call === 4) {
+				return [
+					[
+						{ id: "expense", name: "Food", isIncome: false },
+						{ id: "travel", name: "Travel", isIncome: false },
+					],
+					vi.fn(),
+				];
+			}
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = BudgetFormScreen({
+			navigation: { goBack: vi.fn() },
+			route: { key: "k-period", name: "BudgetForm", params: {} },
+		} as any);
+		await flush();
+
+		const select = findByPredicate(tree, (node) => node?.props?.label === "Expense category")[0];
+		expect(select?.props?.options).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({ label: "Food", value: "expense" }),
+				expect.objectContaining({ label: "Travel", value: "travel" }),
+			]),
+		);
+
+		const segmented = findByPredicate(
+			tree,
+			(node) =>
+				Array.isArray(node?.props?.options) &&
+				node.props.options.some((option: any) => option?.value === "MONTHLY"),
+		)[0];
+		expect(segmented).toBeTruthy();
+		segmented?.props?.onChange("YEARLY");
+		segmented?.props?.onChange("OTHER");
+		expect(setPeriod).toHaveBeenCalledWith("YEARLY");
+		expect(setPeriod).toHaveBeenCalledWith("MONTHLY");
+	});
+
 	it("executes NoteFormScreen save and delete paths", async () => {
 		const navigation = { goBack: vi.fn() };
 		hookMocks.confirm.mockImplementation(({ onConfirm }: any) => {
