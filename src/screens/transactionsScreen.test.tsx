@@ -339,4 +339,96 @@ describe("TransactionsScreen", () => {
 		expect(screenList.props.data).toHaveLength(1);
 		expect(screenList.props.data[0].id).toBe("t2");
 	});
+
+	it.each([
+		["amount", "2000", { amount: "2,000" }],
+		["category", "gro", { categoryName: "Groceries" }],
+		["trip", "goa", { tripName: "Goa" }],
+		["investment", "mf", { investmentName: "MF" }],
+		["date", "date:45", { transactionAt: 45 }],
+		["formatted money", "inr 2000", { amount: "2,000", sourceCurrencyCode: "inr" }],
+	] as const)(
+		"covers search match branch: %s",
+		async (_label, query, overrides) => {
+			const navigation = { navigate: vi.fn(), setOptions: vi.fn() };
+
+			let stateCall = 0;
+			reactMocks.useState.mockImplementation((initial: any) => {
+				stateCall += 1;
+				if (stateCall === 1) {
+					return [
+						[
+							{
+								id: "t-branch",
+								classification: "GENERAL",
+								amount: "100",
+								sourceName: "Wallet",
+								sourceCurrencyCode: "USD",
+								transactionAt: 20,
+								reason: "alpha",
+								...overrides,
+							},
+						],
+						vi.fn(),
+					];
+				}
+				if (stateCall === 2) return ["ALL", vi.fn()];
+				if (stateCall === 4) return [true, vi.fn()];
+				if (stateCall === 6) return [query, vi.fn()];
+				return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			});
+
+			const tree = TransactionsScreen({ navigation } as any);
+			await flush();
+
+			const screenList = findByPredicate(tree, (node) => typeof node?.props?.data !== "undefined")[0];
+			expect(screenList.props.data).toHaveLength(1);
+			expect(screenList.props.data[0].id).toBe("t-branch");
+		},
+	);
+
+	it("covers search no-match branch and close-search header icon branch", async () => {
+		const setOptions = vi.fn();
+		const navigation = { navigate: vi.fn(), setOptions };
+
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 1) {
+				return [
+					[
+						{
+							id: "t-none",
+							classification: "GENERAL",
+							amount: "100",
+							sourceName: "Wallet",
+							sourceCurrencyCode: "USD",
+							transactionAt: 20,
+							reason: "alpha",
+						},
+					],
+					vi.fn(),
+				];
+			}
+			if (stateCall === 2) return ["ALL", vi.fn()];
+			if (stateCall === 4) return [true, vi.fn()];
+			if (stateCall === 6) return ["zzz", vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = TransactionsScreen({ navigation } as any);
+		await flush();
+
+		const headerRight = setOptions.mock.calls[0][0].headerRight;
+		const header = headerRight();
+		expect(
+			findByPredicate(
+				header,
+				(node) => node?.props?.accessibilityLabel === "Close search" && node?.props?.icon === "close-outline",
+			),
+		).not.toHaveLength(0);
+
+		const screenList = findByPredicate(tree, (node) => typeof node?.props?.data !== "undefined")[0];
+		expect(screenList.props.data).toHaveLength(0);
+	});
 });
