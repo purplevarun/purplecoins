@@ -1,6 +1,6 @@
 import moneyUtils from "@/utils/money";
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 const { addMoney, multiplyMoney, normalizeMoney, subtractMoney } = moneyUtils;
 describe("money utilities", () => {
@@ -37,5 +37,20 @@ describe("money utilities", () => {
 	it("formats money for known and unknown currencies", () => {
 		expect(moneyUtils.formatMoney("1234.5", "INR")).toContain("1,234.5");
 		expect(moneyUtils.formatMoney("1234.5", "ZZZ")).toContain("ZZZ");
+	});
+
+	it("rethrows non-RangeError formatter failures", () => {
+		const originalNumberFormat = Intl.NumberFormat;
+		Intl.NumberFormat = vi.fn(() => {
+			throw new Error("formatter failed");
+		}) as unknown as typeof Intl.NumberFormat;
+
+		try {
+			expect(() => moneyUtils.formatMoney("1", "INR")).toThrow(
+				"formatter failed",
+			);
+		} finally {
+			Intl.NumberFormat = originalNumberFormat;
+		}
 	});
 });

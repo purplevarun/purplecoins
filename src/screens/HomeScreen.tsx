@@ -589,3 +589,5 @@ const styles = StyleSheet.create({
 });
 
 export default HomeScreen;
+
+export { getModeLabel, MODE_OPTIONS, SWITCH_ARROW_TRAVEL, SWIPE_DOWN_THRESHOLD };

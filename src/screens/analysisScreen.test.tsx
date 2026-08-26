@@ -117,7 +117,17 @@ vi.mock("@/utils/runAfterRender", () => ({
 	default: (fn: () => void) => fn(),
 }));
 
-import AnalysisScreen from "@/screens/AnalysisScreen";
+import COLORS from "@/constants/colors";
+import AnalysisScreen, {
+	HAS_ARROWS,
+	formatSignedMoney,
+	getChartData,
+	getInvestmentAccent,
+	getInvestmentColor,
+	getPeriodTitle,
+	getSelectedDateRange,
+	getSummaryMetrics,
+} from "@/screens/AnalysisScreen";
 
 const flush = async (): Promise<void> => {
 	await Promise.resolve();
@@ -366,5 +376,101 @@ describe("AnalysisScreen", () => {
 					),
 			),
 		).not.toHaveLength(0);
+	});
+
+	it("covers AnalysisScreen helper branches directly", () => {
+		const anchorDate = new Date("2026-04-10T00:00:00.000Z");
+
+		expect(HAS_ARROWS).toEqual(["MONTH", "YEAR", "FY"]);
+		expect(
+			getSelectedDateRange({
+				period: "CUSTOM",
+				anchorDate,
+				customStartAt: 11,
+				customEndAt: 22,
+				fyStartMonth: 4,
+			}),
+		).toEqual({ start: 5, end: 15 });
+		expect(
+			getSelectedDateRange({
+				period: "MONTH",
+				anchorDate,
+				customStartAt: 11,
+				customEndAt: 22,
+				fyStartMonth: 4,
+			}),
+		).toEqual({ start: 1, end: 31 });
+
+		expect(getPeriodTitle("MONTH", anchorDate, 4)).toContain("April");
+		expect(getPeriodTitle("YEAR", anchorDate, 4)).toBe("2026");
+		expect(getPeriodTitle("FY", anchorDate, 4)).toBe("FY 2026–27");
+		expect(getPeriodTitle("YTD", anchorDate, 4)).toBe("Year to Date");
+		expect(getPeriodTitle("ALL", anchorDate, 4)).toBe("All transactions");
+		expect(getPeriodTitle("CUSTOM", anchorDate, 4)).toBe("Custom period");
+
+		expect(formatSignedMoney("20")).toBe("+INR 20");
+		expect(formatSignedMoney("0")).toBe("INR 0");
+		expect(getInvestmentColor("20")).toBe(COLORS.danger);
+		expect(getInvestmentColor("-20")).toBe(COLORS.success);
+		expect(getInvestmentColor("0")).toBe(COLORS.text);
+		expect(getInvestmentAccent("20")).toBe("danger");
+		expect(getInvestmentAccent("-20")).toBe("success");
+		expect(getInvestmentAccent("0")).toBe("default");
+
+		expect(getChartData(null, true)).toEqual([]);
+		expect(
+			getChartData(
+				{
+					missingCurrencies: [],
+					totalIncome: "0",
+					totalExpense: "0",
+					netProfit: "0",
+					categories: [
+						{
+							categoryId: "c1",
+							categoryName: "Food",
+							currencyCode: "INR",
+							credits: "1",
+							debits: "2",
+							net: "-1",
+							isIncome: false,
+						},
+						{
+							categoryId: "c2",
+							categoryName: "Zero",
+							currencyCode: "INR",
+							credits: "0",
+							debits: "0",
+							net: "0",
+							isIncome: false,
+						},
+					],
+					investments: [],
+				},
+				false,
+			),
+		).toEqual([{ label: "Food", value: 1, color: "#A87CFF" }]);
+
+		expect(
+			getSummaryMetrics(
+				{
+					missingCurrencies: [],
+					totalIncome: "100",
+					totalExpense: "80",
+					netProfit: "20",
+					categories: [],
+					investments: [],
+				},
+				"-40",
+				"40",
+				"-20",
+			).map((metric) => metric.label),
+		).toEqual([
+			"Income",
+			"Expenses",
+			"Investments",
+			"Net",
+			"Net after investments",
+		]);
 	});
 });

@@ -490,3 +490,5 @@ const styles = StyleSheet.create({
 });
 
 export default VaultScreen;
+
+export { CARD_TYPE_LABEL, CopyRow };

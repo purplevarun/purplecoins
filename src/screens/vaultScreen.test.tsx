@@ -114,7 +114,7 @@ vi.mock("@/utils/runAfterRender", () => ({
 	default: (fn: () => void) => fn(),
 }));
 
-import VaultScreen from "@/screens/VaultScreen";
+import VaultScreen, { CARD_TYPE_LABEL, CopyRow } from "@/screens/VaultScreen";
 
 const flush = async (): Promise<void> => {
 	await Promise.resolve();
@@ -324,5 +324,21 @@ describe("VaultScreen", () => {
 			kind: "CARD",
 			entryId: "c1",
 		});
+	});
+
+	it("covers CopyRow and card label helpers directly", () => {
+		expect(CARD_TYPE_LABEL.CREDIT_CARD).toBe("Credit card");
+		expect(CARD_TYPE_LABEL.DEBIT_CARD).toBe("Debit card");
+
+		const onCopy = vi.fn();
+		expect(CopyRow({ label: "PIN", value: "", onCopy } as any)).toBeNull();
+
+		const row = CopyRow({ label: "PIN", value: "1234", onCopy } as any) as any;
+		const copyButton = findByPredicate(
+			row,
+			(node) => typeof node?.props?.onPress === "function",
+		)[0];
+		copyButton.props.onPress();
+		expect(onCopy).toHaveBeenCalledWith("1234", "PIN");
 	});
 });

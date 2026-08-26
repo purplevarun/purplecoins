@@ -134,6 +134,77 @@ const getInvestmentAccent = (net: string): "success" | "danger" | "default" => {
 	return "default";
 };
 
+const getChartData = (
+	summary: AnalysisSummary | null,
+	hasMissingCurrencies: boolean,
+): readonly ChartDatum[] => {
+	if (hasMissingCurrencies) {
+		return [];
+	}
+	return (
+		summary?.categories
+			.filter(
+				(category) => compareMoney(category.net, ZERO_AMOUNT) !== 0,
+			)
+			.slice(0, CHART_COLORS.length)
+			.map((category, index) => ({
+				label: category.categoryName,
+				value: Number(absoluteMoney(category.net)),
+				color: CHART_COLORS[index] ?? COLORS.primary,
+			})) ?? []
+	);
+};
+
+const getSummaryMetrics = (
+	summary: AnalysisSummary | null,
+	investmentCashFlow: string,
+	investmentNet: string,
+	netAfterInvestments: string,
+): readonly SummaryMetricInput[] => [
+	{
+		label: "Income",
+		value: formatMoney(summary?.totalIncome ?? ZERO_AMOUNT, DEFAULT_CURRENCY_CODE),
+		accent: "success",
+		color: COLORS.success,
+	},
+	{
+		label: "Expenses",
+		value: formatMoney(summary?.totalExpense ?? ZERO_AMOUNT, DEFAULT_CURRENCY_CODE),
+		accent: "danger",
+		color: COLORS.danger,
+	},
+	{
+		label: "Investments",
+		value: formatSignedMoney(investmentCashFlow),
+		accent: "warning",
+		color: getInvestmentColor(investmentNet),
+	},
+	{
+		label: "Net",
+		value: formatSignedMoney(summary?.netProfit ?? ZERO_AMOUNT),
+		accent:
+			compareMoney(summary?.netProfit ?? ZERO_AMOUNT, ZERO_AMOUNT) < 0
+				? "danger"
+				: "success",
+		color:
+			compareMoney(summary?.netProfit ?? ZERO_AMOUNT, ZERO_AMOUNT) < 0
+				? COLORS.danger
+				: COLORS.success,
+	},
+	{
+		label: "Net after investments",
+		value: formatSignedMoney(netAfterInvestments),
+		accent:
+			compareMoney(netAfterInvestments, ZERO_AMOUNT) < 0
+				? "danger"
+				: "success",
+		color:
+			compareMoney(netAfterInvestments, ZERO_AMOUNT) < 0
+				? COLORS.danger
+				: COLORS.success,
+	},
+];
+
 const HAS_ARROWS: readonly AnalysisPeriod[] = ["MONTH", "YEAR", "FY"];
 
 const AnalysisScreen = ({
@@ -242,69 +313,13 @@ const AnalysisScreen = ({
 		summary?.netProfit ?? ZERO_AMOUNT,
 		investmentCashFlow,
 	);
-	const chartData: readonly ChartDatum[] = hasMissingCurrencies
-		? []
-		: (summary?.categories
-				.filter(
-					(category) => compareMoney(category.net, ZERO_AMOUNT) !== 0,
-				)
-				.slice(0, CHART_COLORS.length)
-				.map((category, index) => ({
-					label: category.categoryName,
-					value: Number(absoluteMoney(category.net)),
-					color: CHART_COLORS[index] ?? COLORS.primary,
-				})) ?? []);
-
-	const summaryMetrics: readonly SummaryMetricInput[] = [
-		{
-			label: "Income",
-			value: formatMoney(
-				summary?.totalIncome ?? ZERO_AMOUNT,
-				DEFAULT_CURRENCY_CODE,
-			),
-			accent: "success",
-			color: COLORS.success,
-		},
-		{
-			label: "Expenses",
-			value: formatMoney(
-				summary?.totalExpense ?? ZERO_AMOUNT,
-				DEFAULT_CURRENCY_CODE,
-			),
-			accent: "danger",
-			color: COLORS.danger,
-		},
-		{
-			label: "Investments",
-			value: formatSignedMoney(investmentCashFlow),
-			accent: "warning",
-			color: getInvestmentColor(investmentNet),
-		},
-		{
-			label: "Net",
-			value: formatSignedMoney(summary?.netProfit ?? ZERO_AMOUNT),
-			accent:
-				compareMoney(summary?.netProfit ?? ZERO_AMOUNT, ZERO_AMOUNT) < 0
-					? "danger"
-					: "success",
-			color:
-				compareMoney(summary?.netProfit ?? ZERO_AMOUNT, ZERO_AMOUNT) < 0
-					? COLORS.danger
-					: COLORS.success,
-		},
-		{
-			label: "Net after investments",
-			value: formatSignedMoney(netAfterInvestments),
-			accent:
-				compareMoney(netAfterInvestments, ZERO_AMOUNT) < 0
-					? "danger"
-					: "success",
-			color:
-				compareMoney(netAfterInvestments, ZERO_AMOUNT) < 0
-					? COLORS.danger
-					: COLORS.success,
-		},
-	];
+	const chartData = getChartData(summary, hasMissingCurrencies);
+	const summaryMetrics = getSummaryMetrics(
+		summary,
+		investmentCashFlow,
+		investmentNet,
+		netAfterInvestments,
+	);
 
 	const renderMetric = (metric: SummaryMetricInput): React.JSX.Element => (
 		<View
@@ -312,7 +327,7 @@ const AnalysisScreen = ({
 			style={[
 				styles.summaryTile,
 				metric.label === "Net after investments" &&
-					styles.summaryTileFull,
+				styles.summaryTileFull,
 			]}
 		>
 			<GlassCard accent={metric.accent}>
@@ -767,3 +782,14 @@ const styles = StyleSheet.create({
 });
 
 export default AnalysisScreen;
+
+export {
+	formatSignedMoney,
+	getChartData,
+	getInvestmentAccent,
+	getInvestmentColor,
+	getPeriodTitle,
+	getSelectedDateRange,
+	getSummaryMetrics,
+	HAS_ARROWS,
+};

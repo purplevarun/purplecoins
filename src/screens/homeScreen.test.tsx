@@ -100,7 +100,12 @@ vi.mock("@/components/ScreenContainer", () => ({
 	default: (props: any) => ({ type: "ScreenContainer", props }),
 }));
 
-import HomeScreen from "@/screens/HomeScreen";
+import HomeScreen, {
+	MODE_OPTIONS,
+	SWIPE_DOWN_THRESHOLD,
+	SWITCH_ARROW_TRAVEL,
+	getModeLabel,
+} from "@/screens/HomeScreen";
 
 const findByPredicate = (
 	node: any,
@@ -190,5 +195,129 @@ describe("HomeScreen", () => {
 		expect(setMode).toHaveBeenCalledWith("FINANCE");
 		expect(setMode).toHaveBeenCalledWith("VAULT");
 		expect(setMenuVisible).toHaveBeenCalledWith(false);
+	});
+
+	it("renders vault mode tiles", () => {
+		const navigation = { navigate: vi.fn() };
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 1) return ["VAULT", vi.fn()];
+			if (call === 2) return [false, vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = HomeScreen({ navigation } as any);
+		findByPredicate(
+			tree,
+			(node) => typeof node?.props?.onPress === "function",
+		).forEach((node) => node.props.onPress());
+
+		expect(navigation.navigate).toHaveBeenCalledWith("Vault", {
+			kind: "PASSWORD",
+		});
+		expect(navigation.navigate).toHaveBeenCalledWith("Vault", {
+			kind: "CARD",
+		});
+		expect(navigation.navigate).toHaveBeenCalledWith("Vault", {
+			kind: "IDENTITY",
+		});
+	});
+
+	it("cycles mode on downward gesture and opens the mode menu on switch press", () => {
+		const navigation = { navigate: vi.fn() };
+		const setMode = vi.fn();
+		const setMenuVisible = vi.fn();
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 1) return ["FINANCE", setMode];
+			if (call === 2) return [false, setMenuVisible];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = HomeScreen({ navigation } as any);
+		findByPredicate(
+			tree,
+			(node) => node?.props?.accessibilityLabel === "Switch homepage" && typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
+
+		gestureState.onEnd?.({ translationX: 0, translationY: 40 });
+
+		expect(setMenuVisible).toHaveBeenCalledWith(true);
+		expect(setMenuVisible).toHaveBeenCalledWith(false);
+		expect(setMode).toHaveBeenCalled();
+		const updater = setMode.mock.calls[0][0];
+		expect(typeof updater).toBe("function");
+		expect(updater("FINANCE")).toBe("VAULT");
+		expect(updater("VAULT")).toBe("TOOLS");
+	});
+
+	it("renders the visible mode menu with selected option state", () => {
+		const navigation = { navigate: vi.fn() };
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 1) return ["VAULT", vi.fn()];
+			if (call === 2) return [true, vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = HomeScreen({ navigation } as any);
+		expect(
+			findByPredicate(
+				tree,
+				(node) => String(JSON.stringify(node) ?? "").includes("Passwords"),
+			),
+		).not.toHaveLength(0);
+		expect(
+			findByPredicate(
+				tree,
+				(node) => String(JSON.stringify(node) ?? "").includes("checkmark-circle"),
+			),
+		).not.toHaveLength(0);
+	});
+
+	it("covers HomeScreen helper metadata directly", () => {
+		expect(MODE_OPTIONS).toHaveLength(3);
+		expect(getModeLabel("TOOLS")).toBe("Tools");
+		expect(getModeLabel("FINANCE")).toBe("Finance");
+		expect(getModeLabel("VAULT")).toBe("Vault");
+		expect(getModeLabel("UNKNOWN" as any)).toBe("Tools");
+		expect(SWIPE_DOWN_THRESHOLD).toBe(28);
+		expect(SWITCH_ARROW_TRAVEL).toBe(5);
+	});
+
+	it("handles modal close and mode option selection", () => {
+		const navigation = { navigate: vi.fn() };
+		const setMode = vi.fn();
+		const setMenuVisible = vi.fn();
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 1) return ["FINANCE", setMode];
+			if (call === 2) return [true, setMenuVisible];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = HomeScreen({ navigation } as any);
+		findByPredicate(
+			tree,
+			(node) => node?.type === "Modal" && typeof node?.props?.onRequestClose === "function",
+		)[0]?.props?.onRequestClose();
+
+		const closers = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.onPress === "function" && String(JSON.stringify(node) ?? "").includes("modeMenu") === false,
+		);
+		closers[0]?.props?.onPress();
+
+		findByPredicate(
+			tree,
+			(node) => typeof node?.props?.onPress === "function",
+		).forEach((node) => node.props.onPress());
+
+		expect(setMenuVisible).toHaveBeenCalledWith(false);
+		expect(setMode).toHaveBeenCalled();
 	});
 });
