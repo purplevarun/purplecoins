@@ -377,6 +377,77 @@ describe("form screens", () => {
 		expect(navigation.goBack).toHaveBeenCalled();
 	});
 
+	it("covers RelationFormScreen create source, trip, investment, and save-error branches", async () => {
+		const navigation = { goBack: vi.fn() };
+
+		const newSourceTree = RelationFormScreen({
+			navigation,
+			route: {
+				key: "k-new-source",
+				name: "RelationForm",
+				params: { kind: "SOURCE" },
+			},
+		} as any);
+		await flush();
+		findByPredicate(
+			newSourceTree,
+			(node) => node?.props?.label === "Save" && typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
+		await flush();
+
+		const tripTree = RelationFormScreen({
+			navigation,
+			route: {
+				key: "k-trip",
+				name: "RelationForm",
+				params: { kind: "TRIP", entityId: "t1" },
+			},
+		} as any);
+		await flush();
+		findByPredicate(
+			tripTree,
+			(node) => node?.props?.label === "Save" && typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
+		await flush();
+
+		const investmentTree = RelationFormScreen({
+			navigation,
+			route: {
+				key: "k-investment",
+				name: "RelationForm",
+				params: { kind: "INVESTMENT", entityId: "i1" },
+			},
+		} as any);
+		await flush();
+		findByPredicate(
+			investmentTree,
+			(node) => node?.props?.label === "Save" && typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
+		await flush();
+
+		serviceMocks.saveTrip.mockRejectedValueOnce(new Error("trip save failed"));
+		const failingTripTree = RelationFormScreen({
+			navigation,
+			route: {
+				key: "k-trip-fail",
+				name: "RelationForm",
+				params: { kind: "TRIP", entityId: "t1" },
+			},
+		} as any);
+		await flush();
+		findByPredicate(
+			failingTripTree,
+			(node) => node?.props?.label === "Save" && typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
+		await flush();
+
+		expect(serviceMocks.createSource).toHaveBeenCalled();
+		expect(serviceMocks.getTrip).toHaveBeenCalledWith({ id: "db" }, "t1");
+		expect(serviceMocks.saveTrip).toHaveBeenCalled();
+		expect(serviceMocks.getInvestment).toHaveBeenCalledWith({ id: "db" }, "i1");
+		expect(serviceMocks.saveInvestment).toHaveBeenCalled();
+	});
+
 	it("executes VaultFormScreen branches for password card and identity", async () => {
 		const navigation = { goBack: vi.fn() };
 		hookMocks.confirm.mockImplementation(({ onConfirm }: any) => {
@@ -546,9 +617,62 @@ describe("form screens", () => {
 		expect(serviceMocks.getNote).toHaveBeenCalledWith({ id: "db" }, "n1");
 		expect(serviceMocks.saveNote).toHaveBeenCalled();
 		expect(hookMocks.processAttachment).toHaveBeenCalledWith("n1");
+		const attachmentNode = findByPredicate(
+			tree,
+			(node) =>
+				typeof node?.props?.onOpen === "function" &&
+				typeof node?.props?.onPick === "function" &&
+				typeof node?.props?.onRemove === "function",
+		)[0];
+		await attachmentNode?.props?.onOpen();
+		await attachmentNode?.props?.onPick();
+		attachmentNode?.props?.onRemove();
+		expect(hookMocks.handleOpen).toHaveBeenCalled();
+		expect(hookMocks.handlePick).toHaveBeenCalled();
+		expect(hookMocks.handleRemove).toHaveBeenCalled();
 		expect(hookMocks.confirm).toHaveBeenCalled();
 		expect(serviceMocks.deleteNote).toHaveBeenCalledWith({ id: "db" }, "n1");
 		expect(navigation.goBack).toHaveBeenCalled();
+	});
+
+	it("covers NoteFormScreen new-note and save/delete error branches", async () => {
+		const navigation = { goBack: vi.fn() };
+		hookMocks.confirm.mockImplementation(({ onConfirm }: any) => {
+			onConfirm();
+		});
+		serviceMocks.getNote.mockRejectedValueOnce(new Error("load failed"));
+		serviceMocks.saveNote.mockRejectedValueOnce(new Error("save failed"));
+		serviceMocks.deleteNote.mockRejectedValueOnce(new Error("delete failed"));
+
+		const existingTree = NoteFormScreen({
+			navigation,
+			route: { key: "k-note-fail", name: "NoteForm", params: { noteId: "n1" } },
+		} as any);
+		await flush();
+
+		findByPredicate(
+			existingTree,
+			(node) => node?.props?.label === "Save note" && typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
+		await flush();
+
+		findByPredicate(
+			existingTree,
+			(node) => node?.props?.label === "Delete note" && typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
+		await flush();
+
+		expect(navigation.goBack).not.toHaveBeenCalled();
+
+		const newTree = NoteFormScreen({
+			navigation: { goBack: vi.fn() },
+			route: { key: "k-note-new", name: "NoteForm", params: {} },
+		} as any);
+		await flush();
+
+		expect(
+			findByPredicate(newTree, (node) => node?.props?.label === "Delete note"),
+		).toHaveLength(0);
 	});
 
 	it("executes TodoFormScreen save/delete and due-date branch", async () => {
@@ -589,6 +713,59 @@ describe("form screens", () => {
 		expect(serviceMocks.getTodo).toHaveBeenCalledWith({ id: "db" }, "t1");
 		expect(serviceMocks.saveTodo).toHaveBeenCalled();
 		expect(serviceMocks.deleteTodo).toHaveBeenCalledWith({ id: "db" }, "t1");
+		const attachmentNode = findByPredicate(
+			tree,
+			(node) =>
+				typeof node?.props?.onOpen === "function" &&
+				typeof node?.props?.onPick === "function" &&
+				typeof node?.props?.onRemove === "function",
+		)[0];
+		await attachmentNode?.props?.onOpen();
+		await attachmentNode?.props?.onPick();
+		attachmentNode?.props?.onRemove();
+		expect(hookMocks.handleOpen).toHaveBeenCalled();
+		expect(hookMocks.handlePick).toHaveBeenCalled();
+		expect(hookMocks.handleRemove).toHaveBeenCalled();
 		expect(navigation.goBack).toHaveBeenCalled();
+	});
+
+	it("covers TodoFormScreen new-todo and save/delete/load error branches", async () => {
+		const navigation = { goBack: vi.fn() };
+		hookMocks.confirm.mockImplementation(({ onConfirm }: any) => {
+			onConfirm();
+		});
+		serviceMocks.getTodo.mockRejectedValueOnce(new Error("load failed"));
+		serviceMocks.saveTodo.mockRejectedValueOnce(new Error("save failed"));
+		serviceMocks.deleteTodo.mockRejectedValueOnce(new Error("delete failed"));
+
+		const existingTree = TodoFormScreen({
+			navigation,
+			route: { key: "k-todo-fail", name: "TodoForm", params: { todoId: "t1" } },
+		} as any);
+		await flush();
+
+		findByPredicate(
+			existingTree,
+			(node) => node?.props?.label === "Save todo" && typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
+		await flush();
+
+		findByPredicate(
+			existingTree,
+			(node) => node?.props?.label === "Delete todo" && typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
+		await flush();
+
+		expect(navigation.goBack).not.toHaveBeenCalled();
+
+		const newTree = TodoFormScreen({
+			navigation: { goBack: vi.fn() },
+			route: { key: "k-todo-new", name: "TodoForm", params: {} },
+		} as any);
+		await flush();
+
+		expect(
+			findByPredicate(newTree, (node) => node?.props?.label === "Delete todo"),
+		).toHaveLength(0);
 	});
 });
