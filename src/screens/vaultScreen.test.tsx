@@ -267,4 +267,62 @@ describe("VaultScreen", () => {
 		expect(serviceMocks.deleteIdentity).toHaveBeenCalledWith({ id: "db" }, "i1");
 		expect(hookMocks.refreshData).toHaveBeenCalled();
 	});
+
+	it("covers CARD copy/navigation and floating add navigation", async () => {
+		const navigation = { navigate: vi.fn() };
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 2) return [[{ id: "c1", name: "Visa", cardType: "CREDIT_CARD", cardNumber: "1111", expiry: "12/30", cvv: "111", pin: "0000", network: "VISA", hasAttachment: true }], vi.fn()];
+			if (call === 4) return ["vi", vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = VaultScreen({
+			navigation,
+			route: { key: "c2", name: "Vault", params: { kind: "CARD" } },
+		} as any);
+		await flush();
+
+		const list = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const row = list.props.renderItem({
+			item: {
+				kind: "CARD",
+				entry: {
+					id: "c1",
+					name: "Visa",
+					cardType: "CREDIT_CARD",
+					cardNumber: "1111",
+					expiry: "12/30",
+					cvv: "111",
+					pin: "0000",
+					network: "VISA",
+					hasAttachment: true,
+				},
+			},
+		});
+
+		findByPredicate(
+			row,
+			(node) =>
+				typeof node?.type === "function" &&
+				typeof node?.props?.onCopy === "function" &&
+				(node?.props?.label === "Card number" ||
+					node?.props?.label === "CVV" ||
+					node?.props?.label === "PIN"),
+		).forEach((node) => node.props.onCopy(node.props.value, node.props.label));
+		findByPredicate(
+			row,
+			(node) => typeof node?.props?.onPress === "function",
+		).forEach((node) => node.props.onPress());
+		await flush();
+
+		expect(serviceMocks.setStringAsync).toHaveBeenCalledWith("1111");
+		expect(serviceMocks.setStringAsync).toHaveBeenCalledWith("111");
+		expect(serviceMocks.setStringAsync).toHaveBeenCalledWith("0000");
+		expect(navigation.navigate).toHaveBeenCalledWith("VaultForm", {
+			kind: "CARD",
+			entryId: "c1",
+		});
+	});
 });

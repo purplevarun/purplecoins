@@ -295,4 +295,76 @@ describe("AnalysisScreen", () => {
 			),
 		).toHaveLength(2);
 	});
+
+	it("renders ALL period notice with empty analysis states", async () => {
+		serviceMocks.getAnalysisSummary.mockResolvedValue({
+			missingCurrencies: [],
+			totalIncome: "0",
+			totalExpense: "0",
+			netProfit: "0",
+			categories: [],
+			investments: [],
+		});
+		const navigation = { navigate: vi.fn() };
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 1) return ["ALL", vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = AnalysisScreen({ navigation } as any);
+		await flush();
+
+		expect(
+			findByPredicate(
+				tree,
+				(node) =>
+					String(JSON.stringify(node) ?? "").includes(
+						"Showing every transaction and category stored locally.",
+					),
+			),
+		).not.toHaveLength(0);
+		expect(
+			findByPredicate(
+				tree,
+				(node) =>
+					String(JSON.stringify(node) ?? "").includes(
+						"Nothing to analyse",
+					),
+			),
+		).not.toHaveLength(0);
+		expect(
+			findByPredicate(
+				tree,
+				(node) =>
+					String(JSON.stringify(node) ?? "").includes(
+						"No investment activity",
+					),
+			),
+		).not.toHaveLength(0);
+	});
+
+	it("renders YTD title branch", async () => {
+		const navigation = { navigate: vi.fn() };
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 1) return ["YTD", vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = AnalysisScreen({ navigation } as any);
+		await flush();
+
+		expect(
+			findByPredicate(
+				tree,
+				(node) =>
+					String(JSON.stringify(node) ?? "").includes(
+						"Year to Date",
+					),
+			),
+		).not.toHaveLength(0);
+	});
 });

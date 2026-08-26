@@ -292,4 +292,26 @@ describe("TransactionFormScreen", () => {
 		expect(hookMocks.processAttachment).toHaveBeenCalledWith("txSaved");
 		expect(navigation.goBack).toHaveBeenCalled();
 	});
+
+	it("shows source warning and disables save when no sources exist", async () => {
+		serviceMocks.getSources.mockResolvedValue([]);
+		const navigation = { goBack: vi.fn() };
+		const tree = TransactionFormScreen({
+			navigation,
+			route: { key: "k3", name: "TransactionForm", params: {} },
+		} as any);
+		await flush();
+
+		const saveButton = findByPredicate(
+			tree,
+			(node) => node?.props?.label === "Save transaction",
+		)[0];
+		expect(saveButton?.props?.isDisabled).toBe(true);
+		expect(
+			findByPredicate(
+				tree,
+				(node) => node?.props?.message === "Create a source before adding transactions.",
+			),
+		).not.toHaveLength(0);
+	});
 });
