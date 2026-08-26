@@ -1,0 +1,385 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const reactMocks = vi.hoisted(() => ({
+	useCallback: vi.fn((fn: any) => fn),
+	useEffect: vi.fn(),
+	useLayoutEffect: vi.fn(),
+	useMemo: vi.fn((factory: () => unknown) => factory()),
+	useState: vi.fn(),
+}));
+
+const serviceMocks = vi.hoisted(() => ({
+	getAnalysisSummary: vi.fn(),
+	getInvestmentNetAmount: vi.fn(),
+	getInvestmentNetLabel: vi.fn(),
+	getCategories: vi.fn(),
+	setCategoryArchived: vi.fn(),
+	getExchangeRates: vi.fn(),
+	getInvestments: vi.fn(),
+	setInvestmentArchived: vi.fn(),
+	getNativeCurrencyDisplay: vi.fn(),
+	updateNativeCurrencyDisplay: vi.fn(),
+	getSources: vi.fn(),
+	setSourceArchived: vi.fn(),
+	validateSource: vi.fn(),
+	getTrips: vi.fn(),
+	setTripArchived: vi.fn(),
+	getTripTotals: vi.fn(),
+}));
+
+const hookMocks = vi.hoisted(() => ({
+	refreshData: vi.fn(),
+	confirm: vi.fn(),
+	showMessage: vi.fn(),
+}));
+
+vi.mock("react", async (importOriginal) => {
+	const actual = (await importOriginal()) as typeof import("react");
+	return {
+		...actual,
+		useCallback: reactMocks.useCallback,
+		useEffect: reactMocks.useEffect,
+		useLayoutEffect: reactMocks.useLayoutEffect,
+		useMemo: reactMocks.useMemo,
+		useState: reactMocks.useState,
+	};
+});
+
+vi.mock("@react-navigation/native", () => ({
+	useFocusEffect: (callback: () => void) => callback(),
+}));
+
+vi.mock("@expo/vector-icons", () => ({
+	Ionicons: (props: any) => ({ type: "Ionicons", props }),
+}));
+
+vi.mock("react-native", () => ({
+	Pressable: (props: any) => ({ type: "Pressable", props }),
+	StyleSheet: { create: (styles: any) => styles },
+	View: (props: any) => ({ type: "View", props }),
+}));
+
+vi.mock("@/components/CustomText", () => ({
+	default: (props: any) => ({ type: "CustomText", props }),
+}));
+vi.mock("@/components/EmptyState", () => ({
+	default: (props: any) => ({ type: "EmptyState", props }),
+}));
+vi.mock("@/components/FloatingAddButton", () => ({
+	default: (props: any) => ({ type: "FloatingAddButton", props }),
+}));
+vi.mock("@/components/GlassCard", () => ({
+	default: (props: any) => ({ type: "GlassCard", props }),
+}));
+vi.mock("@/components/HeaderIconButton", () => ({
+	default: (props: any) => ({ type: "HeaderIconButton", props }),
+}));
+vi.mock("@/components/ListHeader", () => ({
+	default: (props: any) => ({ type: "ListHeader", props }),
+}));
+vi.mock("@/components/Notice", () => ({
+	default: (props: any) => ({ type: "Notice", props }),
+}));
+vi.mock("@/components/ScreenList", () => ({
+	default: (props: any) => ({ type: "ScreenList", props }),
+}));
+vi.mock("@/components/SearchBar", () => ({
+	default: (props: any) => ({ type: "SearchBar", props }),
+}));
+
+vi.mock("@/hooks/useAppDialog", () => ({
+	default: () => ({ confirm: hookMocks.confirm, showMessage: hookMocks.showMessage }),
+}));
+vi.mock("@/hooks/useDatabaseContext", () => ({
+	default: () => ({ database: { id: "db" }, refreshData: hookMocks.refreshData }),
+}));
+
+vi.mock("@/services/analysisService", () => ({
+	default: {
+		getAnalysisSummary: serviceMocks.getAnalysisSummary,
+		getInvestmentNetAmount: serviceMocks.getInvestmentNetAmount,
+		getInvestmentNetLabel: serviceMocks.getInvestmentNetLabel,
+	},
+}));
+vi.mock("@/services/categoryService", () => ({
+	default: {
+		getCategories: serviceMocks.getCategories,
+		setCategoryArchived: serviceMocks.setCategoryArchived,
+	},
+}));
+vi.mock("@/services/exchangeRateService", () => ({
+	default: { getExchangeRates: serviceMocks.getExchangeRates },
+}));
+vi.mock("@/services/investmentService", () => ({
+	default: {
+		getInvestments: serviceMocks.getInvestments,
+		setInvestmentArchived: serviceMocks.setInvestmentArchived,
+	},
+}));
+vi.mock("@/services/settingsService", () => ({
+	default: {
+		getNativeCurrencyDisplay: serviceMocks.getNativeCurrencyDisplay,
+		updateNativeCurrencyDisplay: serviceMocks.updateNativeCurrencyDisplay,
+	},
+}));
+vi.mock("@/services/sourceService", () => ({
+	default: {
+		getSources: serviceMocks.getSources,
+		setSourceArchived: serviceMocks.setSourceArchived,
+		validateSource: serviceMocks.validateSource,
+	},
+}));
+vi.mock("@/services/tripService", () => ({
+	default: {
+		getTrips: serviceMocks.getTrips,
+		setTripArchived: serviceMocks.setTripArchived,
+	},
+}));
+vi.mock("@/services/tripTotalService", () => ({
+	default: { getTripTotals: serviceMocks.getTripTotals },
+}));
+
+vi.mock("@/utils/error", () => ({
+	default: (caughtError: unknown) =>
+		caughtError instanceof Error ? caughtError.message : "Unknown error",
+}));
+vi.mock("@/utils/money", () => ({
+	default: {
+		compareMoney: (a: string, b: string) => Number(a) - Number(b),
+		formatMoney: (amount: string, currency: string) => `${currency} ${amount}`,
+		ZERO_AMOUNT: "0",
+	},
+}));
+vi.mock("@/utils/relation", () => ({
+	default: (kind: string) => ({
+		plural: `${kind.toLowerCase()}s`,
+		singular: kind.toLowerCase(),
+		title: `${kind} title`,
+	}),
+}));
+
+import RelationsScreen from "@/screens/RelationsScreen";
+
+const flush = async (): Promise<void> => {
+	await Promise.resolve();
+	await Promise.resolve();
+};
+
+const findByPredicate = (
+	node: any,
+	predicate: (candidate: any) => boolean,
+	acc: any[] = [],
+): any[] => {
+	if (!node) return acc;
+	if (Array.isArray(node)) {
+		node.forEach((child) => findByPredicate(child, predicate, acc));
+		return acc;
+	}
+	if (predicate(node)) acc.push(node);
+	if (node.props) {
+		Object.values(node.props).forEach((value) =>
+			findByPredicate(value, predicate, acc),
+		);
+	}
+	return acc;
+};
+
+describe("RelationsScreen", () => {
+	beforeEach(() => {
+		vi.spyOn(globalThis, "setTimeout").mockImplementation(((fn: any) => {
+			fn();
+			return 0;
+		}) as any);
+		vi.spyOn(globalThis, "clearTimeout").mockImplementation(() => {});
+
+		reactMocks.useEffect.mockReset();
+		reactMocks.useLayoutEffect.mockReset();
+		reactMocks.useState.mockReset();
+		reactMocks.useEffect.mockImplementation((effect: () => void) => {
+			effect();
+		});
+		reactMocks.useLayoutEffect.mockImplementation((effect: () => void) => {
+			effect();
+		});
+		reactMocks.useState.mockImplementation((initial: any) => [
+			typeof initial === "function" ? initial() : initial,
+			vi.fn(),
+		]);
+
+		Object.values(serviceMocks).forEach((mockFn) => mockFn.mockReset());
+		Object.values(hookMocks).forEach((mockFn) => mockFn.mockReset());
+
+		serviceMocks.getNativeCurrencyDisplay.mockResolvedValue(false);
+		serviceMocks.getExchangeRates.mockResolvedValue([{ currencyCode: "USD", rateToInr: "80" }]);
+		serviceMocks.getSources.mockResolvedValue([{ id: "s1", name: "Cash", currencyCode: "USD", balance: "10", validatedAt: 5, latestTransactionCreatedAt: 4 }]);
+		serviceMocks.getCategories.mockResolvedValue([{ id: "c1", name: "Food", isIncome: false }]);
+		serviceMocks.getTrips.mockResolvedValue([{ id: "t1", name: "Goa" }]);
+		serviceMocks.getTripTotals.mockResolvedValue([{ tripId: "t1", total: "100", currencyCode: "USD" }]);
+		serviceMocks.getInvestments.mockResolvedValue([{ id: "i1", name: "MF" }]);
+		serviceMocks.getAnalysisSummary.mockResolvedValue({
+			categories: [{ categoryId: "c1", net: "50", currencyCode: "INR" }],
+			investments: [{ investmentId: "i1", totalInvested: "100", totalRedeemed: "20", net: "80", currencyCode: "INR" }],
+			missingCurrencies: ["EUR"],
+		});
+		serviceMocks.getInvestmentNetAmount.mockImplementation((net: string) => net);
+		serviceMocks.getInvestmentNetLabel.mockReturnValue("Net");
+		serviceMocks.updateNativeCurrencyDisplay.mockResolvedValue(undefined);
+		serviceMocks.validateSource.mockResolvedValue(undefined);
+		serviceMocks.setSourceArchived.mockResolvedValue(undefined);
+		serviceMocks.setCategoryArchived.mockResolvedValue(undefined);
+		serviceMocks.setTripArchived.mockResolvedValue(undefined);
+		serviceMocks.setInvestmentArchived.mockResolvedValue(undefined);
+		hookMocks.confirm.mockImplementation(({ onConfirm }: any) => onConfirm());
+	});
+
+	it("covers SOURCE branch with validate, archive, currency toggle and navigation", async () => {
+		const navigation = { navigate: vi.fn(), setOptions: vi.fn() };
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 1) return [[{ id: "s1", name: "Cash", currencyCode: "USD", balance: "10", validatedAt: 5, latestTransactionCreatedAt: 4 }], vi.fn()];
+			if (stateCall === 7) return [false, vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = RelationsScreen({
+			navigation,
+			route: { key: "k", name: "Relations", params: { kind: "SOURCE" } },
+		} as any);
+		await flush();
+
+		expect(serviceMocks.getSources).toHaveBeenCalledWith({ id: "db" });
+
+		const headerRight = navigation.setOptions.mock.calls[0][0].headerRight;
+		const header = headerRight();
+		findByPredicate(
+			header,
+			(node) =>
+				typeof node?.props?.onPress === "function" &&
+				(node?.props?.accessibilityLabel === "Convert to INR" ||
+					node?.props?.accessibilityLabel === "Show native currencies"),
+		)[0]?.props?.onPress();
+		await flush();
+		expect(serviceMocks.updateNativeCurrencyDisplay).toHaveBeenCalledWith({ id: "db" }, true);
+
+		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const row = screenList.props.renderItem({ item: { kind: "SOURCE", entity: { id: "s1", name: "Cash", currencyCode: "USD", balance: "10", validatedAt: 5, latestTransactionCreatedAt: 4 } } });
+		const pressables = findByPredicate(row, (node) => typeof node?.props?.onPress === "function");
+		pressables[0]?.props?.onPress();
+		pressables[1]?.props?.onPress();
+		pressables[2]?.props?.onPress();
+		await flush();
+
+		expect(serviceMocks.validateSource).toHaveBeenCalledWith({ id: "db" }, "s1");
+		expect(serviceMocks.setSourceArchived).toHaveBeenCalledWith({ id: "db" }, "s1", true);
+		expect(hookMocks.refreshData).toHaveBeenCalled();
+		expect(navigation.navigate).toHaveBeenCalledWith("LinkedTransactions", {
+			kind: "SOURCE",
+			entityId: "s1",
+			entityName: "Cash",
+		});
+	});
+
+	it("covers CATEGORY branch and archive action", async () => {
+		const navigation = { navigate: vi.fn(), setOptions: vi.fn() };
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 2) return [[{ id: "c1", name: "Food", isIncome: false }], vi.fn()];
+			if (stateCall === 6) {
+				return [{ categories: [{ categoryId: "c1", net: "50", currencyCode: "INR" }], investments: [], missingCurrencies: ["EUR"] }, vi.fn()];
+			}
+			if (stateCall === 7) return [false, vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = RelationsScreen({
+			navigation,
+			route: { key: "k2", name: "Relations", params: { kind: "CATEGORY" } },
+		} as any);
+		await flush();
+
+		expect(serviceMocks.getCategories).toHaveBeenCalledWith({ id: "db" });
+		expect(serviceMocks.getAnalysisSummary).toHaveBeenCalled();
+
+		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const row = screenList.props.renderItem({ item: { kind: "CATEGORY", entity: { id: "c1", name: "Food", isIncome: false } } });
+		findByPredicate(row, (node) => typeof node?.props?.onPress === "function").forEach((node) => node.props.onPress());
+		await flush();
+
+		expect(serviceMocks.setCategoryArchived).toHaveBeenCalledWith({ id: "db" }, "c1", true);
+		expect(navigation.navigate).toHaveBeenCalledWith("LinkedTransactions", {
+			kind: "CATEGORY",
+			entityId: "c1",
+			entityName: "Food",
+		});
+	});
+
+	it("covers TRIP branch rendering and archive action", async () => {
+		const navigation = { navigate: vi.fn(), setOptions: vi.fn() };
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 3) return [[{ id: "t1", name: "Goa" }], vi.fn()];
+			if (stateCall === 4) return [[{ tripId: "t1", total: "100", currencyCode: "USD" }], vi.fn()];
+			if (stateCall === 7) return [false, vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = RelationsScreen({
+			navigation,
+			route: { key: "k3", name: "Relations", params: { kind: "TRIP" } },
+		} as any);
+		await flush();
+
+		expect(serviceMocks.getTrips).toHaveBeenCalledWith({ id: "db" });
+		expect(serviceMocks.getTripTotals).toHaveBeenCalledWith({ id: "db" });
+
+		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const row = screenList.props.renderItem({ item: { kind: "TRIP", entity: { id: "t1", name: "Goa" } } });
+		findByPredicate(row, (node) => typeof node?.props?.onPress === "function").forEach((node) => node.props.onPress());
+		await flush();
+
+		expect(serviceMocks.setTripArchived).toHaveBeenCalledWith({ id: "db" }, "t1", true);
+		expect(navigation.navigate).toHaveBeenCalledWith("LinkedTransactions", {
+			kind: "TRIP",
+			entityId: "t1",
+			entityName: "Goa",
+		});
+	});
+
+	it("covers INVESTMENT branch rendering and archive action", async () => {
+		const navigation = { navigate: vi.fn(), setOptions: vi.fn() };
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 5) return [[{ id: "i1", name: "MF" }], vi.fn()];
+			if (stateCall === 6) {
+				return [{ categories: [], investments: [{ investmentId: "i1", totalInvested: "100", totalRedeemed: "20", net: "80", currencyCode: "INR" }], missingCurrencies: [] }, vi.fn()];
+			}
+			if (stateCall === 7) return [false, vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = RelationsScreen({
+			navigation,
+			route: { key: "k4", name: "Relations", params: { kind: "INVESTMENT" } },
+		} as any);
+		await flush();
+
+		expect(serviceMocks.getInvestments).toHaveBeenCalledWith({ id: "db" });
+		expect(serviceMocks.getAnalysisSummary).toHaveBeenCalled();
+
+		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const row = screenList.props.renderItem({ item: { kind: "INVESTMENT", entity: { id: "i1", name: "MF" } } });
+		findByPredicate(row, (node) => typeof node?.props?.onPress === "function").forEach((node) => node.props.onPress());
+		await flush();
+
+		expect(serviceMocks.setInvestmentArchived).toHaveBeenCalledWith({ id: "db" }, "i1", true);
+		expect(navigation.navigate).toHaveBeenCalledWith("LinkedTransactions", {
+			kind: "INVESTMENT",
+			entityId: "i1",
+			entityName: "MF",
+		});
+	});
+});
