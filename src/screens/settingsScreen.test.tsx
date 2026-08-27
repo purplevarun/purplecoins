@@ -290,4 +290,28 @@ describe("SettingsScreen", () => {
 
 		expect(String(JSON.stringify(tree) ?? "")).toContain("Mar");
 	});
+
+	it("renders message and error notices", async () => {
+		const navigation = { navigate: vi.fn() };
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 3) return ["boom", vi.fn()];
+			if (call === 4) return ["saved", vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = SettingsScreen({ navigation } as any);
+		await flush();
+
+		expect(
+			findByPredicate(tree, (node) => node?.props?.message === "saved"),
+		).not.toHaveLength(0);
+		expect(
+			findByPredicate(
+				tree,
+				(node) => node?.props?.message === "boom" && node?.props?.tone === "danger",
+			),
+		).not.toHaveLength(0);
+	});
 });
