@@ -653,6 +653,66 @@ describe("form screens", () => {
 		expect(setError).toHaveBeenCalledWith("delete card failed");
 	});
 
+	it("covers VaultFormScreen new PASSWORD branches and error notice render", async () => {
+		const navigation = { goBack: vi.fn() };
+		const setTitle = vi.fn();
+
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 1) return ["", setTitle];
+			if (stateCall === 14) return ["render error", vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const passwordTree = VaultFormScreen({
+			navigation,
+			route: {
+				key: "vault-password-new",
+				name: "VaultForm",
+				params: { kind: "PASSWORD" },
+			},
+		} as any);
+		await flush();
+
+		findByPredicate(
+			passwordTree,
+			(node) => node?.props?.label === "Title" && typeof node?.props?.onChangeText === "function",
+		)[0]?.props?.onChangeText("Github");
+
+		findByPredicate(
+			passwordTree,
+			(node) => node?.props?.label === "Save entry" && typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
+		await flush();
+
+		expect(setTitle).toHaveBeenCalledWith("Github");
+		expect(serviceMocks.savePassword).toHaveBeenCalledWith({ id: "db" }, {
+			id: undefined,
+			title: "",
+			username: "",
+			password: "",
+			website: "",
+			notes: "",
+		});
+		expect(hookMocks.processAttachment).not.toHaveBeenCalledWith("pw1");
+		expect(
+			findByPredicate(
+				passwordTree,
+				(node) => node?.props?.message === "render error" && node?.props?.tone === "danger",
+			),
+		).not.toHaveLength(0);
+		expect(
+			findByPredicate(
+				passwordTree,
+				(node) => typeof node?.props?.onOpen === "function" && typeof node?.props?.onPick === "function",
+			),
+		).toHaveLength(0);
+		expect(
+			findByPredicate(passwordTree, (node) => node?.props?.label === "Delete entry"),
+		).toHaveLength(0);
+	});
+
 	it("executes BudgetFormScreen load and save paths", async () => {
 		const navigation = { goBack: vi.fn() };
 		const tree = BudgetFormScreen({
