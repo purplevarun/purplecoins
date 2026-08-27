@@ -431,4 +431,116 @@ describe("GlobalSearchScreen", () => {
 		});
 		expect(String(JSON.stringify(row) ?? "")).toContain("No details");
 	});
+
+	it("covers TOOLS fallback subtitles when folder names are missing", async () => {
+		const navigation = { navigate: vi.fn() };
+		serviceMocks.getNotes.mockResolvedValueOnce([{ id: "n2", title: "Quick note", folderName: undefined }]);
+		serviceMocks.getTodos.mockResolvedValueOnce([{ id: "t2", title: "Quick todo", folderName: undefined }]);
+
+		const setResults = vi.fn();
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 1) return [[], setResults];
+			if (stateCall === 2) return ["qu", vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		GlobalSearchScreen({
+			navigation,
+			route: { key: "k6", name: "GlobalSearch", params: { mode: "TOOLS" } },
+		} as any);
+		await flush();
+		await flush();
+
+		expect(setResults).toHaveBeenCalledWith([
+			expect.objectContaining({ id: "n2", kind: "NOTE", subtitle: "Note" }),
+			expect.objectContaining({ id: "t2", kind: "TODO", subtitle: "Todo" }),
+		]);
+	});
+
+	it("covers FINANCE mapped subtitle branches for income, yearly budget and missing extras", async () => {
+		const navigation = { navigate: vi.fn() };
+		serviceMocks.getTransactions.mockResolvedValueOnce([
+			{
+				id: "tx2",
+				reason: "Rent",
+				sourceName: "Bank",
+				amount: "2000",
+				sourceCurrencyCode: "INR",
+				transactionAt: 12,
+				categoryName: undefined,
+				tripName: undefined,
+				investmentName: undefined,
+				destinationSourceName: undefined,
+			},
+		]);
+		serviceMocks.getCategories.mockResolvedValueOnce([
+			{ id: "c2", name: "Salary", isIncome: true },
+		]);
+		serviceMocks.getBudgets.mockResolvedValueOnce([
+			{ id: "b2", categoryName: "Salary", period: "YEARLY", amount: "120000" },
+		]);
+
+		const setResults = vi.fn();
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 1) return [[], setResults];
+			if (stateCall === 2) return ["sa", vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		GlobalSearchScreen({
+			navigation,
+			route: { key: "k7", name: "GlobalSearch", params: { mode: "FINANCE" } },
+		} as any);
+		await flush();
+		await flush();
+
+		expect(setResults).toHaveBeenCalledWith(
+			expect.arrayContaining([
+				expect.objectContaining({ id: "c2", kind: "CATEGORY", subtitle: "Income category" }),
+				expect.objectContaining({ id: "b2", kind: "BUDGET", subtitle: expect.stringContaining("Yearly budget") }),
+				expect.objectContaining({ id: "tx2", kind: "TRANSACTION", searchExtra: expect.stringContaining("2000") }),
+			]),
+		);
+	});
+
+	it("covers VAULT fallback subtitle branches for password, card and identity", async () => {
+		const navigation = { navigate: vi.fn() };
+		serviceMocks.getPasswords.mockResolvedValueOnce([
+			{ id: "p2", title: "Work Mail", username: "", website: "mail.example" },
+		]);
+		serviceMocks.getCards.mockResolvedValueOnce([
+			{ id: "ca2", name: "Offline Card", network: "" },
+		]);
+		serviceMocks.getIdentities.mockResolvedValueOnce([
+			{ id: "id2", title: "Driver License", idNumber: "" },
+		]);
+
+		const setResults = vi.fn();
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 1) return [[], setResults];
+			if (stateCall === 2) return ["wo", vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		GlobalSearchScreen({
+			navigation,
+			route: { key: "k8", name: "GlobalSearch", params: { mode: "VAULT" } },
+		} as any);
+		await flush();
+		await flush();
+
+		expect(setResults).toHaveBeenCalledWith(
+			expect.arrayContaining([
+				expect.objectContaining({ id: "p2", kind: "PASSWORD", subtitle: "mail.example" }),
+				expect.objectContaining({ id: "ca2", kind: "CARD", subtitle: "Card" }),
+				expect.objectContaining({ id: "id2", kind: "IDENTITY", subtitle: "Identity" }),
+			]),
+		);
+	});
 });
