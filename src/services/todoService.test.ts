@@ -205,6 +205,33 @@ describe("todoService", () => {
 		);
 	});
 
+	it("toggleTodo maps null folder and due values to undefined", async () => {
+		mocks.getTodoRow.mockResolvedValueOnce({
+			id: "t2",
+			title: "B",
+			description: "C",
+			folderId: null,
+			folderName: null,
+			dueAt: null,
+			isDone: 1,
+			hasAttachment: 0,
+			createdAt: 100,
+			updatedAt: 101,
+		});
+
+		await todoService.toggleTodo(database, "t2");
+
+		expect(mocks.upsertTodoRow).toHaveBeenCalledWith(
+			database,
+			expect.objectContaining({
+				id: "t2",
+				folderId: null,
+				dueAt: null,
+				isDone: false,
+			}),
+		);
+	});
+
 	it("deletes todo through content repository", async () => {
 		await todoService.deleteTodo(database, "t1");
 		expect(mocks.deleteContentRow).toHaveBeenCalledWith(

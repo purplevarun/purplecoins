@@ -11,6 +11,8 @@ const mocks = vi.hoisted(() => ({
 	fileCreate: vi.fn(() => {}),
 	fileWrite: vi.fn(() => {}),
 	fileDelete: vi.fn(() => {}),
+	tempFileStartsExisting: true,
+	tempFileExistsAfterCreate: true,
 }));
 
 vi.mock("@/constants/appConstants", () => ({
@@ -53,7 +55,7 @@ vi.mock("expo-file-system", () => {
 				this.uri = String(baseOrUri);
 			}
 			if (this.uri.includes("restore-temp.db")) {
-				this.exists = true;
+				this.exists = mocks.tempFileStartsExisting;
 			}
 		}
 
@@ -62,7 +64,7 @@ vi.mock("expo-file-system", () => {
 		}
 
 		create(): void {
-			this.exists = true;
+			this.exists = mocks.tempFileExistsAfterCreate;
 			mocks.fileCreate();
 		}
 
@@ -103,6 +105,8 @@ describe("backupService", () => {
 		database.execAsync.mockClear();
 		vi.useFakeTimers();
 		vi.setSystemTime(new Date("2026-08-25T10:00:00.000Z"));
+		mocks.tempFileStartsExisting = true;
+		mocks.tempFileExistsAfterCreate = true;
 	});
 
 	it("exports backup when integrity is ok", async () => {
@@ -169,5 +173,20 @@ describe("backupService", () => {
 		);
 		expect(closeAsync).toHaveBeenCalled();
 		expect(mocks.fileDelete).toHaveBeenCalled();
+	});
+
+	it("restoreBackup skips temp-file deletes when file does not exist", async () => {
+		const closeAsync = vi.fn(async () => {});
+		mocks.openDatabaseAsync.mockResolvedValueOnce({ closeAsync });
+		mocks.tempFileStartsExisting = false;
+		mocks.tempFileExistsAfterCreate = false;
+		mocks.getDocumentAsync.mockResolvedValueOnce({
+			canceled: false,
+			assets: [{ uri: "file://ok.purplecoins", name: "ok.purplecoins" }],
+		});
+
+		expect(await backupService.restoreBackup(database)).toBe(true);
+		expect(closeAsync).toHaveBeenCalled();
+		expect(mocks.fileDelete).not.toHaveBeenCalled();
 	});
 });
