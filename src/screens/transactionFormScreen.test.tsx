@@ -546,4 +546,78 @@ describe("TransactionFormScreen", () => {
 			transactionAt: 789,
 		});
 	});
+
+	it("maps category options with income and expense descriptions", async () => {
+		const navigation = { goBack: vi.fn() };
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 13) {
+				return [[
+					{ id: "c1", name: "Salary", isIncome: true },
+					{ id: "c2", name: "Food", isIncome: false },
+				], vi.fn()];
+			}
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = TransactionFormScreen({
+			navigation,
+			route: { key: "k11", name: "TransactionForm", params: {} },
+		} as any);
+
+		const categorySelect = findByPredicate(
+			tree,
+			(node) => node?.props?.placeholder === "Select category" && Array.isArray(node?.props?.options),
+		)[0];
+		expect(categorySelect?.props?.options).toEqual([
+			{ label: "Salary", value: "c1", description: "Income" },
+			{ label: "Food", value: "c2", description: "Expense" },
+		]);
+	});
+
+	it("covers existing-transaction null fallbacks and error notice rendering", async () => {
+		const navigation = { goBack: vi.fn() };
+		serviceMocks.getTransaction.mockResolvedValueOnce({
+			id: "tx2",
+			classification: "GENERAL",
+			type: "DEBIT",
+			sourceId: "s1",
+			destinationSourceId: null,
+			amount: "11",
+			toAmount: null,
+			categoryId: null,
+			tripId: null,
+			investmentId: null,
+			reason: "R",
+			transactionAt: 200,
+		});
+
+		const setCategoryId = vi.fn();
+		const setTripId = vi.fn();
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 7) return ["", setCategoryId];
+			if (stateCall === 8) return ["", setTripId];
+			if (stateCall === 17) return ["boom", vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = TransactionFormScreen({
+			navigation,
+			route: { key: "k12", name: "TransactionForm", params: { transactionId: "tx2" } },
+		} as any);
+		await flush();
+		await flush();
+
+		expect(setCategoryId).toHaveBeenCalledWith("");
+		expect(setTripId).toHaveBeenCalledWith("");
+		expect(
+			findByPredicate(
+				tree,
+				(node) => node?.props?.message === "boom" && node?.props?.tone === "danger",
+			),
+		).not.toHaveLength(0);
+	});
 });

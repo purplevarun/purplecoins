@@ -189,6 +189,8 @@ describe("presentational components", () => {
 		const defaultList = ScreenList({ data: [], renderItem: vi.fn() } as any) as any;
 		const flashListDefault = findFirstByType(defaultList, "FlashList");
 		expect(flashListDefault.props.ItemSeparatorComponent).toBeTruthy();
+		const defaultSeparator = flashListDefault.props.ItemSeparatorComponent();
+		expect(defaultSeparator).toBeTruthy();
 
 		const customSeparator = () => null;
 		const customList = ScreenList({
