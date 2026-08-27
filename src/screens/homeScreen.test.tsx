@@ -376,4 +376,40 @@ describe("HomeScreen", () => {
 		expect(setMenuVisible).toHaveBeenCalledWith(false);
 		expect(setMode).toHaveBeenCalled();
 	});
+
+	it("executes tile and switch style callbacks plus modal close callback", () => {
+		const navigation = { navigate: vi.fn() };
+		const setMenuVisible = vi.fn();
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 1) return ["FINANCE", vi.fn()];
+			if (call === 2) return [true, setMenuVisible];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = HomeScreen({ navigation } as any);
+
+		const tilePressables = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.style === "function" && typeof node?.props?.onPress === "function",
+		);
+		const tileStyle = tilePressables[0]?.props?.style;
+		expect(Array.isArray(tileStyle?.({ pressed: true }))).toBe(true);
+		expect(Array.isArray(tileStyle?.({ pressed: false }))).toBe(true);
+
+		const switchNode = findByPredicate(
+			tree,
+			(node) => node?.props?.accessibilityLabel === "Switch homepage" && typeof node?.props?.style === "function",
+		)[0];
+		expect(Array.isArray(switchNode?.props?.style({ pressed: true }))).toBe(true);
+		expect(Array.isArray(switchNode?.props?.style({ pressed: false }))).toBe(true);
+
+		const modalNode = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.onRequestClose === "function",
+		)[0];
+		modalNode?.props?.onRequestClose();
+		expect(typeof modalNode?.props?.onRequestClose).toBe("function");
+	});
 });
