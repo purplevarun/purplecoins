@@ -392,4 +392,161 @@ describe("VaultScreen", () => {
 		copyButton.props.onPress();
 		expect(onCopy).toHaveBeenCalledWith("1234", "PIN");
 	});
+
+	it("covers row navigation callbacks, keyExtractor, and floating add action", async () => {
+		const navigation = { navigate: vi.fn() };
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 1) {
+				return [[{ id: "p1", title: "Github", username: "u", website: "", password: "secret", updatedAt: 10 }], vi.fn()];
+			}
+			if (call === 3) {
+				return [[{ id: "i1", title: "Passport", idNumber: "P1", hasAttachment: false }], vi.fn()];
+			}
+			if (call === 4) return ["pa", vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const passwordTree = VaultScreen({
+			navigation,
+			route: { key: "vp", name: "Vault", params: { kind: "PASSWORD" } },
+		} as any);
+		await flush();
+
+		const passwordList = findByPredicate(passwordTree, (node) => typeof node?.props?.renderItem === "function")[0];
+		expect(passwordList.props.keyExtractor({ entry: { id: "p1" } })).toBe("p1");
+
+		const passwordRow = passwordList.props.renderItem({
+			item: {
+				kind: "PASSWORD",
+				entry: { id: "p1", title: "Github", username: "u", website: "", password: "secret", updatedAt: 10 },
+			},
+		});
+		findByPredicate(
+			passwordRow,
+			(node) => typeof node?.props?.onPress === "function" && node?.props?.label !== "Delete" && node?.props?.label !== "Copy password",
+		)[0]?.props?.onPress();
+
+		const identityTree = VaultScreen({
+			navigation,
+			route: { key: "vi", name: "Vault", params: { kind: "IDENTITY" } },
+		} as any);
+		await flush();
+
+		const identityList = findByPredicate(identityTree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const identityRow = identityList.props.renderItem({
+			item: {
+				kind: "IDENTITY",
+				entry: { id: "i1", title: "Passport", idNumber: "P1", hasAttachment: false },
+			},
+		});
+		findByPredicate(
+			identityRow,
+			(node) => typeof node?.props?.onPress === "function" && node?.props?.label !== "Delete",
+		)[0]?.props?.onPress();
+
+		findByPredicate(
+			passwordTree,
+			(node) => typeof node?.props?.onPress === "function" && typeof node?.props?.label === "undefined",
+		).forEach((node) => node.props.onPress());
+
+		expect(navigation.navigate).toHaveBeenCalledWith("VaultForm", { kind: "PASSWORD", entryId: "p1" });
+		expect(navigation.navigate).toHaveBeenCalledWith("VaultForm", { kind: "IDENTITY", entryId: "i1" });
+		expect(navigation.navigate).toHaveBeenCalledWith("VaultForm", { kind: "PASSWORD" });
+	});
+
+	it("covers VaultScreen load and delete error branches", async () => {
+		const navigation = { navigate: vi.fn() };
+		hookMocks.confirm.mockImplementation(({ onConfirm }: any) => onConfirm());
+		serviceMocks.getPasswords.mockRejectedValueOnce(new Error("vault load failed"));
+		serviceMocks.deletePassword.mockRejectedValueOnce(new Error("vault delete failed"));
+
+		const setError = vi.fn();
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 1) {
+				return [[{ id: "p1", title: "Github", username: "u", website: "", password: "secret", updatedAt: 10 }], vi.fn()];
+			}
+			if (call === 5) return ["", setError];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = VaultScreen({
+			navigation,
+			route: { key: "ve", name: "Vault", params: { kind: "PASSWORD" } },
+		} as any);
+		await flush();
+		await flush();
+
+		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const renderedItem = screenList.props.renderItem({
+			item: {
+				kind: "PASSWORD",
+				entry: { id: "p1", title: "Github", username: "u", website: "", password: "secret", updatedAt: 10 },
+			},
+		});
+		findByPredicate(
+			renderedItem,
+			(node) => node?.props?.label === "Delete" && typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
+		await flush();
+
+		expect(setError).toHaveBeenCalledWith("vault load failed");
+		expect(setError).toHaveBeenCalledWith("vault delete failed");
+	});
+
+	it("covers VaultScreen attachment and header notice render branches", async () => {
+		const navigation = { navigate: vi.fn() };
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 2) {
+				return [[{ id: "c2", name: "Master", cardType: "DEBIT_CARD", cardNumber: "2222", expiry: "", cvv: "", pin: "", network: "", hasAttachment: false }], vi.fn()];
+			}
+			if (call === 3) {
+				return [[{ id: "i2", title: "License", idNumber: "L1", hasAttachment: true }], vi.fn()];
+			}
+			if (call === 5) return ["error notice", vi.fn()];
+			if (call === 6) return ["copied notice", vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const cardTree = VaultScreen({
+			navigation,
+			route: { key: "vb1", name: "Vault", params: { kind: "CARD" } },
+		} as any);
+		await flush();
+
+		expect(
+			findByPredicate(cardTree, (node) => node?.props?.message === "copied notice"),
+		).not.toHaveLength(0);
+		expect(
+			findByPredicate(cardTree, (node) => node?.props?.message === "error notice" && node?.props?.tone === "danger"),
+		).not.toHaveLength(0);
+
+		const cardList = findByPredicate(cardTree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const cardRow = cardList.props.renderItem({
+			item: {
+				kind: "CARD",
+				entry: { id: "c2", name: "Master", cardType: "DEBIT_CARD", cardNumber: "2222", expiry: "", cvv: "", pin: "", network: "", hasAttachment: false },
+			},
+		});
+		expect(String(JSON.stringify(cardRow) ?? "")).not.toContain('"name":"attach"');
+
+		const identityTree = VaultScreen({
+			navigation,
+			route: { key: "vb2", name: "Vault", params: { kind: "IDENTITY" } },
+		} as any);
+		await flush();
+		const identityList = findByPredicate(identityTree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const identityRow = identityList.props.renderItem({
+			item: {
+				kind: "IDENTITY",
+				entry: { id: "i2", title: "License", idNumber: "L1", hasAttachment: true },
+			},
+		});
+		expect(String(JSON.stringify(identityRow) ?? "")).toContain('"name":"attach"');
+	});
 });
