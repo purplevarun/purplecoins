@@ -587,6 +587,72 @@ describe("form screens", () => {
 		expect(hookMocks.processAttachment).toHaveBeenCalledWith("id1");
 	});
 
+	it("covers VaultFormScreen error and callback wrapper branches", async () => {
+		const navigation = { goBack: vi.fn() };
+		hookMocks.confirm.mockImplementation(({ onConfirm }: any) => {
+			onConfirm();
+		});
+
+		serviceMocks.getCard.mockRejectedValueOnce(new Error("load card failed"));
+		serviceMocks.saveCard.mockRejectedValueOnce(new Error("save card failed"));
+		serviceMocks.deleteCard.mockRejectedValueOnce(new Error("delete card failed"));
+
+		const setError = vi.fn();
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 14) return ["", setError];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const cardTree = VaultFormScreen({
+			navigation,
+			route: {
+				key: "vault-card-errors",
+				name: "VaultForm",
+				params: { kind: "CARD", entryId: "card1" },
+			},
+		} as any);
+		await flush();
+		await flush();
+
+		expect(setError).toHaveBeenCalledWith("load card failed");
+
+		findByPredicate(
+			cardTree,
+			(node) => node?.props?.label === "Card type" && typeof node?.props?.onChange === "function",
+		)[0]?.props?.onChange("DEBIT_CARD");
+
+		const attachment = findByPredicate(
+			cardTree,
+			(node) =>
+				typeof node?.props?.onOpen === "function" &&
+				typeof node?.props?.onPick === "function" &&
+				typeof node?.props?.onRemove === "function",
+		)[0];
+		await attachment?.props?.onOpen();
+		await attachment?.props?.onPick();
+		attachment?.props?.onRemove();
+
+		findByPredicate(
+			cardTree,
+			(node) => node?.props?.label === "Save entry" && typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
+		await flush();
+
+		findByPredicate(
+			cardTree,
+			(node) => node?.props?.label === "Delete entry" && typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
+		await flush();
+
+		expect(hookMocks.handleOpen).toHaveBeenCalled();
+		expect(hookMocks.handlePick).toHaveBeenCalled();
+		expect(hookMocks.handleRemove).toHaveBeenCalled();
+		expect(setError).toHaveBeenCalledWith("save card failed");
+		expect(setError).toHaveBeenCalledWith("delete card failed");
+	});
+
 	it("executes BudgetFormScreen load and save paths", async () => {
 		const navigation = { goBack: vi.fn() };
 		const tree = BudgetFormScreen({
