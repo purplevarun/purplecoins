@@ -112,6 +112,18 @@ describe("useAttachment", () => {
 		expect(setters.setIsRemoved).toHaveBeenCalledWith(true);
 	});
 
+	it("does not update state when picker returns null", async () => {
+		setHookState({ id: "a1" }, null, false);
+		attachmentServiceMocks.pickAttachment.mockResolvedValueOnce(null);
+
+		const result = useAttachment("NOTE", "n1");
+		await result.handlePick();
+
+		expect(attachmentServiceMocks.pickAttachment).toHaveBeenCalledTimes(1);
+		expect(setters.setPendingAttachment).not.toHaveBeenCalled();
+		expect(setters.setIsRemoved).not.toHaveBeenCalled();
+	});
+
 	it("processes pending save and removal flows", async () => {
 		const pending = {
 			fileName: "x",
