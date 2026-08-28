@@ -149,4 +149,21 @@ describe("DatabaseProvider", () => {
 		);
 		expect(stateSetters.setPendingOperations).toHaveBeenCalledTimes(2);
 	});
+
+	it("does not track pending operations for non-promise then-like objects", () => {
+		setupStates(0, 0, false);
+		const thenLikeObject = { then: 123, value: "plain" };
+		const database = {
+			returnsThenLike: vi.fn(() => thenLikeObject),
+		};
+
+		const element = DatabaseProvider({
+			children: null,
+			database,
+		} as any) as any;
+		const value = element.props.value;
+
+		expect(value.database.returnsThenLike()).toBe(thenLikeObject);
+		expect(stateSetters.setPendingOperations).not.toHaveBeenCalled();
+	});
 });
