@@ -106,4 +106,47 @@ describe("tripTotalService", () => {
 			},
 		]);
 	});
+
+	it("handles credit-only totals and sorts currencies alphabetically", () => {
+		const totals = tripTotalService.buildTripTotals([
+			{
+				classification: "GENERAL",
+				type: "CREDIT",
+				tripId: "tripA",
+				sourceCurrencyCode: "USD",
+				amount: "50",
+			},
+			{
+				classification: "GENERAL",
+				type: "CREDIT",
+				tripId: "tripA",
+				sourceCurrencyCode: "EUR",
+				amount: "20",
+			},
+			{
+				classification: "GENERAL",
+				type: "CREDIT",
+				tripId: "tripA",
+				sourceCurrencyCode: "USD",
+				amount: "10",
+			},
+		] as any);
+
+		expect(totals).toEqual([
+			{
+				tripId: "tripA",
+				currencyCode: "EUR",
+				credits: "20",
+				debits: "0",
+				total: "-20",
+			},
+			{
+				tripId: "tripA",
+				currencyCode: "USD",
+				credits: "60",
+				debits: "0",
+				total: "-60",
+			},
+		]);
+	});
 });
