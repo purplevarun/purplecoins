@@ -546,6 +546,81 @@ describe("form screens", () => {
 		).not.toHaveLength(0);
 	});
 
+	it("covers RelationFormScreen null entity branches", async () => {
+		const navigation = { goBack: vi.fn() };
+		serviceMocks.getSource.mockResolvedValueOnce(null);
+		serviceMocks.getCategory.mockResolvedValueOnce(null);
+		serviceMocks.getTrip.mockResolvedValueOnce(null);
+		serviceMocks.getInvestment.mockResolvedValueOnce(null);
+
+		RelationFormScreen({
+			navigation,
+			route: {
+				key: "k-source-null",
+				name: "RelationForm",
+				params: { kind: "SOURCE", entityId: "s1" },
+			},
+		} as any);
+		await flush();
+
+		RelationFormScreen({
+			navigation,
+			route: {
+				key: "k-category-null",
+				name: "RelationForm",
+				params: { kind: "CATEGORY", entityId: "c1" },
+			},
+		} as any);
+		await flush();
+
+		const setName = vi.fn();
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 1) return ["", setName];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		RelationFormScreen({
+			navigation,
+			route: {
+				key: "k-trip-null",
+				name: "RelationForm",
+				params: { kind: "TRIP", entityId: "t1" },
+			},
+		} as any);
+		await flush();
+
+		stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 1) return ["", setName];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		RelationFormScreen({
+			navigation,
+			route: {
+				key: "k-investment-null",
+				name: "RelationForm",
+				params: { kind: "INVESTMENT", entityId: "i1" },
+			},
+		} as any);
+		await flush();
+
+		expect(serviceMocks.getSource).toHaveBeenCalledWith({ id: "db" }, "s1");
+		expect(serviceMocks.getCategory).toHaveBeenCalledWith({ id: "db" }, "c1");
+		expect(serviceMocks.getTrip).toHaveBeenCalledWith({ id: "db" }, "t1");
+		expect(serviceMocks.getInvestment).toHaveBeenCalledWith({ id: "db" }, "i1");
+		expect(setName).toHaveBeenCalledWith("");
+	});
+
 	it("executes VaultFormScreen branches for password card and identity", async () => {
 		const navigation = { goBack: vi.fn() };
 		hookMocks.confirm.mockImplementation(({ onConfirm }: any) => {
