@@ -88,6 +88,8 @@ describe("field components", () => {
 		const emptyButtons = findAllByType(empty, "AppButton");
 		expect(emptyButtons).toHaveLength(1);
 		expect(emptyButtons[0]?.props.label).toBe("Choose document");
+		emptyButtons[0]?.props.onPress();
+		expect(handlers.onPick).toHaveBeenCalledTimes(1);
 
 		const existing = AttachmentField({
 			existingAttachment: {
@@ -109,6 +111,10 @@ describe("field components", () => {
 			"Open",
 			"Remove",
 		]);
+		existingButtons[0]?.props.onPress();
+		existingButtons[1]?.props.onPress();
+		expect(handlers.onOpen).toHaveBeenCalledTimes(1);
+		expect(handlers.onRemove).toHaveBeenCalledTimes(1);
 
 		const pending = AttachmentField({
 			existingAttachment: {
@@ -134,6 +140,25 @@ describe("field components", () => {
 		expect(pendingButtons.map((button) => button.props.label)).toEqual([
 			"Remove",
 		]);
+
+		const removedExisting = AttachmentField({
+			existingAttachment: {
+				id: "a1",
+				ownerId: "n1",
+				ownerType: "NOTE",
+				fileName: "doc.pdf",
+				sizeBytes: 1100,
+				mimeType: "application/pdf",
+				createdAt: 1,
+				updatedAt: 1,
+			},
+			pendingAttachment: null,
+			isRemoved: true,
+			...handlers,
+		} as any);
+		const removedButtons = findAllByType(removedExisting, "AppButton");
+		expect(removedButtons).toHaveLength(1);
+		expect(removedButtons[0]?.props.label).toBe("Choose document");
 	});
 
 	it("covers DateField picker visibility and platform behavior", () => {
