@@ -59,9 +59,9 @@ run_format() {
 
 run_test() {
   if command -v bun >/dev/null 2>&1; then
-    bun run test
+    bun run test --coverage
   else
-    npm run test
+    npm run test -- --coverage
   fi
 }
 
@@ -193,7 +193,7 @@ Usage: ./run <command>
 
 Commands:
   format   Run prettier
-  test     Run unit tests
+  test     Run unit tests with coverage
   apply    Apply .version to app.json and package.json, and compute versionCode
   build    Clean prebuild Android and assemble release APK with Gradle
   install  Install existing APK on local AVD/device
