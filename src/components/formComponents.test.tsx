@@ -219,6 +219,13 @@ describe("form components", () => {
 
 		const optionPressables = findAllByType(openNoResults, "Pressable");
 		expect(optionPressables.length).toBeGreaterThan(0);
+		const overlayPressable = optionPressables.find(
+			(node) => node?.props?.style?.backgroundColor === "rgba(0,0,0,0.72)",
+		);
+		expect(overlayPressable).toBeTruthy();
+		overlayPressable?.props?.onPress();
+		expect(setIsOpen).toHaveBeenCalledWith(false);
+
 		const noneOption = findPressableByText(modal, "None");
 		expect(noneOption).toBeTruthy();
 		noneOption.props.onPress();
