@@ -97,13 +97,19 @@ vi.mock("@/components/TextField", () => ({
 }));
 
 vi.mock("@/hooks/useDatabaseContext", () => ({
-	default: () => ({ database: { id: "db" }, refreshData: hookMocks.refreshData }),
+	default: () => ({
+		database: { id: "db" },
+		refreshData: hookMocks.refreshData,
+	}),
 }));
 vi.mock("@/hooks/useAppDialog", () => ({
 	default: () => ({ confirm: hookMocks.confirm }),
 }));
 vi.mock("@/hooks/useFolders", () => ({
-	default: () => ({ folders: [{ id: "f1", name: "Home" }], handleCreateFolder: hookMocks.handleCreateFolder }),
+	default: () => ({
+		folders: [{ id: "f1", name: "Home" }],
+		handleCreateFolder: hookMocks.handleCreateFolder,
+	}),
 }));
 vi.mock("@/hooks/useAttachment", () => ({
 	default: () => ({
@@ -209,7 +215,9 @@ const findByType = (node: any, type: string, acc: any[] = []): any[] => {
 	}
 	if (node.type === type) acc.push(node);
 	if (node.props) {
-		Object.values(node.props).forEach((value) => findByType(value, type, acc));
+		Object.values(node.props).forEach((value) =>
+			findByType(value, type, acc),
+		);
 	}
 	return acc;
 };
@@ -342,7 +350,9 @@ describe("form screens", () => {
 		await flush();
 		findByPredicate(
 			sourceTree,
-			(node) => node?.props?.label === "Save" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Save" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 		await new Promise((resolve) => setTimeout(resolve, 0));
@@ -355,7 +365,10 @@ describe("form screens", () => {
 			stateCall += 1;
 			if (stateCall === 3) return [true, vi.fn()];
 			if (stateCall === 4) return [false, vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const categoryTree = RelationFormScreen({
@@ -369,7 +382,9 @@ describe("form screens", () => {
 		await flush();
 		findByPredicate(
 			categoryTree,
-			(node) => node?.props?.label === "Save" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Save" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 		await new Promise((resolve) => setTimeout(resolve, 0));
@@ -393,7 +408,9 @@ describe("form screens", () => {
 		await flush();
 		findByPredicate(
 			newSourceTree,
-			(node) => node?.props?.label === "Save" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Save" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 
@@ -408,7 +425,9 @@ describe("form screens", () => {
 		await flush();
 		findByPredicate(
 			tripTree,
-			(node) => node?.props?.label === "Save" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Save" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 
@@ -423,11 +442,15 @@ describe("form screens", () => {
 		await flush();
 		findByPredicate(
 			investmentTree,
-			(node) => node?.props?.label === "Save" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Save" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 
-		serviceMocks.saveTrip.mockRejectedValueOnce(new Error("trip save failed"));
+		serviceMocks.saveTrip.mockRejectedValueOnce(
+			new Error("trip save failed"),
+		);
 		const failingTripTree = RelationFormScreen({
 			navigation,
 			route: {
@@ -439,27 +462,37 @@ describe("form screens", () => {
 		await flush();
 		findByPredicate(
 			failingTripTree,
-			(node) => node?.props?.label === "Save" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Save" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 
 		expect(serviceMocks.createSource).toHaveBeenCalled();
 		expect(serviceMocks.getTrip).toHaveBeenCalledWith({ id: "db" }, "t1");
 		expect(serviceMocks.saveTrip).toHaveBeenCalled();
-		expect(serviceMocks.getInvestment).toHaveBeenCalledWith({ id: "db" }, "i1");
+		expect(serviceMocks.getInvestment).toHaveBeenCalledWith(
+			{ id: "db" },
+			"i1",
+		);
 		expect(serviceMocks.saveInvestment).toHaveBeenCalled();
 	});
 
 	it("covers RelationFormScreen load-error and category switch/error render branches", async () => {
 		const navigation = { goBack: vi.fn() };
-		serviceMocks.getInvestment.mockRejectedValueOnce(new Error("investment load failed"));
+		serviceMocks.getInvestment.mockRejectedValueOnce(
+			new Error("investment load failed"),
+		);
 
 		const setError = vi.fn();
 		let stateCall = 0;
 		reactMocks.useState.mockImplementation((initial: any) => {
 			stateCall += 1;
 			if (stateCall === 6) return ["", setError];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		RelationFormScreen({
@@ -480,7 +513,10 @@ describe("form screens", () => {
 			stateCall += 1;
 			if (stateCall === 3) return [false, vi.fn()];
 			if (stateCall === 6) return ["manual error", vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const categoryTree = RelationFormScreen({
@@ -495,13 +531,17 @@ describe("form screens", () => {
 
 		const switchNode = findByPredicate(
 			categoryTree,
-			(node) => typeof node?.props?.onValueChange === "function" && node?.props?.thumbColor,
+			(node) =>
+				typeof node?.props?.onValueChange === "function" &&
+				node?.props?.thumbColor,
 		)[0];
 		expect(switchNode?.props?.thumbColor).toBe(COLORS.textMuted);
 		expect(
 			findByPredicate(
 				categoryTree,
-				(node) => node?.props?.message === "manual error" && node?.props?.tone === "danger",
+				(node) =>
+					node?.props?.message === "manual error" &&
+					node?.props?.tone === "danger",
 			),
 		).not.toHaveLength(0);
 	});
@@ -523,12 +563,16 @@ describe("form screens", () => {
 		await flush();
 		findByPredicate(
 			passwordTree,
-			(node) => node?.props?.label === "Save entry" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Save entry" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 		findByPredicate(
 			passwordTree,
-			(node) => node?.props?.label === "Delete entry" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Delete entry" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 
@@ -543,12 +587,16 @@ describe("form screens", () => {
 		await flush();
 		findByPredicate(
 			cardTree,
-			(node) => node?.props?.label === "Save entry" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Save entry" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 		findByPredicate(
 			cardTree,
-			(node) => node?.props?.label === "Delete entry" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Delete entry" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 
@@ -563,26 +611,48 @@ describe("form screens", () => {
 		await flush();
 		findByPredicate(
 			identityTree,
-			(node) => node?.props?.label === "Save entry" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Save entry" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 		findByPredicate(
 			identityTree,
-			(node) => node?.props?.label === "Delete entry" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Delete entry" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 
-		expect(serviceMocks.getPassword).toHaveBeenCalledWith({ id: "db" }, "pw1");
+		expect(serviceMocks.getPassword).toHaveBeenCalledWith(
+			{ id: "db" },
+			"pw1",
+		);
 		expect(serviceMocks.savePassword).toHaveBeenCalled();
-		expect(serviceMocks.deletePassword).toHaveBeenCalledWith({ id: "db" }, "pw1");
+		expect(serviceMocks.deletePassword).toHaveBeenCalledWith(
+			{ id: "db" },
+			"pw1",
+		);
 
-		expect(serviceMocks.getCard).toHaveBeenCalledWith({ id: "db" }, "card1");
+		expect(serviceMocks.getCard).toHaveBeenCalledWith(
+			{ id: "db" },
+			"card1",
+		);
 		expect(serviceMocks.saveCard).toHaveBeenCalled();
-		expect(serviceMocks.deleteCard).toHaveBeenCalledWith({ id: "db" }, "card1");
+		expect(serviceMocks.deleteCard).toHaveBeenCalledWith(
+			{ id: "db" },
+			"card1",
+		);
 
-		expect(serviceMocks.getIdentity).toHaveBeenCalledWith({ id: "db" }, "id1");
+		expect(serviceMocks.getIdentity).toHaveBeenCalledWith(
+			{ id: "db" },
+			"id1",
+		);
 		expect(serviceMocks.saveIdentity).toHaveBeenCalled();
-		expect(serviceMocks.deleteIdentity).toHaveBeenCalledWith({ id: "db" }, "id1");
+		expect(serviceMocks.deleteIdentity).toHaveBeenCalledWith(
+			{ id: "db" },
+			"id1",
+		);
 		expect(hookMocks.processAttachment).toHaveBeenCalledWith("card1");
 		expect(hookMocks.processAttachment).toHaveBeenCalledWith("id1");
 	});
@@ -593,16 +663,25 @@ describe("form screens", () => {
 			onConfirm();
 		});
 
-		serviceMocks.getCard.mockRejectedValueOnce(new Error("load card failed"));
-		serviceMocks.saveCard.mockRejectedValueOnce(new Error("save card failed"));
-		serviceMocks.deleteCard.mockRejectedValueOnce(new Error("delete card failed"));
+		serviceMocks.getCard.mockRejectedValueOnce(
+			new Error("load card failed"),
+		);
+		serviceMocks.saveCard.mockRejectedValueOnce(
+			new Error("save card failed"),
+		);
+		serviceMocks.deleteCard.mockRejectedValueOnce(
+			new Error("delete card failed"),
+		);
 
 		const setError = vi.fn();
 		let stateCall = 0;
 		reactMocks.useState.mockImplementation((initial: any) => {
 			stateCall += 1;
 			if (stateCall === 14) return ["", setError];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const cardTree = VaultFormScreen({
@@ -620,7 +699,9 @@ describe("form screens", () => {
 
 		findByPredicate(
 			cardTree,
-			(node) => node?.props?.label === "Card type" && typeof node?.props?.onChange === "function",
+			(node) =>
+				node?.props?.label === "Card type" &&
+				typeof node?.props?.onChange === "function",
 		)[0]?.props?.onChange("DEBIT_CARD");
 
 		const attachment = findByPredicate(
@@ -636,13 +717,17 @@ describe("form screens", () => {
 
 		findByPredicate(
 			cardTree,
-			(node) => node?.props?.label === "Save entry" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Save entry" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 
 		findByPredicate(
 			cardTree,
-			(node) => node?.props?.label === "Delete entry" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Delete entry" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 
@@ -662,7 +747,10 @@ describe("form screens", () => {
 			stateCall += 1;
 			if (stateCall === 1) return ["", setTitle];
 			if (stateCall === 14) return ["render error", vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const passwordTree = VaultFormScreen({
@@ -677,39 +765,53 @@ describe("form screens", () => {
 
 		findByPredicate(
 			passwordTree,
-			(node) => node?.props?.label === "Title" && typeof node?.props?.onChangeText === "function",
+			(node) =>
+				node?.props?.label === "Title" &&
+				typeof node?.props?.onChangeText === "function",
 		)[0]?.props?.onChangeText("Github");
 
 		findByPredicate(
 			passwordTree,
-			(node) => node?.props?.label === "Save entry" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Save entry" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 
 		expect(setTitle).toHaveBeenCalledWith("Github");
-		expect(serviceMocks.savePassword).toHaveBeenCalledWith({ id: "db" }, {
-			id: undefined,
-			title: "",
-			username: "",
-			password: "",
-			website: "",
-			notes: "",
-		});
+		expect(serviceMocks.savePassword).toHaveBeenCalledWith(
+			{ id: "db" },
+			{
+				id: undefined,
+				title: "",
+				username: "",
+				password: "",
+				website: "",
+				notes: "",
+			},
+		);
 		expect(hookMocks.processAttachment).not.toHaveBeenCalledWith("pw1");
 		expect(
 			findByPredicate(
 				passwordTree,
-				(node) => node?.props?.message === "render error" && node?.props?.tone === "danger",
+				(node) =>
+					node?.props?.message === "render error" &&
+					node?.props?.tone === "danger",
 			),
 		).not.toHaveLength(0);
 		expect(
 			findByPredicate(
 				passwordTree,
-				(node) => typeof node?.props?.onOpen === "function" && typeof node?.props?.onPick === "function",
+				(node) =>
+					typeof node?.props?.onOpen === "function" &&
+					typeof node?.props?.onPick === "function",
 			),
 		).toHaveLength(0);
 		expect(
-			findByPredicate(passwordTree, (node) => node?.props?.label === "Delete entry"),
+			findByPredicate(
+				passwordTree,
+				(node) => node?.props?.label === "Delete entry",
+			),
 		).toHaveLength(0);
 	});
 
@@ -723,7 +825,9 @@ describe("form screens", () => {
 
 		const saveNode = findByPredicate(
 			tree,
-			(node) => node?.props?.label === "Save budget" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Save budget" &&
+				typeof node?.props?.onPress === "function",
 		)[0];
 		saveNode?.props?.onPress();
 		await flush();
@@ -737,7 +841,9 @@ describe("form screens", () => {
 
 	it("covers BudgetFormScreen load and save error branches", async () => {
 		const navigation = { goBack: vi.fn() };
-		serviceMocks.getCategories.mockRejectedValueOnce(new Error("load failed"));
+		serviceMocks.getCategories.mockRejectedValueOnce(
+			new Error("load failed"),
+		);
 		serviceMocks.saveBudget.mockRejectedValueOnce(new Error("save failed"));
 
 		const tree = BudgetFormScreen({
@@ -748,7 +854,9 @@ describe("form screens", () => {
 
 		const saveNode = findByPredicate(
 			tree,
-			(node) => node?.props?.label === "Save budget" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Save budget" &&
+				typeof node?.props?.onPress === "function",
 		)[0];
 		saveNode?.props?.onPress();
 		await flush();
@@ -761,7 +869,10 @@ describe("form screens", () => {
 		reactMocks.useState.mockImplementation((initial: any) => {
 			call += 1;
 			if (call === 6) return ["boom", vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = BudgetFormScreen({
@@ -770,7 +881,9 @@ describe("form screens", () => {
 		} as any);
 		await flush();
 
-		expect(findByPredicate(tree, (node) => node?.props?.message === "boom")).not.toHaveLength(0);
+		expect(
+			findByPredicate(tree, (node) => node?.props?.message === "boom"),
+		).not.toHaveLength(0);
 	});
 
 	it("covers BudgetFormScreen category mapping and period toggle branches", async () => {
@@ -788,7 +901,10 @@ describe("form screens", () => {
 					vi.fn(),
 				];
 			}
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = BudgetFormScreen({
@@ -797,7 +913,10 @@ describe("form screens", () => {
 		} as any);
 		await flush();
 
-		const select = findByPredicate(tree, (node) => node?.props?.label === "Expense category")[0];
+		const select = findByPredicate(
+			tree,
+			(node) => node?.props?.label === "Expense category",
+		)[0];
 		expect(select?.props?.options).toEqual(
 			expect.arrayContaining([
 				expect.objectContaining({ label: "Food", value: "expense" }),
@@ -809,7 +928,9 @@ describe("form screens", () => {
 			tree,
 			(node) =>
 				Array.isArray(node?.props?.options) &&
-				node.props.options.some((option: any) => option?.value === "MONTHLY"),
+				node.props.options.some(
+					(option: any) => option?.value === "MONTHLY",
+				),
 		)[0];
 		expect(segmented).toBeTruthy();
 		segmented?.props?.onChange("YEARLY");
@@ -832,13 +953,17 @@ describe("form screens", () => {
 
 		const saveNode = findByPredicate(
 			tree,
-			(node) => node?.props?.label === "Save note" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Save note" &&
+				typeof node?.props?.onPress === "function",
 		)[0];
 		saveNode?.props?.onPress();
 		await flush();
 		const deleteNode = findByPredicate(
 			tree,
-			(node) => node?.props?.label === "Delete note" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Delete note" &&
+				typeof node?.props?.onPress === "function",
 		)[0];
 		deleteNode?.props?.onPress();
 		await flush();
@@ -860,7 +985,10 @@ describe("form screens", () => {
 		expect(hookMocks.handlePick).toHaveBeenCalled();
 		expect(hookMocks.handleRemove).toHaveBeenCalled();
 		expect(hookMocks.confirm).toHaveBeenCalled();
-		expect(serviceMocks.deleteNote).toHaveBeenCalledWith({ id: "db" }, "n1");
+		expect(serviceMocks.deleteNote).toHaveBeenCalledWith(
+			{ id: "db" },
+			"n1",
+		);
 		expect(navigation.goBack).toHaveBeenCalled();
 	});
 
@@ -871,23 +999,33 @@ describe("form screens", () => {
 		});
 		serviceMocks.getNote.mockRejectedValueOnce(new Error("load failed"));
 		serviceMocks.saveNote.mockRejectedValueOnce(new Error("save failed"));
-		serviceMocks.deleteNote.mockRejectedValueOnce(new Error("delete failed"));
+		serviceMocks.deleteNote.mockRejectedValueOnce(
+			new Error("delete failed"),
+		);
 
 		const existingTree = NoteFormScreen({
 			navigation,
-			route: { key: "k-note-fail", name: "NoteForm", params: { noteId: "n1" } },
+			route: {
+				key: "k-note-fail",
+				name: "NoteForm",
+				params: { noteId: "n1" },
+			},
 		} as any);
 		await flush();
 
 		findByPredicate(
 			existingTree,
-			(node) => node?.props?.label === "Save note" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Save note" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 
 		findByPredicate(
 			existingTree,
-			(node) => node?.props?.label === "Delete note" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Delete note" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 
@@ -900,7 +1038,10 @@ describe("form screens", () => {
 		await flush();
 
 		expect(
-			findByPredicate(newTree, (node) => node?.props?.label === "Delete note"),
+			findByPredicate(
+				newTree,
+				(node) => node?.props?.label === "Delete note",
+			),
 		).toHaveLength(0);
 	});
 
@@ -914,7 +1055,10 @@ describe("form screens", () => {
 			if (initial === false) {
 				return [true, vi.fn()];
 			}
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = TodoFormScreen({
@@ -923,25 +1067,35 @@ describe("form screens", () => {
 		} as any);
 		await flush();
 
-		const dueNode = findByPredicate(tree, (node) => node?.props?.label === "Due")[0];
+		const dueNode = findByPredicate(
+			tree,
+			(node) => node?.props?.label === "Due",
+		)[0];
 		expect(dueNode).toBeTruthy();
 
 		const saveNode = findByPredicate(
 			tree,
-			(node) => node?.props?.label === "Save todo" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Save todo" &&
+				typeof node?.props?.onPress === "function",
 		)[0];
 		saveNode?.props?.onPress();
 		await flush();
 		const deleteNode = findByPredicate(
 			tree,
-			(node) => node?.props?.label === "Delete todo" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Delete todo" &&
+				typeof node?.props?.onPress === "function",
 		)[0];
 		deleteNode?.props?.onPress();
 		await flush();
 
 		expect(serviceMocks.getTodo).toHaveBeenCalledWith({ id: "db" }, "t1");
 		expect(serviceMocks.saveTodo).toHaveBeenCalled();
-		expect(serviceMocks.deleteTodo).toHaveBeenCalledWith({ id: "db" }, "t1");
+		expect(serviceMocks.deleteTodo).toHaveBeenCalledWith(
+			{ id: "db" },
+			"t1",
+		);
 		const attachmentNode = findByPredicate(
 			tree,
 			(node) =>
@@ -965,23 +1119,33 @@ describe("form screens", () => {
 		});
 		serviceMocks.getTodo.mockRejectedValueOnce(new Error("load failed"));
 		serviceMocks.saveTodo.mockRejectedValueOnce(new Error("save failed"));
-		serviceMocks.deleteTodo.mockRejectedValueOnce(new Error("delete failed"));
+		serviceMocks.deleteTodo.mockRejectedValueOnce(
+			new Error("delete failed"),
+		);
 
 		const existingTree = TodoFormScreen({
 			navigation,
-			route: { key: "k-todo-fail", name: "TodoForm", params: { todoId: "t1" } },
+			route: {
+				key: "k-todo-fail",
+				name: "TodoForm",
+				params: { todoId: "t1" },
+			},
 		} as any);
 		await flush();
 
 		findByPredicate(
 			existingTree,
-			(node) => node?.props?.label === "Save todo" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Save todo" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 
 		findByPredicate(
 			existingTree,
-			(node) => node?.props?.label === "Delete todo" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Delete todo" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 
@@ -994,7 +1158,10 @@ describe("form screens", () => {
 		await flush();
 
 		expect(
-			findByPredicate(newTree, (node) => node?.props?.label === "Delete todo"),
+			findByPredicate(
+				newTree,
+				(node) => node?.props?.label === "Delete todo",
+			),
 		).toHaveLength(0);
 	});
 });

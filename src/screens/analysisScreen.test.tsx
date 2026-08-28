@@ -78,7 +78,9 @@ vi.mock("@/hooks/useDatabaseContext", () => ({
 }));
 
 vi.mock("@/repositories/financeRepository", () => ({
-	default: { getTransactionMinMaxDate: serviceMocks.getTransactionMinMaxDate },
+	default: {
+		getTransactionMinMaxDate: serviceMocks.getTransactionMinMaxDate,
+	},
 }));
 vi.mock("@/services/analysisService", () => ({
 	default: {
@@ -121,11 +123,11 @@ import COLORS from "@/constants/colors";
 import AnalysisScreen, {
 	HAS_ARROWS,
 	formatSignedMoney,
-	getChartData,
 	getCategoryAccent,
 	getCategoryBreakdownText,
 	getCategoryBucketLabel,
 	getCategoryNetColor,
+	getChartData,
 	getDateRangeLabel,
 	getInvestmentAccent,
 	getInvestmentColor,
@@ -176,10 +178,18 @@ describe("AnalysisScreen", () => {
 		]);
 
 		Object.values(serviceMocks).forEach((mockFn) => mockFn.mockReset());
-		serviceMocks.getAnalysisDateRange.mockReturnValue({ start: 1, end: 31 });
+		serviceMocks.getAnalysisDateRange.mockReturnValue({
+			start: 1,
+			end: 31,
+		});
 		serviceMocks.getCustomDateRange.mockReturnValue({ start: 5, end: 15 });
-		serviceMocks.shiftAnalysisAnchor.mockImplementation((_: any, prev: Date) => prev);
-		serviceMocks.getTransactionMinMaxDate.mockResolvedValue({ minDate: 1, maxDate: 31 });
+		serviceMocks.shiftAnalysisAnchor.mockImplementation(
+			(_: any, prev: Date) => prev,
+		);
+		serviceMocks.getTransactionMinMaxDate.mockResolvedValue({
+			minDate: 1,
+			maxDate: 31,
+		});
 		serviceMocks.getAnalysisSummary.mockResolvedValue({
 			missingCurrencies: [],
 			totalIncome: "1000",
@@ -208,13 +218,25 @@ describe("AnalysisScreen", () => {
 			],
 		});
 		serviceMocks.getFyStartMonth.mockResolvedValue(4);
-		serviceMocks.getInvestmentNetAmount.mockImplementation((value: string) => value);
+		serviceMocks.getInvestmentNetAmount.mockImplementation(
+			(value: string) => value,
+		);
 		serviceMocks.getInvestmentNetLabel.mockReturnValue("Net");
-		serviceMocks.absoluteMoney.mockImplementation((value: string) => value.replace("-", ""));
-		serviceMocks.addMoney.mockImplementation((a: string, b: string) => String(Number(a) + Number(b)));
-		serviceMocks.compareMoney.mockImplementation((a: string, b: string) => Number(a) - Number(b));
-		serviceMocks.formatMoney.mockImplementation((amount: string, currency: string) => `${currency} ${amount}`);
-		serviceMocks.subtractMoney.mockImplementation((a: string, b: string) => String(Number(a) - Number(b)));
+		serviceMocks.absoluteMoney.mockImplementation((value: string) =>
+			value.replace("-", ""),
+		);
+		serviceMocks.addMoney.mockImplementation((a: string, b: string) =>
+			String(Number(a) + Number(b)),
+		);
+		serviceMocks.compareMoney.mockImplementation(
+			(a: string, b: string) => Number(a) - Number(b),
+		);
+		serviceMocks.formatMoney.mockImplementation(
+			(amount: string, currency: string) => `${currency} ${amount}`,
+		);
+		serviceMocks.subtractMoney.mockImplementation((a: string, b: string) =>
+			String(Number(a) - Number(b)),
+		);
 		serviceMocks.sumMoney.mockReturnValue("400");
 	});
 
@@ -224,26 +246,39 @@ describe("AnalysisScreen", () => {
 		let stateCall = 0;
 		reactMocks.useState.mockImplementation((initial: any) => {
 			stateCall += 1;
-			if (stateCall === 2) return [new Date("2026-01-01T00:00:00.000Z"), anchorSetter];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			if (stateCall === 2)
+				return [new Date("2026-01-01T00:00:00.000Z"), anchorSetter];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = AnalysisScreen({ navigation } as any);
 		await flush();
 
-		expect(serviceMocks.getAnalysisSummary).toHaveBeenCalledWith({ id: "db" }, {
-			dateRange: { start: 1, end: 31 },
-			isNativeCurrency: false,
-		});
+		expect(serviceMocks.getAnalysisSummary).toHaveBeenCalledWith(
+			{ id: "db" },
+			{
+				dateRange: { start: 1, end: 31 },
+				isNativeCurrency: false,
+			},
+		);
 
-		const segmented = findByPredicate(tree, (node) => typeof node?.props?.onChange === "function")[0];
+		const segmented = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.onChange === "function",
+		)[0];
 		segmented.props.onChange("YEAR");
 
 		findByPredicate(
 			tree,
 			(node) =>
 				typeof node?.props?.onPress === "function" &&
-				Object.prototype.hasOwnProperty.call(node?.props ?? {}, "disabled"),
+				Object.prototype.hasOwnProperty.call(
+					node?.props ?? {},
+					"disabled",
+				),
 		).forEach((node) => node.props.onPress());
 		findByPredicate(
 			tree,
@@ -281,16 +316,22 @@ describe("AnalysisScreen", () => {
 		reactMocks.useState.mockImplementation((initial: any) => {
 			stateCall += 1;
 			if (stateCall === 5) {
-				return [{
-					missingCurrencies: ["USD"],
-					totalIncome: "0",
-					totalExpense: "0",
-					netProfit: "0",
-					categories: [],
-					investments: [],
-				}, vi.fn()];
+				return [
+					{
+						missingCurrencies: ["USD"],
+						totalIncome: "0",
+						totalExpense: "0",
+						netProfit: "0",
+						categories: [],
+						investments: [],
+					},
+					vi.fn(),
+				];
 			}
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = AnalysisScreen({ navigation } as any);
@@ -310,7 +351,10 @@ describe("AnalysisScreen", () => {
 		reactMocks.useState.mockImplementation((initial: any) => {
 			stateCall += 1;
 			if (stateCall === 1) return ["CUSTOM", vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = AnalysisScreen({ navigation } as any);
@@ -319,7 +363,9 @@ describe("AnalysisScreen", () => {
 		expect(
 			findByPredicate(
 				tree,
-				(node) => node?.props?.label === "From" || node?.props?.label === "To",
+				(node) =>
+					node?.props?.label === "From" ||
+					node?.props?.label === "To",
 			),
 		).toHaveLength(2);
 	});
@@ -338,37 +384,34 @@ describe("AnalysisScreen", () => {
 		reactMocks.useState.mockImplementation((initial: any) => {
 			stateCall += 1;
 			if (stateCall === 1) return ["ALL", vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = AnalysisScreen({ navigation } as any);
 		await flush();
 
 		expect(
-			findByPredicate(
-				tree,
-				(node) =>
-					String(JSON.stringify(node) ?? "").includes(
-						"Showing every transaction and category stored locally.",
-					),
+			findByPredicate(tree, (node) =>
+				String(JSON.stringify(node) ?? "").includes(
+					"Showing every transaction and category stored locally.",
+				),
 			),
 		).not.toHaveLength(0);
 		expect(
-			findByPredicate(
-				tree,
-				(node) =>
-					String(JSON.stringify(node) ?? "").includes(
-						"Nothing to analyse",
-					),
+			findByPredicate(tree, (node) =>
+				String(JSON.stringify(node) ?? "").includes(
+					"Nothing to analyse",
+				),
 			),
 		).not.toHaveLength(0);
 		expect(
-			findByPredicate(
-				tree,
-				(node) =>
-					String(JSON.stringify(node) ?? "").includes(
-						"No investment activity",
-					),
+			findByPredicate(tree, (node) =>
+				String(JSON.stringify(node) ?? "").includes(
+					"No investment activity",
+				),
 			),
 		).not.toHaveLength(0);
 	});
@@ -379,26 +422,27 @@ describe("AnalysisScreen", () => {
 		reactMocks.useState.mockImplementation((initial: any) => {
 			stateCall += 1;
 			if (stateCall === 1) return ["YTD", vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = AnalysisScreen({ navigation } as any);
 		await flush();
 
 		expect(
-			findByPredicate(
-				tree,
-				(node) =>
-					String(JSON.stringify(node) ?? "").includes(
-						"Year to Date",
-					),
+			findByPredicate(tree, (node) =>
+				String(JSON.stringify(node) ?? "").includes("Year to Date"),
 			),
 		).not.toHaveLength(0);
 	});
 
 	it("covers load-error catch branch and period arrow updater callbacks", async () => {
 		const navigation = { navigate: vi.fn() };
-		serviceMocks.getAnalysisSummary.mockRejectedValueOnce(new Error("analysis failed"));
+		serviceMocks.getAnalysisSummary.mockRejectedValueOnce(
+			new Error("analysis failed"),
+		);
 
 		const anchorSetter = vi.fn((updater: (prev: Date) => Date) => {
 			updater(new Date("2026-01-01T00:00:00.000Z"));
@@ -408,9 +452,13 @@ describe("AnalysisScreen", () => {
 		let stateCall = 0;
 		reactMocks.useState.mockImplementation((initial: any) => {
 			stateCall += 1;
-			if (stateCall === 2) return [new Date("2026-01-01T00:00:00.000Z"), anchorSetter];
+			if (stateCall === 2)
+				return [new Date("2026-01-01T00:00:00.000Z"), anchorSetter];
 			if (stateCall === 6) return ["", setError];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = AnalysisScreen({ navigation } as any);
@@ -423,7 +471,10 @@ describe("AnalysisScreen", () => {
 			tree,
 			(node) =>
 				typeof node?.props?.onPress === "function" &&
-				Object.prototype.hasOwnProperty.call(node?.props ?? {}, "disabled"),
+				Object.prototype.hasOwnProperty.call(
+					node?.props ?? {},
+					"disabled",
+				),
 		);
 		expect(arrowButtons).toHaveLength(2);
 		arrowButtons[0].props.onPress();
@@ -452,35 +503,41 @@ describe("AnalysisScreen", () => {
 		reactMocks.useState.mockImplementation((initial: any) => {
 			stateCall += 1;
 			if (stateCall === 5) {
-				return [{
-					missingCurrencies: [],
-					totalIncome: "1000",
-					totalExpense: "400",
-					netProfit: "600",
-					categories: [
-						{
-							categoryId: "c1",
-							categoryName: "Food",
-							currencyCode: "INR",
-							credits: "100",
-							debits: "300",
-							net: "-200",
-							isIncome: false,
-						},
-					],
-					investments: [
-						{
-							investmentId: "i1",
-							investmentName: "MF",
-							currencyCode: "INR",
-							totalInvested: "500",
-							totalRedeemed: "100",
-							net: "400",
-						},
-					],
-				}, vi.fn()];
+				return [
+					{
+						missingCurrencies: [],
+						totalIncome: "1000",
+						totalExpense: "400",
+						netProfit: "600",
+						categories: [
+							{
+								categoryId: "c1",
+								categoryName: "Food",
+								currencyCode: "INR",
+								credits: "100",
+								debits: "300",
+								net: "-200",
+								isIncome: false,
+							},
+						],
+						investments: [
+							{
+								investmentId: "i1",
+								investmentName: "MF",
+								currencyCode: "INR",
+								totalInvested: "500",
+								totalRedeemed: "100",
+								net: "400",
+							},
+						],
+					},
+					vi.fn(),
+				];
 			}
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = AnalysisScreen({ navigation } as any);
@@ -539,14 +596,18 @@ describe("AnalysisScreen", () => {
 		expect(getInvestmentAccent("20")).toBe("danger");
 		expect(getInvestmentAccent("-20")).toBe("success");
 		expect(getInvestmentAccent("0")).toBe("default");
-		expect(isShiftNavigationDisabled("MONTH", anchorDate, -1, undefined, 10)).toBe(
-			false,
+		expect(
+			isShiftNavigationDisabled("MONTH", anchorDate, -1, undefined, 10),
+		).toBe(false);
+		expect(
+			isShiftNavigationDisabled("MONTH", anchorDate, 1, 1, undefined),
+		).toBe(false);
+		expect(isShiftNavigationDisabled("MONTH", anchorDate, -1, 1, 10)).toBe(
+			true,
 		);
-		expect(isShiftNavigationDisabled("MONTH", anchorDate, 1, 1, undefined)).toBe(
-			false,
+		expect(isShiftNavigationDisabled("MONTH", anchorDate, 1, 1, 10)).toBe(
+			true,
 		);
-		expect(isShiftNavigationDisabled("MONTH", anchorDate, -1, 1, 10)).toBe(true);
-		expect(isShiftNavigationDisabled("MONTH", anchorDate, 1, 1, 10)).toBe(true);
 		expect(getCategoryAccent("1")).toBe("success");
 		expect(getCategoryAccent("-1")).toBe("danger");
 		expect(getCategoryBucketLabel(true)).toBe("Income category");

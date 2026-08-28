@@ -44,10 +44,8 @@ const getVaultFormParams = (
 ): { kind: VaultKind; entryId?: string } =>
 	entryId ? { kind, entryId } : { kind };
 
-const getPasswordSubtitle = (
-	username: string,
-	website: string,
-): string => username || website || "No username";
+const getPasswordSubtitle = (username: string, website: string): string =>
+	username || website || "No username";
 
 const getCardSubtitle = (cardType: string, network: string): string =>
 	`${CARD_TYPE_LABEL[cardType] ?? cardType}${network ? ` · ${network}` : ""}`;
@@ -82,7 +80,9 @@ const getVaultListData = (
 	}
 	return identities
 		.filter((entry) =>
-			`${entry.title} ${entry.idNumber}`.toLowerCase().includes(normalizedSearch),
+			`${entry.title} ${entry.idNumber}`
+				.toLowerCase()
+				.includes(normalizedSearch),
 		)
 		.map((entry) => ({ kind: "IDENTITY" as const, entry }));
 };

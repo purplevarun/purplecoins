@@ -72,7 +72,9 @@ describe("financeRepository", () => {
 		expect(await getTripRows(database)).toEqual([{ id: "t1" }]);
 		expect(await getArchivedTripRows(database)).toEqual([{ id: "t2" }]);
 		expect(await getInvestmentRows(database)).toEqual([{ id: "i1" }]);
-		expect(await getArchivedInvestmentRows(database)).toEqual([{ id: "i2" }]);
+		expect(await getArchivedInvestmentRows(database)).toEqual([
+			{ id: "i2" },
+		]);
 
 		expect(await getSourceRow(database, "s1")).toEqual({ id: "s1" });
 		expect(await getCategoryRow(database, "c1")).toEqual({ id: "c1" });
@@ -100,11 +102,15 @@ describe("financeRepository", () => {
 			maxDate: 20,
 		});
 		expect(await getTransactionRows(database)).toEqual([{ id: "tx1" }]);
-		expect(await getTransactionRowsInRange(database, 1, 2)).toEqual([{ id: "tx2" }]);
+		expect(await getTransactionRowsInRange(database, 1, 2)).toEqual([
+			{ id: "tx2" },
+		]);
 		expect(await getTransactionRow(database, "tx1")).toEqual({ id: "tx1" });
 		expect(await getBudgetRows(database)).toEqual([{ id: "b1" }]);
 		expect(await getBudgetRow(database, "b1")).toEqual({ id: "b1" });
-		expect(await getExchangeRateRows(database)).toEqual([{ currencyCode: "USD" }]);
+		expect(await getExchangeRateRows(database)).toEqual([
+			{ currencyCode: "USD" },
+		]);
 	});
 
 	it("writes source/category/simple-entity rows and checks names", async () => {
@@ -210,22 +216,36 @@ describe("financeRepository", () => {
 			2,
 		);
 
-		await setSimpleEntityArchivedRow(database, "investments", "inv1", true, 10);
-		await setSimpleEntityArchivedRow(database, "investments", "inv1", false, 11);
-		expect(await simpleEntityNameExistsRow(database, "trips", "Goa", "tr1")).toBe(
+		await setSimpleEntityArchivedRow(
+			database,
+			"investments",
+			"inv1",
 			true,
+			10,
 		);
-		expect(await simpleEntityNameExistsRow(database, "investments", "Nope")).toBe(
+		await setSimpleEntityArchivedRow(
+			database,
+			"investments",
+			"inv1",
 			false,
+			11,
 		);
+		expect(
+			await simpleEntityNameExistsRow(database, "trips", "Goa", "tr1"),
+		).toBe(true);
+		expect(
+			await simpleEntityNameExistsRow(database, "investments", "Nope"),
+		).toBe(false);
 	});
 
 	it("writes and deletes transaction, budget and misc rows", async () => {
 		const database = {
 			runAsync: vi.fn(async () => {}),
-			withTransactionAsync: vi.fn(async (callback: () => Promise<void>) => {
-				await callback();
-			}),
+			withTransactionAsync: vi.fn(
+				async (callback: () => Promise<void>) => {
+					await callback();
+				},
+			),
 		} as any;
 
 		await createTransactionRow(

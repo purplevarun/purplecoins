@@ -37,8 +37,12 @@ describe("budgetService", () => {
 		mocks.getBudgetRows.mockResolvedValueOnce([{ id: "b1" }]);
 		mocks.getBudgetRow.mockResolvedValueOnce({ id: "b2" });
 
-		expect(await budgetService.getBudgets(database)).toEqual([{ id: "b1" }]);
-		expect(await budgetService.getBudget(database, "b2")).toEqual({ id: "b2" });
+		expect(await budgetService.getBudgets(database)).toEqual([
+			{ id: "b1" },
+		]);
+		expect(await budgetService.getBudget(database, "b2")).toEqual({
+			id: "b2",
+		});
 	});
 
 	it("requires categoryId", async () => {
@@ -76,7 +80,13 @@ describe("budgetService", () => {
 			createdAt: 101,
 		});
 
-		const id = await budgetService.saveBudget(database, "b1", "cat2", "100", "YEAR");
+		const id = await budgetService.saveBudget(
+			database,
+			"b1",
+			"cat2",
+			"100",
+			"YEAR",
+		);
 		expect(id).toBe("b1");
 		expect(mocks.upsertBudgetRow).toHaveBeenCalledWith(
 			database,
@@ -91,16 +101,30 @@ describe("budgetService", () => {
 	});
 
 	it("maps duplicate constraint errors", async () => {
-		mocks.upsertBudgetRow.mockRejectedValueOnce(new Error("UNIQUE constraint failed"));
+		mocks.upsertBudgetRow.mockRejectedValueOnce(
+			new Error("UNIQUE constraint failed"),
+		);
 		await expect(
-			budgetService.saveBudget(database, undefined, "cat1", "100", "MONTH"),
+			budgetService.saveBudget(
+				database,
+				undefined,
+				"cat1",
+				"100",
+				"MONTH",
+			),
 		).rejects.toMatchObject<AppError>({ code: "DUPLICATE_BUDGET" });
 	});
 
 	it("rethrows unknown upsert errors and deletes budget", async () => {
 		mocks.upsertBudgetRow.mockRejectedValueOnce(new Error("disk"));
 		await expect(
-			budgetService.saveBudget(database, undefined, "cat1", "100", "MONTH"),
+			budgetService.saveBudget(
+				database,
+				undefined,
+				"cat1",
+				"100",
+				"MONTH",
+			),
 		).rejects.toThrow("disk");
 
 		await budgetService.deleteBudget(database, "b1");

@@ -6,7 +6,9 @@ const mocks = vi.hoisted(() => ({
 	isAvailableAsync: vi.fn(async () => true),
 	shareAsync: vi.fn(async () => {}),
 	backupDatabaseAsync: vi.fn(async () => {}),
-	openDatabaseAsync: vi.fn(async () => ({ closeAsync: vi.fn(async () => {}) })),
+	openDatabaseAsync: vi.fn(async () => ({
+		closeAsync: vi.fn(async () => {}),
+	})),
 	fileBytes: vi.fn(async () => new Uint8Array([1, 2, 3])),
 	fileCreate: vi.fn(() => {}),
 	fileWrite: vi.fn(() => {}),
@@ -98,7 +100,8 @@ const database = {
 describe("backupService", () => {
 	beforeEach(() => {
 		Object.values(mocks).forEach((mockFn) => {
-			if (typeof mockFn === "function" && "mockClear" in mockFn) mockFn.mockClear();
+			if (typeof mockFn === "function" && "mockClear" in mockFn)
+				mockFn.mockClear();
 		});
 		database.getFirstAsync.mockClear();
 		database.serializeAsync.mockClear();
@@ -117,19 +120,25 @@ describe("backupService", () => {
 		expect(mocks.fileWrite).toHaveBeenCalledWith(new Uint8Array([5, 6]));
 		expect(mocks.shareAsync).toHaveBeenCalledWith(
 			"cache-dir/purplecoins-2026-08-25.purplecoins",
-			expect.objectContaining({ dialogTitle: "Export Purplecoins backup" }),
+			expect.objectContaining({
+				dialogTitle: "Export Purplecoins backup",
+			}),
 		);
 	});
 
 	it("rejects export when integrity fails or sharing unavailable", async () => {
 		database.getFirstAsync.mockResolvedValueOnce({ integrity: "corrupt" });
-		await expect(backupService.exportBackup(database)).rejects.toMatchObject<AppError>({
+		await expect(
+			backupService.exportBackup(database),
+		).rejects.toMatchObject<AppError>({
 			code: "DATABASE_INTEGRITY_FAILED",
 		});
 
 		database.getFirstAsync.mockResolvedValueOnce({ integrity: "ok" });
 		mocks.isAvailableAsync.mockResolvedValueOnce(false);
-		await expect(backupService.exportBackup(database)).rejects.toMatchObject<AppError>({
+		await expect(
+			backupService.exportBackup(database),
+		).rejects.toMatchObject<AppError>({
 			code: "SHARING_UNAVAILABLE",
 		});
 	});
@@ -140,8 +149,13 @@ describe("backupService", () => {
 	});
 
 	it("restoreBackup validates asset and extension", async () => {
-		mocks.getDocumentAsync.mockResolvedValueOnce({ canceled: false, assets: [] });
-		await expect(backupService.restoreBackup(database)).rejects.toMatchObject<AppError>({
+		mocks.getDocumentAsync.mockResolvedValueOnce({
+			canceled: false,
+			assets: [],
+		});
+		await expect(
+			backupService.restoreBackup(database),
+		).rejects.toMatchObject<AppError>({
 			code: "BACKUP_NOT_SELECTED",
 		});
 
@@ -149,7 +163,9 @@ describe("backupService", () => {
 			canceled: false,
 			assets: [{ uri: "file://bad.txt", name: "bad.txt" }],
 		});
-		await expect(backupService.restoreBackup(database)).rejects.toMatchObject<AppError>({
+		await expect(
+			backupService.restoreBackup(database),
+		).rejects.toMatchObject<AppError>({
 			code: "INVALID_BACKUP_EXTENSION",
 		});
 	});

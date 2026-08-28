@@ -40,29 +40,54 @@ describe("investmentService", () => {
 	});
 
 	it("maps archived values in getters", async () => {
-		mocks.getInvestmentRows.mockResolvedValueOnce([{ id: "i1", name: "A", archived: 1 }]);
-		mocks.getArchivedInvestmentRows.mockResolvedValueOnce([{ id: "i2", name: "B", archived: 0 }]);
-		mocks.getInvestmentRow.mockResolvedValueOnce({ id: "i1", name: "A", archived: 1 });
+		mocks.getInvestmentRows.mockResolvedValueOnce([
+			{ id: "i1", name: "A", archived: 1 },
+		]);
+		mocks.getArchivedInvestmentRows.mockResolvedValueOnce([
+			{ id: "i2", name: "B", archived: 0 },
+		]);
+		mocks.getInvestmentRow.mockResolvedValueOnce({
+			id: "i1",
+			name: "A",
+			archived: 1,
+		});
 		mocks.getInvestmentRow.mockResolvedValueOnce(null);
 
-		expect((await investmentService.getInvestments(database))[0]?.archived).toBe(true);
-		expect((await investmentService.getArchivedInvestments(database))[0]?.archived).toBe(false);
-		expect((await investmentService.getInvestment(database, "i1"))?.archived).toBe(true);
-		expect(await investmentService.getInvestment(database, "missing")).toBeNull();
+		expect(
+			(await investmentService.getInvestments(database))[0]?.archived,
+		).toBe(true);
+		expect(
+			(await investmentService.getArchivedInvestments(database))[0]
+				?.archived,
+		).toBe(false);
+		expect(
+			(await investmentService.getInvestment(database, "i1"))?.archived,
+		).toBe(true);
+		expect(
+			await investmentService.getInvestment(database, "missing"),
+		).toBeNull();
 	});
 
 	it("validates and saves investment", async () => {
-		await expect(investmentService.saveInvestment(database, undefined, "   ")).rejects.toMatchObject<AppError>({
+		await expect(
+			investmentService.saveInvestment(database, undefined, "   "),
+		).rejects.toMatchObject<AppError>({
 			code: "INVESTMENT_NAME_REQUIRED",
 		});
 
 		mocks.simpleEntityNameExistsRow.mockResolvedValueOnce(true);
-		await expect(investmentService.saveInvestment(database, undefined, "Fund A")).rejects.toMatchObject<AppError>({
+		await expect(
+			investmentService.saveInvestment(database, undefined, "Fund A"),
+		).rejects.toMatchObject<AppError>({
 			code: "INVESTMENT_NAME_DUPLICATE",
 		});
 
 		mocks.simpleEntityNameExistsRow.mockResolvedValueOnce(false);
-		const createdId = await investmentService.saveInvestment(database, undefined, "  Fund A  ");
+		const createdId = await investmentService.saveInvestment(
+			database,
+			undefined,
+			"  Fund A  ",
+		);
 		expect(createdId).toBe("investment-id");
 		expect(mocks.upsertSimpleEntityRow).toHaveBeenCalledWith(
 			database,
@@ -75,13 +100,25 @@ describe("investmentService", () => {
 		);
 
 		mocks.simpleEntityNameExistsRow.mockResolvedValueOnce(false);
-		mocks.getInvestmentRow.mockResolvedValueOnce({ id: "i1", name: "old", createdAt: 10 });
-		const updatedId = await investmentService.saveInvestment(database, "i1", "  Fund B ");
+		mocks.getInvestmentRow.mockResolvedValueOnce({
+			id: "i1",
+			name: "old",
+			createdAt: 10,
+		});
+		const updatedId = await investmentService.saveInvestment(
+			database,
+			"i1",
+			"  Fund B ",
+		);
 		expect(updatedId).toBe("i1");
 		expect(mocks.upsertSimpleEntityRow).toHaveBeenCalledWith(
 			database,
 			"investments",
-			expect.objectContaining({ id: "i1", name: "Fund B", createdAt: 10 }),
+			expect.objectContaining({
+				id: "i1",
+				name: "Fund B",
+				createdAt: 10,
+			}),
 		);
 	});
 
@@ -95,12 +132,18 @@ describe("investmentService", () => {
 			new Date("2026-08-25T12:00:00.000Z").getTime(),
 		);
 
-		mocks.deleteSimpleEntityRow.mockRejectedValueOnce(new Error("FOREIGN KEY failed"));
-		await expect(investmentService.deleteInvestment(database, "i1")).rejects.toMatchObject<AppError>({
+		mocks.deleteSimpleEntityRow.mockRejectedValueOnce(
+			new Error("FOREIGN KEY failed"),
+		);
+		await expect(
+			investmentService.deleteInvestment(database, "i1"),
+		).rejects.toMatchObject<AppError>({
 			code: "INVESTMENT_IN_USE",
 		});
 
 		mocks.deleteSimpleEntityRow.mockRejectedValueOnce(new Error("disk"));
-		await expect(investmentService.deleteInvestment(database, "i1")).rejects.toThrow("disk");
+		await expect(
+			investmentService.deleteInvestment(database, "i1"),
+		).rejects.toThrow("disk");
 	});
 });

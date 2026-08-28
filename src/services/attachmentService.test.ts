@@ -55,7 +55,9 @@ vi.mock("expo-file-system", () => {
 				this.size = 123;
 			} else {
 				this.uri = baseOrUri;
-				this.size = baseOrUri.includes("large") ? 3 * 1024 * 1024 : 1024;
+				this.size = baseOrUri.includes("large")
+					? 3 * 1024 * 1024
+					: 1024;
 			}
 		}
 
@@ -101,8 +103,13 @@ describe("attachmentService", () => {
 	});
 
 	it("throws when picker returns no asset", async () => {
-		mocks.getDocumentAsync.mockResolvedValueOnce({ canceled: false, assets: [] });
-		await expect(attachmentService.pickAttachment()).rejects.toMatchObject<AppError>({
+		mocks.getDocumentAsync.mockResolvedValueOnce({
+			canceled: false,
+			assets: [],
+		});
+		await expect(
+			attachmentService.pickAttachment(),
+		).rejects.toMatchObject<AppError>({
 			code: "ATTACHMENT_PICK_FAILED",
 		});
 	});
@@ -111,10 +118,16 @@ describe("attachmentService", () => {
 		mocks.getDocumentAsync.mockResolvedValueOnce({
 			canceled: false,
 			assets: [
-				{ uri: "file://large.pdf", name: "large.pdf", size: 3 * 1024 * 1024 },
+				{
+					uri: "file://large.pdf",
+					name: "large.pdf",
+					size: 3 * 1024 * 1024,
+				},
 			],
 		});
-		await expect(attachmentService.pickAttachment()).rejects.toMatchObject<AppError>({
+		await expect(
+			attachmentService.pickAttachment(),
+		).rejects.toMatchObject<AppError>({
 			code: "ATTACHMENT_TOO_LARGE",
 		});
 	});
@@ -123,7 +136,12 @@ describe("attachmentService", () => {
 		mocks.getDocumentAsync.mockResolvedValueOnce({
 			canceled: false,
 			assets: [
-				{ uri: "file://ok.pdf", name: "ok.pdf", size: 1000, mimeType: null },
+				{
+					uri: "file://ok.pdf",
+					name: "ok.pdf",
+					size: 1000,
+					mimeType: null,
+				},
 			],
 		});
 
@@ -138,7 +156,13 @@ describe("attachmentService", () => {
 
 	it("gets and saves and deletes attachment metadata", async () => {
 		mocks.getAttachmentMetadataRow.mockResolvedValueOnce({ id: "a1" });
-		expect(await attachmentService.getAttachmentMetadata(database, "NOTE", "n1")).toEqual({
+		expect(
+			await attachmentService.getAttachmentMetadata(
+				database,
+				"NOTE",
+				"n1",
+			),
+		).toEqual({
 			id: "a1",
 		});
 
@@ -167,7 +191,11 @@ describe("attachmentService", () => {
 		);
 
 		await attachmentService.deleteAttachment(database, "NOTE", "n1");
-		expect(mocks.deleteAttachmentRow).toHaveBeenCalledWith(database, "NOTE", "n1");
+		expect(mocks.deleteAttachmentRow).toHaveBeenCalledWith(
+			database,
+			"NOTE",
+			"n1",
+		);
 	});
 
 	it("openAttachment handles missing content and unavailable sharing", async () => {
@@ -180,13 +208,19 @@ describe("attachmentService", () => {
 		};
 
 		mocks.getAttachmentContentRow.mockResolvedValueOnce(null);
-		await expect(attachmentService.openAttachment(database, metadata as any)).rejects.toMatchObject<AppError>({
+		await expect(
+			attachmentService.openAttachment(database, metadata as any),
+		).rejects.toMatchObject<AppError>({
 			code: "ATTACHMENT_NOT_FOUND",
 		});
 
-		mocks.getAttachmentContentRow.mockResolvedValueOnce(new Uint8Array([9, 9]));
+		mocks.getAttachmentContentRow.mockResolvedValueOnce(
+			new Uint8Array([9, 9]),
+		);
 		mocks.isAvailableAsync.mockResolvedValueOnce(false);
-		await expect(attachmentService.openAttachment(database, metadata as any)).rejects.toMatchObject<AppError>({
+		await expect(
+			attachmentService.openAttachment(database, metadata as any),
+		).rejects.toMatchObject<AppError>({
 			code: "SHARING_UNAVAILABLE",
 		});
 	});
@@ -199,7 +233,9 @@ describe("attachmentService", () => {
 			fileName: "doc.pdf",
 			mimeType: "application/pdf",
 		};
-		mocks.getAttachmentContentRow.mockResolvedValueOnce(new Uint8Array([7, 8]));
+		mocks.getAttachmentContentRow.mockResolvedValueOnce(
+			new Uint8Array([7, 8]),
+		);
 		mocks.isAvailableAsync.mockResolvedValueOnce(true);
 
 		await attachmentService.openAttachment(database, metadata as any);

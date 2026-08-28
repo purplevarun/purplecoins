@@ -100,6 +100,7 @@ vi.mock("@/components/ScreenContainer", () => ({
 	default: (props: any) => ({ type: "ScreenContainer", props }),
 }));
 
+import COLORS from "@/constants/colors";
 import HomeScreen, {
 	MODE_OPTIONS,
 	SWIPE_DOWN_THRESHOLD,
@@ -113,7 +114,6 @@ import HomeScreen, {
 	getTileIconBackgroundColor,
 	shouldCycleFromGesture,
 } from "@/screens/HomeScreen";
-import COLORS from "@/constants/colors";
 
 const findByPredicate = (
 	node: any,
@@ -180,10 +180,14 @@ describe("HomeScreen", () => {
 		gestureState.onEnd?.({ translationX: 2, translationY: 40 });
 		gestureState.onFinalize?.();
 
-		expect(navigation.navigate).toHaveBeenCalledWith("GlobalSearch", { mode: "FINANCE" });
+		expect(navigation.navigate).toHaveBeenCalledWith("GlobalSearch", {
+			mode: "FINANCE",
+		});
 		expect(navigation.navigate).toHaveBeenCalledWith("Settings");
 		expect(navigation.navigate).toHaveBeenCalledWith("Transactions");
-		expect(navigation.navigate).toHaveBeenCalledWith("Relations", { kind: "SOURCE" });
+		expect(navigation.navigate).toHaveBeenCalledWith("Relations", {
+			kind: "SOURCE",
+		});
 		expect(navigation.navigate).toHaveBeenCalledWith("Budgets");
 		expect(navigation.navigate).toHaveBeenCalledWith("Analysis");
 		expect(navigation.navigate).toHaveBeenCalledWith("ExchangeRates");
@@ -198,7 +202,10 @@ describe("HomeScreen", () => {
 			call += 1;
 			if (call === 1) return ["TOOLS", setMode];
 			if (call === 2) return [true, setMenuVisible];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = HomeScreen({ navigation } as any);
@@ -223,7 +230,10 @@ describe("HomeScreen", () => {
 			call += 1;
 			if (call === 1) return ["VAULT", vi.fn()];
 			if (call === 2) return [false, vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = HomeScreen({ navigation } as any);
@@ -252,13 +262,18 @@ describe("HomeScreen", () => {
 			call += 1;
 			if (call === 1) return ["FINANCE", setMode];
 			if (call === 2) return [false, setMenuVisible];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = HomeScreen({ navigation } as any);
 		findByPredicate(
 			tree,
-			(node) => node?.props?.accessibilityLabel === "Switch homepage" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.accessibilityLabel === "Switch homepage" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 
 		gestureState.onEnd?.({ translationX: 0, translationY: 40 });
@@ -279,20 +294,21 @@ describe("HomeScreen", () => {
 			call += 1;
 			if (call === 1) return ["VAULT", vi.fn()];
 			if (call === 2) return [true, vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = HomeScreen({ navigation } as any);
 		expect(
-			findByPredicate(
-				tree,
-				(node) => String(JSON.stringify(node) ?? "").includes("Passwords"),
+			findByPredicate(tree, (node) =>
+				String(JSON.stringify(node) ?? "").includes("Passwords"),
 			),
 		).not.toHaveLength(0);
 		expect(
-			findByPredicate(
-				tree,
-				(node) => String(JSON.stringify(node) ?? "").includes("checkmark-circle"),
+			findByPredicate(tree, (node) =>
+				String(JSON.stringify(node) ?? "").includes("checkmark-circle"),
 			),
 		).not.toHaveLength(0);
 	});
@@ -310,7 +326,9 @@ describe("HomeScreen", () => {
 		expect(getSwitchDragProgress(40, 1)).toBe(0);
 		expect(shouldCycleFromGesture(1, 40)).toBe(true);
 		expect(shouldCycleFromGesture(40, 20)).toBe(false);
-		expect(getPressableScaleStyle(true)).toEqual([{ transform: [{ scale: 0.98 }] }]);
+		expect(getPressableScaleStyle(true)).toEqual([
+			{ transform: [{ scale: 0.98 }] },
+		]);
 		expect(getPressableScaleStyle(false)).toEqual([false]);
 		expect(getTileIconBackgroundColor("#123456")).toBe("#12345620");
 		expect(getModeOptionState("VAULT", "VAULT")).toEqual({
@@ -364,18 +382,26 @@ describe("HomeScreen", () => {
 			call += 1;
 			if (call === 1) return ["FINANCE", setMode];
 			if (call === 2) return [true, setMenuVisible];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = HomeScreen({ navigation } as any);
 		findByPredicate(
 			tree,
-			(node) => node?.type === "Modal" && typeof node?.props?.onRequestClose === "function",
+			(node) =>
+				node?.type === "Modal" &&
+				typeof node?.props?.onRequestClose === "function",
 		)[0]?.props?.onRequestClose();
 
 		const closers = findByPredicate(
 			tree,
-			(node) => typeof node?.props?.onPress === "function" && String(JSON.stringify(node) ?? "").includes("modeMenu") === false,
+			(node) =>
+				typeof node?.props?.onPress === "function" &&
+				String(JSON.stringify(node) ?? "").includes("modeMenu") ===
+					false,
 		);
 		closers[0]?.props?.onPress();
 
@@ -396,14 +422,19 @@ describe("HomeScreen", () => {
 			call += 1;
 			if (call === 1) return ["FINANCE", vi.fn()];
 			if (call === 2) return [true, setMenuVisible];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = HomeScreen({ navigation } as any);
 
 		const tilePressables = findByPredicate(
 			tree,
-			(node) => typeof node?.props?.style === "function" && typeof node?.props?.onPress === "function",
+			(node) =>
+				typeof node?.props?.style === "function" &&
+				typeof node?.props?.onPress === "function",
 		);
 		const tileStyle = tilePressables[0]?.props?.style;
 		expect(Array.isArray(tileStyle?.({ pressed: true }))).toBe(true);
@@ -411,10 +442,16 @@ describe("HomeScreen", () => {
 
 		const switchNode = findByPredicate(
 			tree,
-			(node) => node?.props?.accessibilityLabel === "Switch homepage" && typeof node?.props?.style === "function",
+			(node) =>
+				node?.props?.accessibilityLabel === "Switch homepage" &&
+				typeof node?.props?.style === "function",
 		)[0];
-		expect(Array.isArray(switchNode?.props?.style({ pressed: true }))).toBe(true);
-		expect(Array.isArray(switchNode?.props?.style({ pressed: false }))).toBe(true);
+		expect(Array.isArray(switchNode?.props?.style({ pressed: true }))).toBe(
+			true,
+		);
+		expect(
+			Array.isArray(switchNode?.props?.style({ pressed: false })),
+		).toBe(true);
 
 		const modalNode = findByPredicate(
 			tree,

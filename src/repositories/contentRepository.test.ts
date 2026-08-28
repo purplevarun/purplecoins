@@ -195,9 +195,11 @@ describe("contentRepository", () => {
 	it("deletes folder and deletes content rows with and without attachments", async () => {
 		const database = {
 			runAsync: vi.fn(async () => {}),
-			withTransactionAsync: vi.fn(async (callback: () => Promise<void>) => {
-				await callback();
-			}),
+			withTransactionAsync: vi.fn(
+				async (callback: () => Promise<void>) => {
+					await callback();
+				},
+			),
 		} as any;
 
 		await deleteFolderRow(database, "f1");

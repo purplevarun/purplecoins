@@ -43,9 +43,7 @@ const getSwitchDragProgress = (
 ): number => {
 	const isDownward =
 		translationY > 0 && Math.abs(translationY) > Math.abs(translationX);
-	return isDownward
-		? Math.min(translationY / SWIPE_DOWN_THRESHOLD, 1)
-		: 0;
+	return isDownward ? Math.min(translationY / SWIPE_DOWN_THRESHOLD, 1) : 0;
 };
 
 const shouldCycleFromGesture = (
@@ -313,14 +311,22 @@ const HomeScreen = ({ navigation }: HomeScreenProps): React.JSX.Element => {
 				<Pressable
 					key={tile.label}
 					onPress={tile.handlePress}
-					style={({ pressed }) => [styles.tileWrapper, ...getPressableScaleStyle(pressed)]}
+					style={({ pressed }) => [
+						styles.tileWrapper,
+						...getPressableScaleStyle(pressed),
+					]}
 				>
 					<GlassCard>
 						<View style={styles.tile}>
 							<View
 								style={[
 									styles.tileIcon,
-									{ backgroundColor: getTileIconBackgroundColor(tile.color) },
+									{
+										backgroundColor:
+											getTileIconBackgroundColor(
+												tile.color,
+											),
+									},
 								]}
 							>
 								<Ionicons
@@ -644,13 +650,16 @@ const styles = StyleSheet.create({
 
 export default HomeScreen;
 
-export { getModeLabel, MODE_OPTIONS, SWITCH_ARROW_TRAVEL, SWIPE_DOWN_THRESHOLD };
 export {
-	getModeOptionState,
+	getModeLabel,
 	getModeMenuOptions,
+	getModeOptionState,
 	getNextMode,
 	getPressableScaleStyle,
 	getSwitchDragProgress,
 	getTileIconBackgroundColor,
+	MODE_OPTIONS,
 	shouldCycleFromGesture,
+	SWIPE_DOWN_THRESHOLD,
+	SWITCH_ARROW_TRAVEL,
 };

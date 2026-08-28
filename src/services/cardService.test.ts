@@ -37,11 +37,19 @@ describe("cardService", () => {
 		mocks.getCardRows.mockResolvedValueOnce([
 			{ id: "c1", name: "A", hasAttachment: 1 },
 		]);
-		mocks.getCardRow.mockResolvedValueOnce({ id: "c2", name: "B", hasAttachment: 0 });
+		mocks.getCardRow.mockResolvedValueOnce({
+			id: "c2",
+			name: "B",
+			hasAttachment: 0,
+		});
 		mocks.getCardRow.mockResolvedValueOnce(null);
 
-		expect((await cardService.getCards(database))[0]?.hasAttachment).toBe(true);
-		expect((await cardService.getCard(database, "c2"))?.hasAttachment).toBe(false);
+		expect((await cardService.getCards(database))[0]?.hasAttachment).toBe(
+			true,
+		);
+		expect((await cardService.getCard(database, "c2"))?.hasAttachment).toBe(
+			false,
+		);
 		expect(await cardService.getCard(database, "missing")).toBeNull();
 	});
 

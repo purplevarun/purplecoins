@@ -31,22 +31,36 @@ vi.mock("@/utils/relation", () => ({
 }));
 
 vi.mock("@/screens/AnalysisScreen", () => ({ default: "AnalysisScreen" }));
-vi.mock("@/screens/ArchivedRelationsScreen", () => ({ default: "ArchivedRelationsScreen" }));
+vi.mock("@/screens/ArchivedRelationsScreen", () => ({
+	default: "ArchivedRelationsScreen",
+}));
 vi.mock("@/screens/BudgetFormScreen", () => ({ default: "BudgetFormScreen" }));
 vi.mock("@/screens/BudgetsScreen", () => ({ default: "BudgetsScreen" }));
-vi.mock("@/screens/ExchangeRatesScreen", () => ({ default: "ExchangeRatesScreen" }));
-vi.mock("@/screens/GlobalSearchScreen", () => ({ default: "GlobalSearchScreen" }));
+vi.mock("@/screens/ExchangeRatesScreen", () => ({
+	default: "ExchangeRatesScreen",
+}));
+vi.mock("@/screens/GlobalSearchScreen", () => ({
+	default: "GlobalSearchScreen",
+}));
 vi.mock("@/screens/HomeScreen", () => ({ default: "HomeScreen" }));
-vi.mock("@/screens/LinkedTransactionsScreen", () => ({ default: "LinkedTransactionsScreen" }));
+vi.mock("@/screens/LinkedTransactionsScreen", () => ({
+	default: "LinkedTransactionsScreen",
+}));
 vi.mock("@/screens/NoteFormScreen", () => ({ default: "NoteFormScreen" }));
 vi.mock("@/screens/NotesScreen", () => ({ default: "NotesScreen" }));
-vi.mock("@/screens/RelationFormScreen", () => ({ default: "RelationFormScreen" }));
+vi.mock("@/screens/RelationFormScreen", () => ({
+	default: "RelationFormScreen",
+}));
 vi.mock("@/screens/RelationsScreen", () => ({ default: "RelationsScreen" }));
 vi.mock("@/screens/SettingsScreen", () => ({ default: "SettingsScreen" }));
 vi.mock("@/screens/TodoFormScreen", () => ({ default: "TodoFormScreen" }));
 vi.mock("@/screens/TodosScreen", () => ({ default: "TodosScreen" }));
-vi.mock("@/screens/TransactionFormScreen", () => ({ default: "TransactionFormScreen" }));
-vi.mock("@/screens/TransactionsScreen", () => ({ default: "TransactionsScreen" }));
+vi.mock("@/screens/TransactionFormScreen", () => ({
+	default: "TransactionFormScreen",
+}));
+vi.mock("@/screens/TransactionsScreen", () => ({
+	default: "TransactionsScreen",
+}));
 vi.mock("@/screens/VaultFormScreen", () => ({ default: "VaultFormScreen" }));
 vi.mock("@/screens/VaultScreen", () => ({ default: "VaultScreen" }));
 
@@ -60,7 +74,9 @@ const findAllByType = (node: any, type: string, acc: any[] = []): any[] => {
 	}
 	if (node.type === type) acc.push(node);
 	if (node.props) {
-		Object.values(node.props).forEach((value) => findAllByType(value, type, acc));
+		Object.values(node.props).forEach((value) =>
+			findAllByType(value, type, acc),
+		);
 	}
 	return acc;
 };
@@ -75,9 +91,9 @@ describe("AppNavigator", () => {
 		const navigators = findAllByType(tree, "Navigator");
 		expect(navigators).toHaveLength(1);
 		expect(navigators[0]?.props?.initialRouteName).toBe("Home");
-		expect(navigators[0]?.props?.screenOptions?.headerTitleStyle?.fontFamily).toBe(
-			"Rubik-SemiBold",
-		);
+		expect(
+			navigators[0]?.props?.screenOptions?.headerTitleStyle?.fontFamily,
+		).toBe("Rubik-SemiBold");
 
 		const screens = findAllByType(tree, "Screen");
 		expect(screens).toHaveLength(19);
@@ -85,10 +101,14 @@ describe("AppNavigator", () => {
 		const byName = (name: string) =>
 			screens.find((screen) => screen?.props?.name === name);
 
-		expect(byName("Transactions")?.props?.options?.title).toBe("Transactions");
-		expect(byName("Relations")?.props?.options({ route: { params: { kind: "CATEGORY" } } }).title).toBe(
-			"CATEGORY TITLE",
+		expect(byName("Transactions")?.props?.options?.title).toBe(
+			"Transactions",
 		);
+		expect(
+			byName("Relations")?.props?.options({
+				route: { params: { kind: "CATEGORY" } },
+			}).title,
+		).toBe("CATEGORY TITLE");
 		expect(
 			byName("LinkedTransactions")?.props?.options({
 				route: { params: { entityName: "Rent" } },
@@ -100,10 +120,14 @@ describe("AppNavigator", () => {
 			}).title,
 		).toBe("Search Todo");
 		expect(
-			byName("Vault")?.props?.options({ route: { params: { kind: "IDENTITY" } } }).title,
+			byName("Vault")?.props?.options({
+				route: { params: { kind: "IDENTITY" } },
+			}).title,
 		).toBe("Identity");
 		expect(
-			byName("Vault")?.props?.options({ route: { params: { kind: "PASSWORD" } } }).title,
+			byName("Vault")?.props?.options({
+				route: { params: { kind: "PASSWORD" } },
+			}).title,
 		).toBe("Passwords");
 	});
 });

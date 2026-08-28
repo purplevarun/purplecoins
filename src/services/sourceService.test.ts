@@ -70,7 +70,11 @@ describe("sourceService", () => {
 
 		const sources = await sourceService.getSources(database);
 		expect(sources).toEqual([
-			expect.objectContaining({ id: "s1", archived: false, balance: "50" }),
+			expect.objectContaining({
+				id: "s1",
+				archived: false,
+				balance: "50",
+			}),
 			expect.objectContaining({ id: "s2", archived: true, balance: "8" }),
 		]);
 	});
@@ -103,24 +107,34 @@ describe("sourceService", () => {
 	});
 
 	it("validates createSource input", async () => {
-		await expect(sourceService.createSource(database, "   ", "INR")).rejects.toMatchObject<AppError>({
+		await expect(
+			sourceService.createSource(database, "   ", "INR"),
+		).rejects.toMatchObject<AppError>({
 			code: "SOURCE_NAME_REQUIRED",
 		});
 
 		mocks.sourceNameExistsRow.mockResolvedValueOnce(true);
-		await expect(sourceService.createSource(database, "Cash", "INR")).rejects.toMatchObject<AppError>({
+		await expect(
+			sourceService.createSource(database, "Cash", "INR"),
+		).rejects.toMatchObject<AppError>({
 			code: "SOURCE_NAME_DUPLICATE",
 		});
 
 		mocks.sourceNameExistsRow.mockResolvedValueOnce(false);
-		await expect(sourceService.createSource(database, "Cash", "i9r")).rejects.toMatchObject<AppError>({
+		await expect(
+			sourceService.createSource(database, "Cash", "i9r"),
+		).rejects.toMatchObject<AppError>({
 			code: "INVALID_CURRENCY",
 		});
 	});
 
 	it("creates source with normalized values", async () => {
 		mocks.sourceNameExistsRow.mockResolvedValueOnce(false);
-		const id = await sourceService.createSource(database, "  Cash  ", " inr ");
+		const id = await sourceService.createSource(
+			database,
+			"  Cash  ",
+			" inr ",
+		);
 		expect(id).toBe("source-id");
 		expect(mocks.createSourceRow).toHaveBeenCalledWith(
 			database,
@@ -135,12 +149,16 @@ describe("sourceService", () => {
 	});
 
 	it("validates and updates source name", async () => {
-		await expect(sourceService.updateSourceName(database, "s1", "   ")).rejects.toMatchObject<AppError>({
+		await expect(
+			sourceService.updateSourceName(database, "s1", "   "),
+		).rejects.toMatchObject<AppError>({
 			code: "SOURCE_NAME_REQUIRED",
 		});
 
 		mocks.sourceNameExistsRow.mockResolvedValueOnce(true);
-		await expect(sourceService.updateSourceName(database, "s1", "Cash")).rejects.toMatchObject<AppError>({
+		await expect(
+			sourceService.updateSourceName(database, "s1", "Cash"),
+		).rejects.toMatchObject<AppError>({
 			code: "SOURCE_NAME_DUPLICATE",
 		});
 
@@ -172,14 +190,20 @@ describe("sourceService", () => {
 	});
 
 	it("maps foreign-key delete errors", async () => {
-		mocks.deleteSourceRow.mockRejectedValueOnce(new Error("FOREIGN KEY constraint failed"));
-		await expect(sourceService.deleteSource(database, "s1")).rejects.toMatchObject<AppError>({
+		mocks.deleteSourceRow.mockRejectedValueOnce(
+			new Error("FOREIGN KEY constraint failed"),
+		);
+		await expect(
+			sourceService.deleteSource(database, "s1"),
+		).rejects.toMatchObject<AppError>({
 			code: "SOURCE_IN_USE",
 		});
 	});
 
 	it("rethrows non-foreign-key delete errors", async () => {
 		mocks.deleteSourceRow.mockRejectedValueOnce(new Error("disk issue"));
-		await expect(sourceService.deleteSource(database, "s1")).rejects.toThrow("disk issue");
+		await expect(
+			sourceService.deleteSource(database, "s1"),
+		).rejects.toThrow("disk issue");
 	});
 });

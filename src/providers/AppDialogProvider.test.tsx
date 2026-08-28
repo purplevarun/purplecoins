@@ -46,7 +46,10 @@ vi.mock("@/components/GlassCard", () => ({
 
 vi.mock("@/providers/AppDialogContext", () => ({
 	default: {
-		Provider: ({ value, children }: any) => ({ type: "Provider", props: { value, children } }),
+		Provider: ({ value, children }: any) => ({
+			type: "Provider",
+			props: { value, children },
+		}),
 	},
 }));
 
@@ -54,10 +57,17 @@ import AppDialogProvider from "@/providers/AppDialogProvider";
 
 const setupState = (activeDialog: any): void => {
 	reactMocks.useState.mockReset();
-	reactMocks.useState.mockImplementationOnce(() => [activeDialog, setActiveDialog]);
+	reactMocks.useState.mockImplementationOnce(() => [
+		activeDialog,
+		setActiveDialog,
+	]);
 };
 
-const collectNodesByType = (node: any, type: string, acc: any[] = []): any[] => {
+const collectNodesByType = (
+	node: any,
+	type: string,
+	acc: any[] = [],
+): any[] => {
 	if (!node) return acc;
 	if (Array.isArray(node)) {
 		node.forEach((child) => collectNodesByType(child, type, acc));
@@ -67,7 +77,9 @@ const collectNodesByType = (node: any, type: string, acc: any[] = []): any[] => 
 		acc.push(node);
 	}
 	if (node.props) {
-		Object.values(node.props).forEach((value) => collectNodesByType(value, type, acc));
+		Object.values(node.props).forEach((value) =>
+			collectNodesByType(value, type, acc),
+		);
 	}
 	return acc;
 };
@@ -141,9 +153,8 @@ describe("AppDialogProvider", () => {
 		});
 
 		const element = AppDialogProvider({ children: null } as any) as any;
-		const modalNodes = collectNodesByPredicate(
-			element,
-			(node) => Boolean(node?.props?.onRequestClose),
+		const modalNodes = collectNodesByPredicate(element, (node) =>
+			Boolean(node?.props?.onRequestClose),
 		);
 		expect(modalNodes.length).toBeGreaterThan(0);
 		modalNodes[0]?.props.onRequestClose();

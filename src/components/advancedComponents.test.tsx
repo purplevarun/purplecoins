@@ -50,7 +50,10 @@ vi.mock("@/utils/date", () => ({
 
 vi.mock("@/utils/money", () => ({
 	default: {
-		formatMoney: vi.fn((amount: string, currencyCode: string) => `${currencyCode}:${amount}`),
+		formatMoney: vi.fn(
+			(amount: string, currencyCode: string) =>
+				`${currencyCode}:${amount}`,
+		),
 	},
 }));
 
@@ -66,7 +69,9 @@ const findAllByType = (node: any, type: string, acc: any[] = []): any[] => {
 	}
 	if (node.type === type) acc.push(node);
 	if (node.props) {
-		Object.values(node.props).forEach((value) => findAllByType(value, type, acc));
+		Object.values(node.props).forEach((value) =>
+			findAllByType(value, type, acc),
+		);
 	}
 	return acc;
 };
@@ -76,8 +81,8 @@ const findPressableByText = (node: any, text: string): any => {
 	const matches = pressables
 		.filter((pressable) => typeof pressable?.props?.onPress === "function")
 		.map((pressable) => {
-			const labels = findAllByType(pressable, "CustomText").map((textNode) =>
-				String(textNode?.props?.children ?? ""),
+			const labels = findAllByType(pressable, "CustomText").map(
+				(textNode) => String(textNode?.props?.children ?? ""),
 			);
 			return {
 				pressable,
@@ -95,7 +100,10 @@ const hasTextContaining = (node: any, value: string): boolean =>
 	findAllByType(node, "CustomText").some((textNode) => {
 		const children = textNode?.props?.children;
 		if (Array.isArray(children)) {
-			return children.map((part) => String(part)).join("").includes(value);
+			return children
+				.map((part) => String(part))
+				.join("")
+				.includes(value);
 		}
 		return String(children ?? "").includes(value);
 	});
@@ -157,9 +165,7 @@ describe("advanced components", () => {
 
 		const chartWithoutData = DonutChart({
 			centerLabel: "INR 0",
-			data: [
-				{ label: "A", value: 0, color: "#111" },
-			],
+			data: [{ label: "A", value: 0, color: "#111" }],
 		} as any);
 		expect(findAllByType(chartWithoutData, "Circle")).toHaveLength(1);
 	});
@@ -177,10 +183,16 @@ describe("advanced components", () => {
 			onPress,
 			onLongPress,
 		} as any);
-		expect(findAllByType(credit, "Ionicons").some((icon) => icon.props.name === "arrow-down")).toBe(
-			true,
-		);
-		expect(findAllByType(credit, "Ionicons").some((icon) => icon.props.name === "attach")).toBe(true);
+		expect(
+			findAllByType(credit, "Ionicons").some(
+				(icon) => icon.props.name === "arrow-down",
+			),
+		).toBe(true);
+		expect(
+			findAllByType(credit, "Ionicons").some(
+				(icon) => icon.props.name === "attach",
+			),
+		).toBe(true);
 		expect(hasTextContaining(credit, "+INR:100")).toBe(true);
 
 		const debitInvestment = TransactionCard({
@@ -193,9 +205,11 @@ describe("advanced components", () => {
 			},
 			onPress,
 		} as any);
-		expect(findAllByType(debitInvestment, "Ionicons").some((icon) => icon.props.name === "arrow-up")).toBe(
-			true,
-		);
+		expect(
+			findAllByType(debitInvestment, "Ionicons").some(
+				(icon) => icon.props.name === "arrow-up",
+			),
+		).toBe(true);
 		expect(
 			findAllByType(debitInvestment, "CustomText").some(
 				(text) => text.props.children === "Mutual Fund",
@@ -214,7 +228,9 @@ describe("advanced components", () => {
 			onPress,
 		} as any);
 		expect(
-			findAllByType(transfer, "Ionicons").some((icon) => icon.props.name === "swap-horizontal"),
+			findAllByType(transfer, "Ionicons").some(
+				(icon) => icon.props.name === "swap-horizontal",
+			),
 		).toBe(true);
 		expect(hasTextContaining(transfer, "-> USD:2")).toBe(true);
 	});
@@ -223,7 +239,13 @@ describe("advanced components", () => {
 		const setActionFolder = vi.fn();
 		const setRenameMode = vi.fn();
 		const setRenameName = vi.fn();
-		const folder = { id: "f1", name: "Work", type: "NOTE", createdAt: 1, updatedAt: 1 };
+		const folder = {
+			id: "f1",
+			name: "Work",
+			type: "NOTE",
+			createdAt: 1,
+			updatedAt: 1,
+		};
 		const onSelectFolder = vi.fn();
 		const onDeleteFolder = vi.fn();
 		const onRenameFolder = vi.fn();

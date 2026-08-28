@@ -14,10 +14,7 @@ const vitestConfig = defineConfig({
 			provider: "v8",
 			reporter: ["text", "lcov"],
 			include: ["src/**/*.{ts,tsx}"],
-			exclude: [
-				"src/**/*.d.ts",
-				"src/test/**",
-			],
+			exclude: ["src/**/*.d.ts", "src/test/**"],
 			thresholds: {
 				branches: 100,
 				functions: 100,

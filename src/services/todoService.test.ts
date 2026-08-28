@@ -162,7 +162,9 @@ describe("todoService", () => {
 
 	it("toggleTodo throws when todo is missing", async () => {
 		mocks.getTodoRow.mockResolvedValueOnce(null);
-		await expect(todoService.toggleTodo(database, "missing")).rejects.toMatchObject<AppError>({
+		await expect(
+			todoService.toggleTodo(database, "missing"),
+		).rejects.toMatchObject<AppError>({
 			code: "TODO_NOT_FOUND",
 		});
 	});

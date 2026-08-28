@@ -155,9 +155,15 @@ describe("analysisService summary", () => {
 	});
 
 	it("returns investment net labels and absolute net amount", () => {
-		expect(analysisService.getInvestmentNetLabel("10")).toBe("Net invested");
-		expect(analysisService.getInvestmentNetLabel("-1")).toBe("Net redeemed");
+		expect(analysisService.getInvestmentNetLabel("10")).toBe(
+			"Net invested",
+		);
+		expect(analysisService.getInvestmentNetLabel("-1")).toBe(
+			"Net redeemed",
+		);
 		expect(analysisService.getInvestmentNetLabel("0")).toBe("Net zero");
-		expect(analysisService.getInvestmentNetAmount("-123.45")).toBe("123.45");
+		expect(analysisService.getInvestmentNetAmount("-123.45")).toBe(
+			"123.45",
+		);
 	});
 });

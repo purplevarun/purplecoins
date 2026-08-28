@@ -60,7 +60,11 @@ vi.mock("@/components/TextField", () => ({
 }));
 
 vi.mock("@/hooks/useDatabaseContext", () => ({
-	default: () => ({ database: { id: "db" }, dataVersion: 1, refreshData: hookMocks.refreshData }),
+	default: () => ({
+		database: { id: "db" },
+		dataVersion: 1,
+		refreshData: hookMocks.refreshData,
+	}),
 }));
 
 vi.mock("@/services/exchangeRateService", () => ({
@@ -166,7 +170,10 @@ describe("ExchangeRatesScreen", () => {
 					vi.fn(),
 				];
 			if (call === 3) return [{ USD: "84" }, setDrafts];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = ExchangeRatesScreen({} as any);
@@ -174,27 +181,40 @@ describe("ExchangeRatesScreen", () => {
 
 		const screenList = findByPredicate(
 			tree,
-			(node) => typeof node?.props?.renderItem === "function" && typeof node?.props?.keyExtractor === "function",
+			(node) =>
+				typeof node?.props?.renderItem === "function" &&
+				typeof node?.props?.keyExtractor === "function",
 		)[0];
 		expect(screenList.props.keyExtractor("USD")).toBe("USD");
 
 		const row = screenList.props.renderItem({ item: "USD" });
 		const textField = findByPredicate(
 			row,
-			(node) => node?.props?.label === "Rate to INR" && typeof node?.props?.onChangeText === "function",
+			(node) =>
+				node?.props?.label === "Rate to INR" &&
+				typeof node?.props?.onChangeText === "function",
 		)[0];
 		textField?.props?.onChangeText("99.10");
 		expect(setDrafts).toHaveBeenCalled();
 
-		const updater = setDrafts.mock.calls.at(-1)?.[0] as (current: Record<string, string>) => Record<string, string>;
-		expect(updater({ USD: "84", EUR: "91" })).toEqual({ USD: "99.10", EUR: "91" });
+		const updater = setDrafts.mock.calls.at(-1)?.[0] as (
+			current: Record<string, string>,
+		) => Record<string, string>;
+		expect(updater({ USD: "84", EUR: "91" })).toEqual({
+			USD: "99.10",
+			EUR: "91",
+		});
 	});
 
 	it("covers load, fetch, and save error branches", async () => {
 		const setError = vi.fn();
 		serviceMocks.getSources.mockRejectedValueOnce(new Error("load failed"));
-		serviceMocks.fetchExchangeRates.mockRejectedValueOnce(new Error("fetch failed"));
-		serviceMocks.saveManualExchangeRate.mockRejectedValueOnce(new Error("save failed"));
+		serviceMocks.fetchExchangeRates.mockRejectedValueOnce(
+			new Error("fetch failed"),
+		);
+		serviceMocks.saveManualExchangeRate.mockRejectedValueOnce(
+			new Error("save failed"),
+		);
 
 		let call = 0;
 		reactMocks.useState.mockImplementation((initial: any) => {
@@ -215,7 +235,10 @@ describe("ExchangeRatesScreen", () => {
 				];
 			if (call === 3) return [{ USD: "84" }, vi.fn()];
 			if (call === 5) return ["", setError];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = ExchangeRatesScreen({} as any);
@@ -224,16 +247,23 @@ describe("ExchangeRatesScreen", () => {
 
 		findByPredicate(
 			tree,
-			(node) => node?.props?.label === "Fetch latest rates" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Fetch latest rates" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 		expect(setError).toHaveBeenCalledWith("fetch failed");
 
-		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const screenList = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
 		const row = screenList.props.renderItem({ item: "USD" });
 		findByPredicate(
 			row,
-			(node) => node?.props?.label === "Save manual rate" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Save manual rate" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 		expect(setError).toHaveBeenCalledWith("save failed");
@@ -264,7 +294,10 @@ describe("ExchangeRatesScreen", () => {
 			if (call === 3) return [{ USD: "84" }, vi.fn()];
 			if (call === 4) return [false, setIsFetching];
 			if (call === 6) return ["", setMessage];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = ExchangeRatesScreen({} as any);
@@ -272,12 +305,16 @@ describe("ExchangeRatesScreen", () => {
 
 		findByPredicate(
 			tree,
-			(node) => node?.props?.label === "Fetch latest rates" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Fetch latest rates" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 
 		expect(setIsFetching).toHaveBeenCalledWith(true);
-		expect(setMessage).toHaveBeenCalledWith("No foreign source currencies found.");
+		expect(setMessage).toHaveBeenCalledWith(
+			"No foreign source currencies found.",
+		);
 	});
 
 	it("shows updated-count message and refreshes after successful fetch", async () => {
@@ -303,7 +340,10 @@ describe("ExchangeRatesScreen", () => {
 				];
 			if (call === 3) return [{ USD: "84" }, vi.fn()];
 			if (call === 6) return ["", setMessage];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = ExchangeRatesScreen({} as any);
@@ -311,7 +351,9 @@ describe("ExchangeRatesScreen", () => {
 
 		findByPredicate(
 			tree,
-			(node) => node?.props?.label === "Fetch latest rates" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Fetch latest rates" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 

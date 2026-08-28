@@ -44,9 +44,15 @@ describe("identityService", () => {
 		});
 		mocks.getIdentityRow.mockResolvedValueOnce(null);
 
-		expect((await identityService.getIdentities(database))[0]?.hasAttachment).toBe(true);
-		expect((await identityService.getIdentity(database, "i2"))?.hasAttachment).toBe(false);
-		expect(await identityService.getIdentity(database, "missing")).toBeNull();
+		expect(
+			(await identityService.getIdentities(database))[0]?.hasAttachment,
+		).toBe(true);
+		expect(
+			(await identityService.getIdentity(database, "i2"))?.hasAttachment,
+		).toBe(false);
+		expect(
+			await identityService.getIdentity(database, "missing"),
+		).toBeNull();
 	});
 
 	it("validates and creates identity", async () => {

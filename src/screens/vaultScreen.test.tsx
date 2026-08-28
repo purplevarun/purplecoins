@@ -79,7 +79,11 @@ vi.mock("@/hooks/useAppDialog", () => ({
 	default: () => ({ confirm: hookMocks.confirm }),
 }));
 vi.mock("@/hooks/useDatabaseContext", () => ({
-	default: () => ({ database: { id: "db" }, dataVersion: 1, refreshData: hookMocks.refreshData }),
+	default: () => ({
+		database: { id: "db" },
+		dataVersion: 1,
+		refreshData: hookMocks.refreshData,
+	}),
 }));
 
 vi.mock("@/services/cardService", () => ({
@@ -170,7 +174,9 @@ describe("VaultScreen", () => {
 		serviceMocks.deleteCard.mockResolvedValue(undefined);
 		serviceMocks.deleteIdentity.mockResolvedValue(undefined);
 		serviceMocks.setStringAsync.mockResolvedValue(undefined);
-		hookMocks.confirm.mockImplementation(({ onConfirm }: any) => onConfirm());
+		hookMocks.confirm.mockImplementation(({ onConfirm }: any) =>
+			onConfirm(),
+		);
 	});
 
 	it("executes PASSWORD row copy/delete flows", async () => {
@@ -179,15 +185,36 @@ describe("VaultScreen", () => {
 		reactMocks.useState.mockImplementation((initial: any) => {
 			call += 1;
 			if (call === 1) {
-				return [[{ id: "p1", title: "Github", username: "u", website: "", password: "secret", updatedAt: 10 }], vi.fn()];
+				return [
+					[
+						{
+							id: "p1",
+							title: "Github",
+							username: "u",
+							website: "",
+							password: "secret",
+							updatedAt: 10,
+						},
+					],
+					vi.fn(),
+				];
 			}
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
-		const tree = VaultScreen({ navigation, route: { key: "k", name: "Vault", params: { kind: "PASSWORD" } } } as any);
+		const tree = VaultScreen({
+			navigation,
+			route: { key: "k", name: "Vault", params: { kind: "PASSWORD" } },
+		} as any);
 		await flush();
 
-		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const screenList = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
 		const renderedItem = screenList.props.renderItem({
 			item: {
 				kind: "PASSWORD",
@@ -204,16 +231,23 @@ describe("VaultScreen", () => {
 
 		findByPredicate(
 			renderedItem,
-			(node) => node?.props?.label === "Copy password" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Copy password" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		findByPredicate(
 			renderedItem,
-			(node) => node?.props?.label === "Delete" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Delete" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 
 		expect(serviceMocks.setStringAsync).toHaveBeenCalledWith("secret");
-		expect(serviceMocks.deletePassword).toHaveBeenCalledWith({ id: "db" }, "p1");
+		expect(serviceMocks.deletePassword).toHaveBeenCalledWith(
+			{ id: "db" },
+			"p1",
+		);
 		expect(hookMocks.refreshData).toHaveBeenCalled();
 	});
 
@@ -225,7 +259,10 @@ describe("VaultScreen", () => {
 			route: { key: "c", name: "Vault", params: { kind: "CARD" } },
 		} as any);
 		await flush();
-		const cardList = findByPredicate(cardTree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const cardList = findByPredicate(
+			cardTree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
 		const cardItem = cardList.props.renderItem({
 			item: {
 				kind: "CARD",
@@ -244,7 +281,9 @@ describe("VaultScreen", () => {
 		});
 		findByPredicate(
 			cardItem,
-			(node) => node?.props?.label === "Delete" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Delete" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 
@@ -253,7 +292,10 @@ describe("VaultScreen", () => {
 			route: { key: "i", name: "Vault", params: { kind: "IDENTITY" } },
 		} as any);
 		await flush();
-		const identityList = findByPredicate(identityTree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const identityList = findByPredicate(
+			identityTree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
 		const identityItem = identityList.props.renderItem({
 			item: {
 				kind: "IDENTITY",
@@ -267,12 +309,20 @@ describe("VaultScreen", () => {
 		});
 		findByPredicate(
 			identityItem,
-			(node) => node?.props?.label === "Delete" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Delete" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 
-		expect(serviceMocks.deleteCard).toHaveBeenCalledWith({ id: "db" }, "c1");
-		expect(serviceMocks.deleteIdentity).toHaveBeenCalledWith({ id: "db" }, "i1");
+		expect(serviceMocks.deleteCard).toHaveBeenCalledWith(
+			{ id: "db" },
+			"c1",
+		);
+		expect(serviceMocks.deleteIdentity).toHaveBeenCalledWith(
+			{ id: "db" },
+			"i1",
+		);
 		expect(hookMocks.refreshData).toHaveBeenCalled();
 	});
 
@@ -281,9 +331,28 @@ describe("VaultScreen", () => {
 		let call = 0;
 		reactMocks.useState.mockImplementation((initial: any) => {
 			call += 1;
-			if (call === 2) return [[{ id: "c1", name: "Visa", cardType: "CREDIT_CARD", cardNumber: "1111", expiry: "12/30", cvv: "111", pin: "0000", network: "VISA", hasAttachment: true }], vi.fn()];
+			if (call === 2)
+				return [
+					[
+						{
+							id: "c1",
+							name: "Visa",
+							cardType: "CREDIT_CARD",
+							cardNumber: "1111",
+							expiry: "12/30",
+							cvv: "111",
+							pin: "0000",
+							network: "VISA",
+							hasAttachment: true,
+						},
+					],
+					vi.fn(),
+				];
 			if (call === 4) return ["vi", vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = VaultScreen({
@@ -292,7 +361,10 @@ describe("VaultScreen", () => {
 		} as any);
 		await flush();
 
-		const list = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const list = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
 		const row = list.props.renderItem({
 			item: {
 				kind: "CARD",
@@ -318,7 +390,9 @@ describe("VaultScreen", () => {
 				(node?.props?.label === "Card number" ||
 					node?.props?.label === "CVV" ||
 					node?.props?.label === "PIN"),
-		).forEach((node) => node.props.onCopy(node.props.value, node.props.label));
+		).forEach((node) =>
+			node.props.onCopy(node.props.value, node.props.label),
+		);
 		findByPredicate(
 			row,
 			(node) => typeof node?.props?.onPress === "function",
@@ -340,7 +414,9 @@ describe("VaultScreen", () => {
 		expect(getPasswordSubtitle("user", "site")).toBe("user");
 		expect(getPasswordSubtitle("", "site")).toBe("site");
 		expect(getPasswordSubtitle("", "")).toBe("No username");
-		expect(getCardSubtitle("CREDIT_CARD", "VISA")).toBe("Credit card · VISA");
+		expect(getCardSubtitle("CREDIT_CARD", "VISA")).toBe(
+			"Credit card · VISA",
+		);
 		expect(getCardSubtitle("CUSTOM", "")).toBe("CUSTOM");
 		expect(getIdentitySubtitle("ID1")).toBe("ID1");
 		expect(getIdentitySubtitle("")).toBe("No ID number");
@@ -356,7 +432,14 @@ describe("VaultScreen", () => {
 		expect(
 			getVaultListData(
 				"PASSWORD",
-				[{ id: "p1", title: "Github", username: "user", website: "" } as any],
+				[
+					{
+						id: "p1",
+						title: "Github",
+						username: "user",
+						website: "",
+					} as any,
+				],
 				[],
 				[],
 				"git",
@@ -366,7 +449,15 @@ describe("VaultScreen", () => {
 			getVaultListData(
 				"CARD",
 				[],
-				[{ id: "c1", name: "Visa", network: "VISA", cardNumber: "1111", cardType: "CREDIT_CARD" } as any],
+				[
+					{
+						id: "c1",
+						name: "Visa",
+						network: "VISA",
+						cardNumber: "1111",
+						cardType: "CREDIT_CARD",
+					} as any,
+				],
 				[],
 				"visa",
 			),
@@ -384,7 +475,11 @@ describe("VaultScreen", () => {
 		const onCopy = vi.fn();
 		expect(CopyRow({ label: "PIN", value: "", onCopy } as any)).toBeNull();
 
-		const row = CopyRow({ label: "PIN", value: "1234", onCopy } as any) as any;
+		const row = CopyRow({
+			label: "PIN",
+			value: "1234",
+			onCopy,
+		} as any) as any;
 		const copyButton = findByPredicate(
 			row,
 			(node) => typeof node?.props?.onPress === "function",
@@ -399,13 +494,38 @@ describe("VaultScreen", () => {
 		reactMocks.useState.mockImplementation((initial: any) => {
 			call += 1;
 			if (call === 1) {
-				return [[{ id: "p1", title: "Github", username: "u", website: "", password: "secret", updatedAt: 10 }], vi.fn()];
+				return [
+					[
+						{
+							id: "p1",
+							title: "Github",
+							username: "u",
+							website: "",
+							password: "secret",
+							updatedAt: 10,
+						},
+					],
+					vi.fn(),
+				];
 			}
 			if (call === 3) {
-				return [[{ id: "i1", title: "Passport", idNumber: "P1", hasAttachment: false }], vi.fn()];
+				return [
+					[
+						{
+							id: "i1",
+							title: "Passport",
+							idNumber: "P1",
+							hasAttachment: false,
+						},
+					],
+					vi.fn(),
+				];
 			}
 			if (call === 4) return ["pa", vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const passwordTree = VaultScreen({
@@ -414,18 +534,33 @@ describe("VaultScreen", () => {
 		} as any);
 		await flush();
 
-		const passwordList = findByPredicate(passwordTree, (node) => typeof node?.props?.renderItem === "function")[0];
-		expect(passwordList.props.keyExtractor({ entry: { id: "p1" } })).toBe("p1");
+		const passwordList = findByPredicate(
+			passwordTree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
+		expect(passwordList.props.keyExtractor({ entry: { id: "p1" } })).toBe(
+			"p1",
+		);
 
 		const passwordRow = passwordList.props.renderItem({
 			item: {
 				kind: "PASSWORD",
-				entry: { id: "p1", title: "Github", username: "u", website: "", password: "secret", updatedAt: 10 },
+				entry: {
+					id: "p1",
+					title: "Github",
+					username: "u",
+					website: "",
+					password: "secret",
+					updatedAt: 10,
+				},
 			},
 		});
 		findByPredicate(
 			passwordRow,
-			(node) => typeof node?.props?.onPress === "function" && node?.props?.label !== "Delete" && node?.props?.label !== "Copy password",
+			(node) =>
+				typeof node?.props?.onPress === "function" &&
+				node?.props?.label !== "Delete" &&
+				node?.props?.label !== "Copy password",
 		)[0]?.props?.onPress();
 
 		const identityTree = VaultScreen({
@@ -434,43 +569,84 @@ describe("VaultScreen", () => {
 		} as any);
 		await flush();
 
-		const identityList = findByPredicate(identityTree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const identityList = findByPredicate(
+			identityTree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
 		const identityRow = identityList.props.renderItem({
 			item: {
 				kind: "IDENTITY",
-				entry: { id: "i1", title: "Passport", idNumber: "P1", hasAttachment: false },
+				entry: {
+					id: "i1",
+					title: "Passport",
+					idNumber: "P1",
+					hasAttachment: false,
+				},
 			},
 		});
 		findByPredicate(
 			identityRow,
-			(node) => typeof node?.props?.onPress === "function" && node?.props?.label !== "Delete",
+			(node) =>
+				typeof node?.props?.onPress === "function" &&
+				node?.props?.label !== "Delete",
 		)[0]?.props?.onPress();
 
 		findByPredicate(
 			passwordTree,
-			(node) => typeof node?.props?.onPress === "function" && typeof node?.props?.label === "undefined",
+			(node) =>
+				typeof node?.props?.onPress === "function" &&
+				typeof node?.props?.label === "undefined",
 		).forEach((node) => node.props.onPress());
 
-		expect(navigation.navigate).toHaveBeenCalledWith("VaultForm", { kind: "PASSWORD", entryId: "p1" });
-		expect(navigation.navigate).toHaveBeenCalledWith("VaultForm", { kind: "IDENTITY", entryId: "i1" });
-		expect(navigation.navigate).toHaveBeenCalledWith("VaultForm", { kind: "PASSWORD" });
+		expect(navigation.navigate).toHaveBeenCalledWith("VaultForm", {
+			kind: "PASSWORD",
+			entryId: "p1",
+		});
+		expect(navigation.navigate).toHaveBeenCalledWith("VaultForm", {
+			kind: "IDENTITY",
+			entryId: "i1",
+		});
+		expect(navigation.navigate).toHaveBeenCalledWith("VaultForm", {
+			kind: "PASSWORD",
+		});
 	});
 
 	it("covers VaultScreen load and delete error branches", async () => {
 		const navigation = { navigate: vi.fn() };
-		hookMocks.confirm.mockImplementation(({ onConfirm }: any) => onConfirm());
-		serviceMocks.getPasswords.mockRejectedValueOnce(new Error("vault load failed"));
-		serviceMocks.deletePassword.mockRejectedValueOnce(new Error("vault delete failed"));
+		hookMocks.confirm.mockImplementation(({ onConfirm }: any) =>
+			onConfirm(),
+		);
+		serviceMocks.getPasswords.mockRejectedValueOnce(
+			new Error("vault load failed"),
+		);
+		serviceMocks.deletePassword.mockRejectedValueOnce(
+			new Error("vault delete failed"),
+		);
 
 		const setError = vi.fn();
 		let call = 0;
 		reactMocks.useState.mockImplementation((initial: any) => {
 			call += 1;
 			if (call === 1) {
-				return [[{ id: "p1", title: "Github", username: "u", website: "", password: "secret", updatedAt: 10 }], vi.fn()];
+				return [
+					[
+						{
+							id: "p1",
+							title: "Github",
+							username: "u",
+							website: "",
+							password: "secret",
+							updatedAt: 10,
+						},
+					],
+					vi.fn(),
+				];
 			}
 			if (call === 5) return ["", setError];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = VaultScreen({
@@ -480,16 +656,28 @@ describe("VaultScreen", () => {
 		await flush();
 		await flush();
 
-		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const screenList = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
 		const renderedItem = screenList.props.renderItem({
 			item: {
 				kind: "PASSWORD",
-				entry: { id: "p1", title: "Github", username: "u", website: "", password: "secret", updatedAt: 10 },
+				entry: {
+					id: "p1",
+					title: "Github",
+					username: "u",
+					website: "",
+					password: "secret",
+					updatedAt: 10,
+				},
 			},
 		});
 		findByPredicate(
 			renderedItem,
-			(node) => node?.props?.label === "Delete" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Delete" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 
@@ -503,14 +691,42 @@ describe("VaultScreen", () => {
 		reactMocks.useState.mockImplementation((initial: any) => {
 			call += 1;
 			if (call === 2) {
-				return [[{ id: "c2", name: "Master", cardType: "DEBIT_CARD", cardNumber: "2222", expiry: "", cvv: "", pin: "", network: "", hasAttachment: false }], vi.fn()];
+				return [
+					[
+						{
+							id: "c2",
+							name: "Master",
+							cardType: "DEBIT_CARD",
+							cardNumber: "2222",
+							expiry: "",
+							cvv: "",
+							pin: "",
+							network: "",
+							hasAttachment: false,
+						},
+					],
+					vi.fn(),
+				];
 			}
 			if (call === 3) {
-				return [[{ id: "i2", title: "License", idNumber: "L1", hasAttachment: true }], vi.fn()];
+				return [
+					[
+						{
+							id: "i2",
+							title: "License",
+							idNumber: "L1",
+							hasAttachment: true,
+						},
+					],
+					vi.fn(),
+				];
 			}
 			if (call === 5) return ["error notice", vi.fn()];
 			if (call === 6) return ["copied notice", vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const cardTree = VaultScreen({
@@ -520,33 +736,66 @@ describe("VaultScreen", () => {
 		await flush();
 
 		expect(
-			findByPredicate(cardTree, (node) => node?.props?.message === "copied notice"),
+			findByPredicate(
+				cardTree,
+				(node) => node?.props?.message === "copied notice",
+			),
 		).not.toHaveLength(0);
 		expect(
-			findByPredicate(cardTree, (node) => node?.props?.message === "error notice" && node?.props?.tone === "danger"),
+			findByPredicate(
+				cardTree,
+				(node) =>
+					node?.props?.message === "error notice" &&
+					node?.props?.tone === "danger",
+			),
 		).not.toHaveLength(0);
 
-		const cardList = findByPredicate(cardTree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const cardList = findByPredicate(
+			cardTree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
 		const cardRow = cardList.props.renderItem({
 			item: {
 				kind: "CARD",
-				entry: { id: "c2", name: "Master", cardType: "DEBIT_CARD", cardNumber: "2222", expiry: "", cvv: "", pin: "", network: "", hasAttachment: false },
+				entry: {
+					id: "c2",
+					name: "Master",
+					cardType: "DEBIT_CARD",
+					cardNumber: "2222",
+					expiry: "",
+					cvv: "",
+					pin: "",
+					network: "",
+					hasAttachment: false,
+				},
 			},
 		});
-		expect(String(JSON.stringify(cardRow) ?? "")).not.toContain('"name":"attach"');
+		expect(String(JSON.stringify(cardRow) ?? "")).not.toContain(
+			'"name":"attach"',
+		);
 
 		const identityTree = VaultScreen({
 			navigation,
 			route: { key: "vb2", name: "Vault", params: { kind: "IDENTITY" } },
 		} as any);
 		await flush();
-		const identityList = findByPredicate(identityTree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const identityList = findByPredicate(
+			identityTree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
 		const identityRow = identityList.props.renderItem({
 			item: {
 				kind: "IDENTITY",
-				entry: { id: "i2", title: "License", idNumber: "L1", hasAttachment: true },
+				entry: {
+					id: "i2",
+					title: "License",
+					idNumber: "L1",
+					hasAttachment: true,
+				},
 			},
 		});
-		expect(String(JSON.stringify(identityRow) ?? "")).toContain('"name":"attach"');
+		expect(String(JSON.stringify(identityRow) ?? "")).toContain(
+			'"name":"attach"',
+		);
 	});
 });

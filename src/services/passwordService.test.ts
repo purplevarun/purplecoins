@@ -37,8 +37,12 @@ describe("passwordService", () => {
 		mocks.getPasswordRows.mockResolvedValueOnce([{ id: "p1" }]);
 		mocks.getPasswordRow.mockResolvedValueOnce({ id: "p2" });
 
-		expect(await passwordService.getPasswords(database)).toEqual([{ id: "p1" }]);
-		expect(await passwordService.getPassword(database, "p2")).toEqual({ id: "p2" });
+		expect(await passwordService.getPasswords(database)).toEqual([
+			{ id: "p1" },
+		]);
+		expect(await passwordService.getPassword(database, "p2")).toEqual({
+			id: "p2",
+		});
 	});
 
 	it("validates required fields", async () => {
@@ -85,7 +89,10 @@ describe("passwordService", () => {
 			}),
 		);
 
-		mocks.getPasswordRow.mockResolvedValueOnce({ id: "p1", createdAt: 123 });
+		mocks.getPasswordRow.mockResolvedValueOnce({
+			id: "p1",
+			createdAt: 123,
+		});
 		const updated = await passwordService.savePassword(database, {
 			id: "p1",
 			title: "  Site 2  ",
@@ -97,7 +104,11 @@ describe("passwordService", () => {
 		expect(updated).toBe("p1");
 		expect(mocks.upsertPasswordRow).toHaveBeenCalledWith(
 			database,
-			expect.objectContaining({ id: "p1", createdAt: 123, title: "Site 2" }),
+			expect.objectContaining({
+				id: "p1",
+				createdAt: 123,
+				title: "Site 2",
+			}),
 		);
 	});
 

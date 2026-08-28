@@ -67,10 +67,17 @@ vi.mock("@/components/TransactionCard", () => ({
 }));
 
 vi.mock("@/hooks/useAppDialog", () => ({
-	default: () => ({ confirm: hookMocks.confirm, showMessage: hookMocks.showMessage }),
+	default: () => ({
+		confirm: hookMocks.confirm,
+		showMessage: hookMocks.showMessage,
+	}),
 }));
 vi.mock("@/hooks/useDatabaseContext", () => ({
-	default: () => ({ database: { id: "db" }, dataVersion: 1, refreshData: hookMocks.refreshData }),
+	default: () => ({
+		database: { id: "db" },
+		dataVersion: 1,
+		refreshData: hookMocks.refreshData,
+	}),
 }));
 
 vi.mock("@/services/transactionService", () => ({
@@ -138,7 +145,9 @@ describe("LinkedTransactionsScreen", () => {
 		]);
 		Object.values(serviceMocks).forEach((mockFn) => mockFn.mockReset());
 		Object.values(hookMocks).forEach((mockFn) => mockFn.mockReset());
-		hookMocks.confirm.mockImplementation(({ onConfirm }: any) => onConfirm());
+		hookMocks.confirm.mockImplementation(({ onConfirm }: any) =>
+			onConfirm(),
+		);
 		serviceMocks.getLinkedTransactions.mockResolvedValue([
 			{ id: "tx1", transactionAt: 100 },
 		]);
@@ -166,19 +175,26 @@ describe("LinkedTransactionsScreen", () => {
 
 		findByPredicate(
 			tree,
-			(node) => node?.props?.label === "Edit" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Edit" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 
 		const screenList = findByPredicate(
 			tree,
-			(node) => typeof node?.props?.renderItem === "function" && typeof node?.props?.keyExtractor === "function",
+			(node) =>
+				typeof node?.props?.renderItem === "function" &&
+				typeof node?.props?.keyExtractor === "function",
 		)[0];
 		expect(screenList.props.keyExtractor({ id: "tx9" })).toBe("tx9");
 
 		const rendered = screenList.props.renderItem({
 			item: { id: "tx9", transactionAt: 125 },
 		});
-		findByPredicate(rendered, (node) => typeof node?.props?.onPress === "function")[0]?.props?.onPress();
+		findByPredicate(
+			rendered,
+			(node) => typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
 
 		expect(navigation.navigate).toHaveBeenCalledWith("RelationForm", {
 			kind: "CATEGORY",
@@ -192,14 +208,21 @@ describe("LinkedTransactionsScreen", () => {
 	it("covers load and delete error branches", async () => {
 		const navigation = { navigate: vi.fn(), goBack: vi.fn() };
 		const setError = vi.fn();
-		serviceMocks.getLinkedTransactions.mockRejectedValueOnce(new Error("load failed"));
-		serviceMocks.deleteSource.mockRejectedValueOnce(new Error("cannot delete"));
+		serviceMocks.getLinkedTransactions.mockRejectedValueOnce(
+			new Error("load failed"),
+		);
+		serviceMocks.deleteSource.mockRejectedValueOnce(
+			new Error("cannot delete"),
+		);
 
 		let call = 0;
 		reactMocks.useState.mockImplementation((initial: any) => {
 			call += 1;
 			if (call === 2) return ["", setError];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = LinkedTransactionsScreen({
@@ -221,11 +244,16 @@ describe("LinkedTransactionsScreen", () => {
 
 		findByPredicate(
 			tree,
-			(node) => node?.props?.label === "Delete" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Delete" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 
-		expect(serviceMocks.deleteSource).toHaveBeenCalledWith({ id: "db" }, "e1");
+		expect(serviceMocks.deleteSource).toHaveBeenCalledWith(
+			{ id: "db" },
+			"e1",
+		);
 		expect(hookMocks.showMessage).toHaveBeenCalledWith(
 			expect.objectContaining({
 				title: "Unable to delete",
@@ -249,7 +277,10 @@ describe("LinkedTransactionsScreen", () => {
 		reactMocks.useState.mockImplementation((initial: any) => {
 			call += 1;
 			if (call === 1) return [[], setTransactions];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		LinkedTransactionsScreen({
@@ -297,11 +328,16 @@ describe("LinkedTransactionsScreen", () => {
 
 			findByPredicate(
 				tree,
-				(node) => node?.props?.label === "Delete" && typeof node?.props?.onPress === "function",
+				(node) =>
+					node?.props?.label === "Delete" &&
+					typeof node?.props?.onPress === "function",
 			)[0]?.props?.onPress();
 			await flush();
 
-			expect(serviceMocks[deleteKey]).toHaveBeenCalledWith({ id: "db" }, "e1");
+			expect(serviceMocks[deleteKey]).toHaveBeenCalledWith(
+				{ id: "db" },
+				"e1",
+			);
 			expect(hookMocks.refreshData).toHaveBeenCalled();
 			expect(navigation.goBack).toHaveBeenCalled();
 		},

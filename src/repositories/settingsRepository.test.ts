@@ -13,7 +13,9 @@ describe("settingsRepository", () => {
 				.mockResolvedValueOnce(null),
 		} as any;
 
-		expect(await getSettingRow(database, "native_currency_display")).toBe("true");
+		expect(await getSettingRow(database, "native_currency_display")).toBe(
+			"true",
+		);
 		expect(await getSettingRow(database, "missing")).toBeNull();
 		expect(database.getFirstAsync).toHaveBeenCalledTimes(2);
 	});

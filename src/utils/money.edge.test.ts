@@ -5,7 +5,7 @@ describe("money utilities defensive branches", () => {
 		vi.resetModules();
 		vi.doMock("decimal.js", () => ({
 			default: class DecimalMock {
-				constructor(_value: string) { }
+				constructor(_value: string) {}
 				isPositive(): boolean {
 					return false;
 				}
@@ -46,7 +46,10 @@ describe("money utilities defensive branches", () => {
 		Object.defineProperty(Intl, "NumberFormat", {
 			configurable: true,
 			value: class NumberFormatMock {
-				constructor(_locale: string, _options: Intl.NumberFormatOptions) { }
+				constructor(
+					_locale: string,
+					_options: Intl.NumberFormatOptions,
+				) {}
 				format(_value: number): string {
 					throw new TypeError("formatter failed");
 				}

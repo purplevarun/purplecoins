@@ -189,9 +189,7 @@ const getLinkedInvestmentParams = (
 const getDateRangeLabel = (dateRange: DateRange): string =>
 	`${formatDate(dateRange.start)} – ${formatDate(dateRange.end)}`;
 
-const getMissingRatesMessage = (
-	missingCurrencies: readonly string[],
-): string =>
+const getMissingRatesMessage = (missingCurrencies: readonly string[]): string =>
 	`Update INR exchange rates for ${missingCurrencies.join(", ")} before analysis can include those transactions.`;
 
 const getCategoryBreakdownText = (
@@ -199,10 +197,7 @@ const getCategoryBreakdownText = (
 ): string =>
 	`Credits ${formatMoney(category.credits, category.currencyCode)} · Debits ${formatMoney(category.debits, category.currencyCode)}`;
 
-const getInvestmentNetText = (
-	net: string,
-	currencyCode: string,
-): string =>
+const getInvestmentNetText = (net: string, currencyCode: string): string =>
 	`${getInvestmentNetLabel(net)}: ${formatMoney(getInvestmentNetAmount(net), currencyCode)}`;
 
 const getChartData = (
@@ -214,9 +209,7 @@ const getChartData = (
 	}
 	return (
 		summary?.categories
-			.filter(
-				(category) => compareMoney(category.net, ZERO_AMOUNT) !== 0,
-			)
+			.filter((category) => compareMoney(category.net, ZERO_AMOUNT) !== 0)
 			.slice(0, CHART_COLORS.length)
 			.map((category, index) => ({
 				label: category.categoryName,
@@ -234,13 +227,19 @@ const getSummaryMetrics = (
 ): readonly SummaryMetricInput[] => [
 	{
 		label: "Income",
-		value: formatMoney(summary?.totalIncome ?? ZERO_AMOUNT, DEFAULT_CURRENCY_CODE),
+		value: formatMoney(
+			summary?.totalIncome ?? ZERO_AMOUNT,
+			DEFAULT_CURRENCY_CODE,
+		),
 		accent: "success",
 		color: COLORS.success,
 	},
 	{
 		label: "Expenses",
-		value: formatMoney(summary?.totalExpense ?? ZERO_AMOUNT, DEFAULT_CURRENCY_CODE),
+		value: formatMoney(
+			summary?.totalExpense ?? ZERO_AMOUNT,
+			DEFAULT_CURRENCY_CODE,
+		),
 		accent: "danger",
 		color: COLORS.danger,
 	},
@@ -394,7 +393,7 @@ const AnalysisScreen = ({
 			style={[
 				styles.summaryTile,
 				metric.label === "Net after investments" &&
-				styles.summaryTileFull,
+					styles.summaryTileFull,
 			]}
 		>
 			<GlassCard accent={metric.accent}>
@@ -498,7 +497,7 @@ const AnalysisScreen = ({
 			) : null}
 			{summary?.missingCurrencies.length ? (
 				<Notice
-						message={getMissingRatesMessage(summary.missingCurrencies)}
+					message={getMissingRatesMessage(summary.missingCurrencies)}
 					tone="warning"
 				/>
 			) : null}
@@ -548,13 +547,14 @@ const AnalysisScreen = ({
 							onPress={() =>
 								navigation.navigate(
 									"LinkedTransactions",
-									getLinkedCategoryParams(category, dateRange),
+									getLinkedCategoryParams(
+										category,
+										dateRange,
+									),
 								)
 							}
 						>
-							<GlassCard
-								accent={getCategoryAccent(category.net)}
-							>
+							<GlassCard accent={getCategoryAccent(category.net)}>
 								<View style={styles.categoryRow}>
 									<View style={styles.categoryDetails}>
 										<CustomText style={styles.categoryName}>
@@ -563,7 +563,9 @@ const AnalysisScreen = ({
 										<CustomText
 											style={styles.categoryBucket}
 										>
-											{getCategoryBucketLabel(category.isIncome)}
+											{getCategoryBucketLabel(
+												category.isIncome,
+											)}
 										</CustomText>
 										<CustomText
 											style={styles.categoryBreakdown}
@@ -576,8 +578,9 @@ const AnalysisScreen = ({
 											style={[
 												styles.categoryNet,
 												{
-													color:
-														getCategoryNetColor(category.net),
+													color: getCategoryNetColor(
+														category.net,
+													),
 												},
 											]}
 										>
@@ -607,7 +610,10 @@ const AnalysisScreen = ({
 								onPress={() =>
 									navigation.navigate(
 										"LinkedTransactions",
-										getLinkedInvestmentParams(investment, dateRange),
+										getLinkedInvestmentParams(
+											investment,
+											dateRange,
+										),
 									)
 								}
 							>
@@ -821,11 +827,11 @@ export default AnalysisScreen;
 
 export {
 	formatSignedMoney,
-	getChartData,
 	getCategoryAccent,
-	getCategoryBucketLabel,
 	getCategoryBreakdownText,
+	getCategoryBucketLabel,
 	getCategoryNetColor,
+	getChartData,
 	getDateRangeLabel,
 	getInvestmentAccent,
 	getInvestmentColor,

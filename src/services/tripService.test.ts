@@ -40,29 +40,49 @@ describe("tripService", () => {
 	});
 
 	it("maps archived values in getters", async () => {
-		mocks.getTripRows.mockResolvedValueOnce([{ id: "t1", name: "A", archived: 1 }]);
-		mocks.getArchivedTripRows.mockResolvedValueOnce([{ id: "t2", name: "B", archived: 0 }]);
-		mocks.getTripRow.mockResolvedValueOnce({ id: "t1", name: "A", archived: 1 });
+		mocks.getTripRows.mockResolvedValueOnce([
+			{ id: "t1", name: "A", archived: 1 },
+		]);
+		mocks.getArchivedTripRows.mockResolvedValueOnce([
+			{ id: "t2", name: "B", archived: 0 },
+		]);
+		mocks.getTripRow.mockResolvedValueOnce({
+			id: "t1",
+			name: "A",
+			archived: 1,
+		});
 		mocks.getTripRow.mockResolvedValueOnce(null);
 
 		expect((await tripService.getTrips(database))[0]?.archived).toBe(true);
-		expect((await tripService.getArchivedTrips(database))[0]?.archived).toBe(false);
-		expect((await tripService.getTrip(database, "t1"))?.archived).toBe(true);
+		expect(
+			(await tripService.getArchivedTrips(database))[0]?.archived,
+		).toBe(false);
+		expect((await tripService.getTrip(database, "t1"))?.archived).toBe(
+			true,
+		);
 		expect(await tripService.getTrip(database, "missing")).toBeNull();
 	});
 
 	it("validates and saves trip", async () => {
-		await expect(tripService.saveTrip(database, undefined, "   ")).rejects.toMatchObject<AppError>({
+		await expect(
+			tripService.saveTrip(database, undefined, "   "),
+		).rejects.toMatchObject<AppError>({
 			code: "TRIP_NAME_REQUIRED",
 		});
 
 		mocks.simpleEntityNameExistsRow.mockResolvedValueOnce(true);
-		await expect(tripService.saveTrip(database, undefined, "Trip A")).rejects.toMatchObject<AppError>({
+		await expect(
+			tripService.saveTrip(database, undefined, "Trip A"),
+		).rejects.toMatchObject<AppError>({
 			code: "TRIP_NAME_DUPLICATE",
 		});
 
 		mocks.simpleEntityNameExistsRow.mockResolvedValueOnce(false);
-		const createdId = await tripService.saveTrip(database, undefined, "  Trip A  ");
+		const createdId = await tripService.saveTrip(
+			database,
+			undefined,
+			"  Trip A  ",
+		);
 		expect(createdId).toBe("trip-id");
 		expect(mocks.upsertSimpleEntityRow).toHaveBeenCalledWith(
 			database,
@@ -75,13 +95,25 @@ describe("tripService", () => {
 		);
 
 		mocks.simpleEntityNameExistsRow.mockResolvedValueOnce(false);
-		mocks.getTripRow.mockResolvedValueOnce({ id: "t1", name: "Old", createdAt: 99 });
-		const updatedId = await tripService.saveTrip(database, "t1", "  New Trip  ");
+		mocks.getTripRow.mockResolvedValueOnce({
+			id: "t1",
+			name: "Old",
+			createdAt: 99,
+		});
+		const updatedId = await tripService.saveTrip(
+			database,
+			"t1",
+			"  New Trip  ",
+		);
 		expect(updatedId).toBe("t1");
 		expect(mocks.upsertSimpleEntityRow).toHaveBeenCalledWith(
 			database,
 			"trips",
-			expect.objectContaining({ id: "t1", name: "New Trip", createdAt: 99 }),
+			expect.objectContaining({
+				id: "t1",
+				name: "New Trip",
+				createdAt: 99,
+			}),
 		);
 	});
 
@@ -95,12 +127,18 @@ describe("tripService", () => {
 			new Date("2026-08-25T12:00:00.000Z").getTime(),
 		);
 
-		mocks.deleteSimpleEntityRow.mockRejectedValueOnce(new Error("FOREIGN KEY failed"));
-		await expect(tripService.deleteTrip(database, "t1")).rejects.toMatchObject<AppError>({
+		mocks.deleteSimpleEntityRow.mockRejectedValueOnce(
+			new Error("FOREIGN KEY failed"),
+		);
+		await expect(
+			tripService.deleteTrip(database, "t1"),
+		).rejects.toMatchObject<AppError>({
 			code: "TRIP_IN_USE",
 		});
 
 		mocks.deleteSimpleEntityRow.mockRejectedValueOnce(new Error("disk"));
-		await expect(tripService.deleteTrip(database, "t1")).rejects.toThrow("disk");
+		await expect(tripService.deleteTrip(database, "t1")).rejects.toThrow(
+			"disk",
+		);
 	});
 });

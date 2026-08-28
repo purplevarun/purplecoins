@@ -80,7 +80,8 @@ vi.mock("@/utils/error", () => ({
 }));
 vi.mock("@/utils/money", () => ({
 	default: {
-		formatMoney: (amount: string, currency: string) => `${currency} ${amount}`,
+		formatMoney: (amount: string, currency: string) =>
+			`${currency} ${amount}`,
 	},
 }));
 vi.mock("@/utils/runAfterRender", () => ({
@@ -176,7 +177,10 @@ describe("TransactionsScreen", () => {
 		const headerButton = headerRight();
 		headerButton.props.onPress();
 
-		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const screenList = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
 		const row = screenList.props.renderItem({
 			item: {
 				id: "t1",
@@ -188,7 +192,10 @@ describe("TransactionsScreen", () => {
 				reason: "Lunch",
 			},
 		});
-		const card = findByPredicate(row, (node) => typeof node?.props?.onPress === "function")[0];
+		const card = findByPredicate(
+			row,
+			(node) => typeof node?.props?.onPress === "function",
+		)[0];
 		card.props.onPress();
 		card.props.onLongPress();
 
@@ -241,13 +248,19 @@ describe("TransactionsScreen", () => {
 			if (stateCall === 2) return ["GENERAL", vi.fn()];
 			if (stateCall === 4) return [true, vi.fn()];
 			if (stateCall === 6) return ["lun", vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = TransactionsScreen({ navigation } as any);
 		await flush();
 
-		const screenList = findByPredicate(tree, (node) => typeof node?.props?.data !== "undefined")[0];
+		const screenList = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.data !== "undefined",
+		)[0];
 		expect(screenList.props.data).toHaveLength(1);
 		expect(screenList.props.data[0].id).toBe("t1");
 	});
@@ -255,7 +268,9 @@ describe("TransactionsScreen", () => {
 	it("covers search cleanup, load error branch, and list key extractor", async () => {
 		const navigation = { navigate: vi.fn(), setOptions: vi.fn() };
 		const clearSpy = vi.spyOn(globalThis, "clearTimeout");
-		serviceMocks.getTransactions.mockRejectedValueOnce(new Error("load failed"));
+		serviceMocks.getTransactions.mockRejectedValueOnce(
+			new Error("load failed"),
+		);
 
 		reactMocks.useEffect.mockImplementation((effect: () => void) => {
 			const cleanup = effect();
@@ -288,7 +303,10 @@ describe("TransactionsScreen", () => {
 			if (stateCall === 4) return [true, vi.fn()];
 			if (stateCall === 5) return ["cash", vi.fn()];
 			if (stateCall === 6) return ["cash", vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = TransactionsScreen({ navigation } as any);
@@ -296,10 +314,23 @@ describe("TransactionsScreen", () => {
 
 		expect(serviceMocks.getTransactions).toHaveBeenCalledWith({ id: "db" });
 		expect(clearSpy).toHaveBeenCalled();
-		expect(findByPredicate(tree, (node) => node?.props?.placeholder === "Search transactions...")).not.toHaveLength(0);
-		expect(findByPredicate(tree, (node) => node?.props?.message === "load failed")).not.toHaveLength(0);
+		expect(
+			findByPredicate(
+				tree,
+				(node) => node?.props?.placeholder === "Search transactions...",
+			),
+		).not.toHaveLength(0);
+		expect(
+			findByPredicate(
+				tree,
+				(node) => node?.props?.message === "load failed",
+			),
+		).not.toHaveLength(0);
 
-		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const screenList = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
 		expect(screenList.props.keyExtractor({ id: "t1" })).toBe("t1");
 	});
 
@@ -329,13 +360,19 @@ describe("TransactionsScreen", () => {
 			if (stateCall === 2) return ["ALL", vi.fn()];
 			if (stateCall === 4) return [true, vi.fn()];
 			if (stateCall === 6) return ["wallet", vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = TransactionsScreen({ navigation } as any);
 		await flush();
 
-		const screenList = findByPredicate(tree, (node) => typeof node?.props?.data !== "undefined")[0];
+		const screenList = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.data !== "undefined",
+		)[0];
 		expect(screenList.props.data).toHaveLength(1);
 		expect(screenList.props.data[0].id).toBe("t2");
 	});
@@ -346,7 +383,11 @@ describe("TransactionsScreen", () => {
 		["trip", "goa", { tripName: "Goa" }],
 		["investment", "mf", { investmentName: "MF" }],
 		["date", "date:45", { transactionAt: 45 }],
-		["formatted money", "inr 2000", { amount: "2,000", sourceCurrencyCode: "inr" }],
+		[
+			"formatted money",
+			"inr 2000",
+			{ amount: "2,000", sourceCurrencyCode: "inr" },
+		],
 	] as const)(
 		"covers search match branch: %s",
 		async (_label, query, overrides) => {
@@ -375,13 +416,19 @@ describe("TransactionsScreen", () => {
 				if (stateCall === 2) return ["ALL", vi.fn()];
 				if (stateCall === 4) return [true, vi.fn()];
 				if (stateCall === 6) return [query, vi.fn()];
-				return [typeof initial === "function" ? initial() : initial, vi.fn()];
+				return [
+					typeof initial === "function" ? initial() : initial,
+					vi.fn(),
+				];
 			});
 
 			const tree = TransactionsScreen({ navigation } as any);
 			await flush();
 
-			const screenList = findByPredicate(tree, (node) => typeof node?.props?.data !== "undefined")[0];
+			const screenList = findByPredicate(
+				tree,
+				(node) => typeof node?.props?.data !== "undefined",
+			)[0];
 			expect(screenList.props.data).toHaveLength(1);
 			expect(screenList.props.data[0].id).toBe("t-branch");
 		},
@@ -413,7 +460,10 @@ describe("TransactionsScreen", () => {
 			if (stateCall === 2) return ["ALL", vi.fn()];
 			if (stateCall === 4) return [true, vi.fn()];
 			if (stateCall === 6) return ["zzz", vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = TransactionsScreen({ navigation } as any);
@@ -424,11 +474,16 @@ describe("TransactionsScreen", () => {
 		expect(
 			findByPredicate(
 				header,
-				(node) => node?.props?.accessibilityLabel === "Close search" && node?.props?.icon === "close-outline",
+				(node) =>
+					node?.props?.accessibilityLabel === "Close search" &&
+					node?.props?.icon === "close-outline",
 			),
 		).not.toHaveLength(0);
 
-		const screenList = findByPredicate(tree, (node) => typeof node?.props?.data !== "undefined")[0];
+		const screenList = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.data !== "undefined",
+		)[0];
 		expect(screenList.props.data).toHaveLength(0);
 	});
 });

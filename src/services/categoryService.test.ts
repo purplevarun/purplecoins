@@ -69,23 +69,34 @@ describe("categoryService", () => {
 		expect(await categoryService.getCategory(database, "c1")).toEqual(
 			expect.objectContaining({ isIncome: false, archived: true }),
 		);
-		expect(await categoryService.getCategory(database, "missing")).toBeNull();
+		expect(
+			await categoryService.getCategory(database, "missing"),
+		).toBeNull();
 	});
 
 	it("validates saveCategory", async () => {
-		await expect(categoryService.saveCategory(database, undefined, "   ", false)).rejects.toMatchObject<AppError>({
+		await expect(
+			categoryService.saveCategory(database, undefined, "   ", false),
+		).rejects.toMatchObject<AppError>({
 			code: "CATEGORY_NAME_REQUIRED",
 		});
 
 		mocks.categoryNameExistsRow.mockResolvedValueOnce(true);
-		await expect(categoryService.saveCategory(database, undefined, "Rent", false)).rejects.toMatchObject<AppError>({
+		await expect(
+			categoryService.saveCategory(database, undefined, "Rent", false),
+		).rejects.toMatchObject<AppError>({
 			code: "CATEGORY_NAME_DUPLICATE",
 		});
 	});
 
 	it("creates category and updates category preserving fields", async () => {
 		mocks.categoryNameExistsRow.mockResolvedValueOnce(false);
-		const createdId = await categoryService.saveCategory(database, undefined, "  Rent  ", false);
+		const createdId = await categoryService.saveCategory(
+			database,
+			undefined,
+			"  Rent  ",
+			false,
+		);
 		expect(createdId).toBe("category-id");
 		expect(mocks.upsertCategoryRow).toHaveBeenCalledWith(
 			database,
@@ -108,7 +119,12 @@ describe("categoryService", () => {
 			createdAt: 123,
 			updatedAt: 456,
 		});
-		const updatedId = await categoryService.saveCategory(database, "c1", "  New  ", true);
+		const updatedId = await categoryService.saveCategory(
+			database,
+			"c1",
+			"  New  ",
+			true,
+		);
 		expect(updatedId).toBe("c1");
 		expect(mocks.upsertCategoryRow).toHaveBeenCalledWith(
 			database,
@@ -131,12 +147,18 @@ describe("categoryService", () => {
 			new Date("2026-08-25T12:00:00.000Z").getTime(),
 		);
 
-		mocks.deleteCategoryRow.mockRejectedValueOnce(new Error("FOREIGN KEY failed"));
-		await expect(categoryService.deleteCategory(database, "c1")).rejects.toMatchObject<AppError>({
+		mocks.deleteCategoryRow.mockRejectedValueOnce(
+			new Error("FOREIGN KEY failed"),
+		);
+		await expect(
+			categoryService.deleteCategory(database, "c1"),
+		).rejects.toMatchObject<AppError>({
 			code: "CATEGORY_IN_USE",
 		});
 
 		mocks.deleteCategoryRow.mockRejectedValueOnce(new Error("other"));
-		await expect(categoryService.deleteCategory(database, "c1")).rejects.toThrow("other");
+		await expect(
+			categoryService.deleteCategory(database, "c1"),
+		).rejects.toThrow("other");
 	});
 });

@@ -21,7 +21,9 @@ describe("money utilities", () => {
 	});
 
 	it("throws for invalid or non-positive money inputs", () => {
-		expect(() => normalizeMoney("abc")).toThrow("Enter a valid positive amount.");
+		expect(() => normalizeMoney("abc")).toThrow(
+			"Enter a valid positive amount.",
+		);
 		expect(normalizeMoney("0")).toBe("0");
 	});
 

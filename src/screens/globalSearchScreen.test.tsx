@@ -121,7 +121,8 @@ vi.mock("@/utils/error", () => ({
 }));
 vi.mock("@/utils/money", () => ({
 	default: {
-		formatMoney: (amount: string, currency: string) => `${currency} ${amount}`,
+		formatMoney: (amount: string, currency: string) =>
+			`${currency} ${amount}`,
 	},
 }));
 
@@ -174,8 +175,12 @@ describe("GlobalSearchScreen", () => {
 			(transaction: any) => transaction.reason || "Reason",
 		);
 
-		serviceMocks.getNotes.mockResolvedValue([{ id: "n1", title: "Note", folderName: "Home" }]);
-		serviceMocks.getTodos.mockResolvedValue([{ id: "t1", title: "Todo", folderName: "Home" }]);
+		serviceMocks.getNotes.mockResolvedValue([
+			{ id: "n1", title: "Note", folderName: "Home" },
+		]);
+		serviceMocks.getTodos.mockResolvedValue([
+			{ id: "t1", title: "Todo", folderName: "Home" },
+		]);
 
 		serviceMocks.getTransactions.mockResolvedValue([
 			{
@@ -191,12 +196,23 @@ describe("GlobalSearchScreen", () => {
 				destinationSourceName: "Card",
 			},
 		]);
-		serviceMocks.getSources.mockResolvedValue([{ id: "s1", name: "Cash", currencyCode: "INR" }]);
-		serviceMocks.getCategories.mockResolvedValue([{ id: "c1", name: "Food", isIncome: false }]);
+		serviceMocks.getSources.mockResolvedValue([
+			{ id: "s1", name: "Cash", currencyCode: "INR" },
+		]);
+		serviceMocks.getCategories.mockResolvedValue([
+			{ id: "c1", name: "Food", isIncome: false },
+		]);
 		serviceMocks.getTrips.mockResolvedValue([{ id: "tr1", name: "Goa" }]);
-		serviceMocks.getInvestments.mockResolvedValue([{ id: "i1", name: "MF" }]);
+		serviceMocks.getInvestments.mockResolvedValue([
+			{ id: "i1", name: "MF" },
+		]);
 		serviceMocks.getBudgets.mockResolvedValue([
-			{ id: "b1", categoryName: "Food", period: "MONTHLY", amount: "500" },
+			{
+				id: "b1",
+				categoryName: "Food",
+				period: "MONTHLY",
+				amount: "500",
+			},
 		]);
 		serviceMocks.getExchangeRates.mockResolvedValue([
 			{ currencyCode: "USD", rateToInr: "83", source: "manual" },
@@ -205,7 +221,9 @@ describe("GlobalSearchScreen", () => {
 		serviceMocks.getPasswords.mockResolvedValue([
 			{ id: "p1", title: "Github", username: "u", website: "" },
 		]);
-		serviceMocks.getCards.mockResolvedValue([{ id: "ca1", name: "Visa", network: "VISA" }]);
+		serviceMocks.getCards.mockResolvedValue([
+			{ id: "ca1", name: "Visa", network: "VISA" },
+		]);
 		serviceMocks.getIdentities.mockResolvedValue([
 			{ id: "id1", title: "Passport", idNumber: "P1" },
 		]);
@@ -221,16 +239,26 @@ describe("GlobalSearchScreen", () => {
 				return [[], vi.fn()];
 			}
 			if (stateCall === 2) return ["ho", vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = GlobalSearchScreen({
 			navigation,
-			route: { key: "k", name: "GlobalSearch", params: { mode: "TOOLS" } },
+			route: {
+				key: "k",
+				name: "GlobalSearch",
+				params: { mode: "TOOLS" },
+			},
 		} as any);
 		await flush();
 
-		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const screenList = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
 		const noteRow = screenList.props.renderItem({
 			item: {
 				id: "n1",
@@ -241,7 +269,10 @@ describe("GlobalSearchScreen", () => {
 				color: "#00f",
 			},
 		});
-		findByPredicate(noteRow, (node) => typeof node?.props?.onPress === "function")[0]?.props?.onPress();
+		findByPredicate(
+			noteRow,
+			(node) => typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
 		const todoRow = screenList.props.renderItem({
 			item: {
 				id: "t1",
@@ -252,24 +283,80 @@ describe("GlobalSearchScreen", () => {
 				color: "#0f0",
 			},
 		});
-		findByPredicate(todoRow, (node) => typeof node?.props?.onPress === "function")[0]?.props?.onPress();
+		findByPredicate(
+			todoRow,
+			(node) => typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
 
 		expect(serviceMocks.getNotes).toHaveBeenCalledWith({ id: "db" });
 		expect(serviceMocks.getTodos).toHaveBeenCalledWith({ id: "db" });
-		expect(navigation.navigate).toHaveBeenCalledWith("NoteForm", { noteId: "n1" });
-		expect(navigation.navigate).toHaveBeenCalledWith("TodoForm", { todoId: "t1" });
+		expect(navigation.navigate).toHaveBeenCalledWith("NoteForm", {
+			noteId: "n1",
+		});
+		expect(navigation.navigate).toHaveBeenCalledWith("TodoForm", {
+			todoId: "t1",
+		});
 	});
 
 	it("loads FINANCE mode and opens all finance result kinds", async () => {
 		const navigation = { navigate: vi.fn() };
 		const financeResults = [
-			{ id: "tx1", kind: "TRANSACTION", title: "Lunch", subtitle: "Cash", icon: "swap-horizontal", color: "#1" },
-			{ id: "s1", kind: "SOURCE", title: "Cash", subtitle: "Source", icon: "wallet-outline", color: "#2" },
-			{ id: "c1", kind: "CATEGORY", title: "Food", subtitle: "Category", icon: "pricetag-outline", color: "#3" },
-			{ id: "tr1", kind: "TRIP", title: "Goa", subtitle: "Trip", icon: "airplane-outline", color: "#4" },
-			{ id: "i1", kind: "INVESTMENT", title: "MF", subtitle: "Investment", icon: "trending-up", color: "#5" },
-			{ id: "b1", kind: "BUDGET", title: "Food", subtitle: "Monthly budget", icon: "speedometer-outline", color: "#6" },
-			{ id: "USD", kind: "EXCHANGE_RATE", title: "USD", subtitle: "Rate", icon: "earth-outline", color: "#7" },
+			{
+				id: "tx1",
+				kind: "TRANSACTION",
+				title: "Lunch",
+				subtitle: "Cash",
+				icon: "swap-horizontal",
+				color: "#1",
+			},
+			{
+				id: "s1",
+				kind: "SOURCE",
+				title: "Cash",
+				subtitle: "Source",
+				icon: "wallet-outline",
+				color: "#2",
+			},
+			{
+				id: "c1",
+				kind: "CATEGORY",
+				title: "Food",
+				subtitle: "Category",
+				icon: "pricetag-outline",
+				color: "#3",
+			},
+			{
+				id: "tr1",
+				kind: "TRIP",
+				title: "Goa",
+				subtitle: "Trip",
+				icon: "airplane-outline",
+				color: "#4",
+			},
+			{
+				id: "i1",
+				kind: "INVESTMENT",
+				title: "MF",
+				subtitle: "Investment",
+				icon: "trending-up",
+				color: "#5",
+			},
+			{
+				id: "b1",
+				kind: "BUDGET",
+				title: "Food",
+				subtitle: "Monthly budget",
+				icon: "speedometer-outline",
+				color: "#6",
+			},
+			{
+				id: "USD",
+				kind: "EXCHANGE_RATE",
+				title: "USD",
+				subtitle: "Rate",
+				icon: "earth-outline",
+				color: "#7",
+			},
 		];
 
 		let stateCall = 0;
@@ -277,19 +364,32 @@ describe("GlobalSearchScreen", () => {
 			stateCall += 1;
 			if (stateCall === 1) return [[], vi.fn()];
 			if (stateCall === 2) return ["lu", vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = GlobalSearchScreen({
 			navigation,
-			route: { key: "k2", name: "GlobalSearch", params: { mode: "FINANCE" } },
+			route: {
+				key: "k2",
+				name: "GlobalSearch",
+				params: { mode: "FINANCE" },
+			},
 		} as any);
 		await flush();
 
-		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const screenList = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
 		for (const result of financeResults) {
 			const row = screenList.props.renderItem({ item: result });
-			findByPredicate(row, (node) => typeof node?.props?.onPress === "function")[0]?.props?.onPress();
+			findByPredicate(
+				row,
+				(node) => typeof node?.props?.onPress === "function",
+			)[0]?.props?.onPress();
 		}
 
 		expect(serviceMocks.getTransactions).toHaveBeenCalledWith({ id: "db" });
@@ -298,23 +398,66 @@ describe("GlobalSearchScreen", () => {
 		expect(serviceMocks.getTrips).toHaveBeenCalledWith({ id: "db" });
 		expect(serviceMocks.getInvestments).toHaveBeenCalledWith({ id: "db" });
 		expect(serviceMocks.getBudgets).toHaveBeenCalledWith({ id: "db" });
-		expect(serviceMocks.getExchangeRates).toHaveBeenCalledWith({ id: "db" });
+		expect(serviceMocks.getExchangeRates).toHaveBeenCalledWith({
+			id: "db",
+		});
 
-		expect(navigation.navigate).toHaveBeenCalledWith("TransactionForm", { transactionId: "tx1" });
-		expect(navigation.navigate).toHaveBeenCalledWith("LinkedTransactions", { kind: "SOURCE", entityId: "s1", entityName: "Cash" });
-		expect(navigation.navigate).toHaveBeenCalledWith("LinkedTransactions", { kind: "CATEGORY", entityId: "c1", entityName: "Food" });
-		expect(navigation.navigate).toHaveBeenCalledWith("LinkedTransactions", { kind: "TRIP", entityId: "tr1", entityName: "Goa" });
-		expect(navigation.navigate).toHaveBeenCalledWith("LinkedTransactions", { kind: "INVESTMENT", entityId: "i1", entityName: "MF" });
-		expect(navigation.navigate).toHaveBeenCalledWith("BudgetForm", { budgetId: "b1" });
+		expect(navigation.navigate).toHaveBeenCalledWith("TransactionForm", {
+			transactionId: "tx1",
+		});
+		expect(navigation.navigate).toHaveBeenCalledWith("LinkedTransactions", {
+			kind: "SOURCE",
+			entityId: "s1",
+			entityName: "Cash",
+		});
+		expect(navigation.navigate).toHaveBeenCalledWith("LinkedTransactions", {
+			kind: "CATEGORY",
+			entityId: "c1",
+			entityName: "Food",
+		});
+		expect(navigation.navigate).toHaveBeenCalledWith("LinkedTransactions", {
+			kind: "TRIP",
+			entityId: "tr1",
+			entityName: "Goa",
+		});
+		expect(navigation.navigate).toHaveBeenCalledWith("LinkedTransactions", {
+			kind: "INVESTMENT",
+			entityId: "i1",
+			entityName: "MF",
+		});
+		expect(navigation.navigate).toHaveBeenCalledWith("BudgetForm", {
+			budgetId: "b1",
+		});
 		expect(navigation.navigate).toHaveBeenCalledWith("ExchangeRates");
 	});
 
 	it("loads VAULT mode and opens PASSWORD CARD and IDENTITY results", async () => {
 		const navigation = { navigate: vi.fn() };
 		const vaultResults = [
-			{ id: "p1", kind: "PASSWORD", title: "Github", subtitle: "u", icon: "key-outline", color: "#1" },
-			{ id: "ca1", kind: "CARD", title: "Visa", subtitle: "VISA", icon: "card-outline", color: "#2" },
-			{ id: "id1", kind: "IDENTITY", title: "Passport", subtitle: "P1", icon: "person-circle-outline", color: "#3" },
+			{
+				id: "p1",
+				kind: "PASSWORD",
+				title: "Github",
+				subtitle: "u",
+				icon: "key-outline",
+				color: "#1",
+			},
+			{
+				id: "ca1",
+				kind: "CARD",
+				title: "Visa",
+				subtitle: "VISA",
+				icon: "card-outline",
+				color: "#2",
+			},
+			{
+				id: "id1",
+				kind: "IDENTITY",
+				title: "Passport",
+				subtitle: "P1",
+				icon: "person-circle-outline",
+				color: "#3",
+			},
 		];
 
 		let stateCall = 0;
@@ -322,27 +465,49 @@ describe("GlobalSearchScreen", () => {
 			stateCall += 1;
 			if (stateCall === 1) return [[], vi.fn()];
 			if (stateCall === 2) return ["pa", vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = GlobalSearchScreen({
 			navigation,
-			route: { key: "k3", name: "GlobalSearch", params: { mode: "VAULT" } },
+			route: {
+				key: "k3",
+				name: "GlobalSearch",
+				params: { mode: "VAULT" },
+			},
 		} as any);
 		await flush();
 
-		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const screenList = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
 		for (const result of vaultResults) {
 			const row = screenList.props.renderItem({ item: result });
-			findByPredicate(row, (node) => typeof node?.props?.onPress === "function")[0]?.props?.onPress();
+			findByPredicate(
+				row,
+				(node) => typeof node?.props?.onPress === "function",
+			)[0]?.props?.onPress();
 		}
 
 		expect(serviceMocks.getPasswords).toHaveBeenCalledWith({ id: "db" });
 		expect(serviceMocks.getCards).toHaveBeenCalledWith({ id: "db" });
 		expect(serviceMocks.getIdentities).toHaveBeenCalledWith({ id: "db" });
-		expect(navigation.navigate).toHaveBeenCalledWith("VaultForm", { kind: "PASSWORD", entryId: "p1" });
-		expect(navigation.navigate).toHaveBeenCalledWith("VaultForm", { kind: "CARD", entryId: "ca1" });
-		expect(navigation.navigate).toHaveBeenCalledWith("VaultForm", { kind: "IDENTITY", entryId: "id1" });
+		expect(navigation.navigate).toHaveBeenCalledWith("VaultForm", {
+			kind: "PASSWORD",
+			entryId: "p1",
+		});
+		expect(navigation.navigate).toHaveBeenCalledWith("VaultForm", {
+			kind: "CARD",
+			entryId: "ca1",
+		});
+		expect(navigation.navigate).toHaveBeenCalledWith("VaultForm", {
+			kind: "IDENTITY",
+			entryId: "id1",
+		});
 	});
 
 	it("covers short-query empty results and key extraction", async () => {
@@ -367,23 +532,37 @@ describe("GlobalSearchScreen", () => {
 				];
 			}
 			if (stateCall === 2) return ["a", vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = GlobalSearchScreen({
 			navigation,
-			route: { key: "k4", name: "GlobalSearch", params: { mode: "TOOLS" } },
+			route: {
+				key: "k4",
+				name: "GlobalSearch",
+				params: { mode: "TOOLS" },
+			},
 		} as any);
 		await flush();
 
-		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const screenList = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
 		expect(screenList.props.data).toEqual([]);
-		expect(screenList.props.keyExtractor({ kind: "NOTE", id: "n1" })).toBe("NOTE:n1");
+		expect(screenList.props.keyExtractor({ kind: "NOTE", id: "n1" })).toBe(
+			"NOTE:n1",
+		);
 	});
 
 	it("covers result filtering callback and TOOLS load error branch", async () => {
 		const navigation = { navigate: vi.fn() };
-		serviceMocks.getNotes.mockRejectedValueOnce(new Error("search load failed"));
+		serviceMocks.getNotes.mockRejectedValueOnce(
+			new Error("search load failed"),
+		);
 
 		let stateCall = 0;
 		reactMocks.useState.mockImplementation((initial: any) => {
@@ -406,24 +585,42 @@ describe("GlobalSearchScreen", () => {
 			}
 			if (stateCall === 2) return ["token", vi.fn()];
 			if (stateCall === 3) return ["search load failed", vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = GlobalSearchScreen({
 			navigation,
-			route: { key: "k5", name: "GlobalSearch", params: { mode: "TOOLS" } },
+			route: {
+				key: "k5",
+				name: "GlobalSearch",
+				params: { mode: "TOOLS" },
+			},
 		} as any);
 		await flush();
 
 		expect(serviceMocks.getNotes).toHaveBeenCalledWith({ id: "db" });
 		expect(
-			findByPredicate(tree, (node) => node?.props?.message === "search load failed"),
+			findByPredicate(
+				tree,
+				(node) => node?.props?.message === "search load failed",
+			),
 		).not.toHaveLength(0);
 
-		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const screenList = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
 		expect(screenList.props.data).toHaveLength(1);
-		const row = screenList.props.renderItem({ item: screenList.props.data[0] });
-		findByPredicate(row, (node) => typeof node?.props?.onPress === "function")[0]?.props?.onPress();
+		const row = screenList.props.renderItem({
+			item: screenList.props.data[0],
+		});
+		findByPredicate(
+			row,
+			(node) => typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
 
 		expect(navigation.navigate).toHaveBeenCalledWith("VaultForm", {
 			kind: "PASSWORD",
@@ -434,8 +631,12 @@ describe("GlobalSearchScreen", () => {
 
 	it("covers TOOLS fallback subtitles when folder names are missing", async () => {
 		const navigation = { navigate: vi.fn() };
-		serviceMocks.getNotes.mockResolvedValueOnce([{ id: "n2", title: "Quick note", folderName: undefined }]);
-		serviceMocks.getTodos.mockResolvedValueOnce([{ id: "t2", title: "Quick todo", folderName: undefined }]);
+		serviceMocks.getNotes.mockResolvedValueOnce([
+			{ id: "n2", title: "Quick note", folderName: undefined },
+		]);
+		serviceMocks.getTodos.mockResolvedValueOnce([
+			{ id: "t2", title: "Quick todo", folderName: undefined },
+		]);
 
 		const setResults = vi.fn();
 		let stateCall = 0;
@@ -443,19 +644,34 @@ describe("GlobalSearchScreen", () => {
 			stateCall += 1;
 			if (stateCall === 1) return [[], setResults];
 			if (stateCall === 2) return ["qu", vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		GlobalSearchScreen({
 			navigation,
-			route: { key: "k6", name: "GlobalSearch", params: { mode: "TOOLS" } },
+			route: {
+				key: "k6",
+				name: "GlobalSearch",
+				params: { mode: "TOOLS" },
+			},
 		} as any);
 		await flush();
 		await flush();
 
 		expect(setResults).toHaveBeenCalledWith([
-			expect.objectContaining({ id: "n2", kind: "NOTE", subtitle: "Note" }),
-			expect.objectContaining({ id: "t2", kind: "TODO", subtitle: "Todo" }),
+			expect.objectContaining({
+				id: "n2",
+				kind: "NOTE",
+				subtitle: "Note",
+			}),
+			expect.objectContaining({
+				id: "t2",
+				kind: "TODO",
+				subtitle: "Todo",
+			}),
 		]);
 	});
 
@@ -479,7 +695,12 @@ describe("GlobalSearchScreen", () => {
 			{ id: "c2", name: "Salary", isIncome: true },
 		]);
 		serviceMocks.getBudgets.mockResolvedValueOnce([
-			{ id: "b2", categoryName: "Salary", period: "YEARLY", amount: "120000" },
+			{
+				id: "b2",
+				categoryName: "Salary",
+				period: "YEARLY",
+				amount: "120000",
+			},
 		]);
 
 		const setResults = vi.fn();
@@ -488,21 +709,40 @@ describe("GlobalSearchScreen", () => {
 			stateCall += 1;
 			if (stateCall === 1) return [[], setResults];
 			if (stateCall === 2) return ["sa", vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		GlobalSearchScreen({
 			navigation,
-			route: { key: "k7", name: "GlobalSearch", params: { mode: "FINANCE" } },
+			route: {
+				key: "k7",
+				name: "GlobalSearch",
+				params: { mode: "FINANCE" },
+			},
 		} as any);
 		await flush();
 		await flush();
 
 		expect(setResults).toHaveBeenCalledWith(
 			expect.arrayContaining([
-				expect.objectContaining({ id: "c2", kind: "CATEGORY", subtitle: "Income category" }),
-				expect.objectContaining({ id: "b2", kind: "BUDGET", subtitle: expect.stringContaining("Yearly budget") }),
-				expect.objectContaining({ id: "tx2", kind: "TRANSACTION", searchExtra: expect.stringContaining("2000") }),
+				expect.objectContaining({
+					id: "c2",
+					kind: "CATEGORY",
+					subtitle: "Income category",
+				}),
+				expect.objectContaining({
+					id: "b2",
+					kind: "BUDGET",
+					subtitle: expect.stringContaining("Yearly budget"),
+				}),
+				expect.objectContaining({
+					id: "tx2",
+					kind: "TRANSACTION",
+					searchExtra: expect.stringContaining("2000"),
+				}),
 			]),
 		);
 	});
@@ -510,7 +750,12 @@ describe("GlobalSearchScreen", () => {
 	it("covers VAULT fallback subtitle branches for password, card and identity", async () => {
 		const navigation = { navigate: vi.fn() };
 		serviceMocks.getPasswords.mockResolvedValueOnce([
-			{ id: "p2", title: "Work Mail", username: "", website: "mail.example" },
+			{
+				id: "p2",
+				title: "Work Mail",
+				username: "",
+				website: "mail.example",
+			},
 		]);
 		serviceMocks.getCards.mockResolvedValueOnce([
 			{ id: "ca2", name: "Offline Card", network: "" },
@@ -525,21 +770,40 @@ describe("GlobalSearchScreen", () => {
 			stateCall += 1;
 			if (stateCall === 1) return [[], setResults];
 			if (stateCall === 2) return ["wo", vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		GlobalSearchScreen({
 			navigation,
-			route: { key: "k8", name: "GlobalSearch", params: { mode: "VAULT" } },
+			route: {
+				key: "k8",
+				name: "GlobalSearch",
+				params: { mode: "VAULT" },
+			},
 		} as any);
 		await flush();
 		await flush();
 
 		expect(setResults).toHaveBeenCalledWith(
 			expect.arrayContaining([
-				expect.objectContaining({ id: "p2", kind: "PASSWORD", subtitle: "mail.example" }),
-				expect.objectContaining({ id: "ca2", kind: "CARD", subtitle: "Card" }),
-				expect.objectContaining({ id: "id2", kind: "IDENTITY", subtitle: "Identity" }),
+				expect.objectContaining({
+					id: "p2",
+					kind: "PASSWORD",
+					subtitle: "mail.example",
+				}),
+				expect.objectContaining({
+					id: "ca2",
+					kind: "CARD",
+					subtitle: "Card",
+				}),
+				expect.objectContaining({
+					id: "id2",
+					kind: "IDENTITY",
+					subtitle: "Identity",
+				}),
 			]),
 		);
 	});

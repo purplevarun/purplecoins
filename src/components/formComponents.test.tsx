@@ -109,7 +109,9 @@ describe("form components", () => {
 			isDisabled: true,
 		} as any);
 		expect(loadingButton.props.disabled).toBe(true);
-		expect(findAllByType(loadingButton, "ActivityIndicator").length).toBe(1);
+		expect(findAllByType(loadingButton, "ActivityIndicator").length).toBe(
+			1,
+		);
 		expect(loadingButton.props.style({ pressed: true })[1]).toBe(false);
 	});
 
@@ -135,7 +137,10 @@ describe("form components", () => {
 
 	it("covers TextField secure and non-secure branches", () => {
 		const setShowSecret = vi.fn();
-		reactMocks.useState.mockImplementationOnce(() => [false, setShowSecret]);
+		reactMocks.useState.mockImplementationOnce(() => [
+			false,
+			setShowSecret,
+		]);
 		const onChangeText = vi.fn();
 
 		const secureField = TextField({
@@ -156,7 +161,9 @@ describe("form components", () => {
 		const eyeButton = findAllByType(secureField, "Pressable")[0];
 		eyeButton.props.onPress();
 		expect(setShowSecret).toHaveBeenCalledWith(expect.any(Function));
-		expect(findAllByType(secureField, "Ionicons")[0]?.props.name).toBe("eye-outline");
+		expect(findAllByType(secureField, "Ionicons")[0]?.props.name).toBe(
+			"eye-outline",
+		);
 
 		reactMocks.useState.mockImplementationOnce(() => [true, vi.fn()]);
 		const revealedField = TextField({
@@ -165,7 +172,9 @@ describe("form components", () => {
 			onChangeText,
 			isSecure: true,
 		} as any);
-		expect(findAllByType(revealedField, "Ionicons")[0]?.props.name).toBe("eye-off-outline");
+		expect(findAllByType(revealedField, "Ionicons")[0]?.props.name).toBe(
+			"eye-off-outline",
+		);
 
 		reactMocks.useState.mockImplementationOnce(() => [false, vi.fn()]);
 		const plainField = TextField({
@@ -220,7 +229,8 @@ describe("form components", () => {
 		const optionPressables = findAllByType(openNoResults, "Pressable");
 		expect(optionPressables.length).toBeGreaterThan(0);
 		const overlayPressable = optionPressables.find(
-			(node) => node?.props?.style?.backgroundColor === "rgba(0,0,0,0.72)",
+			(node) =>
+				node?.props?.style?.backgroundColor === "rgba(0,0,0,0.72)",
 		);
 		expect(overlayPressable).toBeTruthy();
 		overlayPressable?.props?.onPress();

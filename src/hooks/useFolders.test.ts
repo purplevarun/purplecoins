@@ -9,9 +9,9 @@ const reactMocks = vi.hoisted(() => ({
 
 const folderServiceMocks = vi.hoisted(() => ({
 	createFolder: vi.fn(async () => "new-folder"),
-	deleteFolder: vi.fn(async () => { }),
+	deleteFolder: vi.fn(async () => {}),
 	getFolders: vi.fn(async () => [{ id: "f1", name: "A", type: "NOTE" }]),
-	renameFolder: vi.fn(async () => { }),
+	renameFolder: vi.fn(async () => {}),
 }));
 
 const useDatabaseContextMock = vi.hoisted(() =>

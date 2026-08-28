@@ -12,11 +12,11 @@ const reactMocks = vi.hoisted(() => ({
 }));
 
 const attachmentServiceMocks = vi.hoisted(() => ({
-	deleteAttachment: vi.fn(async () => { }),
+	deleteAttachment: vi.fn(async () => {}),
 	getAttachmentMetadata: vi.fn(async () => null),
-	openAttachment: vi.fn(async () => { }),
+	openAttachment: vi.fn(async () => {}),
 	pickAttachment: vi.fn(async () => null),
-	saveAttachment: vi.fn(async () => { }),
+	saveAttachment: vi.fn(async () => {}),
 }));
 
 const useDatabaseContextMock = vi.hoisted(() =>
@@ -46,8 +46,14 @@ const setHookState = (
 	isRemoved: boolean,
 ): void => {
 	reactMocks.useState
-		.mockImplementationOnce(() => [existingAttachment, setters.setExistingAttachment])
-		.mockImplementationOnce(() => [pendingAttachment, setters.setPendingAttachment])
+		.mockImplementationOnce(() => [
+			existingAttachment,
+			setters.setExistingAttachment,
+		])
+		.mockImplementationOnce(() => [
+			pendingAttachment,
+			setters.setPendingAttachment,
+		])
 		.mockImplementationOnce(() => [isRemoved, setters.setIsRemoved]);
 };
 
@@ -56,23 +62,27 @@ describe("useAttachment", () => {
 		reactMocks.useState.mockReset();
 		reactMocks.useEffect.mockClear();
 		Object.values(setters).forEach((setter) => setter.mockClear());
-		Object.values(attachmentServiceMocks).forEach((mockFn) => mockFn.mockClear());
+		Object.values(attachmentServiceMocks).forEach((mockFn) =>
+			mockFn.mockClear(),
+		);
 		useDatabaseContextMock.mockClear();
 	});
 
 	it("loads existing attachment when ownerId exists", async () => {
-		attachmentServiceMocks.getAttachmentMetadata.mockResolvedValueOnce({ id: "a1" });
+		attachmentServiceMocks.getAttachmentMetadata.mockResolvedValueOnce({
+			id: "a1",
+		});
 		setHookState(null, null, false);
 
 		useAttachment("NOTE", "n1");
 		await Promise.resolve();
 
-		expect(attachmentServiceMocks.getAttachmentMetadata).toHaveBeenCalledWith(
-			{ id: "db" },
-			"NOTE",
-			"n1",
-		);
-		expect(setters.setExistingAttachment).toHaveBeenCalledWith({ id: "a1" });
+		expect(
+			attachmentServiceMocks.getAttachmentMetadata,
+		).toHaveBeenCalledWith({ id: "db" }, "NOTE", "n1");
+		expect(setters.setExistingAttachment).toHaveBeenCalledWith({
+			id: "a1",
+		});
 	});
 
 	it("clears existing attachment when ownerId is missing", async () => {

@@ -109,10 +109,17 @@ vi.mock("@/components/TransactionCard", () => ({
 }));
 
 vi.mock("@/hooks/useAppDialog", () => ({
-	default: () => ({ confirm: hookMocks.confirm, showMessage: hookMocks.showMessage }),
+	default: () => ({
+		confirm: hookMocks.confirm,
+		showMessage: hookMocks.showMessage,
+	}),
 }));
 vi.mock("@/hooks/useDatabaseContext", () => ({
-	default: () => ({ database: { id: "db" }, dataVersion: 1, refreshData: hookMocks.refreshData }),
+	default: () => ({
+		database: { id: "db" },
+		dataVersion: 1,
+		refreshData: hookMocks.refreshData,
+	}),
 }));
 vi.mock("@/hooks/useFolders", () => ({
 	default: () => ({
@@ -126,7 +133,10 @@ vi.mock("@/services/analysisService", () => ({
 	default: { getAnalysisSummary: serviceMocks.getAnalysisSummary },
 }));
 vi.mock("@/services/budgetService", () => ({
-	default: { getBudgets: serviceMocks.getBudgets, deleteBudget: serviceMocks.deleteBudget },
+	default: {
+		getBudgets: serviceMocks.getBudgets,
+		deleteBudget: serviceMocks.deleteBudget,
+	},
 }));
 vi.mock("@/services/noteService", () => ({
 	default: { getNotes: serviceMocks.getNotes },
@@ -190,7 +200,10 @@ vi.mock("@/utils/date", () => ({
 	default: {
 		formatDate: (value: number) => `date:${value}`,
 		formatDateTime: (value: number) => `datetime:${value}`,
-		getAnalysisDateRange: (period: string) => ({ start: period.length, end: 999 }),
+		getAnalysisDateRange: (period: string) => ({
+			start: period.length,
+			end: 999,
+		}),
 	},
 }));
 vi.mock("@/utils/error", () => ({
@@ -286,11 +299,15 @@ describe("list screens", () => {
 			{ currencyCode: "USD" },
 			{ currencyCode: "INR" },
 		]);
-		serviceMocks.getArchivedSources.mockResolvedValue([{ id: "s1", name: "Cash" }]);
+		serviceMocks.getArchivedSources.mockResolvedValue([
+			{ id: "s1", name: "Cash" },
+		]);
 		serviceMocks.getArchivedCategories.mockResolvedValue([
 			{ id: "c1", name: "Food" },
 		]);
-		serviceMocks.getArchivedTrips.mockResolvedValue([{ id: "t1", name: "Goa" }]);
+		serviceMocks.getArchivedTrips.mockResolvedValue([
+			{ id: "t1", name: "Goa" },
+		]);
 		serviceMocks.getArchivedInvestments.mockResolvedValue([
 			{ id: "i1", name: "MF" },
 		]);
@@ -327,7 +344,10 @@ describe("list screens", () => {
 					vi.fn(),
 				];
 			if (call === 3) return [{ USD: "84" }, vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = ExchangeRatesScreen({} as any);
@@ -335,19 +355,28 @@ describe("list screens", () => {
 
 		findByPredicate(
 			tree,
-			(node) => node?.props?.label === "Fetch latest rates" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Fetch latest rates" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 
-		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const screenList = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
 		const row = screenList.props.renderItem({ item: "USD" });
 		findByPredicate(
 			row,
-			(node) => node?.props?.label === "Save manual rate" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Save manual rate" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 
-		expect(serviceMocks.fetchExchangeRates).toHaveBeenCalledWith({ id: "db" });
+		expect(serviceMocks.fetchExchangeRates).toHaveBeenCalledWith({
+			id: "db",
+		});
 		expect(serviceMocks.saveManualExchangeRate).toHaveBeenCalledWith(
 			{ id: "db" },
 			"USD",
@@ -364,7 +393,10 @@ describe("list screens", () => {
 			if (call === 1) return [["EUR"], vi.fn()];
 			if (call === 2) return [[], vi.fn()];
 			if (call === 3) return [{}, vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = ExchangeRatesScreen({} as any);
@@ -372,15 +404,22 @@ describe("list screens", () => {
 
 		findByPredicate(
 			tree,
-			(node) => node?.props?.label === "Fetch latest rates" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Fetch latest rates" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 
-		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const screenList = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
 		const row = screenList.props.renderItem({ item: "EUR" });
 		findByPredicate(
 			row,
-			(node) => node?.props?.label === "Save manual rate" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Save manual rate" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 
@@ -399,7 +438,10 @@ describe("list screens", () => {
 			if (call === 2) return [[], vi.fn()];
 			if (call === 3) return [{ EUR: "" }, vi.fn()];
 			if (call === 5) return ["boom", vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = ExchangeRatesScreen({} as any);
@@ -409,17 +451,26 @@ describe("list screens", () => {
 			findByPredicate(tree, (node) => node?.props?.message === "boom"),
 		).not.toHaveLength(0);
 
-		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const screenList = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
 		const row = screenList.props.renderItem({ item: "EUR" });
 		expect(
-			findByPredicate(row, (node) => String(node?.props?.children ?? "").includes("Rate not set")),
+			findByPredicate(row, (node) =>
+				String(node?.props?.children ?? "").includes("Rate not set"),
+			),
 		).not.toHaveLength(0);
 	});
 
 	it("covers ExchangeRatesScreen load, fetch, save error and updater callbacks", async () => {
 		serviceMocks.getSources.mockRejectedValueOnce(new Error("load failed"));
-		serviceMocks.fetchExchangeRates.mockRejectedValueOnce(new Error("fetch failed"));
-		serviceMocks.saveManualExchangeRate.mockRejectedValueOnce(new Error("save failed"));
+		serviceMocks.fetchExchangeRates.mockRejectedValueOnce(
+			new Error("fetch failed"),
+		);
+		serviceMocks.saveManualExchangeRate.mockRejectedValueOnce(
+			new Error("save failed"),
+		);
 
 		const setDrafts = vi.fn();
 		const setError = vi.fn();
@@ -442,7 +493,10 @@ describe("list screens", () => {
 				];
 			if (call === 3) return [{ USD: "84" }, setDrafts];
 			if (call === 5) return ["", setError];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = ExchangeRatesScreen({} as any);
@@ -452,30 +506,43 @@ describe("list screens", () => {
 
 		findByPredicate(
 			tree,
-			(node) => node?.props?.label === "Fetch latest rates" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Fetch latest rates" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 		expect(setError).toHaveBeenCalledWith("fetch failed");
 
 		const screenList = findByPredicate(
 			tree,
-			(node) => typeof node?.props?.renderItem === "function" && typeof node?.props?.keyExtractor === "function",
+			(node) =>
+				typeof node?.props?.renderItem === "function" &&
+				typeof node?.props?.keyExtractor === "function",
 		)[0];
 		expect(screenList.props.keyExtractor("USD")).toBe("USD");
 
 		const row = screenList.props.renderItem({ item: "USD" });
 		const textField = findByPredicate(
 			row,
-			(node) => node?.props?.label === "Rate to INR" && typeof node?.props?.onChangeText === "function",
+			(node) =>
+				node?.props?.label === "Rate to INR" &&
+				typeof node?.props?.onChangeText === "function",
 		)[0];
 		textField.props.onChangeText("99.10");
 		expect(setDrafts).toHaveBeenCalled();
-		const draftsUpdater = setDrafts.mock.calls.at(-1)?.[0] as (currentDrafts: Record<string, string>) => Record<string, string>;
-		expect(draftsUpdater({ USD: "84", EUR: "91" })).toEqual({ USD: "99.10", EUR: "91" });
+		const draftsUpdater = setDrafts.mock.calls.at(-1)?.[0] as (
+			currentDrafts: Record<string, string>,
+		) => Record<string, string>;
+		expect(draftsUpdater({ USD: "84", EUR: "91" })).toEqual({
+			USD: "99.10",
+			EUR: "91",
+		});
 
 		findByPredicate(
 			row,
-			(node) => node?.props?.label === "Save manual rate" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Save manual rate" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 
@@ -488,7 +555,9 @@ describe("list screens", () => {
 	});
 
 	it("executes ArchivedRelationsScreen list and restore flow", async () => {
-		hookMocks.confirm.mockImplementation(({ onConfirm }: any) => onConfirm());
+		hookMocks.confirm.mockImplementation(({ onConfirm }: any) =>
+			onConfirm(),
+		);
 
 		let call = 0;
 		reactMocks.useState.mockImplementation((initial: any) => {
@@ -499,14 +568,22 @@ describe("list screens", () => {
 			if (call === 4) return [[{ id: "i1", name: "MF" }], vi.fn()];
 			if (call === 6) return ["", vi.fn()];
 			if (call === 7) return ["", vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = ArchivedRelationsScreen({} as any);
 		await flush();
 
-		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
-		const entityRow = screenList.props.data.find((row: any) => row.type === "entity");
+		const screenList = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
+		const entityRow = screenList.props.data.find(
+			(row: any) => row.type === "entity",
+		);
 		const rendered = screenList.props.renderItem({ item: entityRow });
 		findByPredicate(
 			rendered,
@@ -514,16 +591,30 @@ describe("list screens", () => {
 		)[0]?.props?.onPress();
 		await flush();
 
-		expect(serviceMocks.getArchivedSources).toHaveBeenCalledWith({ id: "db" });
-		expect(serviceMocks.getArchivedCategories).toHaveBeenCalledWith({ id: "db" });
-		expect(serviceMocks.getArchivedTrips).toHaveBeenCalledWith({ id: "db" });
-		expect(serviceMocks.getArchivedInvestments).toHaveBeenCalledWith({ id: "db" });
-		expect(serviceMocks.setSourceArchived).toHaveBeenCalledWith({ id: "db" }, "s1", false);
+		expect(serviceMocks.getArchivedSources).toHaveBeenCalledWith({
+			id: "db",
+		});
+		expect(serviceMocks.getArchivedCategories).toHaveBeenCalledWith({
+			id: "db",
+		});
+		expect(serviceMocks.getArchivedTrips).toHaveBeenCalledWith({
+			id: "db",
+		});
+		expect(serviceMocks.getArchivedInvestments).toHaveBeenCalledWith({
+			id: "db",
+		});
+		expect(serviceMocks.setSourceArchived).toHaveBeenCalledWith(
+			{ id: "db" },
+			"s1",
+			false,
+		);
 		expect(hookMocks.refreshData).toHaveBeenCalled();
 	});
 
 	it("covers ArchivedRelationsScreen search-empty message and investment restore branch", async () => {
-		hookMocks.confirm.mockImplementation(({ onConfirm }: any) => onConfirm());
+		hookMocks.confirm.mockImplementation(({ onConfirm }: any) =>
+			onConfirm(),
+		);
 
 		let call = 0;
 		reactMocks.useState.mockImplementation((initial: any) => {
@@ -534,7 +625,10 @@ describe("list screens", () => {
 			if (call === 4) return [[{ id: "i1", name: "MF" }], vi.fn()];
 			if (call === 6) return ["mf", vi.fn()];
 			if (call === 7) return ["mf", vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = ArchivedRelationsScreen({} as any);
@@ -543,17 +637,30 @@ describe("list screens", () => {
 		expect(
 			findByPredicate(
 				tree,
-				(node) => node?.props?.placeholder === "Search archived relations...",
+				(node) =>
+					node?.props?.placeholder === "Search archived relations...",
 			),
 		).not.toHaveLength(0);
 
-		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
-		const entityRow = screenList.props.data.find((row: any) => row.kind === "INVESTMENT");
+		const screenList = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
+		const entityRow = screenList.props.data.find(
+			(row: any) => row.kind === "INVESTMENT",
+		);
 		const rendered = screenList.props.renderItem({ item: entityRow });
-		findByPredicate(rendered, (node) => typeof node?.props?.onPress === "function")[0]?.props?.onPress();
+		findByPredicate(
+			rendered,
+			(node) => typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
 		await flush();
 
-		expect(serviceMocks.setInvestmentArchived).toHaveBeenCalledWith({ id: "db" }, "i1", false);
+		expect(serviceMocks.setInvestmentArchived).toHaveBeenCalledWith(
+			{ id: "db" },
+			"i1",
+			false,
+		);
 	});
 
 	it("renders ArchivedRelationsScreen header row and error branch", async () => {
@@ -567,29 +674,46 @@ describe("list screens", () => {
 			if (call === 5) return ["broken", vi.fn()];
 			if (call === 6) return ["", vi.fn()];
 			if (call === 7) return ["", vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = ArchivedRelationsScreen({} as any);
 		await flush();
 
-		expect(findByPredicate(tree, (node) => node?.props?.message === "broken")).not.toHaveLength(0);
+		expect(
+			findByPredicate(tree, (node) => node?.props?.message === "broken"),
+		).not.toHaveLength(0);
 
-		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
-		const headerRow = screenList.props.data.find((row: any) => row.type === "header");
+		const screenList = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
+		const headerRow = screenList.props.data.find(
+			(row: any) => row.type === "header",
+		);
 		const rendered = screenList.props.renderItem({ item: headerRow });
-		expect(String(JSON.stringify(rendered) ?? "")).toContain("SOURCE TITLE");
+		expect(String(JSON.stringify(rendered) ?? "")).toContain(
+			"SOURCE TITLE",
+		);
 	});
 
 	it("covers ArchivedRelationsScreen load-error catch path", async () => {
-		serviceMocks.getArchivedSources.mockRejectedValueOnce(new Error("cannot load archived"));
+		serviceMocks.getArchivedSources.mockRejectedValueOnce(
+			new Error("cannot load archived"),
+		);
 		const setError = vi.fn();
 
 		let call = 0;
 		reactMocks.useState.mockImplementation((initial: any) => {
 			call += 1;
 			if (call === 5) return ["", setError];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		ArchivedRelationsScreen({} as any);
@@ -599,8 +723,12 @@ describe("list screens", () => {
 	});
 
 	it("covers ArchivedRelationsScreen category and trip restore branches", async () => {
-		hookMocks.confirm.mockImplementation(({ onConfirm }: any) => onConfirm());
-		serviceMocks.setCategoryArchived.mockRejectedValueOnce(new Error("cannot restore category"));
+		hookMocks.confirm.mockImplementation(({ onConfirm }: any) =>
+			onConfirm(),
+		);
+		serviceMocks.setCategoryArchived.mockRejectedValueOnce(
+			new Error("cannot restore category"),
+		);
 
 		let call = 0;
 		reactMocks.useState.mockImplementation((initial: any) => {
@@ -611,7 +739,10 @@ describe("list screens", () => {
 			if (call === 4) return [[], vi.fn()];
 			if (call === 6) return ["", vi.fn()];
 			if (call === 7) return ["", vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = ArchivedRelationsScreen({} as any);
@@ -619,16 +750,31 @@ describe("list screens", () => {
 
 		const screenList = findByPredicate(
 			tree,
-			(node) => typeof node?.props?.renderItem === "function" && typeof node?.props?.keyExtractor === "function",
+			(node) =>
+				typeof node?.props?.renderItem === "function" &&
+				typeof node?.props?.keyExtractor === "function",
 		)[0];
-		expect(screenList.props.keyExtractor({ key: "CATEGORY-c1" })).toBe("CATEGORY-c1");
+		expect(screenList.props.keyExtractor({ key: "CATEGORY-c1" })).toBe(
+			"CATEGORY-c1",
+		);
 
-		const categoryRow = screenList.props.data.find((row: any) => row.kind === "CATEGORY");
-		const categoryRendered = screenList.props.renderItem({ item: categoryRow });
-		findByPredicate(categoryRendered, (node) => typeof node?.props?.onPress === "function")[0]?.props?.onPress();
+		const categoryRow = screenList.props.data.find(
+			(row: any) => row.kind === "CATEGORY",
+		);
+		const categoryRendered = screenList.props.renderItem({
+			item: categoryRow,
+		});
+		findByPredicate(
+			categoryRendered,
+			(node) => typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
 		await flush();
 
-		expect(serviceMocks.setCategoryArchived).toHaveBeenCalledWith({ id: "db" }, "c1", false);
+		expect(serviceMocks.setCategoryArchived).toHaveBeenCalledWith(
+			{ id: "db" },
+			"c1",
+			false,
+		);
 		expect(hookMocks.showMessage).toHaveBeenCalledWith(
 			expect.objectContaining({
 				title: "Unable to restore",
@@ -637,12 +783,21 @@ describe("list screens", () => {
 			}),
 		);
 
-		const tripRow = screenList.props.data.find((row: any) => row.kind === "TRIP");
+		const tripRow = screenList.props.data.find(
+			(row: any) => row.kind === "TRIP",
+		);
 		const tripRendered = screenList.props.renderItem({ item: tripRow });
-		findByPredicate(tripRendered, (node) => typeof node?.props?.onPress === "function")[0]?.props?.onPress();
+		findByPredicate(
+			tripRendered,
+			(node) => typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
 		await flush();
 
-		expect(serviceMocks.setTripArchived).toHaveBeenCalledWith({ id: "db" }, "t1", false);
+		expect(serviceMocks.setTripArchived).toHaveBeenCalledWith(
+			{ id: "db" },
+			"t1",
+			false,
+		);
 		expect(hookMocks.refreshData).toHaveBeenCalled();
 	});
 
@@ -655,7 +810,9 @@ describe("list screens", () => {
 		"executes LinkedTransactionsScreen delete flow for %s",
 		async (kind, deleteKey) => {
 			const navigation = { navigate: vi.fn(), goBack: vi.fn() };
-			hookMocks.confirm.mockImplementation(({ onConfirm }: any) => onConfirm());
+			hookMocks.confirm.mockImplementation(({ onConfirm }: any) =>
+				onConfirm(),
+			);
 
 			let call = 0;
 			reactMocks.useState.mockImplementation((initial: any) => {
@@ -663,7 +820,10 @@ describe("list screens", () => {
 				if (call === 1) {
 					return [[{ id: "tx1", transactionAt: 100 }], vi.fn()];
 				}
-				return [typeof initial === "function" ? initial() : initial, vi.fn()];
+				return [
+					typeof initial === "function" ? initial() : initial,
+					vi.fn(),
+				];
 			});
 
 			const tree = LinkedTransactionsScreen({
@@ -685,7 +845,9 @@ describe("list screens", () => {
 
 			findByPredicate(
 				tree,
-				(node) => node?.props?.label === "Delete" && typeof node?.props?.onPress === "function",
+				(node) =>
+					node?.props?.label === "Delete" &&
+					typeof node?.props?.onPress === "function",
 			)[0]?.props?.onPress();
 			await flush();
 
@@ -693,7 +855,10 @@ describe("list screens", () => {
 				{ id: "db" },
 				{ entityId: "e1", kind },
 			);
-			expect(serviceMocks[deleteKey]).toHaveBeenCalledWith({ id: "db" }, "e1");
+			expect(serviceMocks[deleteKey]).toHaveBeenCalledWith(
+				{ id: "db" },
+				"e1",
+			);
 			expect(hookMocks.refreshData).toHaveBeenCalled();
 			expect(navigation.goBack).toHaveBeenCalled();
 		},
@@ -708,7 +873,10 @@ describe("list screens", () => {
 			if (call === 1) {
 				return [[{ id: "tx1", transactionAt: 100 }], vi.fn()];
 			}
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = LinkedTransactionsScreen({
@@ -727,19 +895,26 @@ describe("list screens", () => {
 
 		findByPredicate(
 			tree,
-			(node) => node?.props?.label === "Edit" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Edit" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 
 		const screenList = findByPredicate(
 			tree,
-			(node) => typeof node?.props?.renderItem === "function" && typeof node?.props?.keyExtractor === "function",
+			(node) =>
+				typeof node?.props?.renderItem === "function" &&
+				typeof node?.props?.keyExtractor === "function",
 		)[0];
 		expect(screenList.props.keyExtractor({ id: "tx9" })).toBe("tx9");
 
 		const rendered = screenList.props.renderItem({
 			item: { id: "tx9", transactionAt: 125 },
 		});
-		findByPredicate(rendered, (node) => typeof node?.props?.onPress === "function")[0]?.props?.onPress();
+		findByPredicate(
+			rendered,
+			(node) => typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
 
 		expect(navigation.navigate).toHaveBeenCalledWith("RelationForm", {
 			kind: "CATEGORY",
@@ -752,9 +927,15 @@ describe("list screens", () => {
 
 	it("covers LinkedTransactionsScreen load-error and delete-error branches", async () => {
 		const navigation = { navigate: vi.fn(), goBack: vi.fn() };
-		hookMocks.confirm.mockImplementation(({ onConfirm }: any) => onConfirm());
-		serviceMocks.getLinkedTransactions.mockRejectedValueOnce(new Error("load failed"));
-		serviceMocks.deleteSource.mockRejectedValueOnce(new Error("cannot delete"));
+		hookMocks.confirm.mockImplementation(({ onConfirm }: any) =>
+			onConfirm(),
+		);
+		serviceMocks.getLinkedTransactions.mockRejectedValueOnce(
+			new Error("load failed"),
+		);
+		serviceMocks.deleteSource.mockRejectedValueOnce(
+			new Error("cannot delete"),
+		);
 
 		const tree = LinkedTransactionsScreen({
 			navigation,
@@ -773,7 +954,9 @@ describe("list screens", () => {
 
 		findByPredicate(
 			tree,
-			(node) => node?.props?.label === "Delete" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Delete" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 
@@ -781,7 +964,10 @@ describe("list screens", () => {
 			{ id: "db" },
 			{ entityId: "e1", kind: "SOURCE" },
 		);
-		expect(serviceMocks.deleteSource).toHaveBeenCalledWith({ id: "db" }, "e1");
+		expect(serviceMocks.deleteSource).toHaveBeenCalledWith(
+			{ id: "db" },
+			"e1",
+		);
 		expect(hookMocks.showMessage).toHaveBeenCalledWith(
 			expect.objectContaining({
 				title: "Unable to delete",
@@ -795,7 +981,9 @@ describe("list screens", () => {
 
 	it("executes BudgetsScreen render and delete flows", async () => {
 		const navigation = { navigate: vi.fn() };
-		hookMocks.confirm.mockImplementation(({ onConfirm }: any) => onConfirm());
+		hookMocks.confirm.mockImplementation(({ onConfirm }: any) =>
+			onConfirm(),
+		);
 
 		let call = 0;
 		reactMocks.useState.mockImplementation((initial: any) => {
@@ -829,13 +1017,19 @@ describe("list screens", () => {
 					vi.fn(),
 				];
 			}
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = BudgetsScreen({ navigation } as any);
 		await flush();
 
-		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const screenList = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
 		const renderedItem = screenList.props.renderItem({
 			item: {
 				id: "b1",
@@ -848,17 +1042,24 @@ describe("list screens", () => {
 
 		findByPredicate(
 			renderedItem,
-			(node) => node?.props?.label === "Edit" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Edit" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		findByPredicate(
 			renderedItem,
-			(node) => node?.props?.label === "Delete" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Delete" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 
 		expect(serviceMocks.getBudgets).toHaveBeenCalledWith({ id: "db" });
 		expect(serviceMocks.getAnalysisSummary).toHaveBeenCalledTimes(2);
-		expect(serviceMocks.deleteBudget).toHaveBeenCalledWith({ id: "db" }, "b1");
+		expect(serviceMocks.deleteBudget).toHaveBeenCalledWith(
+			{ id: "db" },
+			"b1",
+		);
 		expect(hookMocks.refreshData).toHaveBeenCalled();
 		expect(navigation.navigate).toHaveBeenCalled();
 	});
@@ -886,15 +1087,26 @@ describe("list screens", () => {
 			}
 			if (call === 2 || call === 3) return [undefined, vi.fn()];
 			if (call === 4) return ["load failed", vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = BudgetsScreen({ navigation } as any);
 		await flush();
 
-		expect(findByPredicate(tree, (node) => node?.props?.message === "load failed")).not.toHaveLength(0);
+		expect(
+			findByPredicate(
+				tree,
+				(node) => node?.props?.message === "load failed",
+			),
+		).not.toHaveLength(0);
 
-		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const screenList = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
 		expect(screenList.props.keyExtractor({ id: "b2" })).toBe("b2");
 
 		const renderedItem = screenList.props.renderItem({
@@ -907,8 +1119,15 @@ describe("list screens", () => {
 			},
 		});
 
-		expect(String(JSON.stringify(renderedItem) ?? "")).toContain("Calendar year");
-		expect(findByPredicate(renderedItem, (node) => node?.props?.accent === "default")).not.toHaveLength(0);
+		expect(String(JSON.stringify(renderedItem) ?? "")).toContain(
+			"Calendar year",
+		);
+		expect(
+			findByPredicate(
+				renderedItem,
+				(node) => node?.props?.accent === "default",
+			),
+		).not.toHaveLength(0);
 
 		findByPredicate(
 			tree,
@@ -921,8 +1140,12 @@ describe("list screens", () => {
 
 	it("covers BudgetsScreen delete failure and non-INR budget rows", async () => {
 		const navigation = { navigate: vi.fn() };
-		hookMocks.confirm.mockImplementation(({ onConfirm }: any) => onConfirm());
-		serviceMocks.deleteBudget.mockRejectedValueOnce(new Error("cannot delete"));
+		hookMocks.confirm.mockImplementation(({ onConfirm }: any) =>
+			onConfirm(),
+		);
+		serviceMocks.deleteBudget.mockRejectedValueOnce(
+			new Error("cannot delete"),
+		);
 
 		let call = 0;
 		reactMocks.useState.mockImplementation((initial: any) => {
@@ -957,13 +1180,19 @@ describe("list screens", () => {
 				];
 			}
 			if (call === 3) return [null, vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = BudgetsScreen({ navigation } as any);
 		await flush();
 
-		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const screenList = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
 		const renderedItem = screenList.props.renderItem({
 			item: {
 				id: "b3",
@@ -976,19 +1205,30 @@ describe("list screens", () => {
 
 		findByPredicate(
 			renderedItem,
-			(node) => node?.props?.label === "Delete" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Delete" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 
-		expect(serviceMocks.deleteBudget).toHaveBeenCalledWith({ id: "db" }, "b3");
+		expect(serviceMocks.deleteBudget).toHaveBeenCalledWith(
+			{ id: "db" },
+			"b3",
+		);
 		expect(hookMocks.showMessage).toHaveBeenCalledWith(
-			expect.objectContaining({ title: "Unable to delete", message: "cannot delete", variant: "danger" }),
+			expect.objectContaining({
+				title: "Unable to delete",
+				message: "cannot delete",
+				variant: "danger",
+			}),
 		);
 	});
 
 	it("executes NotesScreen render and folder actions", async () => {
 		const navigation = { navigate: vi.fn() };
-		hookMocks.confirm.mockImplementation(({ onConfirm }: any) => onConfirm());
+		hookMocks.confirm.mockImplementation(({ onConfirm }: any) =>
+			onConfirm(),
+		);
 
 		let call = 0;
 		reactMocks.useState.mockImplementation((initial: any) => {
@@ -1009,13 +1249,19 @@ describe("list screens", () => {
 					vi.fn(),
 				];
 			}
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = NotesScreen({ navigation } as any);
 		await flush();
 
-		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const screenList = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
 		screenList.props.renderItem({
 			item: {
 				id: "n1",
@@ -1028,7 +1274,10 @@ describe("list screens", () => {
 			},
 		});
 
-		const folderChips = findByPredicate(tree, (node) => typeof node?.props?.onDeleteFolder === "function")[0];
+		const folderChips = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.onDeleteFolder === "function",
+		)[0];
 		folderChips.props.onDeleteFolder({ id: "f1", name: "Home" });
 		folderChips.props.onRenameFolder({ id: "f1", name: "Home" }, "Work");
 		await flush();
@@ -1085,19 +1334,29 @@ describe("list screens", () => {
 			}
 			if (call === 2) return ["__NO_FOLDER__", setSelectedFolderId];
 			if (call === 3) return ["", vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = NotesScreen({ navigation } as any);
 		await flush();
 
-		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const screenList = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
 		expect(screenList.props.data).toHaveLength(1);
 		expect(screenList.props.data[0].id).toBe("n0");
 		expect(screenList.props.keyExtractor({ id: "n0" })).toBe("n0");
 
-		const renderedItem = screenList.props.renderItem({ item: screenList.props.data[0] });
-		expect(String(JSON.stringify(renderedItem) ?? "")).toContain("Empty note");
+		const renderedItem = screenList.props.renderItem({
+			item: screenList.props.data[0],
+		});
+		expect(String(JSON.stringify(renderedItem) ?? "")).toContain(
+			"Empty note",
+		);
 		findByPredicate(
 			renderedItem,
 			(node) => typeof node?.props?.onPress === "function",
@@ -1111,18 +1370,24 @@ describe("list screens", () => {
 		});
 
 		expect(setSelectedFolderId).toHaveBeenCalledWith("f1");
-		expect(navigation.navigate).toHaveBeenCalledWith("NoteForm", { noteId: "n0" });
+		expect(navigation.navigate).toHaveBeenCalledWith("NoteForm", {
+			noteId: "n0",
+		});
 		expect(navigation.navigate).toHaveBeenCalledWith("NoteForm");
 	});
 
 	it("covers NotesScreen delete and rename folder error branches", async () => {
 		const navigation = { navigate: vi.fn() };
-		hookMocks.confirm.mockImplementation(({ onConfirm }: any) => onConfirm());
+		hookMocks.confirm.mockImplementation(({ onConfirm }: any) =>
+			onConfirm(),
+		);
 		serviceMocks.getNotes.mockRejectedValueOnce(new Error("notes failed"));
 		hookMocks.handleDeleteFolder
 			.mockResolvedValueOnce(undefined)
 			.mockRejectedValueOnce(new Error("cannot delete folder"));
-		hookMocks.handleRenameFolder.mockRejectedValueOnce(new Error("cannot rename folder"));
+		hookMocks.handleRenameFolder.mockRejectedValueOnce(
+			new Error("cannot rename folder"),
+		);
 
 		const setSelectedFolderId = vi.fn();
 		let call = 0;
@@ -1131,13 +1396,19 @@ describe("list screens", () => {
 			if (call === 1) return [[{ id: "n1" }], vi.fn()];
 			if (call === 2) return ["f1", setSelectedFolderId];
 			if (call === 3) return ["notes failed", vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = NotesScreen({ navigation } as any);
 		await flush();
 
-		const folderChips = findByPredicate(tree, (node) => typeof node?.props?.onDeleteFolder === "function")[0];
+		const folderChips = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.onDeleteFolder === "function",
+		)[0];
 		folderChips.props.onDeleteFolder({ id: "f1", name: "Home" });
 		folderChips.props.onDeleteFolder({ id: "f1", name: "Home" });
 		folderChips.props.onRenameFolder({ id: "f1", name: "Home" }, "Work");
@@ -1146,7 +1417,12 @@ describe("list screens", () => {
 		expect(hookMocks.handleDeleteFolder).toHaveBeenCalledTimes(2);
 		expect(setSelectedFolderId).toHaveBeenCalledWith("__ALL_FOLDERS__");
 		expect(hookMocks.handleRenameFolder).toHaveBeenCalledWith("f1", "Work");
-		expect(findByPredicate(tree, (node) => node?.props?.message === "notes failed")).not.toHaveLength(0);
+		expect(
+			findByPredicate(
+				tree,
+				(node) => node?.props?.message === "notes failed",
+			),
+		).not.toHaveLength(0);
 	});
 
 	it("covers NotesScreen no-quick-chip branch with empty note counts", async () => {
@@ -1162,26 +1438,36 @@ describe("list screens", () => {
 			if (call === 1) return [[], vi.fn()];
 			if (call === 2) return ["__ALL_FOLDERS__", vi.fn()];
 			if (call === 3) return ["", vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = NotesScreen({ navigation } as any);
 		await flush();
 
-		const folderChips = findByPredicate(tree, (node) => typeof node?.props?.onSelectFolder === "function")[0];
+		const folderChips = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.onSelectFolder === "function",
+		)[0];
 		folderChips?.props?.onSelectFolder("f2");
 
 		expect(
 			findByPredicate(
 				tree,
-				(node) => node?.type === "ScrollView" && node?.props?.horizontal === true,
+				(node) =>
+					node?.type === "ScrollView" &&
+					node?.props?.horizontal === true,
 			),
 		).toHaveLength(0);
 	});
 
 	it("executes TodosScreen render toggle and folder actions", async () => {
 		const navigation = { navigate: vi.fn() };
-		hookMocks.confirm.mockImplementation(({ onConfirm }: any) => onConfirm());
+		hookMocks.confirm.mockImplementation(({ onConfirm }: any) =>
+			onConfirm(),
+		);
 
 		let call = 0;
 		reactMocks.useState.mockImplementation((initial: any) => {
@@ -1203,13 +1489,19 @@ describe("list screens", () => {
 					vi.fn(),
 				];
 			}
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = TodosScreen({ navigation } as any);
 		await flush();
 
-		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const screenList = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
 		const renderedItem = screenList.props.renderItem({
 			item: {
 				id: "t1",
@@ -1231,13 +1523,19 @@ describe("list screens", () => {
 		});
 		await flush();
 
-		const folderChips = findByPredicate(tree, (node) => typeof node?.props?.onDeleteFolder === "function")[0];
+		const folderChips = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.onDeleteFolder === "function",
+		)[0];
 		folderChips.props.onDeleteFolder({ id: "f1", name: "Home" });
 		folderChips.props.onRenameFolder({ id: "f1", name: "Home" }, "Work");
 		await flush();
 
 		expect(serviceMocks.getTodos).toHaveBeenCalledWith({ id: "db" });
-		expect(serviceMocks.toggleTodo).toHaveBeenCalledWith({ id: "db" }, "t1");
+		expect(serviceMocks.toggleTodo).toHaveBeenCalledWith(
+			{ id: "db" },
+			"t1",
+		);
 		expect(hookMocks.refreshData).toHaveBeenCalled();
 		expect(hookMocks.handleDeleteFolder).toHaveBeenCalledWith("f1");
 		expect(hookMocks.handleRenameFolder).toHaveBeenCalledWith("f1", "Work");
@@ -1249,7 +1547,9 @@ describe("list screens", () => {
 			{ id: "f1", name: "Home" },
 			{ id: "f2", name: "Work" },
 		];
-		serviceMocks.toggleTodo.mockRejectedValueOnce(new Error("toggle failed"));
+		serviceMocks.toggleTodo.mockRejectedValueOnce(
+			new Error("toggle failed"),
+		);
 
 		const setSelectedFolderId = vi.fn();
 		let call = 0;
@@ -1284,18 +1584,26 @@ describe("list screens", () => {
 			}
 			if (call === 2) return ["__NO_FOLDER__", setSelectedFolderId];
 			if (call === 3) return ["", vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = TodosScreen({ navigation } as any);
 		await flush();
 
-		const screenList = findByPredicate(tree, (node) => typeof node?.props?.renderItem === "function")[0];
+		const screenList = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
 		expect(screenList.props.data).toHaveLength(1);
 		expect(screenList.props.data[0].id).toBe("t0");
 		expect(screenList.props.keyExtractor({ id: "t0" })).toBe("t0");
 
-		const renderedItem = screenList.props.renderItem({ item: screenList.props.data[0] });
+		const renderedItem = screenList.props.renderItem({
+			item: screenList.props.data[0],
+		});
 		findByPredicate(
 			renderedItem,
 			(node) => typeof node?.props?.onPress === "function",
@@ -1311,20 +1619,29 @@ describe("list screens", () => {
 			pressable.props.onPress();
 		});
 
-		expect(serviceMocks.toggleTodo).toHaveBeenCalledWith({ id: "db" }, "t0");
+		expect(serviceMocks.toggleTodo).toHaveBeenCalledWith(
+			{ id: "db" },
+			"t0",
+		);
 		expect(setSelectedFolderId).toHaveBeenCalledWith("f1");
-		expect(navigation.navigate).toHaveBeenCalledWith("TodoForm", { todoId: "t0" });
+		expect(navigation.navigate).toHaveBeenCalledWith("TodoForm", {
+			todoId: "t0",
+		});
 		expect(navigation.navigate).toHaveBeenCalledWith("TodoForm");
 	});
 
 	it("covers TodosScreen load, delete, and rename folder error paths", async () => {
 		const navigation = { navigate: vi.fn() };
-		hookMocks.confirm.mockImplementation(({ onConfirm }: any) => onConfirm());
+		hookMocks.confirm.mockImplementation(({ onConfirm }: any) =>
+			onConfirm(),
+		);
 		serviceMocks.getTodos.mockRejectedValueOnce(new Error("todos failed"));
 		hookMocks.handleDeleteFolder
 			.mockResolvedValueOnce(undefined)
 			.mockRejectedValueOnce(new Error("cannot delete folder"));
-		hookMocks.handleRenameFolder.mockRejectedValueOnce(new Error("cannot rename folder"));
+		hookMocks.handleRenameFolder.mockRejectedValueOnce(
+			new Error("cannot rename folder"),
+		);
 
 		const setSelectedFolderId = vi.fn();
 		let call = 0;
@@ -1333,13 +1650,19 @@ describe("list screens", () => {
 			if (call === 1) return [[{ id: "t1" }], vi.fn()];
 			if (call === 2) return ["f1", setSelectedFolderId];
 			if (call === 3) return ["todos failed", vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = TodosScreen({ navigation } as any);
 		await flush();
 
-		const folderChips = findByPredicate(tree, (node) => typeof node?.props?.onDeleteFolder === "function")[0];
+		const folderChips = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.onDeleteFolder === "function",
+		)[0];
 		folderChips.props.onDeleteFolder({ id: "f1", name: "Home" });
 		folderChips.props.onDeleteFolder({ id: "f1", name: "Home" });
 		folderChips.props.onRenameFolder({ id: "f1", name: "Home" }, "Work");
@@ -1348,6 +1671,11 @@ describe("list screens", () => {
 		expect(hookMocks.handleDeleteFolder).toHaveBeenCalledTimes(2);
 		expect(setSelectedFolderId).toHaveBeenCalledWith("__ALL_FOLDERS__");
 		expect(hookMocks.handleRenameFolder).toHaveBeenCalledWith("f1", "Work");
-		expect(findByPredicate(tree, (node) => node?.props?.message === "todos failed")).not.toHaveLength(0);
+		expect(
+			findByPredicate(
+				tree,
+				(node) => node?.props?.message === "todos failed",
+			),
+		).not.toHaveLength(0);
 	});
 });

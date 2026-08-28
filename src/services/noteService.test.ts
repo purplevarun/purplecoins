@@ -35,7 +35,13 @@ describe("noteService", () => {
 
 	it("maps boolean-ish attachment values", async () => {
 		mocks.getNoteRows.mockResolvedValueOnce([
-			{ id: "n1", title: "A", content: "B", folderId: null, hasAttachment: 1 },
+			{
+				id: "n1",
+				title: "A",
+				content: "B",
+				folderId: null,
+				hasAttachment: 1,
+			},
 		]);
 		mocks.getNoteRow.mockResolvedValueOnce({
 			id: "n2",
@@ -46,13 +52,19 @@ describe("noteService", () => {
 		});
 		mocks.getNoteRow.mockResolvedValueOnce(null);
 
-		expect((await noteService.getNotes(database))[0]?.hasAttachment).toBe(true);
-		expect((await noteService.getNote(database, "n2"))?.hasAttachment).toBe(false);
+		expect((await noteService.getNotes(database))[0]?.hasAttachment).toBe(
+			true,
+		);
+		expect((await noteService.getNote(database, "n2"))?.hasAttachment).toBe(
+			false,
+		);
 		expect(await noteService.getNote(database, "missing")).toBeNull();
 	});
 
 	it("validates and creates note", async () => {
-		await expect(noteService.saveNote(database, undefined, "   ", "x", undefined)).rejects.toMatchObject<AppError>({
+		await expect(
+			noteService.saveNote(database, undefined, "   ", "x", undefined),
+		).rejects.toMatchObject<AppError>({
 			code: "NOTE_TITLE_REQUIRED",
 		});
 

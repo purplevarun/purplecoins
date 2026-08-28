@@ -42,8 +42,12 @@ describe("exchangeRateService", () => {
 	});
 
 	it("gets existing exchange rates", async () => {
-		mocks.getExchangeRateRows.mockResolvedValueOnce([{ currencyCode: "USD" }]);
-		expect(await exchangeRateService.getExchangeRates(database)).toEqual([{ currencyCode: "USD" }]);
+		mocks.getExchangeRateRows.mockResolvedValueOnce([
+			{ currencyCode: "USD" },
+		]);
+		expect(await exchangeRateService.getExchangeRates(database)).toEqual([
+			{ currencyCode: "USD" },
+		]);
 	});
 
 	it("validates manual currency code", async () => {
@@ -53,7 +57,11 @@ describe("exchangeRateService", () => {
 	});
 
 	it("saves manual exchange rate with normalization", async () => {
-		await exchangeRateService.saveManualExchangeRate(database, " usd ", "00123.4500");
+		await exchangeRateService.saveManualExchangeRate(
+			database,
+			" usd ",
+			"00123.4500",
+		);
 		expect(mocks.upsertExchangeRateRow).toHaveBeenCalledWith(
 			database,
 			expect.objectContaining({
@@ -82,7 +90,9 @@ describe("exchangeRateService", () => {
 			"fetch",
 			vi.fn(async () => ({ ok: false, status: 503 })),
 		);
-		await expect(exchangeRateService.fetchExchangeRates(database)).rejects.toMatchObject<AppError>({
+		await expect(
+			exchangeRateService.fetchExchangeRates(database),
+		).rejects.toMatchObject<AppError>({
 			code: "RATE_FETCH_FAILED",
 		});
 	});
@@ -96,7 +106,9 @@ describe("exchangeRateService", () => {
 				json: async () => ({ bad: true }),
 			})),
 		);
-		await expect(exchangeRateService.fetchExchangeRates(database)).rejects.toMatchObject<AppError>({
+		await expect(
+			exchangeRateService.fetchExchangeRates(database),
+		).rejects.toMatchObject<AppError>({
 			code: "INVALID_RATE_RESPONSE",
 		});
 	});
@@ -116,8 +128,18 @@ describe("exchangeRateService", () => {
 				return {
 					ok: true,
 					json: async () => [
-						{ base: "INR", date: "2026-08-25", quote: "usd", rate: 0.0125 },
-						{ base: "INR", date: "2026-08-25", quote: "EUR", rate: 0.01 },
+						{
+							base: "INR",
+							date: "2026-08-25",
+							quote: "usd",
+							rate: 0.0125,
+						},
+						{
+							base: "INR",
+							date: "2026-08-25",
+							quote: "EUR",
+							rate: 0.01,
+						},
 					],
 				};
 			}),

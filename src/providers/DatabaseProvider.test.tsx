@@ -55,8 +55,14 @@ const setupStates = (
 ): void => {
 	reactMocks.useState.mockReset();
 	reactMocks.useState
-		.mockImplementationOnce(() => [dataVersion, stateSetters.setDataVersion])
-		.mockImplementationOnce(() => [pendingOperations, stateSetters.setPendingOperations])
+		.mockImplementationOnce(() => [
+			dataVersion,
+			stateSetters.setDataVersion,
+		])
+		.mockImplementationOnce(() => [
+			pendingOperations,
+			stateSetters.setPendingOperations,
+		])
 		.mockImplementationOnce(() => [showLoader, stateSetters.setShowLoader]);
 };
 
@@ -75,23 +81,29 @@ describe("DatabaseProvider", () => {
 			asyncMethod: vi.fn(async () => "ok"),
 		};
 
-		const element = DatabaseProvider({ children: null, database } as any) as any;
+		const element = DatabaseProvider({
+			children: null,
+			database,
+		} as any) as any;
 		const value = element.props.value;
 
 		expect(stateSetters.setShowLoader).toHaveBeenCalledWith(false);
 		value.refreshData();
-		expect(stateSetters.setDataVersion).toHaveBeenCalledWith(expect.any(Function));
+		expect(stateSetters.setDataVersion).toHaveBeenCalledWith(
+			expect.any(Function),
+		);
 
 		expect(value.database.name).toBe("db");
 		expect(value.database.syncMethod()).toBe(123);
 		expect(stateSetters.setPendingOperations).not.toHaveBeenCalledWith(1);
 
 		await value.database.asyncMethod();
-		expect(stateSetters.setPendingOperations).toHaveBeenCalledWith(expect.any(Function));
+		expect(stateSetters.setPendingOperations).toHaveBeenCalledWith(
+			expect.any(Function),
+		);
 		expect(stateSetters.setPendingOperations).toHaveBeenCalledTimes(2);
-		const decrementPending = stateSetters.setPendingOperations.mock.calls[1]?.[0] as (
-			current: number,
-		) => number;
+		const decrementPending = stateSetters.setPendingOperations.mock
+			.calls[1]?.[0] as (current: number) => number;
 		expect(decrementPending(0)).toBe(0);
 	});
 
@@ -103,7 +115,9 @@ describe("DatabaseProvider", () => {
 				if (typeof handler === "function") handler();
 				return 777 as any;
 			});
-		const clearSpy = vi.spyOn(globalThis, "clearTimeout").mockImplementation(() => undefined);
+		const clearSpy = vi
+			.spyOn(globalThis, "clearTimeout")
+			.mockImplementation(() => undefined);
 
 		DatabaseProvider({ children: null, database: {} as any } as any);
 
@@ -123,10 +137,15 @@ describe("DatabaseProvider", () => {
 			}),
 		};
 
-		const element = DatabaseProvider({ children: null, database } as any) as any;
+		const element = DatabaseProvider({
+			children: null,
+			database,
+		} as any) as any;
 		const value = element.props.value;
 
-		await expect(value.database.failingAsync()).rejects.toThrow("db failed");
+		await expect(value.database.failingAsync()).rejects.toThrow(
+			"db failed",
+		);
 		expect(stateSetters.setPendingOperations).toHaveBeenCalledTimes(2);
 	});
 });

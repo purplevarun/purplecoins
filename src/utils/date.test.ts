@@ -65,9 +65,7 @@ describe("date utils", () => {
 		vi.setSystemTime(new Date("2026-08-25T10:20:30.000Z"));
 
 		const range = getYtdDateRange();
-		expect(range.start).toBe(
-			new Date(2025, 7, 25, 0, 0, 0, 0).getTime(),
-		);
+		expect(range.start).toBe(new Date(2025, 7, 25, 0, 0, 0, 0).getTime());
 		expect(range.end).toBe(
 			new Date(2026, 7, 25, 23, 59, 59, 999).getTime(),
 		);
@@ -78,7 +76,9 @@ describe("date utils", () => {
 	it("shifts month/year/fy anchors", () => {
 		const anchor = new Date(2026, 7, 25);
 		expect(shiftAnalysisAnchor("MONTH", anchor, -1).getMonth()).toBe(6);
-		expect(shiftAnalysisAnchor("YEAR", anchor, -1).getFullYear()).toBe(2025);
+		expect(shiftAnalysisAnchor("YEAR", anchor, -1).getFullYear()).toBe(
+			2025,
+		);
 		expect(shiftAnalysisAnchor("FY", anchor, 1).getFullYear()).toBe(2027);
 	});
 
@@ -94,14 +94,26 @@ describe("date utils", () => {
 		const maxDate = new Date(2026, 7, 31).getTime();
 
 		// month clamp backward and forward
-		expect(shiftAnalysisAnchor("MONTH", anchor, -1, minDate, maxDate)).toEqual(anchor);
-		expect(shiftAnalysisAnchor("MONTH", anchor, 1, minDate, maxDate)).toEqual(anchor);
+		expect(
+			shiftAnalysisAnchor("MONTH", anchor, -1, minDate, maxDate),
+		).toEqual(anchor);
+		expect(
+			shiftAnalysisAnchor("MONTH", anchor, 1, minDate, maxDate),
+		).toEqual(anchor);
 
 		// year/fy clamp backward and forward
-		expect(shiftAnalysisAnchor("YEAR", anchor, -1, minDate, maxDate)).toEqual(anchor);
-		expect(shiftAnalysisAnchor("YEAR", anchor, 1, minDate, maxDate)).toEqual(anchor);
-		expect(shiftAnalysisAnchor("FY", anchor, -1, minDate, maxDate)).toEqual(anchor);
-		expect(shiftAnalysisAnchor("FY", anchor, 1, minDate, maxDate)).toEqual(anchor);
+		expect(
+			shiftAnalysisAnchor("YEAR", anchor, -1, minDate, maxDate),
+		).toEqual(anchor);
+		expect(
+			shiftAnalysisAnchor("YEAR", anchor, 1, minDate, maxDate),
+		).toEqual(anchor);
+		expect(shiftAnalysisAnchor("FY", anchor, -1, minDate, maxDate)).toEqual(
+			anchor,
+		);
+		expect(shiftAnalysisAnchor("FY", anchor, 1, minDate, maxDate)).toEqual(
+			anchor,
+		);
 	});
 
 	it("normalizes custom ranges and formats output", () => {
@@ -110,7 +122,9 @@ describe("date utils", () => {
 		const range = getCustomDateRange(startAt, endAt);
 
 		expect(range.start).toBe(new Date(2026, 7, 20, 0, 0, 0, 0).getTime());
-		expect(range.end).toBe(new Date(2026, 7, 30, 23, 59, 59, 999).getTime());
+		expect(range.end).toBe(
+			new Date(2026, 7, 30, 23, 59, 59, 999).getTime(),
+		);
 
 		expect(formatDate(range.start)).toContain("2026");
 		expect(formatDateTime(range.end)).toContain("2026");

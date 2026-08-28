@@ -60,7 +60,10 @@ vi.mock("@/hooks/useAppDialog", () => ({
 	default: () => ({ confirm: hookMocks.confirm }),
 }));
 vi.mock("@/hooks/useDatabaseContext", () => ({
-	default: () => ({ database: { id: "db" }, refreshData: hookMocks.refreshData }),
+	default: () => ({
+		database: { id: "db" },
+		refreshData: hookMocks.refreshData,
+	}),
 }));
 
 vi.mock("@/services/backupService", () => ({
@@ -140,7 +143,9 @@ describe("SettingsScreen", () => {
 		serviceMocks.updateDefaultTripId.mockResolvedValue(undefined);
 		serviceMocks.exportBackup.mockResolvedValue(undefined);
 		serviceMocks.restoreBackup.mockResolvedValue(true);
-		hookMocks.confirm.mockImplementation(({ onConfirm }: any) => onConfirm());
+		hookMocks.confirm.mockImplementation(({ onConfirm }: any) =>
+			onConfirm(),
+		);
 	});
 
 	it("loads settings and executes configuration and backup actions", async () => {
@@ -158,35 +163,58 @@ describe("SettingsScreen", () => {
 			tree,
 			(node) => typeof node?.props?.onChange === "function",
 		);
-		selects.find((node) => node?.props?.label === "Financial year start month")?.props?.onChange("7");
-		selects.find((node) => node?.props?.label === "Default trip")?.props?.onChange("trip1");
+		selects
+			.find((node) => node?.props?.label === "Financial year start month")
+			?.props?.onChange("7");
+		selects
+			.find((node) => node?.props?.label === "Default trip")
+			?.props?.onChange("trip1");
 		await flush();
 
 		findByPredicate(
 			tree,
-			(node) => node?.props?.label === "Archived relations" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Archived relations" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 
 		findByPredicate(
 			tree,
-			(node) => node?.props?.label === "Export .purplecoins" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Export .purplecoins" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 
 		findByPredicate(
 			tree,
-			(node) => node?.props?.label === "Restore .purplecoins" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Restore .purplecoins" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 
-		expect(serviceMocks.getNativeCurrencyDisplay).toHaveBeenCalledWith({ id: "db" });
+		expect(serviceMocks.getNativeCurrencyDisplay).toHaveBeenCalledWith({
+			id: "db",
+		});
 		expect(serviceMocks.getFyStartMonth).toHaveBeenCalledWith({ id: "db" });
-		expect(serviceMocks.getDefaultTripId).toHaveBeenCalledWith({ id: "db" });
+		expect(serviceMocks.getDefaultTripId).toHaveBeenCalledWith({
+			id: "db",
+		});
 		expect(serviceMocks.getTrips).toHaveBeenCalledWith({ id: "db" });
 
-		expect(serviceMocks.updateNativeCurrencyDisplay).toHaveBeenCalledWith({ id: "db" }, false);
-		expect(serviceMocks.updateFyStartMonth).toHaveBeenCalledWith({ id: "db" }, 7);
-		expect(serviceMocks.updateDefaultTripId).toHaveBeenCalledWith({ id: "db" }, "trip1");
+		expect(serviceMocks.updateNativeCurrencyDisplay).toHaveBeenCalledWith(
+			{ id: "db" },
+			false,
+		);
+		expect(serviceMocks.updateFyStartMonth).toHaveBeenCalledWith(
+			{ id: "db" },
+			7,
+		);
+		expect(serviceMocks.updateDefaultTripId).toHaveBeenCalledWith(
+			{ id: "db" },
+			"trip1",
+		);
 		expect(serviceMocks.exportBackup).toHaveBeenCalledWith({ id: "db" });
 		expect(serviceMocks.restoreBackup).toHaveBeenCalledWith({ id: "db" });
 		expect(hookMocks.refreshData).toHaveBeenCalled();
@@ -195,12 +223,16 @@ describe("SettingsScreen", () => {
 
 	it("handles restore no-op branch when no backup was restored", async () => {
 		serviceMocks.restoreBackup.mockResolvedValue(false);
-		const tree = SettingsScreen({ navigation: { navigate: vi.fn() } } as any);
+		const tree = SettingsScreen({
+			navigation: { navigate: vi.fn() },
+		} as any);
 		await flush();
 
 		findByPredicate(
 			tree,
-			(node) => node?.props?.label === "Restore .purplecoins" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Restore .purplecoins" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 
@@ -208,20 +240,30 @@ describe("SettingsScreen", () => {
 	});
 
 	it("covers export and restore error branches", async () => {
-		serviceMocks.exportBackup.mockRejectedValueOnce(new Error("export failed"));
-		serviceMocks.restoreBackup.mockRejectedValueOnce(new Error("restore failed"));
-		const tree = SettingsScreen({ navigation: { navigate: vi.fn() } } as any);
+		serviceMocks.exportBackup.mockRejectedValueOnce(
+			new Error("export failed"),
+		);
+		serviceMocks.restoreBackup.mockRejectedValueOnce(
+			new Error("restore failed"),
+		);
+		const tree = SettingsScreen({
+			navigation: { navigate: vi.fn() },
+		} as any);
 		await flush();
 
 		findByPredicate(
 			tree,
-			(node) => node?.props?.label === "Export .purplecoins" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Export .purplecoins" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 
 		findByPredicate(
 			tree,
-			(node) => node?.props?.label === "Restore .purplecoins" && typeof node?.props?.onPress === "function",
+			(node) =>
+				node?.props?.label === "Restore .purplecoins" &&
+				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
 
@@ -231,17 +273,26 @@ describe("SettingsScreen", () => {
 
 	it("covers null default trip load and empty default trip update", async () => {
 		serviceMocks.getDefaultTripId.mockResolvedValue(null);
-		const tree = SettingsScreen({ navigation: { navigate: vi.fn() } } as any);
+		const tree = SettingsScreen({
+			navigation: { navigate: vi.fn() },
+		} as any);
 		await flush();
 
 		findByPredicate(
 			tree,
-			(node) => node?.props?.label === "Default trip" && typeof node?.props?.onChange === "function",
+			(node) =>
+				node?.props?.label === "Default trip" &&
+				typeof node?.props?.onChange === "function",
 		)[0]?.props?.onChange("");
 		await flush();
 
-		expect(serviceMocks.getDefaultTripId).toHaveBeenCalledWith({ id: "db" });
-		expect(serviceMocks.updateDefaultTripId).toHaveBeenCalledWith({ id: "db" }, null);
+		expect(serviceMocks.getDefaultTripId).toHaveBeenCalledWith({
+			id: "db",
+		});
+		expect(serviceMocks.updateDefaultTripId).toHaveBeenCalledWith(
+			{ id: "db" },
+			null,
+		);
 	});
 
 	it("covers FY-end label branches and mapped trip options", async () => {
@@ -259,14 +310,20 @@ describe("SettingsScreen", () => {
 					vi.fn(),
 				];
 			}
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = SettingsScreen({ navigation } as any);
 		await flush();
 
 		expect(String(JSON.stringify(tree) ?? "")).toContain("Dec");
-		const defaultTripSelect = findByPredicate(tree, (node) => node?.props?.label === "Default trip")[0];
+		const defaultTripSelect = findByPredicate(
+			tree,
+			(node) => node?.props?.label === "Default trip",
+		)[0];
 		expect(defaultTripSelect?.props?.options).toEqual(
 			expect.arrayContaining([
 				expect.objectContaining({ value: "" }),
@@ -282,7 +339,10 @@ describe("SettingsScreen", () => {
 		reactMocks.useState.mockImplementation((initial: any) => {
 			call += 1;
 			if (call === 5) return [0, vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = SettingsScreen({ navigation } as any);
@@ -298,7 +358,10 @@ describe("SettingsScreen", () => {
 			call += 1;
 			if (call === 3) return ["boom", vi.fn()];
 			if (call === 4) return ["saved", vi.fn()];
-			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
 		});
 
 		const tree = SettingsScreen({ navigation } as any);
@@ -310,7 +373,9 @@ describe("SettingsScreen", () => {
 		expect(
 			findByPredicate(
 				tree,
-				(node) => node?.props?.message === "boom" && node?.props?.tone === "danger",
+				(node) =>
+					node?.props?.message === "boom" &&
+					node?.props?.tone === "danger",
 			),
 		).not.toHaveLength(0);
 	});

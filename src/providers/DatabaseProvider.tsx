@@ -40,7 +40,8 @@ const DatabaseProvider = ({
 							result !== null &&
 							typeof result === "object" &&
 							"then" in result &&
-							typeof (result as Promise<unknown>).then === "function"
+							typeof (result as Promise<unknown>).then ===
+								"function"
 						) {
 							setPendingOperations((current) => current + 1);
 							return (result as Promise<unknown>).finally(() => {

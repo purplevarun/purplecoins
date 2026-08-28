@@ -60,7 +60,9 @@ const findAllByType = (node: any, type: string, acc: any[] = []): any[] => {
 	}
 	if (node.type === type) acc.push(node);
 	if (node.props) {
-		Object.values(node.props).forEach((value) => findAllByType(value, type, acc));
+		Object.values(node.props).forEach((value) =>
+			findAllByType(value, type, acc),
+		);
 	}
 	return acc;
 };
@@ -71,7 +73,11 @@ describe("field components", () => {
 	});
 
 	it("covers AttachmentField choose/open/remove branches", () => {
-		const handlers = { onPick: vi.fn(), onOpen: vi.fn(), onRemove: vi.fn() };
+		const handlers = {
+			onPick: vi.fn(),
+			onOpen: vi.fn(),
+			onRemove: vi.fn(),
+		};
 
 		const empty = AttachmentField({
 			existingAttachment: null,
@@ -135,7 +141,11 @@ describe("field components", () => {
 		reactMocks.useState.mockImplementationOnce(() => [false, setVisible]);
 		const onChange = vi.fn();
 
-		const closed = DateField({ label: "Date", value: 1_000, onChange } as any);
+		const closed = DateField({
+			label: "Date",
+			value: 1_000,
+			onChange,
+		} as any);
 		expect(findAllByType(closed, "DateTimePicker")).toHaveLength(0);
 		const trigger = findAllByType(closed, "Pressable")[0];
 		trigger.props.onPress();
@@ -143,7 +153,11 @@ describe("field components", () => {
 
 		(Platform as { OS: string }).OS = "ios";
 		reactMocks.useState.mockImplementationOnce(() => [true, setVisible]);
-		const openIos = DateField({ label: "Date", value: 1_000, onChange } as any);
+		const openIos = DateField({
+			label: "Date",
+			value: 1_000,
+			onChange,
+		} as any);
 		const pickerIos = findAllByType(openIos, "DateTimePicker")[0];
 		expect(pickerIos.props.display).toBe("inline");
 		pickerIos.props.onDismiss();
@@ -153,7 +167,11 @@ describe("field components", () => {
 
 		(Platform as { OS: string }).OS = "android";
 		reactMocks.useState.mockImplementationOnce(() => [true, setVisible]);
-		const openAndroid = DateField({ label: "Date", value: 1_000, onChange } as any);
+		const openAndroid = DateField({
+			label: "Date",
+			value: 1_000,
+			onChange,
+		} as any);
 		const pickerAndroid = findAllByType(openAndroid, "DateTimePicker")[0];
 		expect(pickerAndroid.props.display).toBe("default");
 		pickerAndroid.props.onValueChange({}, new Date(3_000));
@@ -172,7 +190,15 @@ describe("field components", () => {
 		const onCreateFolder = vi.fn(async () => "folder-123");
 		const closed = FolderPicker({
 			value: "",
-			folders: [{ id: "f1", name: "Work", type: "NOTE", createdAt: 1, updatedAt: 1 }],
+			folders: [
+				{
+					id: "f1",
+					name: "Work",
+					type: "NOTE",
+					createdAt: 1,
+					updatedAt: 1,
+				},
+			],
 			onChange,
 			onCreateFolder,
 		} as any);
@@ -187,7 +213,15 @@ describe("field components", () => {
 			.mockImplementationOnce(() => ["Receipts", setFolderName]);
 		const open = FolderPicker({
 			value: "",
-			folders: [{ id: "f1", name: "Work", type: "NOTE", createdAt: 1, updatedAt: 1 }],
+			folders: [
+				{
+					id: "f1",
+					name: "Work",
+					type: "NOTE",
+					createdAt: 1,
+					updatedAt: 1,
+				},
+			],
 			onChange,
 			onCreateFolder,
 		} as any);

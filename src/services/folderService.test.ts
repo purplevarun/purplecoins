@@ -32,7 +32,9 @@ describe("folderService", () => {
 	});
 
 	it("gets folders by type", async () => {
-		mocks.getFolderRows.mockResolvedValueOnce([{ id: "f1", name: "A", type: "NOTE" }]);
+		mocks.getFolderRows.mockResolvedValueOnce([
+			{ id: "f1", name: "A", type: "NOTE" },
+		]);
 		expect(await folderService.getFolders(database, "NOTE")).toEqual([
 			{ id: "f1", name: "A", type: "NOTE" },
 		]);
@@ -40,11 +42,17 @@ describe("folderService", () => {
 	});
 
 	it("validates and creates folder", async () => {
-		await expect(folderService.createFolder(database, "   ", "TODO")).rejects.toMatchObject<AppError>({
+		await expect(
+			folderService.createFolder(database, "   ", "TODO"),
+		).rejects.toMatchObject<AppError>({
 			code: "FOLDER_NAME_REQUIRED",
 		});
 
-		const id = await folderService.createFolder(database, "  Work  ", "TODO");
+		const id = await folderService.createFolder(
+			database,
+			"  Work  ",
+			"TODO",
+		);
 		expect(id).toBe("folder-id");
 		expect(mocks.upsertFolderRow).toHaveBeenCalledWith(
 			database,
@@ -59,27 +67,49 @@ describe("folderService", () => {
 	});
 
 	it("maps foreign-key delete errors and rethrows others", async () => {
-		mocks.deleteFolderRow.mockRejectedValueOnce(new Error("FOREIGN KEY constraint failed"));
-		await expect(folderService.deleteFolder(database, "f1")).rejects.toMatchObject<AppError>({
+		mocks.deleteFolderRow.mockRejectedValueOnce(
+			new Error("FOREIGN KEY constraint failed"),
+		);
+		await expect(
+			folderService.deleteFolder(database, "f1"),
+		).rejects.toMatchObject<AppError>({
 			code: "FOLDER_IN_USE",
 		});
 
 		mocks.deleteFolderRow.mockRejectedValueOnce(new Error("disk issue"));
-		await expect(folderService.deleteFolder(database, "f1")).rejects.toThrow("disk issue");
+		await expect(
+			folderService.deleteFolder(database, "f1"),
+		).rejects.toThrow("disk issue");
 	});
 
 	it("renames folder with lookup across NOTE and TODO", async () => {
-		await expect(folderService.renameFolder(database, "f1", "   ")).rejects.toMatchObject<AppError>({
+		await expect(
+			folderService.renameFolder(database, "f1", "   "),
+		).rejects.toMatchObject<AppError>({
 			code: "FOLDER_NAME_REQUIRED",
 		});
 
-		mocks.getFolderRows.mockResolvedValueOnce([{ id: "x", name: "N", type: "NOTE", createdAt: 1, updatedAt: 1 }]);
-		mocks.getFolderRows.mockResolvedValueOnce([{ id: "y", name: "T", type: "TODO", createdAt: 1, updatedAt: 1 }]);
-		await expect(folderService.renameFolder(database, "f1", "New")).rejects.toMatchObject<AppError>({
+		mocks.getFolderRows.mockResolvedValueOnce([
+			{ id: "x", name: "N", type: "NOTE", createdAt: 1, updatedAt: 1 },
+		]);
+		mocks.getFolderRows.mockResolvedValueOnce([
+			{ id: "y", name: "T", type: "TODO", createdAt: 1, updatedAt: 1 },
+		]);
+		await expect(
+			folderService.renameFolder(database, "f1", "New"),
+		).rejects.toMatchObject<AppError>({
 			code: "FOLDER_NOT_FOUND",
 		});
 
-		mocks.getFolderRows.mockResolvedValueOnce([{ id: "f1", name: "Old", type: "NOTE", createdAt: 10, updatedAt: 11 }]);
+		mocks.getFolderRows.mockResolvedValueOnce([
+			{
+				id: "f1",
+				name: "Old",
+				type: "NOTE",
+				createdAt: 10,
+				updatedAt: 11,
+			},
+		]);
 		mocks.getFolderRows.mockResolvedValueOnce([]);
 		await folderService.renameFolder(database, "f1", "  New  ");
 		expect(mocks.upsertFolderRow).toHaveBeenCalledWith(

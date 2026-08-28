@@ -26,7 +26,9 @@ describe("attachmentRepository", () => {
 		expect(await getAttachmentContentRow(database, "NOTE", "n1")).toEqual(
 			new Uint8Array([1, 2]),
 		);
-		expect(await getAttachmentContentRow(database, "NOTE", "n2")).toBeNull();
+		expect(
+			await getAttachmentContentRow(database, "NOTE", "n2"),
+		).toBeNull();
 	});
 
 	it("upserts and deletes attachment rows", async () => {

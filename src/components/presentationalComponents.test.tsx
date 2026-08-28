@@ -78,17 +78,27 @@ const findFirstByType = (node: any, type: string): any => {
 
 describe("presentational components", () => {
 	it("renders CustomText and CustomTextInput with app font styles", () => {
-		const textElement = CustomText({ style: { fontSize: 16 }, children: "Hi" } as any);
+		const textElement = CustomText({
+			style: { fontSize: 16 },
+			children: "Hi",
+		} as any);
 		expect(textElement.type).toBe("Text");
 		expect(applyAppFontStyleMock).toHaveBeenCalledWith({ fontSize: 16 });
 
-		const inputElement = CustomTextInput({ style: { fontSize: 14 }, value: "x" } as any);
+		const inputElement = CustomTextInput({
+			style: { fontSize: 14 },
+			value: "x",
+		} as any);
 		expect(inputElement.type).toBe("TextInput");
 		expect(applyAppFontStyleMock).toHaveBeenCalledWith({ fontSize: 14 });
 	});
 
 	it("renders EmptyState, ListHeader, and SectionHeading branches", () => {
-		const empty = EmptyState({ icon: "search", title: "None", message: "Nothing here" } as any);
+		const empty = EmptyState({
+			icon: "search",
+			title: "None",
+			message: "Nothing here",
+		} as any);
 		expect(empty.type).toBe("View");
 		expect(findFirstByType(empty, "Ionicons")?.props.name).toBe("search");
 
@@ -96,9 +106,14 @@ describe("presentational components", () => {
 		expect(header.type).toBe("View");
 		expect(header.props.children).toBe("Body");
 
-		const headingWithSubtitle = SectionHeading({ title: "Title", subtitle: "Sub" } as any);
+		const headingWithSubtitle = SectionHeading({
+			title: "Title",
+			subtitle: "Sub",
+		} as any);
 		expect(findFirstByType(headingWithSubtitle, "View")).toBeTruthy();
-		const headingWithoutSubtitle = SectionHeading({ title: "Title" } as any);
+		const headingWithoutSubtitle = SectionHeading({
+			title: "Title",
+		} as any);
 		expect(findFirstByType(headingWithoutSubtitle, "View")).toBeTruthy();
 	});
 
@@ -111,18 +126,31 @@ describe("presentational components", () => {
 	});
 
 	it("renders Notice tones and SearchBar defaults", () => {
-		expect(findFirstByType(Notice({ message: "Info" } as any), "Ionicons")?.props.name).toBe(
-			"information-circle",
-		);
 		expect(
-			findFirstByType(Notice({ message: "Warn", tone: "warning" } as any), "Ionicons")?.props.name,
+			findFirstByType(Notice({ message: "Info" } as any), "Ionicons")
+				?.props.name,
 		).toBe("information-circle");
 		expect(
-			findFirstByType(Notice({ message: "Danger", tone: "danger" } as any), "Ionicons")?.props.name,
+			findFirstByType(
+				Notice({ message: "Warn", tone: "warning" } as any),
+				"Ionicons",
+			)?.props.name,
+		).toBe("information-circle");
+		expect(
+			findFirstByType(
+				Notice({ message: "Danger", tone: "danger" } as any),
+				"Ionicons",
+			)?.props.name,
 		).toBe("alert-circle");
 
-		const searchDefault = SearchBar({ value: "", onChangeText: vi.fn() } as any);
-		const defaultInput = findFirstByType(searchDefault, CustomTextInput as any);
+		const searchDefault = SearchBar({
+			value: "",
+			onChangeText: vi.fn(),
+		} as any);
+		const defaultInput = findFirstByType(
+			searchDefault,
+			CustomTextInput as any,
+		);
 		expect(defaultInput?.props.placeholder).toBe("Search...");
 		expect(defaultInput?.props.autoFocus).toBe(true);
 
@@ -132,7 +160,10 @@ describe("presentational components", () => {
 			placeholder: "Find",
 			autoFocus: false,
 		} as any);
-		const customInput = findFirstByType(searchCustom, CustomTextInput as any);
+		const customInput = findFirstByType(
+			searchCustom,
+			CustomTextInput as any,
+		);
 		expect(customInput?.props.placeholder).toBe("Find");
 		expect(customInput?.props.autoFocus).toBe(false);
 	});
@@ -163,11 +194,20 @@ describe("presentational components", () => {
 	});
 
 	it("covers GlassCard accent variants", () => {
-		const success = GlassCard({ accent: "success", children: "x" } as any) as any;
+		const success = GlassCard({
+			accent: "success",
+			children: "x",
+		} as any) as any;
 		expect(success.props.style[1].borderColor).toBeTruthy();
-		const danger = GlassCard({ accent: "danger", children: "x" } as any) as any;
+		const danger = GlassCard({
+			accent: "danger",
+			children: "x",
+		} as any) as any;
 		expect(danger.props.style[1].borderColor).toBeTruthy();
-		const warning = GlassCard({ accent: "warning", children: "x" } as any) as any;
+		const warning = GlassCard({
+			accent: "warning",
+			children: "x",
+		} as any) as any;
 		expect(warning.props.style[1].borderColor).toBeTruthy();
 		const defaultCard = GlassCard({ children: "x" } as any) as any;
 		expect(defaultCard.props.style[1].borderColor).toBeTruthy();
@@ -175,21 +215,37 @@ describe("presentational components", () => {
 
 	it("covers ScreenContainer and ScreenList branches", () => {
 		(Platform as { OS: string }).OS = "ios";
-		const scrollable = ScreenContainer({ children: "x", isScrollable: true } as any) as any;
-		const keyboardViewA = findFirstByType(scrollable, "KeyboardAvoidingView");
+		const scrollable = ScreenContainer({
+			children: "x",
+			isScrollable: true,
+		} as any) as any;
+		const keyboardViewA = findFirstByType(
+			scrollable,
+			"KeyboardAvoidingView",
+		);
 		expect(keyboardViewA.props.behavior).toBe("padding");
 		expect(findFirstByType(scrollable, "ScrollView")).toBeTruthy();
 
 		(Platform as { OS: string }).OS = "android";
-		const staticContainer = ScreenContainer({ children: "x", isScrollable: false } as any) as any;
-		const keyboardViewB = findFirstByType(staticContainer, "KeyboardAvoidingView");
+		const staticContainer = ScreenContainer({
+			children: "x",
+			isScrollable: false,
+		} as any) as any;
+		const keyboardViewB = findFirstByType(
+			staticContainer,
+			"KeyboardAvoidingView",
+		);
 		expect(keyboardViewB.props.behavior).toBeUndefined();
 		expect(findFirstByType(staticContainer, "ScrollView")).toBeNull();
 
-		const defaultList = ScreenList({ data: [], renderItem: vi.fn() } as any) as any;
+		const defaultList = ScreenList({
+			data: [],
+			renderItem: vi.fn(),
+		} as any) as any;
 		const flashListDefault = findFirstByType(defaultList, "FlashList");
 		expect(flashListDefault.props.ItemSeparatorComponent).toBeTruthy();
-		const defaultSeparator = flashListDefault.props.ItemSeparatorComponent();
+		const defaultSeparator =
+			flashListDefault.props.ItemSeparatorComponent();
 		expect(defaultSeparator).toBeTruthy();
 
 		const customSeparator = () => null;
@@ -199,6 +255,8 @@ describe("presentational components", () => {
 			ItemSeparatorComponent: customSeparator,
 		} as any) as any;
 		const flashListCustom = findFirstByType(customList, "FlashList");
-		expect(flashListCustom.props.ItemSeparatorComponent).toBe(customSeparator);
+		expect(flashListCustom.props.ItemSeparatorComponent).toBe(
+			customSeparator,
+		);
 	});
 });

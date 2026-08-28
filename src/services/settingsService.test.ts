@@ -26,13 +26,19 @@ describe("settingsService", () => {
 
 	it("returns native currency default true and parses stored values", async () => {
 		mocks.getSettingRow.mockResolvedValueOnce(null);
-		expect(await settingsService.getNativeCurrencyDisplay(database)).toBe(true);
+		expect(await settingsService.getNativeCurrencyDisplay(database)).toBe(
+			true,
+		);
 
 		mocks.getSettingRow.mockResolvedValueOnce("true");
-		expect(await settingsService.getNativeCurrencyDisplay(database)).toBe(true);
+		expect(await settingsService.getNativeCurrencyDisplay(database)).toBe(
+			true,
+		);
 
 		mocks.getSettingRow.mockResolvedValueOnce("false");
-		expect(await settingsService.getNativeCurrencyDisplay(database)).toBe(false);
+		expect(await settingsService.getNativeCurrencyDisplay(database)).toBe(
+			false,
+		);
 	});
 
 	it("updates native currency display", async () => {
