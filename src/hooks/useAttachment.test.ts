@@ -161,4 +161,16 @@ describe("useAttachment", () => {
 			"record2",
 		);
 	});
+
+	it("skips open and processing when there is no attachment action to perform", async () => {
+		setHookState(null, null, false);
+
+		const result = useAttachment("NOTE", "n1");
+		await result.handleOpen();
+		await result.processAttachment("record3");
+
+		expect(attachmentServiceMocks.openAttachment).not.toHaveBeenCalled();
+		expect(attachmentServiceMocks.saveAttachment).not.toHaveBeenCalled();
+		expect(attachmentServiceMocks.deleteAttachment).not.toHaveBeenCalled();
+	});
 });
