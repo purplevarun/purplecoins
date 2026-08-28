@@ -197,6 +197,23 @@ describe("financeRepository", () => {
 			2,
 		);
 
+		await upsertCategoryRow(database, {
+			id: "c2",
+			name: "Salary",
+			isIncome: true,
+			createdAt: 3,
+			updatedAt: 4,
+			archived: false,
+		});
+		expect(database.runAsync).toHaveBeenCalledWith(
+			expect.stringContaining("INSERT INTO categories"),
+			"c2",
+			"Salary",
+			1,
+			3,
+			4,
+		);
+
 		await setCategoryArchivedRow(database, "c1", true, 9);
 		await setCategoryArchivedRow(database, "c1", false, 10);
 		expect(await categoryNameExistsRow(database, "Food", "c1")).toBe(true);
