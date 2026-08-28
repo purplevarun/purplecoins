@@ -91,6 +91,22 @@ describe("sourceService", () => {
 		);
 	});
 
+	it("uses zero balance fallback when source has no transaction entries", async () => {
+		mocks.getSourceRows.mockResolvedValueOnce([
+			{ id: "s1", name: "A", currencyCode: "INR", archived: 0 },
+			{ id: "s2", name: "B", currencyCode: "USD", archived: 0 },
+		]);
+		mocks.getTransactionRows.mockResolvedValueOnce([
+			{ type: "CREDIT", sourceId: "s1", amount: "25" },
+		]);
+
+		const sources = await sourceService.getSources(database);
+		expect(sources).toEqual([
+			expect.objectContaining({ id: "s1", balance: "25" }),
+			expect.objectContaining({ id: "s2", balance: "0" }),
+		]);
+	});
+
 	it("returns source or null", async () => {
 		mocks.getSourceRow.mockResolvedValueOnce(null);
 		expect(await sourceService.getSource(database, "x")).toBeNull();
