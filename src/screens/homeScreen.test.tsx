@@ -101,6 +101,7 @@ vi.mock("@/components/ScreenContainer", () => ({
 }));
 
 import COLORS from "@/constants/colors";
+import HOME_MODES from "@/constants/homeModes";
 import HomeScreen, {
 	MODE_OPTIONS,
 	SWIPE_DOWN_THRESHOLD,
@@ -392,6 +393,17 @@ describe("HomeScreen", () => {
 		]);
 		expect(SWIPE_DOWN_THRESHOLD).toBe(28);
 		expect(SWITCH_ARROW_TRAVEL).toBe(5);
+	});
+
+	it("falls back to FINANCE when mode list is temporarily empty", () => {
+		const originalModes = [...HOME_MODES];
+		(HOME_MODES as unknown as string[]).length = 0;
+
+		try {
+			expect(getNextMode("FINANCE")).toBe("FINANCE");
+		} finally {
+			(HOME_MODES as unknown as string[]).push(...originalModes);
+		}
 	});
 
 	it("handles modal close and mode option selection", () => {
