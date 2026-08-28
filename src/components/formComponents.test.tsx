@@ -113,6 +113,13 @@ describe("form components", () => {
 			1,
 		);
 		expect(loadingButton.props.style({ pressed: true })[1]).toBe(false);
+
+		const noIconButton = AppButton({
+			label: "No Icon",
+			onPress,
+			variant: "primary",
+		} as any);
+		expect(findAllByType(noIconButton, "Ionicons")).toHaveLength(0);
 	});
 
 	it("covers SegmentedControl basis math and selected state", () => {
