@@ -132,6 +132,25 @@ describe("attachmentService", () => {
 		});
 	});
 
+	it("throws when selected file size is zero", async () => {
+		mocks.getDocumentAsync.mockResolvedValueOnce({
+			canceled: false,
+			assets: [
+				{
+					uri: "file://empty.pdf",
+					name: "empty.pdf",
+					size: 0,
+					mimeType: "application/pdf",
+				},
+			],
+		});
+		await expect(
+			attachmentService.pickAttachment(),
+		).rejects.toMatchObject<AppError>({
+			code: "ATTACHMENT_TOO_LARGE",
+		});
+	});
+
 	it("reads picked attachment bytes and defaults mime type", async () => {
 		mocks.getDocumentAsync.mockResolvedValueOnce({
 			canceled: false,
