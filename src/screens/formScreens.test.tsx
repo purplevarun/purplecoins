@@ -1239,4 +1239,84 @@ describe("form screens", () => {
 			),
 		).toHaveLength(0);
 	});
+
+	it("covers TodoFormScreen existing-todo fallback branches", async () => {
+		serviceMocks.getTodo
+			.mockResolvedValueOnce(null)
+			.mockResolvedValueOnce({
+				id: "t1",
+				title: "Todo",
+				description: "Desc",
+				folderId: undefined,
+				hasAttachment: false,
+				isDone: false,
+				dueAt: null,
+				updatedAt: 1,
+			});
+
+		const firstTree = TodoFormScreen({
+			navigation: { goBack: vi.fn() },
+			route: {
+				key: "k-todo-null",
+				name: "TodoForm",
+				params: { todoId: "t1" },
+			},
+		} as any);
+		await flush();
+
+		const setFolderId = vi.fn();
+		const setDueAt = vi.fn();
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 1) return ["", vi.fn()];
+			if (call === 2) return ["", vi.fn()];
+			if (call === 3) return ["", setFolderId];
+			if (call === 6) return [Date.now(), setDueAt];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		const secondTree = TodoFormScreen({
+			navigation: { goBack: vi.fn() },
+			route: {
+				key: "k-todo-fallbacks",
+				name: "TodoForm",
+				params: { todoId: "t1" },
+			},
+		} as any);
+		await flush();
+
+		expect(firstTree).toBeTruthy();
+		expect(secondTree).toBeTruthy();
+		expect(setFolderId).toHaveBeenCalledWith("");
+		expect(setDueAt).toHaveBeenCalled();
+	});
+
+	it("renders TodoFormScreen error notice branch", async () => {
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 8) return ["pre-existing todo error", vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		const tree = TodoFormScreen({
+			navigation: { goBack: vi.fn() },
+			route: { key: "k-todo-error", name: "TodoForm", params: {} },
+		} as any);
+		await flush();
+
+		expect(
+			findByPredicate(
+				tree,
+				(node) => node?.props?.message === "pre-existing todo error",
+			),
+		).not.toHaveLength(0);
+	});
 });
