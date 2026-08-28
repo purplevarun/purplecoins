@@ -108,9 +108,25 @@ describe("DatabaseProvider", () => {
 		DatabaseProvider({ children: null, database: {} as any } as any);
 
 		expect(timeoutSpy).toHaveBeenCalledWith(expect.any(Function), 120);
+		expect(stateSetters.setShowLoader).toHaveBeenCalledWith(true);
 		expect(clearSpy).toHaveBeenCalledWith(777);
 
 		timeoutSpy.mockRestore();
 		clearSpy.mockRestore();
+	});
+
+	it("tracks pending operations even when async database call rejects", async () => {
+		setupStates(0, 0, false);
+		const database = {
+			failingAsync: vi.fn(async () => {
+				throw new Error("db failed");
+			}),
+		};
+
+		const element = DatabaseProvider({ children: null, database } as any) as any;
+		const value = element.props.value;
+
+		await expect(value.database.failingAsync()).rejects.toThrow("db failed");
+		expect(stateSetters.setPendingOperations).toHaveBeenCalledTimes(2);
 	});
 });
