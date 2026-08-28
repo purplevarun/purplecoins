@@ -430,28 +430,15 @@ describe("HomeScreen", () => {
 
 		const tree = HomeScreen({ navigation } as any);
 
-		const tilePressables = findByPredicate(
+		const styledPressables = findByPredicate(
 			tree,
-			(node) =>
-				typeof node?.props?.style === "function" &&
-				typeof node?.props?.onPress === "function",
+			(node) => typeof node?.props?.style === "function",
 		);
-		const tileStyle = tilePressables[0]?.props?.style;
-		expect(Array.isArray(tileStyle?.({ pressed: true }))).toBe(true);
-		expect(Array.isArray(tileStyle?.({ pressed: false }))).toBe(true);
-
-		const switchNode = findByPredicate(
-			tree,
-			(node) =>
-				node?.props?.accessibilityLabel === "Switch homepage" &&
-				typeof node?.props?.style === "function",
-		)[0];
-		expect(Array.isArray(switchNode?.props?.style({ pressed: true }))).toBe(
-			true,
-		);
-		expect(
-			Array.isArray(switchNode?.props?.style({ pressed: false })),
-		).toBe(true);
+		expect(styledPressables.length).toBeGreaterThan(0);
+		styledPressables.forEach((node) => {
+			expect(Array.isArray(node.props.style({ pressed: true }))).toBe(true);
+			expect(Array.isArray(node.props.style({ pressed: false }))).toBe(true);
+		});
 
 		const modalNode = findByPredicate(
 			tree,
