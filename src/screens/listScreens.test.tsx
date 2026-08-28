@@ -581,6 +581,71 @@ describe("list screens", () => {
 		expect(String(JSON.stringify(rendered) ?? "")).toContain("SOURCE TITLE");
 	});
 
+	it("covers ArchivedRelationsScreen load-error catch path", async () => {
+		serviceMocks.getArchivedSources.mockRejectedValueOnce(new Error("cannot load archived"));
+		const setError = vi.fn();
+
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 5) return ["", setError];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		ArchivedRelationsScreen({} as any);
+		await flush();
+
+		expect(setError).toHaveBeenCalledWith("cannot load archived");
+	});
+
+	it("covers ArchivedRelationsScreen category and trip restore branches", async () => {
+		hookMocks.confirm.mockImplementation(({ onConfirm }: any) => onConfirm());
+		serviceMocks.setCategoryArchived.mockRejectedValueOnce(new Error("cannot restore category"));
+
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 1) return [[], vi.fn()];
+			if (call === 2) return [[{ id: "c1", name: "Food" }], vi.fn()];
+			if (call === 3) return [[{ id: "t1", name: "Goa" }], vi.fn()];
+			if (call === 4) return [[], vi.fn()];
+			if (call === 6) return ["", vi.fn()];
+			if (call === 7) return ["", vi.fn()];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = ArchivedRelationsScreen({} as any);
+		await flush();
+
+		const screenList = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.renderItem === "function" && typeof node?.props?.keyExtractor === "function",
+		)[0];
+		expect(screenList.props.keyExtractor({ key: "CATEGORY-c1" })).toBe("CATEGORY-c1");
+
+		const categoryRow = screenList.props.data.find((row: any) => row.kind === "CATEGORY");
+		const categoryRendered = screenList.props.renderItem({ item: categoryRow });
+		findByPredicate(categoryRendered, (node) => typeof node?.props?.onPress === "function")[0]?.props?.onPress();
+		await flush();
+
+		expect(serviceMocks.setCategoryArchived).toHaveBeenCalledWith({ id: "db" }, "c1", false);
+		expect(hookMocks.showMessage).toHaveBeenCalledWith(
+			expect.objectContaining({
+				title: "Unable to restore",
+				message: "cannot restore category",
+				variant: "danger",
+			}),
+		);
+
+		const tripRow = screenList.props.data.find((row: any) => row.kind === "TRIP");
+		const tripRendered = screenList.props.renderItem({ item: tripRow });
+		findByPredicate(tripRendered, (node) => typeof node?.props?.onPress === "function")[0]?.props?.onPress();
+		await flush();
+
+		expect(serviceMocks.setTripArchived).toHaveBeenCalledWith({ id: "db" }, "t1", false);
+		expect(hookMocks.refreshData).toHaveBeenCalled();
+	});
+
 	it.each([
 		["SOURCE", "deleteSource"],
 		["CATEGORY", "deleteCategory"],
