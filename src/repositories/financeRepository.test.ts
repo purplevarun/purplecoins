@@ -319,6 +319,41 @@ describe("financeRepository", () => {
 			"tx1",
 		);
 
+		await updateTransactionRow(
+			database,
+			{
+				classification: "GENERAL",
+				type: "DEBIT",
+				sourceId: "s4",
+				destinationSourceId: undefined,
+				amount: "5",
+				toAmount: undefined,
+				categoryId: undefined,
+				tripId: undefined,
+				investmentId: undefined,
+				reason: "snack",
+				transactionAt: 300,
+			},
+			"tx2",
+			333,
+		);
+		expect(database.runAsync).toHaveBeenCalledWith(
+			expect.stringContaining("UPDATE transactions SET"),
+			"GENERAL",
+			"DEBIT",
+			"s4",
+			null,
+			"5",
+			null,
+			null,
+			null,
+			null,
+			"snack",
+			300,
+			333,
+			"tx2",
+		);
+
 		await deleteTransactionRow(database, "tx1");
 		expect(database.withTransactionAsync).toHaveBeenCalledTimes(1);
 		expect(database.runAsync).toHaveBeenCalledWith(
