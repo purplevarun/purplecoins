@@ -243,6 +243,8 @@ describe("advanced components", () => {
 		const closedPressables = findAllByType(closed, "Pressable");
 		closedPressables[0]?.props.onPress();
 		expect(onSelectFolder).toHaveBeenCalledWith("__ALL_FOLDERS__");
+		closedPressables[2]?.props.onPress();
+		expect(onSelectFolder).toHaveBeenCalledWith("f1");
 		closedPressables[2]?.props.onLongPress();
 		expect(setActionFolder).toHaveBeenCalledWith(folder);
 		expect(setRenameMode).toHaveBeenCalledWith(false);
