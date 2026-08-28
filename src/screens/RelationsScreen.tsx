@@ -301,10 +301,8 @@ const RelationsScreen = ({
 		(amount: string, currencyCode: string): Decimal => {
 			const rate = rateMap.get(currencyCode);
 			if (!rate) {
-				// No rate: only count if already INR, else treat as 0
-				return currencyCode === "INR"
-					? new Decimal(amount)
-					: new Decimal(0);
+				// Unknown currency rates are excluded from converted totals.
+				return new Decimal(0);
 			}
 			return new Decimal(amount).times(rate);
 		},

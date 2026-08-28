@@ -342,4 +342,41 @@ describe("LinkedTransactionsScreen", () => {
 			expect(navigation.goBack).toHaveBeenCalled();
 		},
 	);
+
+	it("renders list-header error notice branch", async () => {
+		const navigation = { navigate: vi.fn(), goBack: vi.fn() };
+
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 2) return ["manual header error", vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		const tree = LinkedTransactionsScreen({
+			navigation,
+			route: {
+				key: "k4",
+				name: "LinkedTransactions",
+				params: {
+					entityId: "e1",
+					entityName: "Entity",
+					kind: "CATEGORY",
+				},
+			},
+		} as any);
+		await flush();
+
+		expect(
+			findByPredicate(
+				tree,
+				(node) =>
+					node?.props?.message === "manual header error" &&
+					node?.props?.tone === "danger",
+			),
+		).not.toHaveLength(0);
+	});
 });

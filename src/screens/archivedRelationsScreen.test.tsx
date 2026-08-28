@@ -293,4 +293,27 @@ describe("ArchivedRelationsScreen", () => {
 			}),
 		);
 	});
+
+	it("covers debounced search timer callback", async () => {
+		const setSearchDebounced = vi.fn();
+		vi.spyOn(globalThis, "setTimeout").mockImplementation(((fn: any) => {
+			fn();
+			return 123;
+		}) as any);
+
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 7) return ["term", setSearchDebounced];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		ArchivedRelationsScreen({} as any);
+		await flush();
+
+		expect(setSearchDebounced).toHaveBeenCalledWith("");
+	});
 });

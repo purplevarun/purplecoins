@@ -559,10 +559,12 @@ describe("TransactionFormScreen", () => {
 				Array.isArray(node?.props?.options),
 		);
 		segmentedControls[0]?.props?.onChange("INVESTMENT");
+		segmentedControls[0]?.props?.onChange("GENERAL");
 		segmentedControls[1]?.props?.onChange("CREDIT");
 		segmentedControls[1]?.props?.onChange("SOMETHING_ELSE");
 
 		expect(setClassification).toHaveBeenCalledWith("INVESTMENT");
+		expect(setClassification).toHaveBeenCalledWith("GENERAL");
 		expect(setType).toHaveBeenCalledWith("CREDIT");
 		expect(setType).toHaveBeenCalledWith("DEBIT");
 	});

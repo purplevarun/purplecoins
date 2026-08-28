@@ -75,10 +75,7 @@ const NoteFormScreen = ({
 		}
 	};
 
-	const handleDelete = (): void => {
-		if (!noteId) {
-			return;
-		}
+	const handleDelete = (targetNoteId: string): void => {
 		dialog.confirm({
 			title: "Delete note?",
 			message: "This action cannot be undone.",
@@ -87,7 +84,7 @@ const NoteFormScreen = ({
 			onConfirm: () => {
 				const processDelete = async (): Promise<void> => {
 					try {
-						await deleteNote(database, noteId);
+						await deleteNote(database, targetNoteId);
 						refreshData();
 						navigation.goBack();
 					} catch (caughtError: unknown) {
@@ -142,7 +139,7 @@ const NoteFormScreen = ({
 					{noteId ? (
 						<AppButton
 							label="Delete note"
-							onPress={handleDelete}
+							onPress={() => handleDelete(noteId)}
 							variant="danger"
 						/>
 					) : null}

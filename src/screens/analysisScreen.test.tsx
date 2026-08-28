@@ -584,6 +584,9 @@ describe("AnalysisScreen", () => {
 		expect(getPeriodTitle("MONTH", anchorDate, 4)).toContain("April");
 		expect(getPeriodTitle("YEAR", anchorDate, 4)).toBe("2026");
 		expect(getPeriodTitle("FY", anchorDate, 4)).toBe("FY 2026–27");
+		expect(
+			getPeriodTitle("FY", new Date("2026-01-10T00:00:00.000Z"), 4),
+		).toBe("FY 2025–26");
 		expect(getPeriodTitle("YTD", anchorDate, 4)).toBe("Year to Date");
 		expect(getPeriodTitle("ALL", anchorDate, 4)).toBe("All transactions");
 		expect(getPeriodTitle("CUSTOM", anchorDate, 4)).toBe("Custom period");
@@ -706,6 +709,30 @@ describe("AnalysisScreen", () => {
 			),
 		).toEqual([{ label: "Food", value: 1, color: "#A87CFF" }]);
 
+		const fallbackColorData = getChartData(
+			{
+				categories: {
+					filter: () => ({
+						slice: () => ({
+							map: (mapper: (category: any, index: number) => unknown) => [
+								mapper(
+									{
+										categoryName: "Fallback",
+										net: "1",
+									},
+									999,
+								),
+							],
+						}),
+					}),
+				} as any,
+			} as any,
+			false,
+		);
+		expect(fallbackColorData[0]).toEqual(
+			expect.objectContaining({ color: COLORS.primary }),
+		);
+
 		expect(
 			getSummaryMetrics(
 				{
@@ -727,5 +754,119 @@ describe("AnalysisScreen", () => {
 			"Net",
 			"Net after investments",
 		]);
+
+		const negativeSummaryMetrics = getSummaryMetrics(
+			{
+				missingCurrencies: [],
+				totalIncome: "100",
+				totalExpense: "150",
+				netProfit: "-50",
+				categories: [],
+				investments: [],
+			},
+			"-10",
+			"10",
+			"-60",
+		);
+		expect(negativeSummaryMetrics[3]?.accent).toBe("danger");
+		expect(negativeSummaryMetrics[3]?.color).toBe(COLORS.danger);
+		expect(negativeSummaryMetrics[4]?.accent).toBe("danger");
+		expect(negativeSummaryMetrics[4]?.color).toBe(COLORS.danger);
+	});
+
+	it("covers getScreenData branch when min/max transaction dates are unavailable", async () => {
+		const navigation = { navigate: vi.fn() };
+		serviceMocks.getTransactionMinMaxDate.mockResolvedValueOnce(undefined);
+
+		const setMinTxnDate = vi.fn();
+		const setMaxTxnDate = vi.fn();
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 8) return [undefined, setMinTxnDate];
+			if (stateCall === 9) return [undefined, setMaxTxnDate];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		AnalysisScreen({ navigation } as any);
+		await flush();
+
+		expect(setMinTxnDate).not.toHaveBeenCalled();
+		expect(setMaxTxnDate).not.toHaveBeenCalled();
+	});
+
+	it("covers disabled arrows, error notice, and donut center fallback", async () => {
+		const navigation = { navigate: vi.fn() };
+
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 1) return ["MONTH", vi.fn()];
+			if (stateCall === 2)
+				return [new Date("2026-01-01T00:00:00.000Z"), vi.fn()];
+			if (stateCall === 5) {
+				return [
+					{
+						missingCurrencies: [],
+						totalIncome: "100",
+						totalExpense: "50",
+						netProfit: undefined,
+						categories: [
+							{
+								categoryId: "c1",
+								categoryName: "Food",
+								currencyCode: "INR",
+								credits: "10",
+								debits: "20",
+								net: "-10",
+								isIncome: false,
+							},
+						],
+						investments: [],
+					},
+					vi.fn(),
+				];
+			}
+			if (stateCall === 6) return ["manual render error", vi.fn()];
+			if (stateCall === 8) return [1, vi.fn()];
+			if (stateCall === 9) return [1, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		const tree = AnalysisScreen({ navigation } as any);
+		await flush();
+
+		const arrowButtons = findByPredicate(
+			tree,
+			(node) =>
+				typeof node?.props?.onPress === "function" &&
+				Object.prototype.hasOwnProperty.call(node?.props ?? {}, "disabled"),
+		);
+		expect(arrowButtons).toHaveLength(2);
+		expect(arrowButtons[0]?.props?.disabled).toBe(true);
+		expect(arrowButtons[1]?.props?.disabled).toBe(true);
+
+		expect(
+			findByPredicate(
+				tree,
+				(node) =>
+					node?.props?.message === "manual render error" &&
+					node?.props?.tone === "danger",
+			),
+		).not.toHaveLength(0);
+
+		const donut = findByPredicate(
+			tree,
+			(node) =>
+				typeof node?.props?.centerLabel === "string" &&
+				Array.isArray(node?.props?.data),
+		)[0];
+		expect(donut?.props?.centerLabel).toBe("INR 0");
 	});
 });

@@ -1806,4 +1806,66 @@ describe("list screens", () => {
 			),
 		).not.toHaveLength(0);
 	});
+
+	it("covers TodosScreen quick-chip fallback and hidden-row branches", async () => {
+		const navigation = { navigate: vi.fn() };
+		folderState.folders = [
+			{ id: "f1", name: "Home" },
+			{ id: "f2", name: "Work" },
+		];
+
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 1) return [[], vi.fn()];
+			if (call === 2) return ["__ALL_FOLDERS__", vi.fn()];
+			if (call === 3) return ["", vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		const tree = TodosScreen({ navigation } as any);
+		await flush();
+
+		const screenList = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
+		const header = screenList?.props?.ListHeaderComponent;
+		expect(
+			findByPredicate(
+				header,
+				(node) => node?.props?.horizontal === true,
+			),
+		).toHaveLength(1);
+
+		folderState.folders = [];
+		call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 1) return [[], vi.fn()];
+			if (call === 2) return ["__ALL_FOLDERS__", vi.fn()];
+			if (call === 3) return ["", vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		const noChipTree = TodosScreen({ navigation } as any);
+		await flush();
+		const noChipList = findByPredicate(
+			noChipTree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
+		const noChipHeader = noChipList?.props?.ListHeaderComponent;
+		expect(
+			findByPredicate(
+				noChipHeader,
+				(node) => node?.props?.horizontal === true,
+			),
+		).toHaveLength(0);
+	});
 });

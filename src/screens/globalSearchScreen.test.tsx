@@ -853,4 +853,26 @@ describe("GlobalSearchScreen", () => {
 			]),
 		);
 	});
+
+	it("covers initial load timer cleanup callback", async () => {
+		const navigation = { navigate: vi.fn() };
+		const clearSpy = vi.spyOn(globalThis, "clearTimeout");
+
+		reactMocks.useEffect.mockImplementation((effect: () => void) => {
+			const cleanup = effect();
+			if (typeof cleanup === "function") cleanup();
+		});
+
+		GlobalSearchScreen({
+			navigation,
+			route: {
+				key: "k-cleanup",
+				name: "GlobalSearch",
+				params: { mode: "TOOLS" },
+			},
+		} as any);
+		await flush();
+
+		expect(clearSpy).toHaveBeenCalled();
+	});
 });

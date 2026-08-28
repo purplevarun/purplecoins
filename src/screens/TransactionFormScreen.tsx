@@ -236,10 +236,7 @@ const TransactionFormScreen = ({
 		}
 	};
 
-	const handleDelete = (): void => {
-		if (!transactionId) {
-			return;
-		}
+	const handleDelete = (targetTransactionId: string): void => {
 		dialog.confirm({
 			title: "Delete transaction?",
 			message: "This action cannot be undone.",
@@ -248,7 +245,7 @@ const TransactionFormScreen = ({
 			onConfirm: () => {
 				const processDelete = async (): Promise<void> => {
 					try {
-						await deleteTransaction(database, transactionId);
+						await deleteTransaction(database, targetTransactionId);
 						refreshData();
 						navigation.goBack();
 					} catch (caughtError: unknown) {
@@ -394,7 +391,7 @@ const TransactionFormScreen = ({
 					{transactionId ? (
 						<AppButton
 							label="Delete transaction"
-							onPress={handleDelete}
+							onPress={() => handleDelete(transactionId)}
 							variant="danger"
 						/>
 					) : null}

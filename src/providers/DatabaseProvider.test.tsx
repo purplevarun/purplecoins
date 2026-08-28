@@ -106,6 +106,9 @@ describe("DatabaseProvider", () => {
 			expect.any(Function),
 		);
 		expect(stateSetters.setPendingOperations).toHaveBeenCalledTimes(2);
+		const incrementPending = stateSetters.setPendingOperations.mock
+			.calls[0]?.[0] as (current: number) => number;
+		expect(incrementPending(3)).toBe(4);
 		const decrementPending = stateSetters.setPendingOperations.mock
 			.calls[1]?.[0] as (current: number) => number;
 		expect(decrementPending(3)).toBe(2);

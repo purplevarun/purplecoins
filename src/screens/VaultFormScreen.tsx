@@ -138,10 +138,7 @@ const VaultFormScreen = ({
 		}
 	};
 
-	const handleDelete = (): void => {
-		if (!entryId) {
-			return;
-		}
+	const handleDelete = (targetEntryId: string): void => {
 		dialog.confirm({
 			title: "Delete vault entry?",
 			message: "This action cannot be undone.",
@@ -151,11 +148,11 @@ const VaultFormScreen = ({
 				const processDelete = async (): Promise<void> => {
 					try {
 						if (kind === "PASSWORD") {
-							await deletePassword(database, entryId);
+							await deletePassword(database, targetEntryId);
 						} else if (kind === "CARD") {
-							await deleteCard(database, entryId);
+							await deleteCard(database, targetEntryId);
 						} else {
-							await deleteIdentity(database, entryId);
+							await deleteIdentity(database, targetEntryId);
 						}
 						refreshData();
 						navigation.goBack();
@@ -302,7 +299,7 @@ const VaultFormScreen = ({
 					{entryId ? (
 						<AppButton
 							label="Delete entry"
-							onPress={handleDelete}
+							onPress={() => handleDelete(entryId)}
 							variant="danger"
 						/>
 					) : null}

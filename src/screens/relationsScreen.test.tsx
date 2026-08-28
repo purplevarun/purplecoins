@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import COLORS from "@/constants/colors";
+
 const reactMocks = vi.hoisted(() => ({
 	useCallback: vi.fn((fn: any) => fn),
 	useEffect: vi.fn(),
@@ -1325,4 +1327,530 @@ describe("RelationsScreen", () => {
 		);
 		expect(String(JSON.stringify(investmentRow) ?? "")).toContain("INR 0");
 	});
+
+	it("covers header error notice, category native display, and trip empty totals", async () => {
+		const navigation = { navigate: vi.fn(), setOptions: vi.fn() };
+
+		let categoryStateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			categoryStateCall += 1;
+			if (categoryStateCall === 2) {
+				return [[{ id: "c1", name: "Food", isIncome: false }], vi.fn()];
+			}
+			if (categoryStateCall === 6) {
+				return [
+					{
+						categories: [
+							{
+								categoryId: "c1",
+								net: "10",
+								currencyCode: "INR",
+							},
+						],
+						investments: [],
+						missingCurrencies: [],
+					},
+					vi.fn(),
+				];
+			}
+			if (categoryStateCall === 7) return [true, vi.fn()];
+			if (categoryStateCall === 9) return ["manual header error", vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		const categoryTree = RelationsScreen({
+			navigation,
+			route: {
+				key: "k18",
+				name: "Relations",
+				params: { kind: "CATEGORY" },
+			},
+		} as any);
+		await flush();
+
+		expect(
+			findByPredicate(
+				categoryTree,
+				(node) =>
+					node?.props?.message === "manual header error" &&
+					node?.props?.tone === "danger",
+			),
+		).not.toHaveLength(0);
+
+		const categoryList = findByPredicate(
+			categoryTree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
+		const categoryRow = categoryList.props.renderItem({
+			item: {
+				kind: "CATEGORY",
+				entity: { id: "c1", name: "Food", isIncome: false },
+			},
+		});
+		expect(String(JSON.stringify(categoryRow) ?? "")).not.toContain("≈ ");
+
+		let tripStateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			tripStateCall += 1;
+			if (tripStateCall === 3) {
+				return [[{ id: "t-empty", name: "Empty trip" }], vi.fn()];
+			}
+			if (tripStateCall === 4) return [[], vi.fn()];
+			if (tripStateCall === 7) return [false, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		const tripTree = RelationsScreen({
+			navigation,
+			route: {
+				key: "k19",
+				name: "Relations",
+				params: { kind: "TRIP" },
+			},
+		} as any);
+		await flush();
+
+		const tripList = findByPredicate(
+			tripTree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
+		const tripRow = tripList.props.renderItem({
+			item: { kind: "TRIP", entity: { id: "t-empty", name: "Empty trip" } },
+		});
+		expect(String(JSON.stringify(tripRow) ?? "")).toContain("INR 0");
+	});
+
+	it("covers source negative converted color and category/investment empty fallback branches", async () => {
+		const navigation = { navigate: vi.fn(), setOptions: vi.fn() };
+
+		let sourceStateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			sourceStateCall += 1;
+			if (sourceStateCall === 1) {
+				return [
+					[
+						{
+							id: "s-neg",
+							name: "Debt",
+							currencyCode: "USD",
+							balance: "-10",
+							validatedAt: 1,
+							latestTransactionCreatedAt: 1,
+						},
+					],
+					vi.fn(),
+				];
+			}
+			if (sourceStateCall === 7) return [false, vi.fn()];
+			if (sourceStateCall === 8)
+				return [[{ currencyCode: "USD", rateToInr: "80" }], vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		const sourceTree = RelationsScreen({
+			navigation,
+			route: {
+				key: "k20",
+				name: "Relations",
+				params: { kind: "SOURCE" },
+			},
+		} as any);
+		await flush();
+
+		const sourceList = findByPredicate(
+			sourceTree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
+		const sourceRow = sourceList.props.renderItem({
+			item: {
+				kind: "SOURCE",
+				entity: {
+					id: "s-neg",
+					name: "Debt",
+					currencyCode: "USD",
+					balance: "-10",
+					validatedAt: 1,
+					latestTransactionCreatedAt: 1,
+				},
+			},
+		});
+		expect(String(JSON.stringify(sourceRow) ?? "")).toContain("INR 800");
+
+		let categoryStateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			categoryStateCall += 1;
+			if (categoryStateCall === 2)
+				return [[{ id: "c-neg", name: "Loss", isIncome: false }], vi.fn()];
+			if (categoryStateCall === 6) return [null, vi.fn()];
+			if (categoryStateCall === 7) return [true, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		const categoryTree = RelationsScreen({
+			navigation,
+			route: {
+				key: "k21",
+				name: "Relations",
+				params: { kind: "CATEGORY" },
+			},
+		} as any);
+		await flush();
+
+		const categoryList = findByPredicate(
+			categoryTree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
+		const categoryRow = categoryList.props.renderItem({
+			item: {
+				kind: "CATEGORY",
+				entity: { id: "c-neg", name: "Loss", isIncome: false },
+			},
+		});
+		expect(String(JSON.stringify(categoryRow) ?? "")).toContain("INR 0");
+
+		let tripStateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			tripStateCall += 1;
+			if (tripStateCall === 3)
+				return [[{ id: "t1", name: "Trip" }], vi.fn()];
+			if (tripStateCall === 4)
+				return [[{ tripId: "t1", total: "5", currencyCode: "INR" }], vi.fn()];
+			if (tripStateCall === 6) return [null, vi.fn()];
+			if (tripStateCall === 7) return [true, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		const tripTree = RelationsScreen({
+			navigation,
+			route: {
+				key: "k22",
+				name: "Relations",
+				params: { kind: "TRIP" },
+			},
+		} as any);
+		await flush();
+
+		const tripList = findByPredicate(
+			tripTree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
+		const tripRow = tripList.props.renderItem({
+			item: { kind: "TRIP", entity: { id: "t1", name: "Trip" } },
+		});
+		expect(String(JSON.stringify(tripRow) ?? "")).not.toContain("Invested ");
+	});
+
+	it("covers remaining relations header and null-analysis branches", async () => {
+		const clearSpy = vi.spyOn(globalThis, "clearTimeout");
+		reactMocks.useEffect.mockImplementation((effect: () => void) => {
+			const cleanup = effect();
+			if (typeof cleanup === "function") cleanup();
+		});
+
+		const setSearchVisible = vi.fn();
+		const navigation = { navigate: vi.fn(), setOptions: vi.fn() };
+
+		let sourceStateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			sourceStateCall += 1;
+			if (sourceStateCall === 1) {
+				return [
+					[
+						{
+							id: "s-inr",
+							name: "INR Wallet",
+							currencyCode: "INR",
+							balance: "15",
+							validatedAt: null,
+							latestTransactionCreatedAt: null,
+						},
+					],
+					vi.fn(),
+				];
+			}
+			if (sourceStateCall === 7) return [true, vi.fn()];
+			if (sourceStateCall === 10) return [false, setSearchVisible];
+			if (sourceStateCall === 11) return ["cash", vi.fn()];
+			if (sourceStateCall === 12) return ["cash", vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		const sourceTree = RelationsScreen({
+			navigation,
+			route: {
+				key: "k23",
+				name: "Relations",
+				params: { kind: "SOURCE" },
+			},
+		} as any);
+		await flush();
+
+		expect(clearSpy).toHaveBeenCalled();
+
+		const headerRight = navigation.setOptions.mock.calls[0]?.[0]?.headerRight;
+		const header = headerRight?.();
+		const searchBtn = findByPredicate(
+			header,
+			(node) =>
+				node?.props?.accessibilityLabel === "Search" &&
+				typeof node?.props?.onPress === "function",
+		)[0];
+		searchBtn?.props?.onPress?.();
+
+		const toggleUpdater = setSearchVisible.mock.calls[0]?.[0] as (
+			v: boolean,
+		) => boolean;
+		expect(toggleUpdater(true)).toBe(false);
+		expect(
+			findByPredicate(
+				header,
+				(node) => node?.props?.accessibilityLabel === "Convert to INR",
+			),
+		).not.toHaveLength(0);
+
+		const sourceList = findByPredicate(
+			sourceTree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
+		const sourceRow = sourceList.props.renderItem({
+			item: {
+				kind: "SOURCE",
+				entity: {
+					id: "s-inr",
+					name: "INR Wallet",
+					currencyCode: "INR",
+					balance: "15",
+					validatedAt: null,
+					latestTransactionCreatedAt: null,
+				},
+			},
+		});
+		expect(String(JSON.stringify(sourceRow) ?? "")).not.toContain("≈ ");
+
+		const archiveRowAction = findByPredicate(
+			sourceRow,
+			(node) =>
+				typeof node?.type === "function" &&
+				node?.props?.accessibilityLabel === "Archive",
+		)[0];
+		const archiveResolved = archiveRowAction?.type?.(archiveRowAction.props);
+		expect(typeof archiveResolved?.props?.children?.props?.color).toBe(
+			"string",
+		);
+
+		let categoryStateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			categoryStateCall += 1;
+			if (categoryStateCall === 2) {
+				return [
+					[
+						{ id: "c-a", name: "A", isIncome: false },
+						{ id: "c-b", name: "B", isIncome: false },
+					],
+					vi.fn(),
+				];
+			}
+			if (categoryStateCall === 6) return [null, vi.fn()];
+			if (categoryStateCall === 7) return [true, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		const categoryTree = RelationsScreen({
+			navigation,
+			route: {
+				key: "k24",
+				name: "Relations",
+				params: { kind: "CATEGORY" },
+			},
+		} as any);
+		await flush();
+
+		const categoryList = findByPredicate(
+			categoryTree,
+			(node) => typeof node?.props?.data !== "undefined",
+		)[0];
+		expect(categoryList.props.data).toHaveLength(2);
+		const categoryRow = categoryList.props.renderItem({
+			item: {
+				kind: "CATEGORY",
+				entity: { id: "c-a", name: "A", isIncome: false },
+			},
+		});
+		expect(String(JSON.stringify(categoryRow) ?? "")).toContain("INR 0");
+
+		let investmentStateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			investmentStateCall += 1;
+			if (investmentStateCall === 5) {
+				return [
+					[
+						{ id: "i-a", name: "A" },
+						{ id: "i-b", name: "B" },
+					],
+					vi.fn(),
+				];
+			}
+			if (investmentStateCall === 6) return [null, vi.fn()];
+			if (investmentStateCall === 7) return [true, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		const investmentTree = RelationsScreen({
+			navigation,
+			route: {
+				key: "k25",
+				name: "Relations",
+				params: { kind: "INVESTMENT" },
+			},
+		} as any);
+		await flush();
+
+		const investmentList = findByPredicate(
+			investmentTree,
+			(node) => typeof node?.props?.data !== "undefined",
+		)[0];
+		expect(investmentList.props.data).toHaveLength(2);
+		const investmentRow = investmentList.props.renderItem({
+			item: { kind: "INVESTMENT", entity: { id: "i-a", name: "A" } },
+		});
+		expect(String(JSON.stringify(investmentRow) ?? "")).not.toContain(
+			"Invested ",
+		);
+	});
+
+	it("covers source missing-rate sort fallback and negative totals color branch", async () => {
+		const navigation = { navigate: vi.fn(), setOptions: vi.fn() };
+		let sourceStateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			sourceStateCall += 1;
+			if (sourceStateCall === 1) {
+				return [
+					[
+						{
+							id: "s-eur",
+							name: "Euro",
+							currencyCode: "EUR",
+							balance: "5",
+							validatedAt: null,
+							latestTransactionCreatedAt: null,
+						},
+						{
+							id: "s-inr",
+							name: "Inr",
+							currencyCode: "INR",
+							balance: "10",
+							validatedAt: null,
+							latestTransactionCreatedAt: null,
+						},
+					],
+					vi.fn(),
+				];
+			}
+			if (sourceStateCall === 6) return [null, vi.fn()];
+			if (sourceStateCall === 8)
+				return [[{ currencyCode: "USD", rateToInr: "80" }], vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		const sourceTree = RelationsScreen({
+			navigation,
+			route: {
+				key: "k26",
+				name: "Relations",
+				params: { kind: "SOURCE" },
+			},
+		} as any);
+		await flush();
+
+		const sourceList = findByPredicate(
+			sourceTree,
+			(node) => typeof node?.props?.data !== "undefined",
+		)[0];
+		expect(sourceList.props.data[0].entity.id).toBe("s-eur");
+
+		let categoryStateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			categoryStateCall += 1;
+			if (categoryStateCall === 2)
+				return [[{ id: "c1", name: "Food", isIncome: false }], vi.fn()];
+			if (categoryStateCall === 6) {
+				return [
+					{
+						categories: [
+							{
+								categoryId: "c1",
+								net: "-5",
+								currencyCode: "INR",
+							},
+						],
+						investments: [],
+						missingCurrencies: [],
+					},
+					vi.fn(),
+				];
+			}
+			if (categoryStateCall === 7) return [false, vi.fn()];
+			if (categoryStateCall === 8)
+				return [[{ currencyCode: "USD", rateToInr: "80" }], vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		const categoryTree = RelationsScreen({
+			navigation,
+			route: {
+				key: "k27",
+				name: "Relations",
+				params: { kind: "CATEGORY" },
+			},
+		} as any);
+		await flush();
+
+		const categoryList = findByPredicate(
+			categoryTree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
+		const categoryRow = categoryList.props.renderItem({
+			item: {
+				kind: "CATEGORY",
+				entity: { id: "c1", name: "Food", isIncome: false },
+			},
+		});
+		expect(
+			findByPredicate(
+				categoryRow,
+				(node) => node?.props?.style?.[1]?.color === COLORS.danger,
+			),
+		).not.toHaveLength(0);
+	});
+
 });

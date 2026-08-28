@@ -890,6 +890,76 @@ describe("form screens", () => {
 		).toHaveLength(0);
 	});
 
+	it("covers VaultFormScreen existing-entry null load branches", async () => {
+		const navigation = { goBack: vi.fn() };
+		serviceMocks.getPassword.mockResolvedValueOnce(null);
+		serviceMocks.getCard.mockResolvedValueOnce(null);
+		serviceMocks.getIdentity.mockResolvedValueOnce(null);
+
+		const setTitle = vi.fn();
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 1) return ["", setTitle];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		VaultFormScreen({
+			navigation,
+			route: {
+				key: "vault-password-null",
+				name: "VaultForm",
+				params: { kind: "PASSWORD", entryId: "pw1" },
+			},
+		} as any);
+		await flush();
+
+		stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 1) return ["", setTitle];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		VaultFormScreen({
+			navigation,
+			route: {
+				key: "vault-card-null",
+				name: "VaultForm",
+				params: { kind: "CARD", entryId: "card1" },
+			},
+		} as any);
+		await flush();
+
+		stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 1) return ["", setTitle];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		VaultFormScreen({
+			navigation,
+			route: {
+				key: "vault-identity-null",
+				name: "VaultForm",
+				params: { kind: "IDENTITY", entryId: "id1" },
+			},
+		} as any);
+		await flush();
+
+		expect(setTitle).not.toHaveBeenCalled();
+	});
+
 	it("executes BudgetFormScreen load and save paths", async () => {
 		const navigation = { goBack: vi.fn() };
 		const tree = BudgetFormScreen({

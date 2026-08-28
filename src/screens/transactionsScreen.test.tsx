@@ -215,6 +215,61 @@ describe("TransactionsScreen", () => {
 		expect(navigation.navigate).toHaveBeenCalledWith("TransactionForm");
 	});
 
+	it("covers debounced search timer callback execution", async () => {
+		const navigation = { navigate: vi.fn(), setOptions: vi.fn() };
+		const setSearchDebounced = vi.fn();
+		const clearSpy = vi.spyOn(globalThis, "clearTimeout");
+
+		reactMocks.useEffect.mockImplementation((effect: () => void) => {
+			const cleanup = effect();
+			if (typeof cleanup === "function") cleanup();
+		});
+
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 6) return ["cash", setSearchDebounced];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		TransactionsScreen({ navigation } as any);
+		await flush();
+
+		expect(setSearchDebounced).toHaveBeenCalledWith("");
+		expect(clearSpy).toHaveBeenCalled();
+	});
+
+	it("covers header search toggle updater callback", async () => {
+		const setOptions = vi.fn();
+		const setSearchVisible = vi.fn();
+		const navigation = { navigate: vi.fn(), setOptions };
+
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 4) return [false, setSearchVisible];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		TransactionsScreen({ navigation } as any);
+		await flush();
+
+		const headerRight = setOptions.mock.calls[0]?.[0]?.headerRight;
+		const headerButton = headerRight?.();
+		headerButton?.props?.onPress?.();
+
+		const updater = setSearchVisible.mock.calls[0]?.[0] as (
+			current: boolean,
+		) => boolean;
+		expect(updater(true)).toBe(false);
+	});
+
 	it("applies classification and search filters", async () => {
 		const navigation = { navigate: vi.fn(), setOptions: vi.fn() };
 		let stateCall = 0;

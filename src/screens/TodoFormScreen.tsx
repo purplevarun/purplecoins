@@ -83,10 +83,7 @@ const TodoFormScreen = ({
 		}
 	};
 
-	const handleDelete = (): void => {
-		if (!todoId) {
-			return;
-		}
+	const handleDelete = (targetTodoId: string): void => {
 		dialog.confirm({
 			title: "Delete todo?",
 			message: "This action cannot be undone.",
@@ -95,7 +92,7 @@ const TodoFormScreen = ({
 			onConfirm: () => {
 				const processDelete = async (): Promise<void> => {
 					try {
-						await deleteTodo(database, todoId);
+						await deleteTodo(database, targetTodoId);
 						refreshData();
 						navigation.goBack();
 					} catch (caughtError: unknown) {
@@ -172,7 +169,7 @@ const TodoFormScreen = ({
 					{todoId ? (
 						<AppButton
 							label="Delete todo"
-							onPress={handleDelete}
+							onPress={() => handleDelete(todoId)}
 							variant="danger"
 						/>
 					) : null}
