@@ -42,7 +42,9 @@ describe("useFolders", () => {
 		setFolders.mockClear();
 		reactMocks.useState.mockReset();
 		reactMocks.useState.mockImplementation(() => [[], setFolders]);
-		Object.values(folderServiceMocks).forEach((mockFn) => mockFn.mockClear());
+		Object.values(folderServiceMocks).forEach((mockFn) =>
+			mockFn.mockClear(),
+		);
 		folderServiceMocks.getFolders.mockImplementation(async () => [
 			{ id: "f1", name: "A", type: "NOTE" },
 		]);

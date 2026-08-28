@@ -714,7 +714,12 @@ describe("AnalysisScreen", () => {
 				categories: {
 					filter: () => ({
 						slice: () => ({
-							map: (mapper: (category: any, index: number) => unknown) => [
+							map: (
+								mapper: (
+									category: any,
+									index: number,
+								) => unknown,
+							) => [
 								mapper(
 									{
 										categoryName: "Fallback",
@@ -846,7 +851,10 @@ describe("AnalysisScreen", () => {
 			tree,
 			(node) =>
 				typeof node?.props?.onPress === "function" &&
-				Object.prototype.hasOwnProperty.call(node?.props ?? {}, "disabled"),
+				Object.prototype.hasOwnProperty.call(
+					node?.props ?? {},
+					"disabled",
+				),
 		);
 		expect(arrowButtons).toHaveLength(2);
 		expect(arrowButtons[0]?.props?.disabled).toBe(true);

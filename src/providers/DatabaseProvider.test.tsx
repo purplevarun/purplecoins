@@ -92,9 +92,8 @@ describe("DatabaseProvider", () => {
 		expect(stateSetters.setDataVersion).toHaveBeenCalledWith(
 			expect.any(Function),
 		);
-		const incrementVersion = stateSetters.setDataVersion.mock.calls[0]?.[0] as (
-			currentVersion: number,
-		) => number;
+		const incrementVersion = stateSetters.setDataVersion.mock
+			.calls[0]?.[0] as (currentVersion: number) => number;
 		expect(incrementVersion(2)).toBe(3);
 
 		expect(value.database.name).toBe("db");

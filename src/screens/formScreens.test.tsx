@@ -615,9 +615,15 @@ describe("form screens", () => {
 		await flush();
 
 		expect(serviceMocks.getSource).toHaveBeenCalledWith({ id: "db" }, "s1");
-		expect(serviceMocks.getCategory).toHaveBeenCalledWith({ id: "db" }, "c1");
+		expect(serviceMocks.getCategory).toHaveBeenCalledWith(
+			{ id: "db" },
+			"c1",
+		);
 		expect(serviceMocks.getTrip).toHaveBeenCalledWith({ id: "db" }, "t1");
-		expect(serviceMocks.getInvestment).toHaveBeenCalledWith({ id: "db" }, "i1");
+		expect(serviceMocks.getInvestment).toHaveBeenCalledWith(
+			{ id: "db" },
+			"i1",
+		);
 		expect(setName).toHaveBeenCalledWith("");
 	});
 
@@ -1191,16 +1197,14 @@ describe("form screens", () => {
 	});
 
 	it("covers NoteFormScreen existing-note fallback branches", async () => {
-		serviceMocks.getNote
-			.mockResolvedValueOnce(null)
-			.mockResolvedValueOnce({
-				id: "n1",
-				title: "Loaded",
-				content: "Body",
-				folderId: undefined,
-				hasAttachment: false,
-				updatedAt: 1,
-			});
+		serviceMocks.getNote.mockResolvedValueOnce(null).mockResolvedValueOnce({
+			id: "n1",
+			title: "Loaded",
+			content: "Body",
+			folderId: undefined,
+			hasAttachment: false,
+			updatedAt: 1,
+		});
 
 		const firstTree = NoteFormScreen({
 			navigation: { goBack: vi.fn() },
@@ -1386,18 +1390,16 @@ describe("form screens", () => {
 	});
 
 	it("covers TodoFormScreen existing-todo fallback branches", async () => {
-		serviceMocks.getTodo
-			.mockResolvedValueOnce(null)
-			.mockResolvedValueOnce({
-				id: "t1",
-				title: "Todo",
-				description: "Desc",
-				folderId: undefined,
-				hasAttachment: false,
-				isDone: false,
-				dueAt: null,
-				updatedAt: 1,
-			});
+		serviceMocks.getTodo.mockResolvedValueOnce(null).mockResolvedValueOnce({
+			id: "t1",
+			title: "Todo",
+			description: "Desc",
+			folderId: undefined,
+			hasAttachment: false,
+			isDone: false,
+			dueAt: null,
+			updatedAt: 1,
+		});
 
 		const firstTree = TodoFormScreen({
 			navigation: { goBack: vi.fn() },

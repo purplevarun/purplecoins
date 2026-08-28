@@ -235,24 +235,24 @@ describe("transactionService", () => {
 			new Date("2026-08-25T12:00:00.000Z").getTime(),
 		);
 
-			await transactionService.saveTransaction(database, {
+		await transactionService.saveTransaction(database, {
+			classification: "INVESTMENT",
+			type: "CREDIT",
+			sourceId: "s1",
+			investmentId: "inv2",
+			amount: "11",
+			reason: " interest ",
+		});
+		expect(mocks.createTransactionRow).toHaveBeenCalledWith(
+			database,
+			expect.objectContaining({
 				classification: "INVESTMENT",
 				type: "CREDIT",
-				sourceId: "s1",
-				investmentId: "inv2",
-				amount: "11",
-				reason: " interest ",
-			});
-			expect(mocks.createTransactionRow).toHaveBeenCalledWith(
-				database,
-				expect.objectContaining({
-					classification: "INVESTMENT",
-					type: "CREDIT",
-					reason: "interest",
-				}),
-				expect.any(String),
-				expect.any(Number),
-			);
+				reason: "interest",
+			}),
+			expect.any(String),
+			expect.any(Number),
+		);
 	});
 
 	it("validates transfer destination rules", async () => {

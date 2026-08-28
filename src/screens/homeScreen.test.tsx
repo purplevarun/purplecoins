@@ -469,8 +469,12 @@ describe("HomeScreen", () => {
 		);
 		expect(styledPressables.length).toBeGreaterThan(0);
 		styledPressables.forEach((node) => {
-			expect(Array.isArray(node.props.style({ pressed: true }))).toBe(true);
-			expect(Array.isArray(node.props.style({ pressed: false }))).toBe(true);
+			expect(Array.isArray(node.props.style({ pressed: true }))).toBe(
+				true,
+			);
+			expect(Array.isArray(node.props.style({ pressed: false }))).toBe(
+				true,
+			);
 		});
 
 		const modalNode = findByPredicate(

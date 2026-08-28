@@ -1494,11 +1494,7 @@ describe("list screens", () => {
 		folderChips?.props?.onSelectFolder("f2");
 
 		expect(
-			findByPredicate(
-				header,
-				(node) =>
-					node?.props?.horizontal === true,
-			),
+			findByPredicate(header, (node) => node?.props?.horizontal === true),
 		).toHaveLength(0);
 	});
 
@@ -1584,10 +1580,7 @@ describe("list screens", () => {
 		const header = screenList?.props?.ListHeaderComponent;
 
 		expect(
-			findByPredicate(
-				header,
-				(node) => node?.props?.horizontal === true,
-			),
+			findByPredicate(header, (node) => node?.props?.horizontal === true),
 		).toHaveLength(1);
 	});
 
@@ -1835,10 +1828,7 @@ describe("list screens", () => {
 		)[0];
 		const header = screenList?.props?.ListHeaderComponent;
 		expect(
-			findByPredicate(
-				header,
-				(node) => node?.props?.horizontal === true,
-			),
+			findByPredicate(header, (node) => node?.props?.horizontal === true),
 		).toHaveLength(1);
 
 		folderState.folders = [];

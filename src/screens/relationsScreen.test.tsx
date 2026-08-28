@@ -1354,7 +1354,8 @@ describe("RelationsScreen", () => {
 				];
 			}
 			if (categoryStateCall === 7) return [true, vi.fn()];
-			if (categoryStateCall === 9) return ["manual header error", vi.fn()];
+			if (categoryStateCall === 9)
+				return ["manual header error", vi.fn()];
 			return [
 				typeof initial === "function" ? initial() : initial,
 				vi.fn(),
@@ -1421,7 +1422,10 @@ describe("RelationsScreen", () => {
 			(node) => typeof node?.props?.renderItem === "function",
 		)[0];
 		const tripRow = tripList.props.renderItem({
-			item: { kind: "TRIP", entity: { id: "t-empty", name: "Empty trip" } },
+			item: {
+				kind: "TRIP",
+				entity: { id: "t-empty", name: "Empty trip" },
+			},
 		});
 		expect(String(JSON.stringify(tripRow) ?? "")).toContain("INR 0");
 	});
@@ -1489,7 +1493,10 @@ describe("RelationsScreen", () => {
 		reactMocks.useState.mockImplementation((initial: any) => {
 			categoryStateCall += 1;
 			if (categoryStateCall === 2)
-				return [[{ id: "c-neg", name: "Loss", isIncome: false }], vi.fn()];
+				return [
+					[{ id: "c-neg", name: "Loss", isIncome: false }],
+					vi.fn(),
+				];
 			if (categoryStateCall === 6) return [null, vi.fn()];
 			if (categoryStateCall === 7) return [true, vi.fn()];
 			return [
@@ -1526,7 +1533,10 @@ describe("RelationsScreen", () => {
 			if (tripStateCall === 3)
 				return [[{ id: "t1", name: "Trip" }], vi.fn()];
 			if (tripStateCall === 4)
-				return [[{ tripId: "t1", total: "5", currencyCode: "INR" }], vi.fn()];
+				return [
+					[{ tripId: "t1", total: "5", currencyCode: "INR" }],
+					vi.fn(),
+				];
 			if (tripStateCall === 6) return [null, vi.fn()];
 			if (tripStateCall === 7) return [true, vi.fn()];
 			return [
@@ -1552,7 +1562,9 @@ describe("RelationsScreen", () => {
 		const tripRow = tripList.props.renderItem({
 			item: { kind: "TRIP", entity: { id: "t1", name: "Trip" } },
 		});
-		expect(String(JSON.stringify(tripRow) ?? "")).not.toContain("Invested ");
+		expect(String(JSON.stringify(tripRow) ?? "")).not.toContain(
+			"Invested ",
+		);
 	});
 
 	it("covers remaining relations header and null-analysis branches", async () => {
@@ -1605,7 +1617,8 @@ describe("RelationsScreen", () => {
 
 		expect(clearSpy).toHaveBeenCalled();
 
-		const headerRight = navigation.setOptions.mock.calls[0]?.[0]?.headerRight;
+		const headerRight =
+			navigation.setOptions.mock.calls[0]?.[0]?.headerRight;
 		const header = headerRight?.();
 		const searchBtn = findByPredicate(
 			header,
@@ -1651,7 +1664,9 @@ describe("RelationsScreen", () => {
 				typeof node?.type === "function" &&
 				node?.props?.accessibilityLabel === "Archive",
 		)[0];
-		const archiveResolved = archiveRowAction?.type?.(archiveRowAction.props);
+		const archiveResolved = archiveRowAction?.type?.(
+			archiveRowAction.props,
+		);
 		expect(typeof archiveResolved?.props?.children?.props?.color).toBe(
 			"string",
 		);
@@ -1852,5 +1867,4 @@ describe("RelationsScreen", () => {
 			),
 		).not.toHaveLength(0);
 	});
-
 });

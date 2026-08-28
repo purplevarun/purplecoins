@@ -33,8 +33,8 @@ describe("tripTotalService defensive guard", () => {
 				addMoney: vi.fn((left: string, right: string) =>
 					left === "0" ? right : `${left}+${right}`,
 				),
-				subtractMoney: vi.fn((left: string, right: string) =>
-					`${left}-${right}`,
+				subtractMoney: vi.fn(
+					(left: string, right: string) => `${left}-${right}`,
 				),
 			},
 		}));

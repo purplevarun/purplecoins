@@ -53,8 +53,8 @@ vi.mock("@/providers/AppDialogContext", () => ({
 	},
 }));
 
-import AppDialogProvider from "@/providers/AppDialogProvider";
 import COLORS from "@/constants/colors";
+import AppDialogProvider from "@/providers/AppDialogProvider";
 
 const setupState = (activeDialog: any): void => {
 	reactMocks.useState.mockReset();
