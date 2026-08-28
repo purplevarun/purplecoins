@@ -32,6 +32,13 @@ describe("date utils", () => {
 		expect(range.end).toBe(new Date(2027, 3, 1).getTime() - 1);
 	});
 
+	it("uses previous year when anchor month is before FY start month", () => {
+		const anchor = new Date("2026-01-12T00:00:00.000Z");
+		const range = getFyDateRange(anchor, 4);
+		expect(range.start).toBe(new Date(2025, 3, 1).getTime());
+		expect(range.end).toBe(new Date(2026, 3, 1).getTime() - 1);
+	});
+
 	it("returns month and year ranges", () => {
 		const anchor = new Date("2026-08-25T00:00:00.000Z");
 		expect(getAnalysisDateRange("MONTH", anchor)).toEqual({
@@ -114,6 +121,26 @@ describe("date utils", () => {
 		expect(shiftAnalysisAnchor("FY", anchor, 1, minDate, maxDate)).toEqual(
 			anchor,
 		);
+	});
+
+	it("allows YEAR and FY shifts when within min/max bounds", () => {
+		const anchor = new Date(2026, 7, 25);
+		const minDate = new Date(2020, 0, 1).getTime();
+		const maxDate = new Date(2030, 11, 31).getTime();
+
+		expect(
+			shiftAnalysisAnchor("YEAR", anchor, -1, minDate, undefined),
+		).toEqual(new Date(2025, 7, 25));
+		expect(
+			shiftAnalysisAnchor("FY", anchor, -1, minDate, undefined),
+		).toEqual(new Date(2025, 7, 25));
+
+		expect(
+			shiftAnalysisAnchor("YEAR", anchor, 1, undefined, maxDate),
+		).toEqual(new Date(2027, 7, 25));
+		expect(
+			shiftAnalysisAnchor("FY", anchor, 1, undefined, maxDate),
+		).toEqual(new Date(2027, 7, 25));
 	});
 
 	it("normalizes custom ranges and formats output", () => {
