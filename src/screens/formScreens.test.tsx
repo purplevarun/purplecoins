@@ -1045,6 +1045,81 @@ describe("form screens", () => {
 		).toHaveLength(0);
 	});
 
+	it("covers NoteFormScreen existing-note fallback branches", async () => {
+		serviceMocks.getNote
+			.mockResolvedValueOnce(null)
+			.mockResolvedValueOnce({
+				id: "n1",
+				title: "Loaded",
+				content: "Body",
+				folderId: undefined,
+				hasAttachment: false,
+				updatedAt: 1,
+			});
+
+		const firstTree = NoteFormScreen({
+			navigation: { goBack: vi.fn() },
+			route: {
+				key: "k-note-null",
+				name: "NoteForm",
+				params: { noteId: "n1" },
+			},
+		} as any);
+		await flush();
+
+		const setFolderId = vi.fn();
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 1) return ["", vi.fn()];
+			if (call === 2) return ["", vi.fn()];
+			if (call === 3) return ["", setFolderId];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		const secondTree = NoteFormScreen({
+			navigation: { goBack: vi.fn() },
+			route: {
+				key: "k-note-undefined-folder",
+				name: "NoteForm",
+				params: { noteId: "n1" },
+			},
+		} as any);
+		await flush();
+
+		expect(firstTree).toBeTruthy();
+		expect(secondTree).toBeTruthy();
+		expect(setFolderId).toHaveBeenCalledWith("");
+	});
+
+	it("renders NoteFormScreen error notice branch", async () => {
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 5) return ["pre-existing error", vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		const tree = NoteFormScreen({
+			navigation: { goBack: vi.fn() },
+			route: { key: "k-note-error", name: "NoteForm", params: {} },
+		} as any);
+		await flush();
+
+		expect(
+			findByPredicate(
+				tree,
+				(node) => node?.props?.message === "pre-existing error",
+			),
+		).not.toHaveLength(0);
+	});
+
 	it("executes TodoFormScreen save/delete and due-date branch", async () => {
 		const navigation = { goBack: vi.fn() };
 		hookMocks.confirm.mockImplementation(({ onConfirm }: any) => {
