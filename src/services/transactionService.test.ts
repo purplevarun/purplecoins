@@ -361,6 +361,43 @@ describe("transactionService", () => {
 		expect(mocks.createTransactionRow).not.toHaveBeenCalled();
 	});
 
+	it("deletes transaction via repository wrapper", async () => {
+		await transactionService.deleteTransaction(database, "tx-delete");
+		expect(mocks.deleteTransactionRow).toHaveBeenCalledWith(
+			database,
+			"tx-delete",
+		);
+	});
+
+	it("builds display reason fallbacks", () => {
+		expect(
+			transactionService.getTransactionDisplayReason({
+				reason: "Groceries",
+				type: "DEBIT",
+				sourceName: "Cash",
+				destinationSourceName: null,
+			} as any),
+		).toBe("Groceries");
+
+		expect(
+			transactionService.getTransactionDisplayReason({
+				reason: "   ",
+				type: "TRANSFER",
+				sourceName: "Cash",
+				destinationSourceName: "Bank",
+			} as any),
+		).toBe("Cash to Bank");
+
+		expect(
+			transactionService.getTransactionDisplayReason({
+				reason: "   ",
+				type: "TRANSFER",
+				sourceName: "Cash",
+				destinationSourceName: null,
+			} as any),
+		).toBe("Transaction");
+	});
+
 	it("deletes transaction and builds display reason", async () => {
 		await transactionService.deleteTransaction(database, "t1");
 		expect(mocks.deleteTransactionRow).toHaveBeenCalledWith(database, "t1");
