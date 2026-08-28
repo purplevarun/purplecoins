@@ -430,6 +430,44 @@ describe("list screens", () => {
 		);
 	});
 
+	it("covers ExchangeRatesScreen singular fetch message and message notice", async () => {
+		serviceMocks.fetchExchangeRates.mockResolvedValue(1);
+
+		const setMessage = vi.fn();
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 1) return [["USD"], vi.fn()];
+			if (call === 2) return [[], vi.fn()];
+			if (call === 3) return [{ USD: "" }, vi.fn()];
+			if (call === 6) return ["Updated 1 exchange rate.", setMessage];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		const tree = ExchangeRatesScreen({} as any);
+		await flush();
+
+		expect(
+			findByPredicate(
+				tree,
+				(node) => node?.props?.message === "Updated 1 exchange rate.",
+			),
+		).not.toHaveLength(0);
+
+		findByPredicate(
+			tree,
+			(node) =>
+				node?.props?.label === "Fetch latest rates" &&
+				typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
+		await flush();
+
+		expect(setMessage).toHaveBeenCalledWith("Updated 1 exchange rate.");
+	});
+
 	it("renders ExchangeRatesScreen error and unset-rate branches", async () => {
 		let call = 0;
 		reactMocks.useState.mockImplementation((initial: any) => {
