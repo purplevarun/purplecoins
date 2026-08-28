@@ -268,4 +268,69 @@ describe("investment analysis", () => {
 		expect(result[0]?.totalRedeemed).toBe("2500");
 		expect(result[0]?.net).toBe("7500");
 	});
+
+	it("skips unknown or unconvertible investments and sorts by net descending", () => {
+		const investments: readonly Investment[] = [
+			{
+				id: "inv1",
+				name: "Index Fund",
+				createdAt: NOW,
+				updatedAt: NOW,
+				archived: false,
+			},
+			{
+				id: "inv2",
+				name: "Bond",
+				createdAt: NOW,
+				updatedAt: NOW,
+				archived: false,
+			},
+		];
+		const transactions: readonly Transaction[] = [
+			createTransaction({
+				id: "known-1",
+				classification: "INVESTMENT",
+				investmentId: "inv1",
+				amount: "100",
+				type: "DEBIT",
+				sourceCurrencyCode: "INR",
+			}),
+			createTransaction({
+				id: "known-2",
+				classification: "INVESTMENT",
+				investmentId: "inv2",
+				amount: "50",
+				type: "DEBIT",
+				sourceCurrencyCode: "INR",
+			}),
+			createTransaction({
+				id: "unknown-investment",
+				classification: "INVESTMENT",
+				investmentId: "missing",
+				amount: "999",
+				type: "DEBIT",
+				sourceCurrencyCode: "INR",
+			}),
+			createTransaction({
+				id: "missing-rate",
+				classification: "INVESTMENT",
+				investmentId: "inv1",
+				amount: "20",
+				type: "CREDIT",
+				sourceCurrencyCode: "EUR",
+			}),
+		];
+
+		const result = buildInvestmentAnalysis(
+			transactions,
+			investments,
+			false,
+			new Map(),
+		);
+
+		expect(result).toEqual([
+			expect.objectContaining({ investmentId: "inv1", net: "100" }),
+			expect.objectContaining({ investmentId: "inv2", net: "50" }),
+		]);
+	});
 });

@@ -120,6 +120,40 @@ describe("analysisService summary", () => {
 		expect(summary.missingCurrencies).toEqual([]);
 	});
 
+	it("includes expense categories in total expense aggregation", async () => {
+		mocks.getCategoryRows.mockResolvedValueOnce([
+			{ id: "salary", name: "Salary", isIncome: true },
+			{ id: "rent", name: "Rent", isIncome: false },
+		]);
+		mocks.getInvestmentRows.mockResolvedValueOnce([]);
+		mocks.getExchangeRateRows.mockResolvedValueOnce([]);
+		mocks.getTransactionRowsInRange.mockResolvedValueOnce([
+			{
+				classification: "GENERAL",
+				type: "CREDIT",
+				amount: "100",
+				categoryId: "salary",
+				sourceCurrencyCode: "INR",
+			},
+			{
+				classification: "GENERAL",
+				type: "DEBIT",
+				amount: "40",
+				categoryId: "rent",
+				sourceCurrencyCode: "INR",
+			},
+		] as any);
+
+		const summary = await analysisService.getAnalysisSummary(database, {
+			dateRange: { start: 1, end: 2 },
+			isNativeCurrency: false,
+		});
+
+		expect(summary.totalIncome).toBe("100");
+		expect(summary.totalExpense).toBe("40");
+		expect(summary.netProfit).toBe("60");
+	});
+
 	it("returns investment net labels and absolute net amount", () => {
 		expect(analysisService.getInvestmentNetLabel("10")).toBe("Net invested");
 		expect(analysisService.getInvestmentNetLabel("-1")).toBe("Net redeemed");
