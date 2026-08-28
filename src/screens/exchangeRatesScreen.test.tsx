@@ -279,4 +279,43 @@ describe("ExchangeRatesScreen", () => {
 		expect(setIsFetching).toHaveBeenCalledWith(true);
 		expect(setMessage).toHaveBeenCalledWith("No foreign source currencies found.");
 	});
+
+	it("shows updated-count message and refreshes after successful fetch", async () => {
+		const setMessage = vi.fn();
+		serviceMocks.fetchExchangeRates.mockResolvedValueOnce(2);
+
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 1) return [["USD"], vi.fn()];
+			if (call === 2)
+				return [
+					[
+						{
+							currencyCode: "USD",
+							rateToInr: "83.5",
+							source: "manual",
+							fetchedAt: 1,
+							updatedAt: 2,
+						},
+					],
+					vi.fn(),
+				];
+			if (call === 3) return [{ USD: "84" }, vi.fn()];
+			if (call === 6) return ["", setMessage];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = ExchangeRatesScreen({} as any);
+		await flush();
+
+		findByPredicate(
+			tree,
+			(node) => node?.props?.label === "Fetch latest rates" && typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
+		await flush();
+
+		expect(setMessage).toHaveBeenCalledWith("Updated 2 exchange rates.");
+		expect(hookMocks.refreshData).toHaveBeenCalled();
+	});
 });
