@@ -192,6 +192,35 @@ describe("contentRepository", () => {
 		);
 	});
 
+	it("maps todo isDone false to 0 in upsertTodoRow", async () => {
+		const database = { runAsync: vi.fn(async () => {}) } as any;
+
+		await upsertTodoRow(database, {
+			id: "t2",
+			folderId: "f1",
+			folderName: null,
+			title: "Todo false",
+			description: "D",
+			isDone: false,
+			dueAt: null,
+			createdAt: 10,
+			updatedAt: 20,
+			hasAttachment: false,
+		});
+
+		expect(database.runAsync).toHaveBeenCalledWith(
+			expect.stringContaining("INSERT INTO todos"),
+			"t2",
+			"f1",
+			"Todo false",
+			"D",
+			0,
+			null,
+			10,
+			20,
+		);
+	});
+
 	it("deletes folder and deletes content rows with and without attachments", async () => {
 		const database = {
 			runAsync: vi.fn(async () => {}),
