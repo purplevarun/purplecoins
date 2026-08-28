@@ -629,6 +629,52 @@ describe("GlobalSearchScreen", () => {
 		expect(String(JSON.stringify(row) ?? "")).toContain("No details");
 	});
 
+	it("covers filtering when searchExtra is undefined", async () => {
+		const navigation = { navigate: vi.fn() };
+
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 1) {
+				return [
+					[
+						{
+							id: "n3",
+							kind: "NOTE",
+							title: "Project plan",
+							subtitle: "Folder",
+							icon: "document-text-outline",
+							color: "#00f",
+						},
+					],
+					vi.fn(),
+				];
+			}
+			if (stateCall === 2) return ["project", vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		const tree = GlobalSearchScreen({
+			navigation,
+			route: {
+				key: "k5b",
+				name: "GlobalSearch",
+				params: { mode: "TOOLS" },
+			},
+		} as any);
+		await flush();
+
+		const screenList = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
+		expect(screenList.props.data).toHaveLength(1);
+		expect(screenList.props.data[0].id).toBe("n3");
+	});
+
 	it("covers TOOLS fallback subtitles when folder names are missing", async () => {
 		const navigation = { navigate: vi.fn() };
 		serviceMocks.getNotes.mockResolvedValueOnce([
