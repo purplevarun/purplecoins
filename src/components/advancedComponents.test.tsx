@@ -365,4 +365,22 @@ describe("advanced components", () => {
 		expect(findPressableByText(modal, "Rename")).toBeFalsy();
 		expect(findPressableByText(modal, "Delete")).toBeFalsy();
 	});
+
+	it("applies selected styles for the static All chip", () => {
+		reactMocks.useState
+			.mockImplementationOnce(() => [null, vi.fn()])
+			.mockImplementationOnce(() => [false, vi.fn()])
+			.mockImplementationOnce(() => ["", vi.fn()]);
+
+		const tree = FolderFilterChips({
+			folders: [],
+			selectedFolderId: "__ALL_FOLDERS__",
+			onSelectFolder: vi.fn(),
+		} as any);
+
+		const allChip = findPressableByText(tree, "All");
+		expect(allChip).toBeTruthy();
+		expect(Array.isArray(allChip.props.style)).toBe(true);
+		expect(allChip.props.style[1]).toBeTruthy();
+	});
 });
