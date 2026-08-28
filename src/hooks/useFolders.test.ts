@@ -79,4 +79,29 @@ describe("useFolders", () => {
 		);
 		expect(refreshData).toHaveBeenCalledTimes(3);
 	});
+
+	it("supports TODO type and returns new folder id from create", async () => {
+		folderServiceMocks.createFolder.mockResolvedValueOnce("todo-folder-id");
+		const refreshData = vi.fn();
+		useDatabaseContextMock.mockReturnValueOnce({
+			database: { id: "db" },
+			dataVersion: 3,
+			refreshData,
+		});
+
+		const result = useFolders("TODO");
+		const createdId = await result.handleCreateFolder("Work Todos");
+
+		expect(createdId).toBe("todo-folder-id");
+		expect(folderServiceMocks.createFolder).toHaveBeenCalledWith(
+			{ id: "db" },
+			"Work Todos",
+			"TODO",
+		);
+		expect(folderServiceMocks.getFolders).toHaveBeenCalledWith(
+			{ id: "db" },
+			"TODO",
+		);
+		expect(refreshData).toHaveBeenCalledTimes(1);
+	});
 });
