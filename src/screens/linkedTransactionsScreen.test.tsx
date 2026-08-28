@@ -233,4 +233,40 @@ describe("LinkedTransactionsScreen", () => {
 		expect(hookMocks.refreshData).not.toHaveBeenCalled();
 		expect(navigation.goBack).not.toHaveBeenCalled();
 	});
+
+	it("filters linked transactions by provided date range", async () => {
+		const setTransactions = vi.fn();
+		serviceMocks.getLinkedTransactions.mockResolvedValueOnce([
+			{ id: "tx-old", transactionAt: 100 },
+			{ id: "tx-in", transactionAt: 200 },
+			{ id: "tx-new", transactionAt: 300 },
+		]);
+
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 1) return [[], setTransactions];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		LinkedTransactionsScreen({
+			navigation: { navigate: vi.fn(), goBack: vi.fn() },
+			route: {
+				key: "k3",
+				name: "LinkedTransactions",
+				params: {
+					entityId: "e1",
+					entityName: "Entity",
+					kind: "SOURCE",
+					dateRangeStart: 150,
+					dateRangeEnd: 250,
+				},
+			},
+		} as any);
+		await flush();
+
+		expect(setTransactions).toHaveBeenCalledWith([
+			{ id: "tx-in", transactionAt: 200 },
+		]);
+	});
 });
