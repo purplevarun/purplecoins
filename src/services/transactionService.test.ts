@@ -3,12 +3,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => {
 	return {
-		createTransactionRow: vi.fn(async () => {}),
-		deleteTransactionRow: vi.fn(async () => {}),
+		createTransactionRow: vi.fn(async () => { }),
+		deleteTransactionRow: vi.fn(async () => { }),
 		getSourceRow: vi.fn(async () => null),
 		getTransactionRow: vi.fn(async () => null),
 		getTransactionRows: vi.fn(async () => []),
-		updateTransactionRow: vi.fn(async () => {}),
+		updateTransactionRow: vi.fn(async () => { }),
 		createId: vi.fn(() => "new-transaction-id"),
 	};
 });
@@ -159,20 +159,20 @@ describe("transactionService", () => {
 		).rejects.toMatchObject<AppError>({ code: "CATEGORY_REQUIRED" });
 	});
 
-		it("requires a non-empty reason for non-transfer transactions", async () => {
-			await expect(
-				transactionService.saveTransaction(database, {
-					classification: "GENERAL",
-					type: "DEBIT",
-					sourceId: "s1",
-					categoryId: "c1",
-					amount: "10",
-					reason: "   ",
-				}),
-			).rejects.toMatchObject<AppError>({
-				code: "TRANSACTION_REASON_REQUIRED",
-			});
+	it("requires a non-empty reason for non-transfer transactions", async () => {
+		await expect(
+			transactionService.saveTransaction(database, {
+				classification: "GENERAL",
+				type: "DEBIT",
+				sourceId: "s1",
+				categoryId: "c1",
+				amount: "10",
+				reason: "   ",
+			}),
+		).rejects.toMatchObject<AppError>({
+			code: "TRANSACTION_REASON_REQUIRED",
 		});
+	});
 
 	it("validates investment inputs", async () => {
 		await expect(

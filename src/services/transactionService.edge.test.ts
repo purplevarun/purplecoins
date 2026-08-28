@@ -2,12 +2,12 @@ import AppError from "@/errors/AppError";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-	createTransactionRow: vi.fn(async () => {}),
-	deleteTransactionRow: vi.fn(async () => {}),
+	createTransactionRow: vi.fn(async () => { }),
+	deleteTransactionRow: vi.fn(async () => { }),
 	getSourceRow: vi.fn(async () => null),
 	getTransactionRow: vi.fn(async () => null),
 	getTransactionRows: vi.fn(async () => []),
-	updateTransactionRow: vi.fn(async () => {}),
+	updateTransactionRow: vi.fn(async () => { }),
 	createId: vi.fn(() => "edge-transaction-id"),
 	compareMoney: vi.fn(() => 1),
 	normalizeMoney: vi.fn((value: string) => value.trim()),

@@ -12,11 +12,11 @@ const reactMocks = vi.hoisted(() => ({
 }));
 
 const attachmentServiceMocks = vi.hoisted(() => ({
-	deleteAttachment: vi.fn(async () => {}),
+	deleteAttachment: vi.fn(async () => { }),
 	getAttachmentMetadata: vi.fn(async () => null),
-	openAttachment: vi.fn(async () => {}),
+	openAttachment: vi.fn(async () => { }),
 	pickAttachment: vi.fn(async () => null),
-	saveAttachment: vi.fn(async () => {}),
+	saveAttachment: vi.fn(async () => { }),
 }));
 
 const useDatabaseContextMock = vi.hoisted(() =>
