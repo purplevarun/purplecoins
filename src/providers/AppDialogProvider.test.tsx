@@ -54,6 +54,7 @@ vi.mock("@/providers/AppDialogContext", () => ({
 }));
 
 import AppDialogProvider from "@/providers/AppDialogProvider";
+import COLORS from "@/constants/colors";
 
 const setupState = (activeDialog: any): void => {
 	reactMocks.useState.mockReset();
@@ -243,5 +244,30 @@ describe("AppDialogProvider", () => {
 				node?.props?.variant === "primary",
 		)[0];
 		expect(confirmButton).toBeTruthy();
+	});
+
+	it("uses warning accent and sparkles icon when variant is omitted", () => {
+		setupState({
+			mode: "MESSAGE",
+			options: {
+				title: "Heads up",
+				message: "Default warning style",
+			},
+		});
+
+		const element = AppDialogProvider({ children: null } as any) as any;
+
+		const glassCard = collectNodesByPredicate(
+			element,
+			(node) => node?.props?.accent === "warning",
+		)[0];
+		expect(glassCard?.props?.accent).toBe("warning");
+
+		const icon = collectNodesByPredicate(
+			element,
+			(node) => node?.props?.name === "sparkles-outline",
+		)[0];
+		expect(icon?.props?.name).toBe("sparkles-outline");
+		expect(icon?.props?.color).toBe(COLORS.warning);
 	});
 });
