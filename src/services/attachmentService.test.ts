@@ -173,6 +173,28 @@ describe("attachmentService", () => {
 		});
 	});
 
+	it("uses File.size fallback and keeps provided mime type", async () => {
+		mocks.getDocumentAsync.mockResolvedValueOnce({
+			canceled: false,
+			assets: [
+				{
+					uri: "file://fallback.bin",
+					name: "fallback.bin",
+					size: undefined,
+					mimeType: "application/pdf",
+				},
+			],
+		});
+
+		const picked = await attachmentService.pickAttachment();
+		expect(picked).toEqual({
+			fileName: "fallback.bin",
+			mimeType: "application/pdf",
+			sizeBytes: 1024,
+			content: new Uint8Array([1, 2, 3]),
+		});
+	});
+
 	it("gets and saves and deletes attachment metadata", async () => {
 		mocks.getAttachmentMetadataRow.mockResolvedValueOnce({ id: "a1" });
 		expect(
