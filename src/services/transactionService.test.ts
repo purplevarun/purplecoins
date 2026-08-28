@@ -159,6 +159,21 @@ describe("transactionService", () => {
 		).rejects.toMatchObject<AppError>({ code: "CATEGORY_REQUIRED" });
 	});
 
+		it("requires a non-empty reason for non-transfer transactions", async () => {
+			await expect(
+				transactionService.saveTransaction(database, {
+					classification: "GENERAL",
+					type: "DEBIT",
+					sourceId: "s1",
+					categoryId: "c1",
+					amount: "10",
+					reason: "   ",
+				}),
+			).rejects.toMatchObject<AppError>({
+				code: "TRANSACTION_REASON_REQUIRED",
+			});
+		});
+
 	it("validates investment inputs", async () => {
 		await expect(
 			transactionService.saveTransaction(database, {
