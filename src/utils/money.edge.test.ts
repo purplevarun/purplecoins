@@ -68,4 +68,33 @@ describe("money utilities defensive branches", () => {
 			});
 		}
 	});
+
+	it("falls back to currency code + fixed amount on RangeError formatter failures", async () => {
+		vi.resetModules();
+		vi.doUnmock("decimal.js");
+		const OriginalNumberFormat = Intl.NumberFormat;
+
+		Object.defineProperty(Intl, "NumberFormat", {
+			configurable: true,
+			value: class NumberFormatMock {
+				constructor(
+					_locale: string,
+					_options: Intl.NumberFormatOptions,
+				) {}
+				format(_value: number): string {
+					throw new RangeError("bad currency");
+				}
+			},
+		});
+
+		try {
+			const module = await import("@/utils/money");
+			expect(module.default.formatMoney("10", "ZZZ")).toBe("ZZZ 10.00");
+		} finally {
+			Object.defineProperty(Intl, "NumberFormat", {
+				configurable: true,
+				value: OriginalNumberFormat,
+			});
+		}
+	});
 });
