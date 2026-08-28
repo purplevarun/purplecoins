@@ -331,4 +331,38 @@ describe("advanced components", () => {
 		saveButtonBlank.props.onPress();
 		expect(onRenameFolder).toHaveBeenCalledTimes(1);
 	});
+
+	it("hides folder action affordances when rename/delete callbacks are absent", () => {
+		const setActionFolder = vi.fn();
+		const setRenameMode = vi.fn();
+		const setRenameName = vi.fn();
+		const folder = {
+			id: "f2",
+			name: "Personal",
+			type: "NOTE",
+			createdAt: 1,
+			updatedAt: 1,
+		};
+
+		reactMocks.useState
+			.mockImplementationOnce(() => [folder, setActionFolder])
+			.mockImplementationOnce(() => [false, setRenameMode])
+			.mockImplementationOnce(() => ["Personal", setRenameName]);
+
+		const tree = FolderFilterChips({
+			folders: [folder],
+			selectedFolderId: "f2",
+			onSelectFolder: vi.fn(),
+		} as any);
+
+		const ellipsisIcons = findAllByType(tree, "Ionicons").filter(
+			(icon) => icon?.props?.name === "ellipsis-vertical",
+		);
+		expect(ellipsisIcons).toHaveLength(0);
+
+		const modal = findAllByType(tree, "Modal")[0];
+		expect(modal?.props?.visible).toBe(true);
+		expect(findPressableByText(modal, "Rename")).toBeFalsy();
+		expect(findPressableByText(modal, "Delete")).toBeFalsy();
+	});
 });
