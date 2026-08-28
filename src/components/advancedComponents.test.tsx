@@ -406,4 +406,33 @@ describe("advanced components", () => {
 		expect(Array.isArray(allChip.props.style)).toBe(true);
 		expect(allChip.props.style[1]).toBeTruthy();
 	});
+
+	it("skips delete callback when delete is pressed without an action folder", () => {
+		const setActionFolder = vi.fn();
+		const setRenameMode = vi.fn();
+		const setRenameName = vi.fn();
+		const onDeleteFolder = vi.fn();
+
+		reactMocks.useState
+			.mockImplementationOnce(() => [null, setActionFolder])
+			.mockImplementationOnce(() => [false, setRenameMode])
+			.mockImplementationOnce(() => ["", setRenameName]);
+
+		const tree = FolderFilterChips({
+			folders: [],
+			selectedFolderId: "",
+			onSelectFolder: vi.fn(),
+			onDeleteFolder,
+		} as any);
+
+		const modal = findAllByType(tree, "Modal")[0];
+		const deletePressable = findPressableByText(modal, "Delete");
+		expect(deletePressable).toBeTruthy();
+		deletePressable.props.onPress();
+
+		expect(onDeleteFolder).not.toHaveBeenCalled();
+		expect(setActionFolder).toHaveBeenCalledWith(null);
+		expect(setRenameMode).toHaveBeenCalledWith(false);
+		expect(setRenameName).toHaveBeenCalledWith("");
+	});
 });
