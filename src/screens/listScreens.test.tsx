@@ -1427,9 +1427,101 @@ describe("list screens", () => {
 
 	it("covers NotesScreen no-quick-chip branch with empty note counts", async () => {
 		const navigation = { navigate: vi.fn() };
+		folderState.folders = [];
+
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 1) return [[], vi.fn()];
+			if (call === 2) return ["__ALL_FOLDERS__", vi.fn()];
+			if (call === 3) return ["", vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		const tree = NotesScreen({ navigation } as any);
+		await flush();
+		const screenList = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
+		const header = screenList?.props?.ListHeaderComponent;
+
+		const folderChips = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.onSelectFolder === "function",
+		)[0];
+		folderChips?.props?.onSelectFolder("f2");
+
+		expect(
+			findByPredicate(
+				header,
+				(node) =>
+					node?.props?.horizontal === true,
+			),
+		).toHaveLength(0);
+	});
+
+	it("renders quick chips when notes exist inside folders", async () => {
+		const navigation = { navigate: vi.fn() };
 		folderState.folders = [
 			{ id: "f1", name: "Home" },
 			{ id: "f2", name: "Work" },
+		];
+
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 1) {
+				return [
+					[
+						{
+							id: "n1",
+							title: "Home note",
+							content: "Body",
+							folderId: "f1",
+							folderName: "Home",
+							hasAttachment: false,
+							updatedAt: 101,
+						},
+					],
+					vi.fn(),
+				];
+			}
+			if (call === 2) return ["__ALL_FOLDERS__", vi.fn()];
+			if (call === 3) return ["", vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		const tree = NotesScreen({ navigation } as any);
+		await flush();
+		const screenList = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
+		const header = screenList?.props?.ListHeaderComponent;
+
+		expect(
+			findByPredicate(
+				header,
+				(node) =>
+					node?.props?.horizontal === true &&
+					node?.props?.style?.marginTop === 6,
+			),
+		).toHaveLength(1);
+	});
+
+	it("covers quick-chip sort fallback when folder counts are missing", async () => {
+		const navigation = { navigate: vi.fn() };
+		folderState.folders = [
+			{ id: "f1", name: "Home" },
+			{ id: "f2", name: "Work" },
+			{ id: "f3", name: "Travel" },
 		];
 
 		let call = 0;
@@ -1447,20 +1539,18 @@ describe("list screens", () => {
 		const tree = NotesScreen({ navigation } as any);
 		await flush();
 
-		const folderChips = findByPredicate(
+		const screenList = findByPredicate(
 			tree,
-			(node) => typeof node?.props?.onSelectFolder === "function",
+			(node) => typeof node?.props?.renderItem === "function",
 		)[0];
-		folderChips?.props?.onSelectFolder("f2");
+		const header = screenList?.props?.ListHeaderComponent;
 
 		expect(
 			findByPredicate(
-				tree,
-				(node) =>
-					node?.type === "ScrollView" &&
-					node?.props?.horizontal === true,
+				header,
+				(node) => node?.props?.horizontal === true,
 			),
-		).toHaveLength(0);
+		).toHaveLength(1);
 	});
 
 	it("executes TodosScreen render toggle and folder actions", async () => {

@@ -234,6 +234,25 @@ describe("transactionService", () => {
 			"new-transaction-id",
 			new Date("2026-08-25T12:00:00.000Z").getTime(),
 		);
+
+			await transactionService.saveTransaction(database, {
+				classification: "INVESTMENT",
+				type: "CREDIT",
+				sourceId: "s1",
+				investmentId: "inv2",
+				amount: "11",
+				reason: " interest ",
+			});
+			expect(mocks.createTransactionRow).toHaveBeenCalledWith(
+				database,
+				expect.objectContaining({
+					classification: "INVESTMENT",
+					type: "CREDIT",
+					reason: "interest",
+				}),
+				expect.any(String),
+				expect.any(Number),
+			);
 	});
 
 	it("validates transfer destination rules", async () => {
@@ -293,6 +312,26 @@ describe("transactionService", () => {
 			expect.any(String),
 			expect.any(Number),
 		);
+
+		mocks.getSourceRow.mockResolvedValueOnce({
+			id: "s1",
+			currencyCode: "INR",
+		});
+		mocks.getSourceRow.mockResolvedValueOnce({
+			id: "s2",
+			currencyCode: "USD",
+		});
+
+		await expect(
+			transactionService.saveTransaction(database, {
+				classification: "GENERAL",
+				type: "TRANSFER",
+				sourceId: "s1",
+				destinationSourceId: "s2",
+				amount: "100",
+				reason: " move ",
+			}),
+		).rejects.toMatchObject<AppError>({ code: "INVALID_AMOUNT" });
 	});
 
 	it("rejects missing transfer sources and same-currency mismatch", async () => {
