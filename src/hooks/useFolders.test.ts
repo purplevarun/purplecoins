@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const setFolders = vi.fn();
 
@@ -38,6 +38,52 @@ vi.mock("@/hooks/useDatabaseContext", () => ({
 import useFolders from "@/hooks/useFolders";
 
 describe("useFolders", () => {
+	beforeEach(() => {
+		setFolders.mockClear();
+		reactMocks.useState.mockReset();
+		reactMocks.useState.mockImplementation(() => [[], setFolders]);
+		Object.values(folderServiceMocks).forEach((mockFn) => mockFn.mockClear());
+		folderServiceMocks.getFolders.mockImplementation(async () => [
+			{ id: "f1", name: "A", type: "NOTE" },
+		]);
+		folderServiceMocks.createFolder.mockImplementation(
+			async () => "new-folder",
+		);
+		folderServiceMocks.deleteFolder.mockImplementation(async () => {});
+		folderServiceMocks.renameFolder.mockImplementation(async () => {});
+		useDatabaseContextMock.mockReset();
+		useDatabaseContextMock.mockImplementation(() => ({
+			database: { id: "db" },
+			dataVersion: 1,
+			refreshData: vi.fn(),
+		}));
+	});
+
+	it("refreshes data after folders are reloaded on create", async () => {
+		const callOrder: string[] = [];
+		folderServiceMocks.createFolder.mockImplementationOnce(async () => {
+			callOrder.push("create");
+			return "ordered-folder";
+		});
+		folderServiceMocks.getFolders.mockImplementation(async () => {
+			callOrder.push("reload");
+			return [{ id: "f-order", name: "Ordered", type: "NOTE" } as any];
+		});
+		const refreshData = vi.fn(() => {
+			callOrder.push("refresh");
+		});
+		useDatabaseContextMock.mockReturnValueOnce({
+			database: { id: "db" },
+			dataVersion: 4,
+			refreshData,
+		});
+
+		const result = useFolders("NOTE");
+		await result.handleCreateFolder("Ordered");
+
+		expect(callOrder).toEqual(["reload", "create", "reload", "refresh"]);
+	});
+
 	it("loads folders on hook initialization", async () => {
 		useFolders("NOTE");
 		await Promise.resolve();
