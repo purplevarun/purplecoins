@@ -233,6 +233,29 @@ describe("advanced components", () => {
 			),
 		).toBe(true);
 		expect(hasTextContaining(transfer, "-> USD:2")).toBe(true);
+
+			const transferWithoutDestinationName = TransactionCard({
+				transaction: {
+					...baseTransaction,
+					type: "TRANSFER",
+					destinationSourceName: null,
+					destinationCurrencyCode: null,
+					toAmount: null,
+				},
+				onPress,
+			} as any);
+			expect(hasTextContaining(transferWithoutDestinationName, "Cash -> ")).toBe(true);
+
+			const debitWithoutCategory = TransactionCard({
+				transaction: {
+					...baseTransaction,
+					type: "DEBIT",
+					classification: "GENERAL",
+					categoryName: null,
+				},
+				onPress,
+			} as any);
+			expect(hasTextContaining(debitWithoutCategory, "Cash · ")).toBe(true);
 	});
 
 	it("covers FolderFilterChips selection and action flows", async () => {
