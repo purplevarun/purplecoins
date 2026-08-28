@@ -150,6 +150,17 @@ describe("HomeScreen", () => {
 		const navigation = { navigate: vi.fn() };
 		const tree = HomeScreen({ navigation } as any);
 
+		const tilePressable = findByPredicate(
+			tree,
+			(node) =>
+				typeof node?.props?.style === "function" &&
+				typeof node?.props?.onPress === "function",
+		)[0];
+		expect(tilePressable).toBeTruthy();
+		expect(tilePressable.props.style({ pressed: true })).toEqual(
+			expect.arrayContaining([expect.anything()]),
+		);
+
 		const headerButtons = findByPredicate(
 			tree,
 			(node) =>
