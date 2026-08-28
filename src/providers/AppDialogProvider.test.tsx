@@ -181,4 +181,27 @@ describe("AppDialogProvider", () => {
 		);
 		expect(textNodes.length).toBeGreaterThan(0);
 	});
+
+	it("uses default close action and closes from scrim press", () => {
+		setupState({
+			mode: "MESSAGE",
+			options: {
+				title: "Heads up",
+				message: "Default action",
+			},
+		});
+
+		const element = AppDialogProvider({ children: null } as any) as any;
+		const closeButton = collectNodesByPredicate(
+			element,
+			(node) =>
+				node?.props?.label === "Close" &&
+				typeof node?.props?.onPress === "function",
+		)[0];
+		expect(closeButton).toBeTruthy();
+		closeButton?.props.onPress();
+
+		expect(setActiveDialog).toHaveBeenCalledWith(null);
+		expect(setActiveDialog).toHaveBeenCalledTimes(1);
+	});
 });
