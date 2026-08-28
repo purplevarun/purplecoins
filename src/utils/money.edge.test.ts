@@ -38,4 +38,31 @@ describe("money utilities defensive branches", () => {
 			"Amount must be greater than zero.",
 		);
 	});
+
+	it("rethrows non-RangeError failures from Intl formatter", async () => {
+		vi.resetModules();
+		const OriginalNumberFormat = Intl.NumberFormat;
+
+		Object.defineProperty(Intl, "NumberFormat", {
+			configurable: true,
+			value: class NumberFormatMock {
+				constructor(_locale: string, _options: Intl.NumberFormatOptions) {}
+				format(_value: number): string {
+					throw new TypeError("formatter failed");
+				}
+			},
+		});
+
+		try {
+			const module = await import("@/utils/money");
+			expect(() => module.default.formatMoney("10", "INR")).toThrow(
+				"formatter failed",
+			);
+		} finally {
+			Object.defineProperty(Intl, "NumberFormat", {
+				configurable: true,
+				value: OriginalNumberFormat,
+			});
+		}
+	});
 });
