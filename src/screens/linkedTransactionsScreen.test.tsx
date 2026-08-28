@@ -143,6 +143,9 @@ describe("LinkedTransactionsScreen", () => {
 			{ id: "tx1", transactionAt: 100 },
 		]);
 		serviceMocks.deleteSource.mockResolvedValue(undefined);
+		serviceMocks.deleteCategory.mockResolvedValue(undefined);
+		serviceMocks.deleteTrip.mockResolvedValue(undefined);
+		serviceMocks.deleteInvestment.mockResolvedValue(undefined);
 	});
 
 	it("covers edit and transaction navigation plus key extractor", async () => {
@@ -269,4 +272,38 @@ describe("LinkedTransactionsScreen", () => {
 			{ id: "tx-in", transactionAt: 200 },
 		]);
 	});
+
+	it.each([
+		["CATEGORY", "deleteCategory"],
+		["TRIP", "deleteTrip"],
+		["INVESTMENT", "deleteInvestment"],
+	] as const)(
+		"deletes linked relation successfully for %s",
+		async (kind, deleteKey) => {
+			const navigation = { navigate: vi.fn(), goBack: vi.fn() };
+			const tree = LinkedTransactionsScreen({
+				navigation,
+				route: {
+					key: `k-${kind}`,
+					name: "LinkedTransactions",
+					params: {
+						entityId: "e1",
+						entityName: "Entity",
+						kind,
+					},
+				},
+			} as any);
+			await flush();
+
+			findByPredicate(
+				tree,
+				(node) => node?.props?.label === "Delete" && typeof node?.props?.onPress === "function",
+			)[0]?.props?.onPress();
+			await flush();
+
+			expect(serviceMocks[deleteKey]).toHaveBeenCalledWith({ id: "db" }, "e1");
+			expect(hookMocks.refreshData).toHaveBeenCalled();
+			expect(navigation.goBack).toHaveBeenCalled();
+		},
+	);
 });
