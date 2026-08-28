@@ -204,4 +204,33 @@ describe("AppDialogProvider", () => {
 		expect(setActiveDialog).toHaveBeenCalledWith(null);
 		expect(setActiveDialog).toHaveBeenCalledTimes(1);
 	});
+
+	it("uses default cancel label and primary confirm variant", () => {
+		setupState({
+			mode: "CONFIRM",
+			options: {
+				title: "Archive",
+				message: "Proceed?",
+				confirmLabel: "Yes",
+				onConfirm: vi.fn(),
+			},
+		});
+
+		const element = AppDialogProvider({ children: null } as any) as any;
+		const cancelButton = collectNodesByPredicate(
+			element,
+			(node) =>
+				node?.props?.label === "Cancel" &&
+				node?.props?.variant === "secondary",
+		)[0];
+		expect(cancelButton).toBeTruthy();
+
+		const confirmButton = collectNodesByPredicate(
+			element,
+			(node) =>
+				node?.props?.label === "Yes" &&
+				node?.props?.variant === "primary",
+		)[0];
+		expect(confirmButton).toBeTruthy();
+	});
 });
