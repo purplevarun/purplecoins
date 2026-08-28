@@ -161,6 +161,11 @@ describe("form components", () => {
 		const eyeButton = findAllByType(secureField, "Pressable")[0];
 		eyeButton.props.onPress();
 		expect(setShowSecret).toHaveBeenCalledWith(expect.any(Function));
+		const toggleSecret = setShowSecret.mock.calls[0]?.[0] as (
+			current: boolean,
+		) => boolean;
+		expect(toggleSecret(false)).toBe(true);
+		expect(toggleSecret(true)).toBe(false);
 		expect(findAllByType(secureField, "Ionicons")[0]?.props.name).toBe(
 			"eye-outline",
 		);
