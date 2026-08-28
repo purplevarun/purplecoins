@@ -127,6 +127,7 @@ describe("AppDialogProvider", () => {
 	});
 
 	it("renders confirm branch", () => {
+		const onConfirm = vi.fn();
 		setupState({
 			mode: "CONFIRM",
 			options: {
@@ -134,7 +135,7 @@ describe("AppDialogProvider", () => {
 				message: "Confirm delete",
 				confirmLabel: "Delete",
 				cancelLabel: "Cancel",
-				onConfirm: vi.fn(),
+				onConfirm,
 				variant: "danger",
 			},
 		});
@@ -147,6 +148,20 @@ describe("AppDialogProvider", () => {
 		expect(modalNodes.length).toBeGreaterThan(0);
 		modalNodes[0]?.props.onRequestClose();
 		expect(setActiveDialog).toHaveBeenCalledWith(null);
+
+		const actionButtons = collectNodesByPredicate(
+			element,
+			(node) =>
+				typeof node?.props?.onPress === "function" &&
+				typeof node?.props?.label === "string",
+		);
+		const confirmButton = actionButtons.find(
+			(node) => node?.props?.label === "Delete",
+		);
+		expect(confirmButton).toBeTruthy();
+		confirmButton?.props.onPress();
+		expect(setActiveDialog).toHaveBeenCalledWith(null);
+		expect(onConfirm).toHaveBeenCalledTimes(1);
 	});
 
 	it("renders message branch", () => {

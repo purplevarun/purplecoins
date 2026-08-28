@@ -70,6 +70,7 @@ describe("DatabaseProvider", () => {
 	it("creates tracked database and refreshData behavior", async () => {
 		setupStates(0, 0, false);
 		const database = {
+			name: "db",
 			syncMethod: vi.fn(() => 123),
 			asyncMethod: vi.fn(async () => "ok"),
 		};
@@ -81,12 +82,17 @@ describe("DatabaseProvider", () => {
 		value.refreshData();
 		expect(stateSetters.setDataVersion).toHaveBeenCalledWith(expect.any(Function));
 
+		expect(value.database.name).toBe("db");
 		expect(value.database.syncMethod()).toBe(123);
 		expect(stateSetters.setPendingOperations).not.toHaveBeenCalledWith(1);
 
 		await value.database.asyncMethod();
 		expect(stateSetters.setPendingOperations).toHaveBeenCalledWith(expect.any(Function));
 		expect(stateSetters.setPendingOperations).toHaveBeenCalledTimes(2);
+		const decrementPending = stateSetters.setPendingOperations.mock.calls[1]?.[0] as (
+			current: number,
+		) => number;
+		expect(decrementPending(0)).toBe(0);
 	});
 
 	it("schedules and clears loader timeout while operations are pending", () => {

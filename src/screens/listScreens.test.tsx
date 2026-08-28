@@ -209,8 +209,8 @@ vi.mock("@/utils/runAfterRender", () => ({
 	default: (fn: () => void) => fn(),
 }));
 
-import BudgetsScreen from "@/screens/BudgetsScreen";
 import ArchivedRelationsScreen from "@/screens/ArchivedRelationsScreen";
+import BudgetsScreen from "@/screens/BudgetsScreen";
 import ExchangeRatesScreen from "@/screens/ExchangeRatesScreen";
 import LinkedTransactionsScreen from "@/screens/LinkedTransactionsScreen";
 import NotesScreen from "@/screens/NotesScreen";
@@ -416,6 +416,77 @@ describe("list screens", () => {
 		).not.toHaveLength(0);
 	});
 
+	it("covers ExchangeRatesScreen load, fetch, save error and updater callbacks", async () => {
+		serviceMocks.getSources.mockRejectedValueOnce(new Error("load failed"));
+		serviceMocks.fetchExchangeRates.mockRejectedValueOnce(new Error("fetch failed"));
+		serviceMocks.saveManualExchangeRate.mockRejectedValueOnce(new Error("save failed"));
+
+		const setDrafts = vi.fn();
+		const setError = vi.fn();
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 1) return [["USD"], vi.fn()];
+			if (call === 2)
+				return [
+					[
+						{
+							currencyCode: "USD",
+							rateToInr: "83.5",
+							source: "manual",
+							fetchedAt: 1,
+							updatedAt: 2,
+						},
+					],
+					vi.fn(),
+				];
+			if (call === 3) return [{ USD: "84" }, setDrafts];
+			if (call === 5) return ["", setError];
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = ExchangeRatesScreen({} as any);
+		await flush();
+
+		expect(setError).toHaveBeenCalledWith("load failed");
+
+		findByPredicate(
+			tree,
+			(node) => node?.props?.label === "Fetch latest rates" && typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
+		await flush();
+		expect(setError).toHaveBeenCalledWith("fetch failed");
+
+		const screenList = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.renderItem === "function" && typeof node?.props?.keyExtractor === "function",
+		)[0];
+		expect(screenList.props.keyExtractor("USD")).toBe("USD");
+
+		const row = screenList.props.renderItem({ item: "USD" });
+		const textField = findByPredicate(
+			row,
+			(node) => node?.props?.label === "Rate to INR" && typeof node?.props?.onChangeText === "function",
+		)[0];
+		textField.props.onChangeText("99.10");
+		expect(setDrafts).toHaveBeenCalled();
+		const draftsUpdater = setDrafts.mock.calls.at(-1)?.[0] as (currentDrafts: Record<string, string>) => Record<string, string>;
+		expect(draftsUpdater({ USD: "84", EUR: "91" })).toEqual({ USD: "99.10", EUR: "91" });
+
+		findByPredicate(
+			row,
+			(node) => node?.props?.label === "Save manual rate" && typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
+		await flush();
+
+		expect(serviceMocks.saveManualExchangeRate).toHaveBeenCalledWith(
+			{ id: "db" },
+			"USD",
+			"84",
+		);
+		expect(setError).toHaveBeenCalledWith("save failed");
+	});
+
 	it("executes ArchivedRelationsScreen list and restore flow", async () => {
 		hookMocks.confirm.mockImplementation(({ onConfirm }: any) => onConfirm());
 
@@ -562,6 +633,100 @@ describe("list screens", () => {
 			expect(navigation.goBack).toHaveBeenCalled();
 		},
 	);
+
+	it("covers LinkedTransactionsScreen edit and transaction navigation callbacks", async () => {
+		const navigation = { navigate: vi.fn(), goBack: vi.fn() };
+
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 1) {
+				return [[{ id: "tx1", transactionAt: 100 }], vi.fn()];
+			}
+			return [typeof initial === "function" ? initial() : initial, vi.fn()];
+		});
+
+		const tree = LinkedTransactionsScreen({
+			navigation,
+			route: {
+				key: "k",
+				name: "LinkedTransactions",
+				params: {
+					entityId: "e1",
+					entityName: "Entity",
+					kind: "CATEGORY",
+				},
+			},
+		} as any);
+		await flush();
+
+		findByPredicate(
+			tree,
+			(node) => node?.props?.label === "Edit" && typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
+
+		const screenList = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.renderItem === "function" && typeof node?.props?.keyExtractor === "function",
+		)[0];
+		expect(screenList.props.keyExtractor({ id: "tx9" })).toBe("tx9");
+
+		const rendered = screenList.props.renderItem({
+			item: { id: "tx9", transactionAt: 125 },
+		});
+		findByPredicate(rendered, (node) => typeof node?.props?.onPress === "function")[0]?.props?.onPress();
+
+		expect(navigation.navigate).toHaveBeenCalledWith("RelationForm", {
+			kind: "CATEGORY",
+			entityId: "e1",
+		});
+		expect(navigation.navigate).toHaveBeenCalledWith("TransactionForm", {
+			transactionId: "tx9",
+		});
+	});
+
+	it("covers LinkedTransactionsScreen load-error and delete-error branches", async () => {
+		const navigation = { navigate: vi.fn(), goBack: vi.fn() };
+		hookMocks.confirm.mockImplementation(({ onConfirm }: any) => onConfirm());
+		serviceMocks.getLinkedTransactions.mockRejectedValueOnce(new Error("load failed"));
+		serviceMocks.deleteSource.mockRejectedValueOnce(new Error("cannot delete"));
+
+		const tree = LinkedTransactionsScreen({
+			navigation,
+			route: {
+				key: "k",
+				name: "LinkedTransactions",
+				params: {
+					entityId: "e1",
+					entityName: "Entity",
+					kind: "SOURCE",
+					dateRangeLabel: "This month",
+				},
+			},
+		} as any);
+		await flush();
+
+		findByPredicate(
+			tree,
+			(node) => node?.props?.label === "Delete" && typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
+		await flush();
+
+		expect(serviceMocks.getLinkedTransactions).toHaveBeenCalledWith(
+			{ id: "db" },
+			{ entityId: "e1", kind: "SOURCE" },
+		);
+		expect(serviceMocks.deleteSource).toHaveBeenCalledWith({ id: "db" }, "e1");
+		expect(hookMocks.showMessage).toHaveBeenCalledWith(
+			expect.objectContaining({
+				title: "Unable to delete",
+				message: "cannot delete",
+				variant: "danger",
+			}),
+		);
+		expect(hookMocks.refreshData).not.toHaveBeenCalled();
+		expect(navigation.goBack).not.toHaveBeenCalled();
+	});
 
 	it("executes BudgetsScreen render and delete flows", async () => {
 		const navigation = { navigate: vi.fn() };
