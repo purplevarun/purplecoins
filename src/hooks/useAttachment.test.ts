@@ -173,4 +173,14 @@ describe("useAttachment", () => {
 		expect(attachmentServiceMocks.saveAttachment).not.toHaveBeenCalled();
 		expect(attachmentServiceMocks.deleteAttachment).not.toHaveBeenCalled();
 	});
+
+	it("does not delete when removed flag is set but no existing attachment is present", async () => {
+		setHookState(null, null, true);
+
+		const result = useAttachment("NOTE", "n1");
+		await result.processAttachment("record4");
+
+		expect(attachmentServiceMocks.saveAttachment).not.toHaveBeenCalled();
+		expect(attachmentServiceMocks.deleteAttachment).not.toHaveBeenCalled();
+	});
 });
