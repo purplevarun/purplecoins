@@ -287,6 +287,27 @@ describe("HomeScreen", () => {
 		expect(updater("VAULT")).toBe("TOOLS");
 	});
 
+	it("does not cycle mode when gesture does not meet threshold", () => {
+		const navigation = { navigate: vi.fn() };
+		const setMode = vi.fn();
+		const setMenuVisible = vi.fn();
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 1) return ["FINANCE", setMode];
+			if (call === 2) return [false, setMenuVisible];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		HomeScreen({ navigation } as any);
+		gestureState.onEnd?.({ translationX: 40, translationY: 10 });
+
+		expect(setMode).not.toHaveBeenCalled();
+	});
+
 	it("renders the visible mode menu with selected option state", () => {
 		const navigation = { navigate: vi.fn() };
 		let call = 0;
