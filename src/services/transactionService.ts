@@ -10,6 +10,7 @@ import type { SQLiteDatabase } from "expo-sqlite";
 const {
 	createTransactionRow,
 	deleteTransactionRow,
+	getCategoryRow,
 	getSourceRow,
 	getTransactionRow,
 	getTransactionRows,
@@ -66,7 +67,7 @@ const getTransaction = async (
 	return transaction ? mapTransaction(transaction) : null;
 };
 
-const validateRequiredReason = (reason: string): string => {
+const validateRequiredInvestmentReason = (reason: string): string => {
 	const normalizedReason = reason.trim();
 	if (!normalizedReason) {
 		throw new AppError(
@@ -75,6 +76,24 @@ const validateRequiredReason = (reason: string): string => {
 		);
 	}
 	return normalizedReason;
+};
+
+const resolveGeneralTransactionReason = async (
+	database: SQLiteDatabase,
+	input: TransactionInput,
+): Promise<string> => {
+	const normalizedReason = input.reason.trim();
+	if (normalizedReason) {
+		return normalizedReason;
+	}
+	const category = await getCategoryRow(database, input.categoryId);
+	if (!category) {
+		throw new AppError(
+			"CATEGORY_NOT_FOUND",
+			"The selected category no longer exists.",
+		);
+	}
+	return category.name.trim();
 };
 
 const prepareTransactionInput = async (
@@ -90,7 +109,7 @@ const prepareTransactionInput = async (
 			...input,
 			type: input.type === "TRANSFER" ? "DEBIT" : input.type,
 			amount,
-			reason: validateRequiredReason(input.reason),
+			reason: validateRequiredInvestmentReason(input.reason),
 			categoryId: undefined,
 			tripId: undefined,
 			destinationSourceId: undefined,
@@ -105,7 +124,7 @@ const prepareTransactionInput = async (
 		return {
 			...input,
 			amount,
-			reason: validateRequiredReason(input.reason),
+			reason: await resolveGeneralTransactionReason(database, input),
 			investmentId: undefined,
 			destinationSourceId: undefined,
 			toAmount: undefined,

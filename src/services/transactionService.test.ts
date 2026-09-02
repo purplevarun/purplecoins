@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => {
 	return {
 		createTransactionRow: vi.fn(async () => {}),
 		deleteTransactionRow: vi.fn(async () => {}),
+		getCategoryRow: vi.fn(async () => null),
 		getSourceRow: vi.fn(async () => null),
 		getTransactionRow: vi.fn(async () => null),
 		getTransactionRows: vi.fn(async () => []),
@@ -17,6 +18,7 @@ vi.mock("@/repositories/financeRepository", () => ({
 	default: {
 		createTransactionRow: mocks.createTransactionRow,
 		deleteTransactionRow: mocks.deleteTransactionRow,
+		getCategoryRow: mocks.getCategoryRow,
 		getSourceRow: mocks.getSourceRow,
 		getTransactionRow: mocks.getTransactionRow,
 		getTransactionRows: mocks.getTransactionRows,
@@ -185,19 +187,52 @@ describe("transactionService", () => {
 		).rejects.toMatchObject<AppError>({ code: "CATEGORY_REQUIRED" });
 	});
 
-	it("requires a non-empty reason for non-transfer transactions", async () => {
+	it("defaults a blank non-transfer reason to the category name", async () => {
+		mocks.getCategoryRow.mockResolvedValueOnce({
+			id: "c1",
+			name: "Groceries",
+			isIncome: false,
+			createdAt: 1,
+			updatedAt: 1,
+			archived: false,
+		});
+
+		const id = await transactionService.saveTransaction(database, {
+			classification: "GENERAL",
+			type: "DEBIT",
+			sourceId: "s1",
+			categoryId: "c1",
+			amount: "10",
+			reason: "   ",
+			transactionAt: 1,
+		});
+
+		expect(id).toBe("new-transaction-id");
+		expect(mocks.getCategoryRow).toHaveBeenCalledWith(database, "c1");
+		expect(mocks.createTransactionRow).toHaveBeenCalledWith(
+			database,
+			expect.objectContaining({
+				reason: "Groceries",
+			}),
+			"new-transaction-id",
+			expect.any(Number),
+		);
+	});
+
+	it("fails when a blank non-transfer reason has no matching category", async () => {
+		mocks.getCategoryRow.mockResolvedValueOnce(null);
+
 		await expect(
 			transactionService.saveTransaction(database, {
 				classification: "GENERAL",
 				type: "DEBIT",
 				sourceId: "s1",
-				categoryId: "c1",
+				categoryId: "missing-category",
 				amount: "10",
 				reason: "   ",
+				transactionAt: 1,
 			}),
-		).rejects.toMatchObject<AppError>({
-			code: "TRANSACTION_REASON_REQUIRED",
-		});
+		).rejects.toMatchObject<AppError>({ code: "CATEGORY_NOT_FOUND" });
 	});
 
 	it("validates investment inputs", async () => {
@@ -210,6 +245,20 @@ describe("transactionService", () => {
 				reason: "ok",
 			}),
 		).rejects.toMatchObject<AppError>({ code: "INVESTMENT_REQUIRED" });
+
+		await expect(
+			transactionService.saveTransaction(database, {
+				classification: "INVESTMENT",
+				type: "DEBIT",
+				sourceId: "s1",
+				investmentId: "inv1",
+				amount: "10",
+				reason: "   ",
+				transactionAt: 1,
+			}),
+		).rejects.toMatchObject<AppError>({
+			code: "TRANSACTION_REASON_REQUIRED",
+		});
 
 		const id = await transactionService.saveTransaction(database, {
 			classification: "INVESTMENT",

@@ -358,12 +358,12 @@ const TransactionFormScreen = ({
 						/>
 					) : null}
 					<TextField
-						label={isTransfer ? "Reason (optional)" : "Reason"}
+						label="Reason (optional)"
 						onChangeText={setReason}
 						placeholder={
 							isTransfer
 								? "Defaults to Source A to Source B"
-								: "What was this for?"
+								: "Defaults to the selected category"
 						}
 						value={reason}
 					/>
