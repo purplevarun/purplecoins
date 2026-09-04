@@ -430,25 +430,9 @@ const RelationsScreen = ({
 									/>
 								</View>
 								<View style={styles.details}>
-									<View style={styles.titleRow}>
-										<CustomText style={styles.title}>
-											{source.name}
-										</CustomText>
-										{isValidated ? (
-											<View style={styles.validatedBadge}>
-												<Ionicons
-													color={COLORS.success}
-													name="checkmark-circle"
-													size={14}
-												/>
-												<CustomText
-													style={styles.validatedText}
-												>
-													Validated
-												</CustomText>
-											</View>
-										) : null}
-									</View>
+									<CustomText style={styles.title}>
+										{source.name}
+									</CustomText>
 									<CustomText style={styles.meta}>
 										{source.currencyCode}
 									</CustomText>
@@ -877,12 +861,6 @@ const styles = StyleSheet.create({
 		flex: 1,
 		gap: 3,
 	},
-	titleRow: {
-		flexDirection: "row",
-		alignItems: "center",
-		gap: 8,
-		flexWrap: "wrap",
-	},
 	title: {
 		color: COLORS.text,
 		fontSize: 16,
@@ -902,20 +880,6 @@ const styles = StyleSheet.create({
 		fontSize: 13,
 		fontWeight: "900",
 		marginTop: 1,
-	},
-	validatedBadge: {
-		flexDirection: "row",
-		alignItems: "center",
-		gap: 4,
-		borderRadius: 999,
-		paddingHorizontal: 8,
-		paddingVertical: 3,
-		backgroundColor: COLORS.successMuted,
-	},
-	validatedText: {
-		color: COLORS.success,
-		fontSize: 10,
-		fontWeight: "900",
 	},
 	actions: {
 		marginTop: 12,

@@ -32,7 +32,7 @@ const GlassCard = ({
 const styles = StyleSheet.create({
 	wrapper: {
 		overflow: "hidden",
-		borderWidth: 1,
+		borderWidth: 2,
 		borderRadius: 20,
 		backgroundColor: COLORS.glass,
 		shadowColor: COLORS.black,
