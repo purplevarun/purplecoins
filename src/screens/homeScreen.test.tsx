@@ -286,6 +286,26 @@ describe("HomeScreen", () => {
 		expect(updater("VAULT")).toBe("TOOLS");
 	});
 
+	it("cycles mode on upward gesture", () => {
+		const navigation = { navigate: vi.fn() };
+		const setMode = vi.fn();
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 1) return ["FINANCE", setMode];
+			if (call === 2) return [false, vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		HomeScreen({ navigation } as any);
+		gestureState.onEnd?.({ translationX: 0, translationY: -40 });
+
+		expect(setMode).toHaveBeenCalled();
+	});
+
 	it("does not cycle mode when gesture does not meet threshold", () => {
 		const navigation = { navigate: vi.fn() };
 		const setMode = vi.fn();
@@ -343,8 +363,10 @@ describe("HomeScreen", () => {
 		expect(getNextMode("FINANCE")).toBe("VAULT");
 		expect(getNextMode("VAULT")).toBe("TOOLS");
 		expect(getSwitchDragProgress(1, 40)).toBe(1);
+		expect(getSwitchDragProgress(1, -40)).toBe(1);
 		expect(getSwitchDragProgress(40, 1)).toBe(0);
 		expect(shouldCycleFromGesture(1, 40)).toBe(true);
+		expect(shouldCycleFromGesture(1, -40)).toBe(true);
 		expect(shouldCycleFromGesture(40, 20)).toBe(false);
 		expect(getPressableScaleStyle(true)).toEqual([
 			{ transform: [{ scale: 0.98 }] },

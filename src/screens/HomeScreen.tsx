@@ -41,16 +41,17 @@ const getSwitchDragProgress = (
 	translationX: number,
 	translationY: number,
 ): number => {
-	const isDownward =
-		translationY > 0 && Math.abs(translationY) > Math.abs(translationX);
-	return isDownward ? Math.min(translationY / SWIPE_DOWN_THRESHOLD, 1) : 0;
+	const isVertical = Math.abs(translationY) > Math.abs(translationX);
+	return isVertical
+		? Math.min(Math.abs(translationY) / SWIPE_DOWN_THRESHOLD, 1)
+		: 0;
 };
 
 const shouldCycleFromGesture = (
 	translationX: number,
 	translationY: number,
 ): boolean =>
-	translationY >= SWIPE_DOWN_THRESHOLD &&
+	Math.abs(translationY) >= SWIPE_DOWN_THRESHOLD &&
 	Math.abs(translationY) > Math.abs(translationX);
 
 const getModeOptionState = (
