@@ -1,6 +1,7 @@
 import * as DocumentPicker from "expo-document-picker";
 
 import appConstants from "@/constants/appConstants";
+import SCHEMA_MIGRATIONS from "@/database/migrations";
 import SCHEMA_SQL from "@/database/schema";
 import AppError from "@/errors/AppError";
 import { File, Paths } from "expo-file-system";
@@ -83,6 +84,13 @@ const restoreBackup = async (database: SQLiteDatabase): Promise<boolean> => {
 		});
 
 		await database.execAsync(SCHEMA_SQL);
+		for (const migration of SCHEMA_MIGRATIONS) {
+			try {
+				await database.execAsync(migration);
+			} catch {
+				// Ignore duplicate-column or already-applied legacy migrations.
+			}
+		}
 		await database.execAsync("PRAGMA wal_checkpoint(TRUNCATE);");
 
 		return true;

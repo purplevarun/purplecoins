@@ -185,6 +185,14 @@ describe("backupService", () => {
 		expect(database.execAsync).toHaveBeenNthCalledWith(1, "SCHEMA_SQL");
 		expect(database.execAsync).toHaveBeenNthCalledWith(
 			2,
+			"ALTER TABLE investments ADD COLUMN label TEXT;",
+		);
+		expect(database.execAsync).toHaveBeenNthCalledWith(
+			3,
+			"ALTER TABLE investments ADD COLUMN investment_type_id TEXT;",
+		);
+		expect(database.execAsync).toHaveBeenNthCalledWith(
+			4,
 			"PRAGMA wal_checkpoint(TRUNCATE);",
 		);
 		expect(closeAsync).toHaveBeenCalled();
