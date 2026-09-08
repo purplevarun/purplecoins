@@ -1,6 +1,6 @@
 {
 	"name": "purplecoins",
-	"version": "2026.9.5",
+	"version": "2026.9.8",
 	"main": "index.ts",
 	"dependencies": {
 		"@expo/vector-icons": "^15.0.2",
