@@ -213,36 +213,28 @@ const HomeScreen = ({ navigation }: HomeScreenProps): React.JSX.Element => {
 					subtitle: "Accounts & cards",
 					icon: "wallet-outline",
 					color: COLORS.blue,
-					handlePress: () =>
-						navigation.navigate("Relations", { kind: "SOURCE" }),
+					handlePress: () => navigation.navigate("Sources"),
 				},
 				{
 					label: "Categories",
 					subtitle: "Income & expense",
 					icon: "pricetags-outline",
 					color: COLORS.warning,
-					handlePress: () =>
-						navigation.navigate("Relations", {
-							kind: "CATEGORY",
-						}),
+					handlePress: () => navigation.navigate("Categories"),
 				},
 				{
 					label: "Trips",
 					subtitle: "Travel spending",
 					icon: "airplane-outline",
 					color: "#68D5FF",
-					handlePress: () =>
-						navigation.navigate("Relations", { kind: "TRIP" }),
+					handlePress: () => navigation.navigate("Trips"),
 				},
 				{
 					label: "Investments",
 					subtitle: "Invested & redeemed",
 					icon: "trending-up",
 					color: COLORS.success,
-					handlePress: () =>
-						navigation.navigate("Relations", {
-							kind: "INVESTMENT",
-						}),
+					handlePress: () => navigation.navigate("Investments"),
 				},
 				{
 					label: "Budgets",

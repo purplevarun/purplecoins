@@ -1,7 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import COLORS from "@/constants/colors";
-
 const reactMocks = vi.hoisted(() => ({
 	useEffect: vi.fn(),
 	useState: vi.fn(),
@@ -17,15 +15,6 @@ const serviceMocks = vi.hoisted(() => ({
 	getTodo: vi.fn(),
 	saveTodo: vi.fn(),
 	deleteTodo: vi.fn(),
-	getCategory: vi.fn(),
-	saveCategory: vi.fn(),
-	getInvestment: vi.fn(),
-	saveInvestment: vi.fn(),
-	createSource: vi.fn(),
-	getSource: vi.fn(),
-	updateSourceName: vi.fn(),
-	getTrip: vi.fn(),
-	saveTrip: vi.fn(),
 	deleteCard: vi.fn(),
 	getCard: vi.fn(),
 	saveCard: vi.fn(),
@@ -132,14 +121,6 @@ vi.mock("@/services/budgetService", () => ({
 vi.mock("@/services/categoryService", () => ({
 	default: {
 		getCategories: serviceMocks.getCategories,
-		getCategory: serviceMocks.getCategory,
-		saveCategory: serviceMocks.saveCategory,
-	},
-}));
-vi.mock("@/services/investmentService", () => ({
-	default: {
-		getInvestment: serviceMocks.getInvestment,
-		saveInvestment: serviceMocks.saveInvestment,
 	},
 }));
 vi.mock("@/services/noteService", () => ({
@@ -149,24 +130,11 @@ vi.mock("@/services/noteService", () => ({
 		deleteNote: serviceMocks.deleteNote,
 	},
 }));
-vi.mock("@/services/sourceService", () => ({
-	default: {
-		createSource: serviceMocks.createSource,
-		getSource: serviceMocks.getSource,
-		updateSourceName: serviceMocks.updateSourceName,
-	},
-}));
 vi.mock("@/services/todoService", () => ({
 	default: {
 		getTodo: serviceMocks.getTodo,
 		saveTodo: serviceMocks.saveTodo,
 		deleteTodo: serviceMocks.deleteTodo,
-	},
-}));
-vi.mock("@/services/tripService", () => ({
-	default: {
-		getTrip: serviceMocks.getTrip,
-		saveTrip: serviceMocks.saveTrip,
 	},
 }));
 vi.mock("@/services/cardService", () => ({
@@ -198,7 +166,6 @@ vi.mock("@/utils/error", () => ({
 
 import BudgetFormScreen from "@/screens/BudgetFormScreen";
 import NoteFormScreen from "@/screens/NoteFormScreen";
-import RelationFormScreen from "@/screens/RelationFormScreen";
 import TodoFormScreen from "@/screens/TodoFormScreen";
 import VaultFormScreen from "@/screens/VaultFormScreen";
 
@@ -285,22 +252,6 @@ describe("form screens", () => {
 		serviceMocks.saveTodo.mockResolvedValue("t1");
 		serviceMocks.deleteTodo.mockResolvedValue(undefined);
 
-		serviceMocks.getCategory.mockResolvedValue({
-			name: "Food",
-			isIncome: false,
-		});
-		serviceMocks.saveCategory.mockResolvedValue(undefined);
-		serviceMocks.getInvestment.mockResolvedValue({ name: "MF" });
-		serviceMocks.saveInvestment.mockResolvedValue(undefined);
-		serviceMocks.createSource.mockResolvedValue(undefined);
-		serviceMocks.getSource.mockResolvedValue({
-			name: "Cash",
-			currencyCode: "INR",
-		});
-		serviceMocks.updateSourceName.mockResolvedValue(undefined);
-		serviceMocks.getTrip.mockResolvedValue({ name: "Goa" });
-		serviceMocks.saveTrip.mockResolvedValue(undefined);
-
 		serviceMocks.deleteCard.mockResolvedValue(undefined);
 		serviceMocks.getCard.mockResolvedValue({
 			name: "Visa",
@@ -331,300 +282,6 @@ describe("form screens", () => {
 		serviceMocks.savePassword.mockResolvedValue("pw1");
 
 		hookMocks.processAttachment.mockResolvedValue(undefined);
-	});
-
-	it("executes RelationFormScreen source and category branches", async () => {
-		const navigation = { goBack: vi.fn() };
-		hookMocks.confirm.mockImplementation(({ onConfirm }: any) => {
-			onConfirm();
-		});
-
-		const sourceTree = RelationFormScreen({
-			navigation,
-			route: {
-				key: "k",
-				name: "RelationForm",
-				params: { kind: "SOURCE", entityId: "s1" },
-			},
-		} as any);
-		await flush();
-		findByPredicate(
-			sourceTree,
-			(node) =>
-				node?.props?.label === "Save" &&
-				typeof node?.props?.onPress === "function",
-		)[0]?.props?.onPress();
-		await flush();
-		await new Promise((resolve) => setTimeout(resolve, 0));
-
-		expect(serviceMocks.getSource).toHaveBeenCalledWith({ id: "db" }, "s1");
-		expect(serviceMocks.updateSourceName).toHaveBeenCalled();
-
-		let stateCall = 0;
-		reactMocks.useState.mockImplementation((initial: any) => {
-			stateCall += 1;
-			if (stateCall === 3) return [true, vi.fn()];
-			if (stateCall === 4) return [false, vi.fn()];
-			return [
-				typeof initial === "function" ? initial() : initial,
-				vi.fn(),
-			];
-		});
-
-		const categoryTree = RelationFormScreen({
-			navigation,
-			route: {
-				key: "k2",
-				name: "RelationForm",
-				params: { kind: "CATEGORY", entityId: "c1" },
-			},
-		} as any);
-		await flush();
-		findByPredicate(
-			categoryTree,
-			(node) =>
-				node?.props?.label === "Save" &&
-				typeof node?.props?.onPress === "function",
-		)[0]?.props?.onPress();
-		await flush();
-		await new Promise((resolve) => setTimeout(resolve, 0));
-
-		expect(hookMocks.confirm).toHaveBeenCalled();
-		expect(serviceMocks.saveCategory).toHaveBeenCalled();
-		expect(navigation.goBack).toHaveBeenCalled();
-	});
-
-	it("covers RelationFormScreen create source, trip, investment, and save-error branches", async () => {
-		const navigation = { goBack: vi.fn() };
-
-		const newSourceTree = RelationFormScreen({
-			navigation,
-			route: {
-				key: "k-new-source",
-				name: "RelationForm",
-				params: { kind: "SOURCE" },
-			},
-		} as any);
-		await flush();
-		findByPredicate(
-			newSourceTree,
-			(node) =>
-				node?.props?.label === "Save" &&
-				typeof node?.props?.onPress === "function",
-		)[0]?.props?.onPress();
-		await flush();
-
-		const tripTree = RelationFormScreen({
-			navigation,
-			route: {
-				key: "k-trip",
-				name: "RelationForm",
-				params: { kind: "TRIP", entityId: "t1" },
-			},
-		} as any);
-		await flush();
-		findByPredicate(
-			tripTree,
-			(node) =>
-				node?.props?.label === "Save" &&
-				typeof node?.props?.onPress === "function",
-		)[0]?.props?.onPress();
-		await flush();
-
-		const investmentTree = RelationFormScreen({
-			navigation,
-			route: {
-				key: "k-investment",
-				name: "RelationForm",
-				params: { kind: "INVESTMENT", entityId: "i1" },
-			},
-		} as any);
-		await flush();
-		findByPredicate(
-			investmentTree,
-			(node) =>
-				node?.props?.label === "Save" &&
-				typeof node?.props?.onPress === "function",
-		)[0]?.props?.onPress();
-		await flush();
-
-		serviceMocks.saveTrip.mockRejectedValueOnce(
-			new Error("trip save failed"),
-		);
-		const failingTripTree = RelationFormScreen({
-			navigation,
-			route: {
-				key: "k-trip-fail",
-				name: "RelationForm",
-				params: { kind: "TRIP", entityId: "t1" },
-			},
-		} as any);
-		await flush();
-		findByPredicate(
-			failingTripTree,
-			(node) =>
-				node?.props?.label === "Save" &&
-				typeof node?.props?.onPress === "function",
-		)[0]?.props?.onPress();
-		await flush();
-
-		expect(serviceMocks.createSource).toHaveBeenCalled();
-		expect(serviceMocks.getTrip).toHaveBeenCalledWith({ id: "db" }, "t1");
-		expect(serviceMocks.saveTrip).toHaveBeenCalled();
-		expect(serviceMocks.getInvestment).toHaveBeenCalledWith(
-			{ id: "db" },
-			"i1",
-		);
-		expect(serviceMocks.saveInvestment).toHaveBeenCalled();
-	});
-
-	it("covers RelationFormScreen load-error and category switch/error render branches", async () => {
-		const navigation = { goBack: vi.fn() };
-		serviceMocks.getInvestment.mockRejectedValueOnce(
-			new Error("investment load failed"),
-		);
-
-		const setError = vi.fn();
-		let stateCall = 0;
-		reactMocks.useState.mockImplementation((initial: any) => {
-			stateCall += 1;
-			if (stateCall === 6) return ["", setError];
-			return [
-				typeof initial === "function" ? initial() : initial,
-				vi.fn(),
-			];
-		});
-
-		RelationFormScreen({
-			navigation,
-			route: {
-				key: "k-investment-load-fail",
-				name: "RelationForm",
-				params: { kind: "INVESTMENT", entityId: "i1" },
-			},
-		} as any);
-		await flush();
-		await flush();
-
-		expect(setError).toHaveBeenCalledWith("investment load failed");
-
-		stateCall = 0;
-		reactMocks.useState.mockImplementation((initial: any) => {
-			stateCall += 1;
-			if (stateCall === 3) return [false, vi.fn()];
-			if (stateCall === 6) return ["manual error", vi.fn()];
-			return [
-				typeof initial === "function" ? initial() : initial,
-				vi.fn(),
-			];
-		});
-
-		const categoryTree = RelationFormScreen({
-			navigation,
-			route: {
-				key: "k-category-false-switch",
-				name: "RelationForm",
-				params: { kind: "CATEGORY", entityId: "c1" },
-			},
-		} as any);
-		await flush();
-
-		const switchNode = findByPredicate(
-			categoryTree,
-			(node) =>
-				typeof node?.props?.onValueChange === "function" &&
-				node?.props?.thumbColor,
-		)[0];
-		expect(switchNode?.props?.thumbColor).toBe(COLORS.textMuted);
-		expect(
-			findByPredicate(
-				categoryTree,
-				(node) =>
-					node?.props?.message === "manual error" &&
-					node?.props?.tone === "danger",
-			),
-		).not.toHaveLength(0);
-	});
-
-	it("covers RelationFormScreen null entity branches", async () => {
-		const navigation = { goBack: vi.fn() };
-		serviceMocks.getSource.mockResolvedValueOnce(null);
-		serviceMocks.getCategory.mockResolvedValueOnce(null);
-		serviceMocks.getTrip.mockResolvedValueOnce(null);
-		serviceMocks.getInvestment.mockResolvedValueOnce(null);
-
-		RelationFormScreen({
-			navigation,
-			route: {
-				key: "k-source-null",
-				name: "RelationForm",
-				params: { kind: "SOURCE", entityId: "s1" },
-			},
-		} as any);
-		await flush();
-
-		RelationFormScreen({
-			navigation,
-			route: {
-				key: "k-category-null",
-				name: "RelationForm",
-				params: { kind: "CATEGORY", entityId: "c1" },
-			},
-		} as any);
-		await flush();
-
-		const setName = vi.fn();
-		let stateCall = 0;
-		reactMocks.useState.mockImplementation((initial: any) => {
-			stateCall += 1;
-			if (stateCall === 1) return ["", setName];
-			return [
-				typeof initial === "function" ? initial() : initial,
-				vi.fn(),
-			];
-		});
-
-		RelationFormScreen({
-			navigation,
-			route: {
-				key: "k-trip-null",
-				name: "RelationForm",
-				params: { kind: "TRIP", entityId: "t1" },
-			},
-		} as any);
-		await flush();
-
-		stateCall = 0;
-		reactMocks.useState.mockImplementation((initial: any) => {
-			stateCall += 1;
-			if (stateCall === 1) return ["", setName];
-			return [
-				typeof initial === "function" ? initial() : initial,
-				vi.fn(),
-			];
-		});
-
-		RelationFormScreen({
-			navigation,
-			route: {
-				key: "k-investment-null",
-				name: "RelationForm",
-				params: { kind: "INVESTMENT", entityId: "i1" },
-			},
-		} as any);
-		await flush();
-
-		expect(serviceMocks.getSource).toHaveBeenCalledWith({ id: "db" }, "s1");
-		expect(serviceMocks.getCategory).toHaveBeenCalledWith(
-			{ id: "db" },
-			"c1",
-		);
-		expect(serviceMocks.getTrip).toHaveBeenCalledWith({ id: "db" }, "t1");
-		expect(serviceMocks.getInvestment).toHaveBeenCalledWith(
-			{ id: "db" },
-			"i1",
-		);
-		expect(setName).toHaveBeenCalledWith("");
 	});
 
 	it("executes VaultFormScreen branches for password card and identity", async () => {

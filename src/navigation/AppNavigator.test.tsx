@@ -26,16 +26,19 @@ vi.mock("@react-navigation/native-stack", () => ({
 	}),
 }));
 
-vi.mock("@/utils/relation", () => ({
-	default: vi.fn((kind: string) => ({ title: `${kind} TITLE` })),
-}));
-
 vi.mock("@/screens/AnalysisScreen", () => ({ default: "AnalysisScreen" }));
+vi.mock("@/screens/AnalysisDetailsScreen", () => ({
+	default: "AnalysisDetailsScreen",
+}));
 vi.mock("@/screens/ArchivedRelationsScreen", () => ({
 	default: "ArchivedRelationsScreen",
 }));
 vi.mock("@/screens/BudgetFormScreen", () => ({ default: "BudgetFormScreen" }));
 vi.mock("@/screens/BudgetsScreen", () => ({ default: "BudgetsScreen" }));
+vi.mock("@/screens/CategoriesScreen", () => ({ default: "CategoriesScreen" }));
+vi.mock("@/screens/CategoryFormScreen", () => ({
+	default: "CategoryFormScreen",
+}));
 vi.mock("@/screens/ExchangeRatesScreen", () => ({
 	default: "ExchangeRatesScreen",
 }));
@@ -43,16 +46,22 @@ vi.mock("@/screens/GlobalSearchScreen", () => ({
 	default: "GlobalSearchScreen",
 }));
 vi.mock("@/screens/HomeScreen", () => ({ default: "HomeScreen" }));
+vi.mock("@/screens/InvestmentFormScreen", () => ({
+	default: "InvestmentFormScreen",
+}));
+vi.mock("@/screens/InvestmentsScreen", () => ({
+	default: "InvestmentsScreen",
+}));
 vi.mock("@/screens/LinkedTransactionsScreen", () => ({
 	default: "LinkedTransactionsScreen",
 }));
 vi.mock("@/screens/NoteFormScreen", () => ({ default: "NoteFormScreen" }));
 vi.mock("@/screens/NotesScreen", () => ({ default: "NotesScreen" }));
-vi.mock("@/screens/RelationFormScreen", () => ({
-	default: "RelationFormScreen",
-}));
-vi.mock("@/screens/RelationsScreen", () => ({ default: "RelationsScreen" }));
 vi.mock("@/screens/SettingsScreen", () => ({ default: "SettingsScreen" }));
+vi.mock("@/screens/SourceFormScreen", () => ({
+	default: "SourceFormScreen",
+}));
+vi.mock("@/screens/SourcesScreen", () => ({ default: "SourcesScreen" }));
 vi.mock("@/screens/TodoFormScreen", () => ({ default: "TodoFormScreen" }));
 vi.mock("@/screens/TodosScreen", () => ({ default: "TodosScreen" }));
 vi.mock("@/screens/TransactionFormScreen", () => ({
@@ -61,6 +70,8 @@ vi.mock("@/screens/TransactionFormScreen", () => ({
 vi.mock("@/screens/TransactionsScreen", () => ({
 	default: "TransactionsScreen",
 }));
+vi.mock("@/screens/TripFormScreen", () => ({ default: "TripFormScreen" }));
+vi.mock("@/screens/TripsScreen", () => ({ default: "TripsScreen" }));
 vi.mock("@/screens/VaultFormScreen", () => ({ default: "VaultFormScreen" }));
 vi.mock("@/screens/VaultScreen", () => ({ default: "VaultScreen" }));
 
@@ -96,19 +107,27 @@ describe("AppNavigator", () => {
 		).toBe("Rubik-SemiBold");
 
 		const screens = findAllByType(tree, "Screen");
-		expect(screens).toHaveLength(19);
+		expect(screens).toHaveLength(26);
 
 		const byName = (name: string) =>
 			screens.find((screen) => screen?.props?.name === name);
 
+		expect(byName("AnalysisDetails")).toBeTruthy();
+		expect(
+			byName("AnalysisDetails")?.props?.options({
+				route: { params: { mode: "INVESTMENTS" } },
+			}).title,
+		).toBe("All investments");
+
 		expect(byName("Transactions")?.props?.options?.title).toBe(
 			"Transactions",
 		);
-		expect(
-			byName("Relations")?.props?.options({
-				route: { params: { kind: "CATEGORY" } },
-			}).title,
-		).toBe("CATEGORY TITLE");
+		expect(byName("Sources")?.props?.options?.title).toBe("Sources");
+		expect(byName("Categories")?.props?.options?.title).toBe("Categories");
+		expect(byName("Trips")?.props?.options?.title).toBe("Trips");
+		expect(byName("Investments")?.props?.options?.title).toBe(
+			"Investments",
+		);
 		expect(
 			byName("LinkedTransactions")?.props?.options({
 				route: { params: { entityName: "Rent" } },

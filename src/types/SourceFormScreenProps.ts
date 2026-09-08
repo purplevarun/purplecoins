@@ -1,9 +1,9 @@
 import type RootStackParamList from "@/types/RootStackParamList";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-type RelationsScreenProps = NativeStackScreenProps<
+type SourceFormScreenProps = NativeStackScreenProps<
 	RootStackParamList,
-	"Relations"
+	"SourceForm"
 >;
 
-export type { RelationsScreenProps as default };
+export type { SourceFormScreenProps as default };

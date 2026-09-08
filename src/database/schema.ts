@@ -29,12 +29,22 @@ CREATE TABLE IF NOT EXISTS trips (
 	updated_at INTEGER NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS investment_types (
+	id TEXT PRIMARY KEY NOT NULL,
+	name TEXT NOT NULL CHECK (length(trim(name)) > 0),
+	created_at INTEGER NOT NULL,
+	updated_at INTEGER NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS investments (
 	id TEXT PRIMARY KEY NOT NULL,
 	name TEXT NOT NULL CHECK (length(trim(name)) > 0),
+	label TEXT,
+	investment_type_id TEXT,
 	archived INTEGER,
 	created_at INTEGER NOT NULL,
-	updated_at INTEGER NOT NULL
+	updated_at INTEGER NOT NULL,
+	FOREIGN KEY (investment_type_id) REFERENCES investment_types(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS transactions (
@@ -208,6 +218,8 @@ CREATE INDEX IF NOT EXISTS idx_transactions_trip
 	ON transactions(trip_id);
 CREATE INDEX IF NOT EXISTS idx_transactions_investment
 	ON transactions(investment_id);
+CREATE INDEX IF NOT EXISTS idx_investments_type
+	ON investments(investment_type_id);
 CREATE INDEX IF NOT EXISTS idx_attachments_owner
 	ON attachments(owner_type, owner_id);
 `;

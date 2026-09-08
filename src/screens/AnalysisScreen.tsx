@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
+import AppButton from "@/components/AppButton";
 import DateField from "@/components/DateField";
 import DonutChart from "@/components/DonutChart";
 import EmptyState from "@/components/EmptyState";
@@ -12,6 +13,7 @@ import Notice from "@/components/Notice";
 import ScreenContainer from "@/components/ScreenContainer";
 import SectionHeading from "@/components/SectionHeading";
 import SegmentedControl from "@/components/SegmentedControl";
+import TrendLineChart from "@/components/TrendLineChart";
 import appConstants from "@/constants/appConstants";
 import COLORS from "@/constants/colors";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
@@ -26,14 +28,15 @@ import type ChartDatum from "@/types/ChartDatum";
 import type DateRange from "@/types/DateRange";
 import type SelectOption from "@/types/SelectOption";
 import type SummaryMetricInput from "@/types/SummaryMetricInput";
+import type Transaction from "@/types/Transaction";
 import dateUtils from "@/utils/date";
 import getErrorMessage from "@/utils/error";
 import moneyUtils from "@/utils/money";
 import runAfterRender from "@/utils/runAfterRender";
+import { getTrendSeries } from "@/utils/trends";
 const { DEFAULT_CURRENCY_CODE } = appConstants;
-const { getTransactionMinMaxDate } = financeRepository;
-const { getAnalysisSummary, getInvestmentNetAmount, getInvestmentNetLabel } =
-	analysisService;
+const { getTransactionMinMaxDate, getTransactionRows } = financeRepository;
+const { getAnalysisSummary } = analysisService;
 const { getFyStartMonth } = settingsService;
 const {
 	formatDate,
@@ -127,13 +130,6 @@ const getInvestmentColor = (net: string): string => {
 	return COLORS.text;
 };
 
-const getInvestmentAccent = (net: string): "success" | "danger" | "default" => {
-	const comparison = compareMoney(net, ZERO_AMOUNT);
-	if (comparison > 0) return "danger";
-	if (comparison < 0) return "success";
-	return "default";
-};
-
 const isShiftNavigationDisabled = (
 	period: AnalysisPeriod,
 	anchorDate: Date,
@@ -153,52 +149,11 @@ const isShiftNavigationDisabled = (
 	return shifted === anchorDate;
 };
 
-const getCategoryAccent = (net: string): "success" | "danger" =>
-	compareMoney(net, ZERO_AMOUNT) >= 0 ? "success" : "danger";
-
-const getCategoryBucketLabel = (isIncome: boolean): string =>
-	isIncome ? "Income category" : "Expense category";
-
-const getCategoryNetColor = (net: string): string =>
-	compareMoney(net, ZERO_AMOUNT) >= 0 ? COLORS.success : COLORS.danger;
-
-const getLinkedCategoryParams = (
-	category: AnalysisSummary["categories"][number],
-	dateRange: DateRange,
-) => ({
-	kind: "CATEGORY" as const,
-	entityId: category.categoryId,
-	entityName: category.categoryName,
-	dateRangeStart: dateRange.start,
-	dateRangeEnd: dateRange.end,
-	dateRangeLabel: `${formatDate(dateRange.start)} – ${formatDate(dateRange.end)}`,
-});
-
-const getLinkedInvestmentParams = (
-	investment: AnalysisSummary["investments"][number],
-	dateRange: DateRange,
-) => ({
-	kind: "INVESTMENT" as const,
-	entityId: investment.investmentId,
-	entityName: investment.investmentName,
-	dateRangeStart: dateRange.start,
-	dateRangeEnd: dateRange.end,
-	dateRangeLabel: `${formatDate(dateRange.start)} – ${formatDate(dateRange.end)}`,
-});
-
 const getDateRangeLabel = (dateRange: DateRange): string =>
 	`${formatDate(dateRange.start)} – ${formatDate(dateRange.end)}`;
 
 const getMissingRatesMessage = (missingCurrencies: readonly string[]): string =>
 	`Update INR exchange rates for ${missingCurrencies.join(", ")} before analysis can include those transactions.`;
-
-const getCategoryBreakdownText = (
-	category: AnalysisSummary["categories"][number],
-): string =>
-	`Credits ${formatMoney(category.credits, category.currencyCode)} · Debits ${formatMoney(category.debits, category.currencyCode)}`;
-
-const getInvestmentNetText = (net: string, currencyCode: string): string =>
-	`${getInvestmentNetLabel(net)}: ${formatMoney(getInvestmentNetAmount(net), currencyCode)}`;
 
 const getChartData = (
 	summary: AnalysisSummary | null,
@@ -290,6 +245,9 @@ const AnalysisScreen = ({
 	const [fyStartMonth, setFyStartMonth] = useState(4);
 	const [minTxnDate, setMinTxnDate] = useState<number | undefined>(undefined);
 	const [maxTxnDate, setMaxTxnDate] = useState<number | undefined>(undefined);
+	const [trendTransactions, setTrendTransactions] = useState<
+		readonly Transaction[]
+	>([]);
 
 	const dateRange = useMemo(
 		() =>
@@ -305,13 +263,14 @@ const AnalysisScreen = ({
 
 	const getScreenData = useCallback(async (): Promise<void> => {
 		try {
-			const [summaryResult, minMax, fy] = await Promise.all([
+			const [summaryResult, minMax, fy, trendRows] = await Promise.all([
 				getAnalysisSummary(database, {
 					dateRange,
 					isNativeCurrency: false,
 				}),
 				getTransactionMinMaxDate(database),
 				getFyStartMonth(database),
+				getTransactionRows(database),
 			]);
 			setSummary(summaryResult);
 			setFyStartMonth(fy);
@@ -319,6 +278,7 @@ const AnalysisScreen = ({
 				setMinTxnDate(minMax.minDate);
 				setMaxTxnDate(minMax.maxDate);
 			}
+			setTrendTransactions(trendRows);
 			setError("");
 		} catch (caughtError: unknown) {
 			setError(getErrorMessage(caughtError));
@@ -385,6 +345,10 @@ const AnalysisScreen = ({
 		investmentCashFlow,
 		investmentNet,
 		netAfterInvestments,
+	);
+	const trendSeries = useMemo(
+		() => getTrendSeries(trendTransactions),
+		[trendTransactions],
 	);
 
 	const renderMetric = (metric: SummaryMetricInput): React.JSX.Element => (
@@ -472,9 +436,6 @@ const AnalysisScreen = ({
 					</CustomText>
 				</View>
 			) : null}
-			{period === "ALL" ? (
-				<Notice message="Showing every transaction and category stored locally." />
-			) : null}
 			{period === "CUSTOM" ? (
 				<GlassCard>
 					<View style={styles.customDates}>
@@ -521,6 +482,38 @@ const AnalysisScreen = ({
 					<View style={styles.summaryGrid}>
 						{summaryMetrics.map(renderMetric)}
 					</View>
+					<View style={styles.actionGrid}>
+						<AppButton
+							icon="list-outline"
+							isCompact
+							label="See all categories"
+							onPress={() =>
+								navigation.navigate("AnalysisDetails", {
+									mode: "CATEGORIES",
+									dateRangeStart: dateRange.start,
+									dateRangeEnd: dateRange.end,
+									dateRangeLabel:
+										getDateRangeLabel(dateRange),
+								})
+							}
+							variant="secondary"
+						/>
+						<AppButton
+							icon="trending-up-outline"
+							isCompact
+							label="See all investments"
+							onPress={() =>
+								navigation.navigate("AnalysisDetails", {
+									mode: "INVESTMENTS",
+									dateRangeStart: dateRange.start,
+									dateRangeEnd: dateRange.end,
+									dateRangeLabel:
+										getDateRangeLabel(dateRange),
+								})
+							}
+							variant="secondary"
+						/>
+					</View>
 					<SectionHeading
 						subtitle="Credits minus debits for every category. Classification decides the analysis bucket."
 						title="Category net"
@@ -541,143 +534,19 @@ const AnalysisScreen = ({
 							title="Nothing to analyse"
 						/>
 					)}
-					{summary?.categories.map((category) => (
-						<Pressable
-							key={`${category.categoryId}:${category.currencyCode}`}
-							onPress={() =>
-								navigation.navigate(
-									"LinkedTransactions",
-									getLinkedCategoryParams(
-										category,
-										dateRange,
-									),
-								)
-							}
-						>
-							<GlassCard accent={getCategoryAccent(category.net)}>
-								<View style={styles.categoryRow}>
-									<View style={styles.categoryDetails}>
-										<CustomText style={styles.categoryName}>
-											{category.categoryName}
-										</CustomText>
-										<CustomText
-											style={styles.categoryBucket}
-										>
-											{getCategoryBucketLabel(
-												category.isIncome,
-											)}
-										</CustomText>
-										<CustomText
-											style={styles.categoryBreakdown}
-										>
-											{getCategoryBreakdownText(category)}
-										</CustomText>
-									</View>
-									<View style={styles.categoryRight}>
-										<CustomText
-											style={[
-												styles.categoryNet,
-												{
-													color: getCategoryNetColor(
-														category.net,
-													),
-												},
-											]}
-										>
-											{formatMoney(
-												category.net,
-												category.currencyCode,
-											)}
-										</CustomText>
-										<Ionicons
-											color={COLORS.textDim}
-											name="chevron-forward"
-											size={14}
-										/>
-									</View>
-								</View>
-							</GlassCard>
-						</Pressable>
-					))}
 					<SectionHeading
-						subtitle="Investment transactions stay separate from income and expenses."
-						title="Investments"
+						subtitle="Income, expenses and net worth year by year, across every transaction regardless of the selected period."
+						title="Trends"
 					/>
-					{summary?.investments.length ? (
-						summary.investments.map((investment) => (
-							<Pressable
-								key={`${investment.investmentId}:${investment.currencyCode}`}
-								onPress={() =>
-									navigation.navigate(
-										"LinkedTransactions",
-										getLinkedInvestmentParams(
-											investment,
-											dateRange,
-										),
-									)
-								}
-							>
-								<GlassCard
-									accent={getInvestmentAccent(investment.net)}
-								>
-									<CustomText style={styles.categoryName}>
-										{investment.investmentName}
-									</CustomText>
-									<View style={styles.investmentRow}>
-										<View>
-											<CustomText
-												style={styles.summaryLabel}
-											>
-												Total invested
-											</CustomText>
-											<CustomText
-												style={styles.investmentValue}
-											>
-												{formatMoney(
-													investment.totalInvested,
-													investment.currencyCode,
-												)}
-											</CustomText>
-										</View>
-										<View>
-											<CustomText
-												style={styles.summaryLabel}
-											>
-												Total redeemed
-											</CustomText>
-											<CustomText
-												style={styles.investmentValue}
-											>
-												{formatMoney(
-													investment.totalRedeemed,
-													investment.currencyCode,
-												)}
-											</CustomText>
-										</View>
-									</View>
-									<CustomText
-										style={[
-											styles.investmentNet,
-											{
-												color: getInvestmentColor(
-													investment.net,
-												),
-											},
-										]}
-									>
-										{getInvestmentNetText(
-											investment.net,
-											investment.currencyCode,
-										)}
-									</CustomText>
-								</GlassCard>
-							</Pressable>
-						))
+					{trendSeries.length ? (
+						<GlassCard>
+							<TrendLineChart series={trendSeries} />
+						</GlassCard>
 					) : (
 						<EmptyState
-							icon="trending-up"
-							message="No investment transactions in this period."
-							title="No investment activity"
+							icon="stats-chart-outline"
+							message="Add transactions to see trends over time."
+							title="No trend data"
 						/>
 					)}
 					<Pressable
@@ -740,6 +609,12 @@ const styles = StyleSheet.create({
 		justifyContent: "space-between",
 		rowGap: 10,
 	},
+	actionGrid: {
+		flexDirection: "row",
+		flexWrap: "wrap",
+		gap: 8,
+		marginBottom: 12,
+	},
 	summaryTile: {
 		width: "48.5%",
 	},
@@ -757,57 +632,6 @@ const styles = StyleSheet.create({
 		fontSize: 14,
 		fontWeight: "900",
 		marginTop: 5,
-	},
-	categoryRow: {
-		flexDirection: "row",
-		alignItems: "center",
-		gap: 10,
-	},
-	categoryDetails: {
-		flex: 1,
-		gap: 3,
-	},
-	categoryRight: {
-		flexDirection: "row",
-		alignItems: "center",
-		gap: 4,
-	},
-	categoryName: {
-		color: COLORS.text,
-		fontSize: 15,
-		fontWeight: "900",
-	},
-	categoryBucket: {
-		color: COLORS.primaryBright,
-		fontSize: 11,
-		fontWeight: "700",
-	},
-	categoryBreakdown: {
-		color: COLORS.textMuted,
-		fontSize: 11,
-		lineHeight: 16,
-	},
-	categoryNet: {
-		fontSize: 14,
-		fontWeight: "900",
-		textAlign: "right",
-	},
-	investmentRow: {
-		flexDirection: "row",
-		justifyContent: "space-between",
-		marginTop: 12,
-		gap: 16,
-	},
-	investmentValue: {
-		color: COLORS.text,
-		fontSize: 14,
-		fontWeight: "900",
-		marginTop: 4,
-	},
-	investmentNet: {
-		fontSize: 12,
-		fontWeight: "900",
-		marginTop: 10,
 	},
 	ratesLink: {
 		flexDirection: "row",
@@ -827,17 +651,9 @@ export default AnalysisScreen;
 
 export {
 	formatSignedMoney,
-	getCategoryAccent,
-	getCategoryBreakdownText,
-	getCategoryBucketLabel,
-	getCategoryNetColor,
 	getChartData,
 	getDateRangeLabel,
-	getInvestmentAccent,
 	getInvestmentColor,
-	getInvestmentNetText,
-	getLinkedCategoryParams,
-	getLinkedInvestmentParams,
 	getMissingRatesMessage,
 	getPeriodTitle,
 	getSelectedDateRange,

@@ -11,7 +11,7 @@ const {
 	getInvestmentRows,
 	setSimpleEntityArchivedRow,
 	simpleEntityNameExistsRow,
-	upsertSimpleEntityRow,
+	upsertInvestmentRow,
 } = financeRepository;
 
 const mapInvestment = (investment: Investment): Investment => ({
@@ -41,6 +41,8 @@ const saveInvestment = async (
 	database: SQLiteDatabase,
 	id: string | undefined,
 	name: string,
+	label?: string | null,
+	investmentTypeId?: string | null,
 ): Promise<string> => {
 	const normalizedName = name.trim();
 	if (!normalizedName) {
@@ -65,9 +67,11 @@ const saveInvestment = async (
 	const now = Date.now();
 	const existingInvestment = id ? await getInvestmentRow(database, id) : null;
 	const investmentId = id ?? createId();
-	await upsertSimpleEntityRow(database, "investments", {
+	await upsertInvestmentRow(database, {
 		id: investmentId,
 		name: normalizedName,
+		label: label?.trim() ? label.trim() : null,
+		investmentTypeId: investmentTypeId ?? null,
 		createdAt: existingInvestment?.createdAt ?? now,
 		updatedAt: now,
 	});

@@ -7,8 +7,14 @@ type RootStackParamList = {
 	Transactions: undefined;
 	TransactionForm:
 		{ transactionId?: string; cloneFromTransactionId?: string } | undefined;
-	Relations: { kind: RelationKind };
-	RelationForm: { kind: RelationKind; entityId?: string };
+	Sources: undefined;
+	SourceForm: { entityId?: string } | undefined;
+	Categories: undefined;
+	CategoryForm: { entityId?: string } | undefined;
+	Trips: undefined;
+	TripForm: { entityId?: string } | undefined;
+	Investments: undefined;
+	InvestmentForm: { entityId?: string } | undefined;
 	ArchivedRelations: undefined;
 	LinkedTransactions: {
 		kind: RelationKind;
@@ -21,6 +27,12 @@ type RootStackParamList = {
 	Budgets: undefined;
 	BudgetForm: { budgetId?: string } | undefined;
 	Analysis: undefined;
+	AnalysisDetails: {
+		mode: "CATEGORIES" | "INVESTMENTS";
+		dateRangeStart?: number;
+		dateRangeEnd?: number;
+		dateRangeLabel?: string;
+	};
 	ExchangeRates: undefined;
 	GlobalSearch: { mode: HomeMode };
 	Notes: undefined;

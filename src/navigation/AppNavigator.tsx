@@ -4,27 +4,33 @@ import { DarkTheme, NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import COLORS from "@/constants/colors";
+import AnalysisDetailsScreen from "@/screens/AnalysisDetailsScreen";
 import AnalysisScreen from "@/screens/AnalysisScreen";
 import ArchivedRelationsScreen from "@/screens/ArchivedRelationsScreen";
 import BudgetFormScreen from "@/screens/BudgetFormScreen";
 import BudgetsScreen from "@/screens/BudgetsScreen";
+import CategoriesScreen from "@/screens/CategoriesScreen";
+import CategoryFormScreen from "@/screens/CategoryFormScreen";
 import ExchangeRatesScreen from "@/screens/ExchangeRatesScreen";
 import GlobalSearchScreen from "@/screens/GlobalSearchScreen";
 import HomeScreen from "@/screens/HomeScreen";
+import InvestmentFormScreen from "@/screens/InvestmentFormScreen";
+import InvestmentsScreen from "@/screens/InvestmentsScreen";
 import LinkedTransactionsScreen from "@/screens/LinkedTransactionsScreen";
 import NoteFormScreen from "@/screens/NoteFormScreen";
 import NotesScreen from "@/screens/NotesScreen";
-import RelationFormScreen from "@/screens/RelationFormScreen";
-import RelationsScreen from "@/screens/RelationsScreen";
 import SettingsScreen from "@/screens/SettingsScreen";
+import SourceFormScreen from "@/screens/SourceFormScreen";
+import SourcesScreen from "@/screens/SourcesScreen";
 import TodoFormScreen from "@/screens/TodoFormScreen";
 import TodosScreen from "@/screens/TodosScreen";
 import TransactionFormScreen from "@/screens/TransactionFormScreen";
 import TransactionsScreen from "@/screens/TransactionsScreen";
+import TripFormScreen from "@/screens/TripFormScreen";
+import TripsScreen from "@/screens/TripsScreen";
 import VaultFormScreen from "@/screens/VaultFormScreen";
 import VaultScreen from "@/screens/VaultScreen";
 import type RootStackParamList from "@/types/RootStackParamList";
-import getRelationLabels from "@/utils/relation";
 const { FONT_FAMILY } = typographyConstants;
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -73,16 +79,44 @@ const AppNavigator = (): React.JSX.Element => (
 				options={{ title: "Transaction" }}
 			/>
 			<Stack.Screen
-				component={RelationsScreen}
-				name="Relations"
-				options={({ route }) => ({
-					title: getRelationLabels(route.params.kind).title,
-				})}
+				component={SourcesScreen}
+				name="Sources"
+				options={{ title: "Sources" }}
 			/>
 			<Stack.Screen
-				component={RelationFormScreen}
-				name="RelationForm"
-				options={{ title: "Details" }}
+				component={SourceFormScreen}
+				name="SourceForm"
+				options={{ title: "Source" }}
+			/>
+			<Stack.Screen
+				component={CategoriesScreen}
+				name="Categories"
+				options={{ title: "Categories" }}
+			/>
+			<Stack.Screen
+				component={CategoryFormScreen}
+				name="CategoryForm"
+				options={{ title: "Category" }}
+			/>
+			<Stack.Screen
+				component={TripsScreen}
+				name="Trips"
+				options={{ title: "Trips" }}
+			/>
+			<Stack.Screen
+				component={TripFormScreen}
+				name="TripForm"
+				options={{ title: "Trip" }}
+			/>
+			<Stack.Screen
+				component={InvestmentsScreen}
+				name="Investments"
+				options={{ title: "Investments" }}
+			/>
+			<Stack.Screen
+				component={InvestmentFormScreen}
+				name="InvestmentForm"
+				options={{ title: "Investment" }}
 			/>
 			<Stack.Screen
 				component={ArchivedRelationsScreen}
@@ -108,6 +142,17 @@ const AppNavigator = (): React.JSX.Element => (
 				component={AnalysisScreen}
 				name="Analysis"
 				options={{ title: "Analysis" }}
+			/>
+			<Stack.Screen
+				component={AnalysisDetailsScreen}
+				name="AnalysisDetails"
+				options={({ route }) => ({
+					title:
+						/* v8 ignore next */
+						route.params.mode === "CATEGORIES"
+							? "All categories"
+							: "All investments",
+				})}
 			/>
 			<Stack.Screen
 				component={ExchangeRatesScreen}

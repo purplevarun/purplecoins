@@ -9,6 +9,7 @@ const reactMocks = vi.hoisted(() => ({
 
 const serviceMocks = vi.hoisted(() => ({
 	getTransactionMinMaxDate: vi.fn(),
+	getTransactionRows: vi.fn(),
 	getAnalysisSummary: vi.fn(),
 	getInvestmentNetAmount: vi.fn(),
 	getInvestmentNetLabel: vi.fn(),
@@ -43,6 +44,14 @@ vi.mock("react-native", () => ({
 	Pressable: (props: any) => ({ type: "Pressable", props }),
 	StyleSheet: { create: (styles: any) => styles },
 	View: (props: any) => ({ type: "View", props }),
+}));
+vi.mock("react-native-svg", () => ({
+	default: (props: any) => ({ type: "Svg", props }),
+	Line: (props: any) => ({ type: "Line", props }),
+	Polyline: (props: any) => ({ type: "Polyline", props }),
+}));
+vi.mock("@/components/TrendLineChart", () => ({
+	default: (props: any) => ({ type: "TrendLineChart", props }),
 }));
 
 vi.mock("@/components/CustomText", () => ({
@@ -80,6 +89,7 @@ vi.mock("@/hooks/useDatabaseContext", () => ({
 vi.mock("@/repositories/financeRepository", () => ({
 	default: {
 		getTransactionMinMaxDate: serviceMocks.getTransactionMinMaxDate,
+		getTransactionRows: serviceMocks.getTransactionRows,
 	},
 }));
 vi.mock("@/services/analysisService", () => ({
@@ -123,17 +133,9 @@ import COLORS from "@/constants/colors";
 import AnalysisScreen, {
 	HAS_ARROWS,
 	formatSignedMoney,
-	getCategoryAccent,
-	getCategoryBreakdownText,
-	getCategoryBucketLabel,
-	getCategoryNetColor,
 	getChartData,
 	getDateRangeLabel,
-	getInvestmentAccent,
 	getInvestmentColor,
-	getInvestmentNetText,
-	getLinkedCategoryParams,
-	getLinkedInvestmentParams,
 	getMissingRatesMessage,
 	getPeriodTitle,
 	getSelectedDateRange,
@@ -190,6 +192,16 @@ describe("AnalysisScreen", () => {
 			minDate: 1,
 			maxDate: 31,
 		});
+		serviceMocks.getTransactionRows.mockResolvedValue([
+			{
+				id: "t1",
+				classification: "GENERAL",
+				type: "CREDIT",
+				categoryId: "c1",
+				amount: "100",
+				transactionAt: new Date("2024-01-15").getTime(),
+			},
+		]);
 		serviceMocks.getAnalysisSummary.mockResolvedValue({
 			missingCurrencies: [],
 			totalIncome: "1000",
@@ -264,6 +276,9 @@ describe("AnalysisScreen", () => {
 				isNativeCurrency: false,
 			},
 		);
+		expect(serviceMocks.getTransactionRows).toHaveBeenCalledWith({
+			id: "db",
+		});
 
 		const segmented = findByPredicate(
 			tree,
@@ -296,18 +311,26 @@ describe("AnalysisScreen", () => {
 			tree,
 			(node) =>
 				typeof node?.props?.onPress === "function" &&
-				JSON.stringify(node).includes("Food"),
-		).forEach((node) => node.props.onPress());
+				JSON.stringify(node).includes("See all categories"),
+		)[0]?.props?.onPress();
 		findByPredicate(
 			tree,
 			(node) =>
 				typeof node?.props?.onPress === "function" &&
-				JSON.stringify(node).includes("MF"),
-		).forEach((node) => node.props.onPress());
+				JSON.stringify(node).includes("See all investments"),
+		)[0]?.props?.onPress();
 		await flush();
 
 		expect(anchorSetter).toHaveBeenCalled();
 		expect(navigation.navigate).toHaveBeenCalledWith("ExchangeRates");
+		expect(navigation.navigate).toHaveBeenCalledWith(
+			"AnalysisDetails",
+			expect.objectContaining({ mode: "CATEGORIES" }),
+		);
+		expect(navigation.navigate).toHaveBeenCalledWith(
+			"AnalysisDetails",
+			expect.objectContaining({ mode: "INVESTMENTS" }),
+		);
 	});
 
 	it("renders missing-currency branch and exchange-rate shortcut", async () => {
@@ -370,7 +393,7 @@ describe("AnalysisScreen", () => {
 		).toHaveLength(2);
 	});
 
-	it("renders ALL period notice with empty analysis states", async () => {
+	it("renders ALL period notice with empty analysis and trend states", async () => {
 		serviceMocks.getAnalysisSummary.mockResolvedValue({
 			missingCurrencies: [],
 			totalIncome: "0",
@@ -379,6 +402,7 @@ describe("AnalysisScreen", () => {
 			categories: [],
 			investments: [],
 		});
+		serviceMocks.getTransactionRows.mockResolvedValue([]);
 		const navigation = { navigate: vi.fn() };
 		let stateCall = 0;
 		reactMocks.useState.mockImplementation((initial: any) => {
@@ -399,6 +423,20 @@ describe("AnalysisScreen", () => {
 					"Showing every transaction and category stored locally.",
 				),
 			),
+		).toHaveLength(0);
+		expect(
+			findByPredicate(tree, (node) =>
+				String(JSON.stringify(node) ?? "").includes(
+					"See all categories",
+				),
+			),
+		).not.toHaveLength(0);
+		expect(
+			findByPredicate(tree, (node) =>
+				String(JSON.stringify(node) ?? "").includes(
+					"See all investments",
+				),
+			),
 		).not.toHaveLength(0);
 		expect(
 			findByPredicate(tree, (node) =>
@@ -409,9 +447,7 @@ describe("AnalysisScreen", () => {
 		).not.toHaveLength(0);
 		expect(
 			findByPredicate(tree, (node) =>
-				String(JSON.stringify(node) ?? "").includes(
-					"No investment activity",
-				),
+				String(JSON.stringify(node) ?? "").includes("No trend data"),
 			),
 		).not.toHaveLength(0);
 	});
@@ -496,41 +532,48 @@ describe("AnalysisScreen", () => {
 		);
 	});
 
-	it("covers preloaded summary category and investment map branches", async () => {
+	it("fetches trends independent of the selected analysis period", async () => {
 		const navigation = { navigate: vi.fn() };
-
 		let stateCall = 0;
 		reactMocks.useState.mockImplementation((initial: any) => {
 			stateCall += 1;
-			if (stateCall === 5) {
+			if (stateCall === 1) return ["YEAR", vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		AnalysisScreen({ navigation } as any);
+		await flush();
+
+		expect(serviceMocks.getTransactionRows).toHaveBeenCalledWith({
+			id: "db",
+		});
+		expect(serviceMocks.getTransactionRows).not.toHaveBeenCalledWith(
+			expect.anything(),
+			expect.anything(),
+			expect.anything(),
+		);
+	});
+
+	it("renders the trend chart when trend data is available", async () => {
+		const navigation = { navigate: vi.fn() };
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 10) {
 				return [
-					{
-						missingCurrencies: [],
-						totalIncome: "1000",
-						totalExpense: "400",
-						netProfit: "600",
-						categories: [
-							{
-								categoryId: "c1",
-								categoryName: "Food",
-								currencyCode: "INR",
-								credits: "100",
-								debits: "300",
-								net: "-200",
-								isIncome: false,
-							},
-						],
-						investments: [
-							{
-								investmentId: "i1",
-								investmentName: "MF",
-								currencyCode: "INR",
-								totalInvested: "500",
-								totalRedeemed: "100",
-								net: "400",
-							},
-						],
-					},
+					[
+						{
+							id: "t1",
+							classification: "GENERAL",
+							type: "CREDIT",
+							categoryId: "c1",
+							amount: "100",
+							transactionAt: new Date("2024-01-15").getTime(),
+						},
+					],
 					vi.fn(),
 				];
 			}
@@ -543,19 +586,12 @@ describe("AnalysisScreen", () => {
 		const tree = AnalysisScreen({ navigation } as any);
 		await flush();
 
-		findByPredicate(
-			tree,
-			(node) => typeof node?.props?.onPress === "function",
-		).forEach((node) => node.props.onPress());
-
-		expect(navigation.navigate).toHaveBeenCalledWith(
-			"LinkedTransactions",
-			expect.objectContaining({ kind: "CATEGORY", entityId: "c1" }),
-		);
-		expect(navigation.navigate).toHaveBeenCalledWith(
-			"LinkedTransactions",
-			expect.objectContaining({ kind: "INVESTMENT", entityId: "i1" }),
-		);
+		expect(
+			findByPredicate(
+				tree,
+				(node) => typeof node?.props?.series !== "undefined",
+			),
+		).not.toHaveLength(0);
 	});
 
 	it("covers AnalysisScreen helper branches directly", () => {
@@ -596,9 +632,6 @@ describe("AnalysisScreen", () => {
 		expect(getInvestmentColor("20")).toBe(COLORS.danger);
 		expect(getInvestmentColor("-20")).toBe(COLORS.success);
 		expect(getInvestmentColor("0")).toBe(COLORS.text);
-		expect(getInvestmentAccent("20")).toBe("danger");
-		expect(getInvestmentAccent("-20")).toBe("success");
-		expect(getInvestmentAccent("0")).toBe("default");
 		expect(
 			isShiftNavigationDisabled("MONTH", anchorDate, -1, undefined, 10),
 		).toBe(false);
@@ -611,69 +644,10 @@ describe("AnalysisScreen", () => {
 		expect(isShiftNavigationDisabled("MONTH", anchorDate, 1, 1, 10)).toBe(
 			true,
 		);
-		expect(getCategoryAccent("1")).toBe("success");
-		expect(getCategoryAccent("-1")).toBe("danger");
-		expect(getCategoryBucketLabel(true)).toBe("Income category");
-		expect(getCategoryBucketLabel(false)).toBe("Expense category");
-		expect(getCategoryNetColor("1")).toBe(COLORS.success);
-		expect(getCategoryNetColor("-1")).toBe(COLORS.danger);
 		expect(getDateRangeLabel({ start: 1, end: 2 })).toBe("date:1 – date:2");
 		expect(getMissingRatesMessage(["USD", "EUR"])).toBe(
 			"Update INR exchange rates for USD, EUR before analysis can include those transactions.",
 		);
-		expect(
-			getCategoryBreakdownText({
-				categoryId: "c1",
-				categoryName: "Food",
-				currencyCode: "INR",
-				credits: "1",
-				debits: "2",
-				net: "-1",
-				isIncome: false,
-			}),
-		).toBe("Credits INR 1 · Debits INR 2");
-		expect(getInvestmentNetText("3", "INR")).toBe("Net: INR 3");
-		expect(
-			getLinkedCategoryParams(
-				{
-					categoryId: "c1",
-					categoryName: "Food",
-					currencyCode: "INR",
-					credits: "1",
-					debits: "2",
-					net: "-1",
-					isIncome: false,
-				},
-				{ start: 1, end: 2 },
-			),
-		).toEqual({
-			kind: "CATEGORY",
-			entityId: "c1",
-			entityName: "Food",
-			dateRangeStart: 1,
-			dateRangeEnd: 2,
-			dateRangeLabel: "date:1 – date:2",
-		});
-		expect(
-			getLinkedInvestmentParams(
-				{
-					investmentId: "i1",
-					investmentName: "MF",
-					currencyCode: "INR",
-					totalInvested: "5",
-					totalRedeemed: "2",
-					net: "3",
-				},
-				{ start: 1, end: 2 },
-			),
-		).toEqual({
-			kind: "INVESTMENT",
-			entityId: "i1",
-			entityName: "MF",
-			dateRangeStart: 1,
-			dateRangeEnd: 2,
-			dateRangeLabel: "date:1 – date:2",
-		});
 
 		expect(getChartData(null, true)).toEqual([]);
 		expect(
@@ -777,6 +751,22 @@ describe("AnalysisScreen", () => {
 		expect(negativeSummaryMetrics[3]?.color).toBe(COLORS.danger);
 		expect(negativeSummaryMetrics[4]?.accent).toBe("danger");
 		expect(negativeSummaryMetrics[4]?.color).toBe(COLORS.danger);
+
+		const positiveSummaryMetrics = getSummaryMetrics(
+			{
+				missingCurrencies: [],
+				totalIncome: "100",
+				totalExpense: "50",
+				netProfit: "50",
+				categories: [],
+				investments: [],
+			},
+			"-10",
+			"10",
+			"30",
+		);
+		expect(positiveSummaryMetrics[4]?.accent).toBe("success");
+		expect(positiveSummaryMetrics[4]?.color).toBe(COLORS.success);
 	});
 
 	it("covers getScreenData branch when min/max transaction dates are unavailable", async () => {
@@ -830,7 +820,16 @@ describe("AnalysisScreen", () => {
 								isIncome: false,
 							},
 						],
-						investments: [],
+						investments: [
+							{
+								investmentId: "i1",
+								investmentName: "MF",
+								currencyCode: "INR",
+								totalInvested: "500",
+								totalRedeemed: "100",
+								net: "400",
+							},
+						],
 					},
 					vi.fn(),
 				];

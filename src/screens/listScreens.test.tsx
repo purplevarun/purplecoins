@@ -954,8 +954,7 @@ describe("list screens", () => {
 			(node) => typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 
-		expect(navigation.navigate).toHaveBeenCalledWith("RelationForm", {
-			kind: "CATEGORY",
+		expect(navigation.navigate).toHaveBeenCalledWith("CategoryForm", {
 			entityId: "e1",
 		});
 		expect(navigation.navigate).toHaveBeenCalledWith("TransactionForm", {

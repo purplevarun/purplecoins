@@ -22,6 +22,7 @@ const {
 	getExchangeRateRows,
 	getInvestmentRow,
 	getInvestmentRows,
+	getInvestmentTypeRows,
 	getSourceRow,
 	getSourceRows,
 	getTransactionMinMaxDate,
@@ -30,6 +31,7 @@ const {
 	getTransactionRowsInRange,
 	getTripRow,
 	getTripRows,
+	investmentTypeNameExistsRow,
 	setCategoryArchivedRow,
 	setSimpleEntityArchivedRow,
 	setSourceArchivedRow,
@@ -40,6 +42,8 @@ const {
 	upsertBudgetRow,
 	upsertCategoryRow,
 	upsertExchangeRateRow,
+	upsertInvestmentRow,
+	upsertInvestmentTypeRow,
 	upsertSimpleEntityRow,
 	validateSourceRow,
 } = financeRepository;
@@ -437,5 +441,57 @@ describe("financeRepository", () => {
 			"DELETE FROM budgets WHERE id = ?;",
 			"b1",
 		);
+	});
+
+	it("writes investment rows and manages investment types", async () => {
+		const database = {
+			runAsync: vi.fn(async () => {}),
+			getAllAsync: vi.fn().mockResolvedValueOnce([{ id: "type1" }]),
+			getFirstAsync: vi
+				.fn()
+				.mockResolvedValueOnce({ id: "type1" })
+				.mockResolvedValueOnce(null),
+		} as any;
+
+		await upsertInvestmentRow(database, {
+			id: "i1",
+			name: "Fund A",
+			label: "Growth",
+			investmentTypeId: "type1",
+			createdAt: 1,
+			updatedAt: 2,
+		});
+		expect(database.runAsync).toHaveBeenCalledWith(
+			expect.stringContaining("INSERT INTO investments"),
+			"i1",
+			"Fund A",
+			"Growth",
+			"type1",
+			1,
+			2,
+		);
+
+		expect(await getInvestmentTypeRows(database)).toEqual([
+			{ id: "type1" },
+		]);
+
+		await upsertInvestmentTypeRow(database, {
+			id: "type1",
+			name: "Mutual Fund",
+			createdAt: 3,
+			updatedAt: 4,
+		});
+		expect(database.runAsync).toHaveBeenCalledWith(
+			expect.stringContaining("INSERT INTO investment_types"),
+			"type1",
+			"Mutual Fund",
+			3,
+			4,
+		);
+
+		expect(await investmentTypeNameExistsRow(database, "Mutual Fund")).toBe(
+			true,
+		);
+		expect(await investmentTypeNameExistsRow(database, "Nope")).toBe(false);
 	});
 });

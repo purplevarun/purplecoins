@@ -143,6 +143,22 @@ const LinkedTransactionsScreen = ({
 		});
 	}, [dialog, entityName, processDelete, relationLabels.singular]);
 
+	const handleEdit = useCallback((): void => {
+		if (kind === "SOURCE") {
+			navigation.navigate("SourceForm", { entityId });
+			return;
+		}
+		if (kind === "CATEGORY") {
+			navigation.navigate("CategoryForm", { entityId });
+			return;
+		}
+		if (kind === "TRIP") {
+			navigation.navigate("TripForm", { entityId });
+			return;
+		}
+		navigation.navigate("InvestmentForm", { entityId });
+	}, [entityId, kind, navigation]);
+
 	const listHeader = useMemo(
 		() => (
 			<ListHeader>
@@ -184,12 +200,7 @@ const LinkedTransactionsScreen = ({
 							icon="create-outline"
 							isCompact
 							label="Edit"
-							onPress={() =>
-								navigation.navigate("RelationForm", {
-									kind,
-									entityId,
-								})
-							}
+							onPress={handleEdit}
 							variant="secondary"
 						/>
 						<AppButton
@@ -210,6 +221,7 @@ const LinkedTransactionsScreen = ({
 			entityName,
 			error,
 			handleDelete,
+			handleEdit,
 			kind,
 			navigation,
 			transactions.length,

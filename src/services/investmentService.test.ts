@@ -8,7 +8,7 @@ const mocks = vi.hoisted(() => ({
 	getInvestmentRows: vi.fn(async () => []),
 	setSimpleEntityArchivedRow: vi.fn(async () => {}),
 	simpleEntityNameExistsRow: vi.fn(async () => false),
-	upsertSimpleEntityRow: vi.fn(async () => {}),
+	upsertInvestmentRow: vi.fn(async () => {}),
 	createId: vi.fn(() => "investment-id"),
 }));
 
@@ -20,7 +20,7 @@ vi.mock("@/repositories/financeRepository", () => ({
 		getInvestmentRows: mocks.getInvestmentRows,
 		setSimpleEntityArchivedRow: mocks.setSimpleEntityArchivedRow,
 		simpleEntityNameExistsRow: mocks.simpleEntityNameExistsRow,
-		upsertSimpleEntityRow: mocks.upsertSimpleEntityRow,
+		upsertInvestmentRow: mocks.upsertInvestmentRow,
 	},
 }));
 
@@ -89,12 +89,13 @@ describe("investmentService", () => {
 			"  Fund A  ",
 		);
 		expect(createdId).toBe("investment-id");
-		expect(mocks.upsertSimpleEntityRow).toHaveBeenCalledWith(
+		expect(mocks.upsertInvestmentRow).toHaveBeenCalledWith(
 			database,
-			"investments",
 			expect.objectContaining({
 				id: "investment-id",
 				name: "Fund A",
+				label: null,
+				investmentTypeId: null,
 				createdAt: new Date("2026-08-25T12:00:00.000Z").getTime(),
 			}),
 		);
@@ -109,14 +110,17 @@ describe("investmentService", () => {
 			database,
 			"i1",
 			"  Fund B ",
+			"  Growth  ",
+			"type-1",
 		);
 		expect(updatedId).toBe("i1");
-		expect(mocks.upsertSimpleEntityRow).toHaveBeenCalledWith(
+		expect(mocks.upsertInvestmentRow).toHaveBeenCalledWith(
 			database,
-			"investments",
 			expect.objectContaining({
 				id: "i1",
 				name: "Fund B",
+				label: "Growth",
+				investmentTypeId: "type-1",
 				createdAt: 10,
 			}),
 		);

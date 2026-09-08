@@ -4,6 +4,7 @@ import type Budget from "@/types/Budget";
 import type Category from "@/types/Category";
 import type ExchangeRate from "@/types/ExchangeRate";
 import type Investment from "@/types/Investment";
+import type InvestmentType from "@/types/InvestmentType";
 import type SimpleEntity from "@/types/SimpleEntity";
 import type Source from "@/types/Source";
 import type Transaction from "@/types/Transaction";
@@ -401,11 +402,16 @@ const getInvestmentRows = async (
 		SELECT
 			investment.id,
 			investment.name,
+			investment.label,
+			investment.investment_type_id AS investmentTypeId,
+			investment_type.name AS investmentTypeName,
 			investment.created_at AS createdAt,
 			investment.updated_at AS updatedAt,
 			COALESCE(investment.archived, 0) AS archived
 		FROM investments investment
 		LEFT JOIN transactions txn ON txn.investment_id = investment.id
+		LEFT JOIN investment_types investment_type
+			ON investment_type.id = investment.investment_type_id
 		WHERE COALESCE(investment.archived, 0) = 0
 		GROUP BY investment.id
 		ORDER BY
@@ -419,14 +425,19 @@ const getArchivedInvestmentRows = async (
 ): Promise<readonly Investment[]> =>
 	database.getAllAsync<Investment>(`
 		SELECT
-			id,
-			name,
-			created_at AS createdAt,
-			updated_at AS updatedAt,
-			COALESCE(archived, 0) AS archived
-		FROM investments
-		WHERE COALESCE(archived, 0) = 1
-		ORDER BY lower(name) ASC;
+			investment.id,
+			investment.name,
+			investment.label,
+			investment.investment_type_id AS investmentTypeId,
+			investment_type.name AS investmentTypeName,
+			investment.created_at AS createdAt,
+			investment.updated_at AS updatedAt,
+			COALESCE(investment.archived, 0) AS archived
+		FROM investments investment
+		LEFT JOIN investment_types investment_type
+			ON investment_type.id = investment.investment_type_id
+		WHERE COALESCE(investment.archived, 0) = 1
+		ORDER BY lower(investment.name) ASC;
 	`);
 
 const getInvestmentRow = async (
@@ -436,13 +447,84 @@ const getInvestmentRow = async (
 	database.getFirstAsync<Investment>(
 		`
 			SELECT
-				id, name, created_at AS createdAt, updated_at AS updatedAt,
+				id, name, label, investment_type_id AS investmentTypeId,
+				created_at AS createdAt, updated_at AS updatedAt,
 				COALESCE(archived, 0) AS archived
 			FROM investments
 			WHERE id = ?;
 		`,
 		id,
 	);
+
+const upsertInvestmentRow = async (
+	database: SQLiteDatabase,
+	investment: Readonly<{
+		id: string;
+		name: string;
+		label: string | null;
+		investmentTypeId: string | null;
+		createdAt: number;
+		updatedAt: number;
+	}>,
+): Promise<void> => {
+	await database.runAsync(
+		`
+			INSERT INTO investments
+				(id, name, label, investment_type_id, created_at, updated_at)
+			VALUES (?, ?, ?, ?, ?, ?)
+			ON CONFLICT(id) DO UPDATE SET
+				name = excluded.name,
+				label = excluded.label,
+				investment_type_id = excluded.investment_type_id,
+				updated_at = excluded.updated_at;
+		`,
+		investment.id,
+		investment.name,
+		investment.label,
+		investment.investmentTypeId,
+		investment.createdAt,
+		investment.updatedAt,
+	);
+};
+
+const getInvestmentTypeRows = async (
+	database: SQLiteDatabase,
+): Promise<readonly InvestmentType[]> =>
+	database.getAllAsync<InvestmentType>(`
+		SELECT id, name, created_at AS createdAt, updated_at AS updatedAt
+		FROM investment_types
+		ORDER BY lower(name) ASC;
+	`);
+
+const upsertInvestmentTypeRow = async (
+	database: SQLiteDatabase,
+	entity: SimpleEntity,
+): Promise<void> => {
+	await database.runAsync(
+		`
+			INSERT INTO investment_types (id, name, created_at, updated_at)
+			VALUES (?, ?, ?, ?)
+			ON CONFLICT(id) DO UPDATE SET
+				name = excluded.name,
+				updated_at = excluded.updated_at;
+		`,
+		entity.id,
+		entity.name,
+		entity.createdAt,
+		entity.updatedAt,
+	);
+};
+
+const investmentTypeNameExistsRow = async (
+	database: SQLiteDatabase,
+	name: string,
+): Promise<boolean> => {
+	const row = await database.getFirstAsync<{ id: string }>(
+		`SELECT id FROM investment_types WHERE lower(name) = lower(?) LIMIT 1;`,
+		name,
+	);
+	return row !== null;
+};
 
 const upsertSimpleEntityRow = async (
 	database: SQLiteDatabase,
@@ -764,6 +846,7 @@ const financeRepository = {
 	getExchangeRateRows,
 	getInvestmentRow,
 	getInvestmentRows,
+	getInvestmentTypeRows,
 	getSourceRow,
 	getSourceRows,
 	getTransactionMinMaxDate,
@@ -772,6 +855,7 @@ const financeRepository = {
 	getTransactionRowsInRange,
 	getTripRow,
 	getTripRows,
+	investmentTypeNameExistsRow,
 	setCategoryArchivedRow,
 	setSimpleEntityArchivedRow,
 	setSourceArchivedRow,
@@ -782,6 +866,8 @@ const financeRepository = {
 	upsertBudgetRow,
 	upsertCategoryRow,
 	upsertExchangeRateRow,
+	upsertInvestmentRow,
+	upsertInvestmentTypeRow,
 	upsertSimpleEntityRow,
 	validateSourceRow,
 };

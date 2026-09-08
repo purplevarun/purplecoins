@@ -49,6 +49,7 @@ vi.mock("@/utils/date", () => ({
 import AttachmentField from "@/components/AttachmentField";
 import DateField from "@/components/DateField";
 import FolderPicker from "@/components/FolderPicker";
+import InvestmentTypePicker from "@/components/InvestmentTypePicker";
 
 import { Platform } from "react-native";
 
@@ -265,6 +266,58 @@ describe("field components", () => {
 		expect(onCreateFolder).toHaveBeenCalledWith("Receipts");
 		expect(onChange).toHaveBeenCalledWith("folder-123");
 		expect(setFolderName).toHaveBeenCalledWith("");
+		expect(setCreating).toHaveBeenCalledWith(false);
+	});
+
+	it("covers InvestmentTypePicker create and non-create states", async () => {
+		const setCreating = vi.fn();
+		const setTypeName = vi.fn();
+		reactMocks.useState
+			.mockImplementationOnce(() => [false, setCreating])
+			.mockImplementationOnce(() => ["", setTypeName]);
+
+		const onChange = vi.fn();
+		const onCreateInvestmentType = vi.fn(async () => "type-123");
+		const closed = InvestmentTypePicker({
+			value: "",
+			investmentTypes: [
+				{ id: "t1", name: "Mutual Fund", createdAt: 1, updatedAt: 1 },
+			],
+			onChange,
+			onCreateInvestmentType,
+		} as any);
+		const closedButtons = findAllByType(closed, "AppButton");
+		expect(closedButtons).toHaveLength(1);
+		expect(closedButtons[0]?.props.label).toBe("New investment type");
+		closedButtons[0]?.props.onPress();
+		expect(setCreating).toHaveBeenCalledWith(true);
+
+		reactMocks.useState
+			.mockImplementationOnce(() => [true, setCreating])
+			.mockImplementationOnce(() => ["Equity", setTypeName]);
+		const open = InvestmentTypePicker({
+			value: "",
+			investmentTypes: [
+				{ id: "t1", name: "Mutual Fund", createdAt: 1, updatedAt: 1 },
+			],
+			onChange,
+			onCreateInvestmentType,
+		} as any);
+
+		const openButtons = findAllByType(open, "AppButton");
+		expect(openButtons.map((button) => button.props.label)).toEqual([
+			"Cancel",
+			"Create",
+		]);
+		openButtons[0]?.props.onPress();
+		expect(setCreating).toHaveBeenCalledWith(false);
+
+		openButtons[1]?.props.onPress();
+		await Promise.resolve();
+		await Promise.resolve();
+		expect(onCreateInvestmentType).toHaveBeenCalledWith("Equity");
+		expect(onChange).toHaveBeenCalledWith("type-123");
+		expect(setTypeName).toHaveBeenCalledWith("");
 		expect(setCreating).toHaveBeenCalledWith(false);
 	});
 });
