@@ -87,11 +87,11 @@ describe("trends utils", () => {
 
 		expect(getTrendSeries(transactions)).toEqual([
 			{ year: "2020", income: "100", expenses: "0", networth: "100" },
-			{ year: "2021", income: "0", expenses: "0", networth: "0" },
-			{ year: "2022", income: "0", expenses: "40", networth: "0" },
-			{ year: "2023", income: "0", expenses: "0", networth: "0" },
-			{ year: "2024", income: "0", expenses: "0", networth: "0" },
-			{ year: "2025", income: "0", expenses: "0", networth: "0" },
+			{ year: "2021", income: "0", expenses: "0", networth: "100" },
+			{ year: "2022", income: "0", expenses: "40", networth: "60" },
+			{ year: "2023", income: "0", expenses: "0", networth: "60" },
+			{ year: "2024", income: "0", expenses: "0", networth: "60" },
+			{ year: "2025", income: "0", expenses: "0", networth: "60" },
 		]);
 	});
 });

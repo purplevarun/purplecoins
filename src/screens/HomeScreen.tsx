@@ -346,7 +346,7 @@ const HomeScreen = ({ navigation }: HomeScreenProps): React.JSX.Element => {
 			style={styles.background}
 		>
 			<SafeAreaView style={styles.safeArea}>
-				<ScreenContainer>
+				<ScreenContainer isScrollable={false}>
 					<View style={styles.header}>
 						<CustomText numberOfLines={1} style={styles.appName}>
 							{APP_NAME}

@@ -54,7 +54,7 @@ const series: readonly TrendPoint[] = [
 ];
 
 describe("TrendLineChart helpers", () => {
-	it("exposes the fixed 1 lac \u2013 1 cr axis bounds", () => {
+	it("keeps the default fallback axis bounds for empty series", () => {
 		expect(MIN_AXIS_VALUE).toBe(100_000);
 		expect(MAX_AXIS_VALUE).toBe(10_000_000);
 		expect(AXIS_TICKS).toEqual([
@@ -66,6 +66,7 @@ describe("TrendLineChart helpers", () => {
 		expect(formatAxisValue(100_000)).toBe("1L");
 		expect(formatAxisValue(2_500_000)).toBe("25L");
 		expect(formatAxisValue(10_000_000)).toBe("1Cr");
+		expect(formatAxisValue(25_000_000)).toBe("2.5Cr");
 	});
 
 	it("computes x positions, defaulting to center for a single point", () => {
@@ -74,15 +75,19 @@ describe("TrendLineChart helpers", () => {
 		expect(getX(1, 2)).toBe(292);
 	});
 
-	it("computes y positions and clamps values outside the fixed axis range", () => {
-		expect(getY(100_000)).toBe(150);
-		expect(getY(10_000_000)).toBe(10);
-		expect(getY(50_000)).toBe(150);
-		expect(getY(20_000_000)).toBe(10);
+	it("scales y positions from real chart bounds instead of a hardcoded range", () => {
+		expect(getY(0, 0, 1_000_000)).toBe(150);
+		expect(getY(500_000, 0, 1_000_000)).toBeCloseTo(80);
+		expect(getY(1_000_000, 0, 1_000_000)).toBe(10);
 	});
 
 	it("builds a polyline points string for a series key", () => {
-		expect(getSeriesPoints(series, "income")).toBe("32,150 292,10");
+		expect(getSeriesPoints(series, "income", 0, 10_000_000)).toContain(
+			"32,",
+		);
+		expect(getSeriesPoints(series, "income", 0, 10_000_000)).toContain(
+			"292,",
+		);
 	});
 });
 

@@ -11,10 +11,10 @@ const getYear = (timestamp: number): string =>
 const getTrendSeries = (
 	transactions: readonly Transaction[],
 ): readonly TrendPoint[] => {
-	const map = new Map<string, TrendPoint>();
+	const yearlyTotals = new Map<string, TrendPoint>();
 	transactions.forEach((transaction) => {
 		const year = getYear(transaction.transactionAt);
-		const current = map.get(year) ?? {
+		const current = yearlyTotals.get(year) ?? {
 			year,
 			income: ZERO_AMOUNT,
 			expenses: ZERO_AMOUNT,
@@ -32,20 +32,27 @@ const getTrendSeries = (
 			transaction.categoryId
 				? addMoney(current.expenses, transaction.amount)
 				: current.expenses;
-		const nextNetworth = addMoney(
-			subtractMoney(current.networth, current.expenses),
-			nextIncome,
-		);
-		map.set(year, {
+		yearlyTotals.set(year, {
 			...current,
 			income: nextIncome,
 			expenses: nextExpenses,
-			networth: nextNetworth,
+			networth: current.networth,
 		});
 	});
-	return [...map.values()].sort((left, right) =>
-		left.year.localeCompare(right.year),
-	);
+
+	let runningNetworth = ZERO_AMOUNT;
+	return [...yearlyTotals.values()]
+		.sort((left, right) => left.year.localeCompare(right.year))
+		.map((point) => {
+			runningNetworth = addMoney(
+				runningNetworth,
+				subtractMoney(point.income, point.expenses),
+			);
+			return {
+				...point,
+				networth: runningNetworth,
+			};
+		});
 };
 
 export { getTrendSeries, getYear };
