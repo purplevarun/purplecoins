@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import {
 	useCallback,
 	useEffect,
@@ -5,8 +6,9 @@ import {
 	useMemo,
 	useState,
 } from "react";
-import { StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 
+import CustomText from "@/components/CustomText";
 import EmptyState from "@/components/EmptyState";
 import FloatingAddButton from "@/components/FloatingAddButton";
 import HeaderIconButton from "@/components/HeaderIconButton";
@@ -27,7 +29,7 @@ import getErrorMessage from "@/utils/error";
 import moneyUtils from "@/utils/money";
 import runAfterRender from "@/utils/runAfterRender";
 const { getTransactionDisplayReason, getTransactions } = transactionService;
-const { formatDate } = dateUtils;
+const { formatDate, getDayDateRange, shiftDay } = dateUtils;
 const { formatMoney } = moneyUtils;
 
 const FILTER_OPTIONS: readonly SelectOption[] = [
@@ -48,15 +50,19 @@ const TransactionsScreen = ({
 	const [searchVisible, setSearchVisible] = useState(false);
 	const [searchQuery, setSearchQuery] = useState("");
 	const [searchDebounced, setSearchDebounced] = useState("");
+	const [selectedDate, setSelectedDate] = useState(() => new Date());
+	const activeDate = selectedDate instanceof Date ? selectedDate : new Date();
 
 	const getScreenData = useCallback(async (): Promise<void> => {
 		try {
-			setTransactions(await getTransactions(database));
+			setTransactions(
+				await getTransactions(database, getDayDateRange(activeDate)),
+			);
 			setError("");
 		} catch (caughtError: unknown) {
 			setError(getErrorMessage(caughtError));
 		}
-	}, [database]);
+	}, [activeDate, database]);
 
 	useEffect(
 		() =>
@@ -65,6 +71,11 @@ const TransactionsScreen = ({
 			}),
 		[dataVersion, getScreenData],
 	);
+
+	const isToday = activeDate.toDateString() === new Date().toDateString();
+	const handleDayChange = useCallback((direction: -1 | 1): void => {
+		setSelectedDate((currentDate) => shiftDay(currentDate, direction));
+	}, []);
 
 	useEffect(() => {
 		const timer = setTimeout(() => setSearchDebounced(searchQuery), 250);
@@ -138,6 +149,39 @@ const TransactionsScreen = ({
 	const listHeader = useMemo(
 		() => (
 			<ListHeader>
+				<View style={styles.dayRow}>
+					<Pressable
+						accessibilityLabel="Previous day"
+						accessibilityRole="button"
+						onPress={() => handleDayChange(-1)}
+						style={styles.dayButton}
+					>
+						<Ionicons
+							color={COLORS.text}
+							name="chevron-back"
+							size={21}
+						/>
+					</Pressable>
+					<CustomText style={styles.dayLabel}>
+						{formatDate(getDayDateRange(activeDate).start)}
+					</CustomText>
+					<Pressable
+						accessibilityLabel="Next day"
+						accessibilityRole="button"
+						disabled={isToday}
+						onPress={() => handleDayChange(1)}
+						style={[
+							styles.dayButton,
+							isToday && styles.dayButtonDisabled,
+						]}
+					>
+						<Ionicons
+							color={isToday ? COLORS.textDim : COLORS.text}
+							name="chevron-forward"
+							size={21}
+						/>
+					</Pressable>
+				</View>
 				<SegmentedControl
 					onChange={setFilter}
 					options={FILTER_OPTIONS}
@@ -153,7 +197,15 @@ const TransactionsScreen = ({
 				{error ? <Notice message={error} tone="danger" /> : null}
 			</ListHeader>
 		),
-		[error, filter, searchQuery, searchVisible],
+		[
+			error,
+			filter,
+			handleDayChange,
+			isToday,
+			searchQuery,
+			searchVisible,
+			activeDate,
+		],
 	);
 
 	const listEmpty = useMemo(
@@ -187,6 +239,30 @@ const styles = StyleSheet.create({
 	screen: {
 		flex: 1,
 		backgroundColor: COLORS.background,
+	},
+	dayRow: {
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "space-between",
+		marginBottom: 10,
+	},
+	dayButton: {
+		width: 40,
+		height: 40,
+		borderRadius: 14,
+		alignItems: "center",
+		justifyContent: "center",
+		borderWidth: 1,
+		borderColor: COLORS.border,
+		backgroundColor: "rgba(255,255,255,0.055)",
+	},
+	dayButtonDisabled: {
+		opacity: 0.45,
+	},
+	dayLabel: {
+		color: COLORS.text,
+		fontSize: 15,
+		fontWeight: "800",
 	},
 });
 

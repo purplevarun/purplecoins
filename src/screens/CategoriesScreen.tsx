@@ -20,6 +20,7 @@ import ListHeader from "@/components/ListHeader";
 import Notice from "@/components/Notice";
 import ScreenList from "@/components/ScreenList";
 import SearchBar from "@/components/SearchBar";
+import SegmentedControl from "@/components/SegmentedControl";
 import COLORS from "@/constants/colors";
 import useAppDialog from "@/hooks/useAppDialog";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
@@ -31,6 +32,7 @@ import type AnalysisSummary from "@/types/AnalysisSummary";
 import type CategoriesScreenProps from "@/types/CategoriesScreenProps";
 import type Category from "@/types/Category";
 import type ExchangeRate from "@/types/ExchangeRate";
+import type SelectOption from "@/types/SelectOption";
 import getErrorMessage from "@/utils/error";
 import moneyUtils from "@/utils/money";
 const { getAnalysisSummary } = analysisService;
@@ -39,6 +41,12 @@ const { getExchangeRates } = exchangeRateService;
 const { getNativeCurrencyDisplay, updateNativeCurrencyDisplay } =
 	settingsService;
 const { compareMoney, formatMoney, ZERO_AMOUNT } = moneyUtils;
+
+const CATEGORY_FILTER_OPTIONS: readonly SelectOption[] = [
+	{ label: "All", value: "ALL" },
+	{ label: "Expense", value: "EXPENSE" },
+	{ label: "Income", value: "INCOME" },
+];
 
 const ALL_TIME_START = 0;
 const ALL_TIME_END = 8_640_000_000_000_000;
@@ -49,6 +57,7 @@ const CategoriesScreen = ({
 	const { database, refreshData } = useDatabaseContext();
 	const dialog = useAppDialog();
 	const [categories, setCategories] = useState<readonly Category[]>([]);
+	const [categoryFilter, setCategoryFilter] = useState("ALL");
 	const [analysis, setAnalysis] = useState<AnalysisSummary | null>(null);
 	const [isNativeCurrency, setIsNativeCurrency] = useState(true);
 	const [exchangeRates, setExchangeRates] = useState<readonly ExchangeRate[]>(
@@ -69,7 +78,12 @@ const CategoriesScreen = ({
 			setIsNativeCurrency(nativeCurrency);
 			setExchangeRates(loadedRates);
 			const [loadedCategories, loadedAnalysis] = await Promise.all([
-				getCategories(database),
+				getCategories(
+					database,
+					categoryFilter === "ALL"
+						? undefined
+						: categoryFilter === "INCOME",
+				),
 				getAnalysisSummary(database, {
 					dateRange: { start: ALL_TIME_START, end: ALL_TIME_END },
 					isNativeCurrency: nativeCurrency,
@@ -80,7 +94,7 @@ const CategoriesScreen = ({
 		} catch (caughtError: unknown) {
 			setError(getErrorMessage(caughtError));
 		}
-	}, [database]);
+	}, [categoryFilter, database]);
 
 	useFocusEffect(
 		useCallback(() => {
@@ -320,6 +334,11 @@ const CategoriesScreen = ({
 	const listHeader = useMemo(
 		() => (
 			<ListHeader>
+				<SegmentedControl
+					onChange={setCategoryFilter}
+					options={CATEGORY_FILTER_OPTIONS}
+					value={categoryFilter}
+				/>
 				{searchVisible ? (
 					<SearchBar
 						onChangeText={setSearchQuery}
@@ -336,7 +355,7 @@ const CategoriesScreen = ({
 				{error ? <Notice message={error} tone="danger" /> : null}
 			</ListHeader>
 		),
-		[analysis, error, searchQuery, searchVisible],
+		[analysis, categoryFilter, error, searchQuery, searchVisible],
 	);
 
 	const listEmpty = useMemo(

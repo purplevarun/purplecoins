@@ -1,5 +1,6 @@
 import AppError from "@/errors/AppError";
 import financeRepository from "@/repositories/financeRepository";
+import type DateRange from "@/types/DateRange";
 import type LinkedTransactionFilter from "@/types/LinkedTransactionFilter";
 import type Transaction from "@/types/Transaction";
 import type TransactionInput from "@/types/TransactionInput";
@@ -25,8 +26,11 @@ const mapTransaction = (transaction: Transaction): Transaction => ({
 
 const getTransactions = async (
 	database: SQLiteDatabase,
+	dateRange?: DateRange,
 ): Promise<readonly Transaction[]> => {
-	const transactions = await getTransactionRows(database);
+	const transactions = dateRange
+		? await getTransactionRows(database, dateRange.start, dateRange.end)
+		: await getTransactionRows(database);
 	return transactions.map(mapTransaction);
 };
 

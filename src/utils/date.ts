@@ -142,6 +142,25 @@ const getCustomDateRange = (startAt: number, endAt: number): DateRange => {
 	return { start: startDate.getTime(), end: endDate.getTime() };
 };
 
+const getDayDateRange = (date: Date): DateRange => {
+	const start = new Date(date);
+	start.setHours(0, 0, 0, 0);
+	const end = new Date(start);
+	end.setHours(
+		DAY_END_HOURS,
+		DAY_END_MINUTES,
+		DAY_END_SECONDS,
+		DAY_END_MILLISECONDS,
+	);
+	return { start: start.getTime(), end: end.getTime() };
+};
+
+const shiftDay = (date: Date, direction: -1 | 1): Date => {
+	const shifted = new Date(date);
+	shifted.setDate(shifted.getDate() + direction);
+	return shifted;
+};
+
 const formatDate = (timestamp: number): string =>
 	new Date(timestamp).toLocaleDateString("en-IN", {
 		day: "2-digit",
@@ -163,8 +182,10 @@ const dateUtils = {
 	formatDateTime,
 	getAnalysisDateRange,
 	getCustomDateRange,
+	getDayDateRange,
 	getFyDateRange,
 	getYtdDateRange,
+	shiftDay,
 	shiftAnalysisAnchor,
 };
 

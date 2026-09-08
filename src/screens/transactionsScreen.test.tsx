@@ -28,10 +28,17 @@ vi.mock("react", async (importOriginal) => {
 vi.mock("react-native", () => ({
 	StyleSheet: { create: (styles: any) => styles },
 	View: (props: any) => ({ type: "View", props }),
+	Pressable: (props: any) => ({ type: "Pressable", props }),
+}));
+vi.mock("@expo/vector-icons", () => ({
+	Ionicons: (props: any) => ({ type: "Ionicons", props }),
 }));
 
 vi.mock("@/components/EmptyState", () => ({
 	default: (props: any) => ({ type: "EmptyState", props }),
+}));
+vi.mock("@/components/CustomText", () => ({
+	default: (props: any) => ({ type: "CustomText", props }),
 }));
 vi.mock("@/components/FloatingAddButton", () => ({
 	default: (props: any) => ({ type: "FloatingAddButton", props }),
@@ -72,6 +79,12 @@ vi.mock("@/services/transactionService", () => ({
 vi.mock("@/utils/date", () => ({
 	default: {
 		formatDate: (value: number) => `date:${value}`,
+		getDayDateRange: (date: Date) => ({
+			start: date.getTime(),
+			end: date.getTime() + 86_399_999,
+		}),
+		shiftDay: (date: Date, direction: -1 | 1) =>
+			new Date(date.getTime() + direction * 86_400_000),
 	},
 }));
 vi.mock("@/utils/error", () => ({
@@ -170,7 +183,13 @@ describe("TransactionsScreen", () => {
 		const tree = TransactionsScreen({ navigation } as any);
 		await flush();
 
-		expect(serviceMocks.getTransactions).toHaveBeenCalledWith({ id: "db" });
+		expect(serviceMocks.getTransactions).toHaveBeenCalledWith(
+			{ id: "db" },
+			expect.objectContaining({
+				end: expect.any(Number),
+				start: expect.any(Number),
+			}),
+		);
 		expect(setOptions).toHaveBeenCalled();
 
 		const headerRight = setOptions.mock.calls[0][0].headerRight;
@@ -199,12 +218,13 @@ describe("TransactionsScreen", () => {
 		card.props.onPress();
 		card.props.onLongPress();
 
-		findByPredicate(
+		const plainPressables = findByPredicate(
 			tree,
 			(node) =>
 				typeof node?.props?.onPress === "function" &&
 				typeof node?.props?.onLongPress !== "function",
-		)[0]?.props?.onPress();
+		);
+		plainPressables.at(-1)?.props?.onPress();
 
 		expect(navigation.navigate).toHaveBeenCalledWith("TransactionForm", {
 			transactionId: "t1",
@@ -367,7 +387,13 @@ describe("TransactionsScreen", () => {
 		const tree = TransactionsScreen({ navigation } as any);
 		await flush();
 
-		expect(serviceMocks.getTransactions).toHaveBeenCalledWith({ id: "db" });
+		expect(serviceMocks.getTransactions).toHaveBeenCalledWith(
+			{ id: "db" },
+			expect.objectContaining({
+				end: expect.any(Number),
+				start: expect.any(Number),
+			}),
+		);
 		expect(clearSpy).toHaveBeenCalled();
 		expect(
 			findByPredicate(

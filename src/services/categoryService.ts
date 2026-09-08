@@ -22,8 +22,9 @@ const mapCategory = (category: Category): Category => ({
 
 const getCategories = async (
 	database: SQLiteDatabase,
+	isIncome?: boolean,
 ): Promise<readonly Category[]> => {
-	const categories = await getCategoryRows(database);
+	const categories = await getCategoryRows(database, isIncome);
 	return categories.map(mapCategory);
 };
 

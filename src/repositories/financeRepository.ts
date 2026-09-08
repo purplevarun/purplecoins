@@ -219,8 +219,10 @@ const deleteSourceRow = async (
 
 const getCategoryRows = async (
 	database: SQLiteDatabase,
+	isIncome?: boolean,
 ): Promise<readonly Category[]> =>
-	database.getAllAsync<Category>(`
+	database.getAllAsync<Category>(
+		`
 		SELECT
 			category.id,
 			category.name,
@@ -231,12 +233,15 @@ const getCategoryRows = async (
 		FROM categories category
 		LEFT JOIN transactions txn ON txn.category_id = category.id
 		WHERE COALESCE(category.archived, 0) = 0
+			${isIncome === undefined ? "" : "AND category.is_income = ?"}
 		GROUP BY category.id
 		ORDER BY
 			COUNT(txn.id) DESC,
 			COALESCE(MAX(txn.created_at), 0) DESC,
 			lower(category.name) ASC;
-	`);
+		`,
+		...(isIncome === undefined ? [] : [isIncome ? 1 : 0]),
+	);
 
 const getArchivedCategoryRows = async (
 	database: SQLiteDatabase,
@@ -608,9 +613,14 @@ const getTransactionMinMaxDate = async (
 
 const getTransactionRows = async (
 	database: SQLiteDatabase,
+	start?: number,
+	end?: number,
 ): Promise<readonly Transaction[]> =>
 	database.getAllAsync<Transaction>(
-		`${TRANSACTION_SELECT} ORDER BY t.transaction_at DESC, t.created_at DESC;`,
+		start === undefined || end === undefined
+			? `${TRANSACTION_SELECT} ORDER BY t.transaction_at DESC, t.created_at DESC;`
+			: `${TRANSACTION_SELECT} WHERE t.transaction_at BETWEEN ? AND ? ORDER BY t.transaction_at DESC, t.created_at DESC;`,
+		...(start === undefined || end === undefined ? [] : [start, end]),
 	);
 
 const getTransactionRowsInRange = async (
