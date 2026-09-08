@@ -208,18 +208,13 @@ run_migrate() {
 
   OUTPUT_PATH="${2:-}"
   if [ -z "$OUTPUT_PATH" ]; then
-    case "$INPUT_PATH" in
-      *.purplecoins)
-        OUTPUT_PATH="${INPUT_PATH%.purplecoins}.migrated.db"
-        ;;
-      *)
-        OUTPUT_PATH="${INPUT_PATH%.*}.migrated.db"
-        ;;
-    esac
+    DIR_PATH=$(dirname "$INPUT_PATH")
+    FILE_NAME=$(basename "$INPUT_PATH")
+    OUTPUT_PATH="$DIR_PATH/migrated.purplecoins"
   fi
 
   if [ "$OUTPUT_PATH" = "$INPUT_PATH" ]; then
-    echo "Refusing to overwrite the original file. Choose a separate output path."
+    echo "Refusing to overwrite the original file. Output path must differ from the original."
     exit 1
   fi
 
