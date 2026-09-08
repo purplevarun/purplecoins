@@ -187,6 +187,57 @@ run_release() {
   echo "Release published: $TAG"
 }
 
+run_migrate() {
+  require_cmd sqlite3
+
+  if [ ! -f "migrations.sql" ]; then
+    echo "Missing migrations.sql in project root."
+    exit 1
+  fi
+
+  INPUT_PATH="${1:-}"
+  if [ -z "$INPUT_PATH" ]; then
+    echo "Usage: ./run migrate /path/to/file.purplecoins [output.db]"
+    exit 1
+  fi
+
+  if [ ! -f "$INPUT_PATH" ]; then
+    echo "Input file not found: $INPUT_PATH"
+    exit 1
+  fi
+
+  OUTPUT_PATH="${2:-}"
+  if [ -z "$OUTPUT_PATH" ]; then
+    case "$INPUT_PATH" in
+      *.purplecoins)
+        OUTPUT_PATH="${INPUT_PATH%.purplecoins}.migrated.db"
+        ;;
+      *)
+        OUTPUT_PATH="${INPUT_PATH%.*}.migrated.db"
+        ;;
+    esac
+  fi
+
+  if [ "$OUTPUT_PATH" = "$INPUT_PATH" ]; then
+    echo "Refusing to overwrite the original file. Choose a separate output path."
+    exit 1
+  fi
+
+  rm -f "$OUTPUT_PATH"
+  cp "$INPUT_PATH" "$OUTPUT_PATH"
+
+  sqlite3 "$OUTPUT_PATH" < migrations.sql
+
+  INTEGRITY=$(sqlite3 "$OUTPUT_PATH" "PRAGMA integrity_check;" 2>/dev/null || true)
+  if [ "$INTEGRITY" != "ok" ]; then
+    echo "Migration completed, but integrity_check did not return ok."
+    echo "Result: ${INTEGRITY:-<empty>}"
+    exit 1
+  fi
+
+  echo "Migrated database ready: $OUTPUT_PATH"
+}
+
 show_help() {
   cat <<'HELP'
 Usage: ./run <command>
@@ -198,6 +249,7 @@ Commands:
   build    Clean prebuild Android and assemble release APK with Gradle
   install  Install existing APK on local AVD/device
   release  Create tag v{version} and publish GitHub release v{version} with existing APK
+  migrate  Copy a .purplecoins file to a migrated SQLite DB using migrations.sql
 HELP
 }
 
@@ -219,6 +271,9 @@ case "${1:-}" in
     ;;
   release)
     run_release
+    ;;
+  migrate)
+    run_migrate "${2:-}" "${3:-}"
     ;;
   *)
     show_help
