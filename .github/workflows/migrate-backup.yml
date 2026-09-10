@@ -1,0 +1,88 @@
+name: Migrate PurpleCoins Backup
+
+on:
+    workflow_dispatch:
+        inputs:
+            backup_url:
+                description: HTTPS download URL (non-sensitive URLs only; otherwise set the PURPLECOINS_BACKUP_URL repository secret)
+                required: false
+                type: string
+            acknowledge_unencrypted_upload:
+                description: I understand this uploads an unencrypted backup to GitHub and repository readers can download the artifact
+                required: true
+                default: false
+                type: boolean
+
+permissions:
+    contents: read
+
+jobs:
+    migrate:
+        runs-on: ubuntu-latest
+        timeout-minutes: 10
+        steps:
+            - name: Require privacy acknowledgment
+              if: ${{ !inputs.acknowledge_unencrypted_upload }}
+              run: |
+                  echo "::error::Confirm the unencrypted upload acknowledgment, or migrate locally instead."
+                  exit 1
+
+            - name: Check out migrations
+              uses: actions/checkout@v4
+              with:
+                  persist-credentials: false
+
+            - name: Set up Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
+
+            - name: Test migration runner
+              run: python3 -B -m unittest discover -s scripts -p 'test_migrate_backup.py' -v
+
+            - name: Download backup
+              env:
+                  BACKUP_URL_INPUT: ${{ inputs.backup_url }}
+                  BACKUP_URL_SECRET: ${{ secrets.PURPLECOINS_BACKUP_URL }}
+              shell: bash
+              run: |
+                  set -euo pipefail
+                  umask 077
+                  if [[ -n "$BACKUP_URL_INPUT" && -n "$BACKUP_URL_SECRET" ]]; then
+                    echo "::error::Provide either backup_url or PURPLECOINS_BACKUP_URL, not both."
+                    exit 1
+                  fi
+                  backup_url="${BACKUP_URL_SECRET:-$BACKUP_URL_INPUT}"
+                  if [[ "$backup_url" != https://* ]]; then
+                    echo "::error::Provide an HTTPS download URL through backup_url or PURPLECOINS_BACKUP_URL."
+                    exit 1
+                  fi
+                  mkdir -p -- "$RUNNER_TEMP/purplecoins-migration"
+                  if ! curl --fail --location --silent \
+                    --proto '=https' --proto-redir '=https' \
+                    --max-redirs 5 --connect-timeout 15 --max-time 120 \
+                    --max-filesize 536870912 \
+                    --output "$RUNNER_TEMP/purplecoins-migration/input.purplecoins" \
+                    --url "$backup_url"; then
+                    echo "::error::Backup download failed. Check the URL, expiry, and 512 MiB size limit."
+                    exit 1
+                  fi
+
+            - name: Migrate and validate backup
+              run: |
+                  python3 -B scripts/migrate_backup.py \
+                    "$RUNNER_TEMP/purplecoins-migration/input.purplecoins" \
+                    "$RUNNER_TEMP/purplecoins-migration/migrated.purplecoins"
+
+            - name: Upload migrated backup
+              uses: actions/upload-artifact@v4
+              with:
+                  name: migrated-purplecoins-${{ github.run_id }}-${{ github.run_attempt }}
+                  path: ${{ runner.temp }}/purplecoins-migration/migrated.purplecoins
+                  if-no-files-found: error
+                  retention-days: 1
+                  compression-level: 0
+
+            - name: Remove runner copies
+              if: ${{ always() }}
+              run: rm -rf -- "$RUNNER_TEMP/purplecoins-migration"

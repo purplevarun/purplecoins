@@ -49,3 +49,9 @@ data/
 
 logs/
 coverage/
+
+*.purplecoins
+*.purplecoins-journal
+*.purplecoins-shm
+*.purplecoins-wal
+__pycache__/
