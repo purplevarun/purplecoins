@@ -1,0 +1,80 @@
+name: Deploy Download Website
+
+on:
+    push:
+        branches: [main]
+        paths:
+            - "web/**"
+            - ".github/workflows/deploy-pages.yml"
+    release:
+        types: [published, edited]
+    schedule:
+        - cron: "17 6 * * *"
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+concurrency:
+    group: github-pages
+    cancel-in-progress: false
+
+jobs:
+    build:
+        if: ${{ github.event_name != 'release' || !github.event.release.prerelease }}
+        runs-on: ubuntu-latest
+        timeout-minutes: 10
+        permissions:
+            contents: read
+            pages: read
+        defaults:
+            run:
+                working-directory: web
+        steps:
+            - name: Check out website
+              uses: actions/checkout@v4
+              with:
+                  ref: main
+                  persist-credentials: false
+
+            - name: Set up Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "24"
+                  cache: npm
+                  cache-dependency-path: web/package-lock.json
+
+            - name: Configure Pages
+              uses: actions/configure-pages@v5
+
+            - name: Install website dependencies
+              run: npm ci
+
+            - name: Check website
+              run: npm test && npm run lint && npm run format:check
+
+            - name: Build with latest release metadata
+              env:
+                  GH_TOKEN: ${{ github.token }}
+              run: |
+                  GITHUB_RELEASE_JSON="$(gh api "repos/$GITHUB_REPOSITORY/releases/latest")" npm run build
+
+            - name: Upload Pages artifact
+              uses: actions/upload-pages-artifact@v3
+              with:
+                  path: web/dist
+
+    deploy:
+        needs: build
+        runs-on: ubuntu-latest
+        timeout-minutes: 10
+        permissions:
+            pages: write
+            id-token: write
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+        steps:
+            - name: Deploy to GitHub Pages
+              id: deployment
+              uses: actions/deploy-pages@v4

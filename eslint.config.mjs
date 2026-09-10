@@ -9,6 +9,7 @@ const eslintConfig = tseslint.config(
 		ignores: [
 			".expo/**",
 			"android/**",
+			"web/**",
 			"node_modules/**",
 			"coverage/**",
 			"eslint.config.mjs",
