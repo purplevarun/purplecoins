@@ -64,6 +64,12 @@ published/edited stable releases, manual dispatches, and a daily refresh. Releas
 assets uploaded after the initial release event are picked up by a later refresh
 or by the browser's live check. Pages must use **GitHub Actions** as its build source.
 
+Vite also builds [404.html](404.html) into the root of `dist/`. GitHub Pages serves
+it for missing URLs with a 404 status. It shares the website's styles and uses
+base-prefixed asset and home links, so nested missing URLs work too. The return
+link works without JavaScript. Vite's local preview uses an SPA fallback for unknown
+URLs; open `/purplecoins/404.html` to preview the custom page locally.
+
 ## Android Installation
 
 The page can start the download and reveal installation guidance, but a website

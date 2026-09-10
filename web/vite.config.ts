@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { fetchLatestRelease, parseRelease } from './src/release.js'
@@ -18,5 +19,13 @@ export default defineConfig(async () => {
     plugins: [react()],
     base: '/purplecoins/',
     define: { __BUILD_RELEASE__: JSON.stringify(release) },
+    build: {
+      rolldownOptions: {
+        input: {
+          main: fileURLToPath(new URL('./index.html', import.meta.url)),
+          notFound: fileURLToPath(new URL('./404.html', import.meta.url)),
+        },
+      },
+    },
   }
 })
