@@ -34,8 +34,7 @@ import type TripTotal from "@/types/TripTotal";
 import getErrorMessage from "@/utils/error";
 import moneyUtils from "@/utils/money";
 const { getExchangeRates } = exchangeRateService;
-const { getNativeCurrencyDisplay, updateNativeCurrencyDisplay } =
-	settingsService;
+const { getNativeCurrencyDisplay } = settingsService;
 const { getTrips, setTripArchived } = tripService;
 const { getTripTotals } = tripTotalService;
 const { compareMoney, formatMoney, ZERO_AMOUNT } = moneyUtils;
@@ -79,13 +78,6 @@ const TripsScreen = ({ navigation }: TripsScreenProps): React.JSX.Element => {
 		}, [getScreenData]),
 	);
 
-	const handleToggleCurrency = useCallback(async (): Promise<void> => {
-		const nextValue = !isNativeCurrency;
-		await updateNativeCurrencyDisplay(database, nextValue);
-		setIsNativeCurrency(nextValue);
-		await getScreenData();
-	}, [database, getScreenData, isNativeCurrency]);
-
 	useEffect(() => {
 		const timer = setTimeout(() => setSearchDebounced(searchQuery), 250);
 		return () => clearTimeout(timer);
@@ -94,35 +86,21 @@ const TripsScreen = ({ navigation }: TripsScreenProps): React.JSX.Element => {
 	useLayoutEffect(() => {
 		navigation.setOptions({
 			headerRight: () => (
-				<View style={{ flexDirection: "row", gap: 4 }}>
-					<HeaderIconButton
-						accessibilityLabel={
-							searchVisible ? "Close search" : "Search"
-						}
-						icon={
-							searchVisible ? "close-outline" : "search-outline"
-						}
-						isActive={searchVisible}
-						onPress={() => {
-							setSearchVisible((v) => !v);
-							setSearchQuery("");
-							setSearchDebounced("");
-						}}
-					/>
-					<HeaderIconButton
-						accessibilityLabel={
-							isNativeCurrency
-								? "Convert to INR"
-								: "Show native currencies"
-						}
-						icon="earth-outline"
-						isActive={!isNativeCurrency}
-						onPress={() => void handleToggleCurrency()}
-					/>
-				</View>
+				<HeaderIconButton
+					accessibilityLabel={
+						searchVisible ? "Close search" : "Search"
+					}
+					icon={searchVisible ? "close-outline" : "search-outline"}
+					isActive={searchVisible}
+					onPress={() => {
+						setSearchVisible((visible) => !visible);
+						setSearchQuery("");
+						setSearchDebounced("");
+					}}
+				/>
 			),
 		});
-	}, [handleToggleCurrency, isNativeCurrency, navigation, searchVisible]);
+	}, [navigation, searchVisible]);
 
 	const handleArchive = useCallback(
 		async (id: string): Promise<void> => {

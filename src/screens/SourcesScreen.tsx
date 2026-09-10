@@ -32,8 +32,7 @@ import type SourcesScreenProps from "@/types/SourcesScreenProps";
 import getErrorMessage from "@/utils/error";
 import moneyUtils from "@/utils/money";
 const { getExchangeRates } = exchangeRateService;
-const { getNativeCurrencyDisplay, updateNativeCurrencyDisplay } =
-	settingsService;
+const { getNativeCurrencyDisplay } = settingsService;
 const { getSources, setSourceArchived, validateSource } = sourceService;
 const { formatMoney } = moneyUtils;
 
@@ -75,13 +74,6 @@ const SourcesScreen = ({
 		}, [getScreenData]),
 	);
 
-	const handleToggleCurrency = useCallback(async (): Promise<void> => {
-		const nextValue = !isNativeCurrency;
-		await updateNativeCurrencyDisplay(database, nextValue);
-		setIsNativeCurrency(nextValue);
-		await getScreenData();
-	}, [database, getScreenData, isNativeCurrency]);
-
 	useEffect(() => {
 		const timer = setTimeout(() => setSearchDebounced(searchQuery), 250);
 		return () => clearTimeout(timer);
@@ -90,35 +82,21 @@ const SourcesScreen = ({
 	useLayoutEffect(() => {
 		navigation.setOptions({
 			headerRight: () => (
-				<View style={{ flexDirection: "row", gap: 4 }}>
-					<HeaderIconButton
-						accessibilityLabel={
-							searchVisible ? "Close search" : "Search"
-						}
-						icon={
-							searchVisible ? "close-outline" : "search-outline"
-						}
-						isActive={searchVisible}
-						onPress={() => {
-							setSearchVisible((v) => !v);
-							setSearchQuery("");
-							setSearchDebounced("");
-						}}
-					/>
-					<HeaderIconButton
-						accessibilityLabel={
-							isNativeCurrency
-								? "Convert to INR"
-								: "Show native currencies"
-						}
-						icon="earth-outline"
-						isActive={!isNativeCurrency}
-						onPress={() => void handleToggleCurrency()}
-					/>
-				</View>
+				<HeaderIconButton
+					accessibilityLabel={
+						searchVisible ? "Close search" : "Search"
+					}
+					icon={searchVisible ? "close-outline" : "search-outline"}
+					isActive={searchVisible}
+					onPress={() => {
+						setSearchVisible((visible) => !visible);
+						setSearchQuery("");
+						setSearchDebounced("");
+					}}
+				/>
 			),
 		});
-	}, [handleToggleCurrency, isNativeCurrency, navigation, searchVisible]);
+	}, [navigation, searchVisible]);
 
 	const handleValidate = useCallback(
 		async (id: string): Promise<void> => {

@@ -38,8 +38,7 @@ import moneyUtils from "@/utils/money";
 const { getAnalysisSummary } = analysisService;
 const { getCategories, setCategoryArchived } = categoryService;
 const { getExchangeRates } = exchangeRateService;
-const { getNativeCurrencyDisplay, updateNativeCurrencyDisplay } =
-	settingsService;
+const { getNativeCurrencyDisplay } = settingsService;
 const { compareMoney, formatMoney, ZERO_AMOUNT } = moneyUtils;
 
 const CATEGORY_FILTER_OPTIONS: readonly SelectOption[] = [
@@ -102,13 +101,6 @@ const CategoriesScreen = ({
 		}, [getScreenData]),
 	);
 
-	const handleToggleCurrency = useCallback(async (): Promise<void> => {
-		const nextValue = !isNativeCurrency;
-		await updateNativeCurrencyDisplay(database, nextValue);
-		setIsNativeCurrency(nextValue);
-		await getScreenData();
-	}, [database, getScreenData, isNativeCurrency]);
-
 	useEffect(() => {
 		const timer = setTimeout(() => setSearchDebounced(searchQuery), 250);
 		return () => clearTimeout(timer);
@@ -117,35 +109,21 @@ const CategoriesScreen = ({
 	useLayoutEffect(() => {
 		navigation.setOptions({
 			headerRight: () => (
-				<View style={{ flexDirection: "row", gap: 4 }}>
-					<HeaderIconButton
-						accessibilityLabel={
-							searchVisible ? "Close search" : "Search"
-						}
-						icon={
-							searchVisible ? "close-outline" : "search-outline"
-						}
-						isActive={searchVisible}
-						onPress={() => {
-							setSearchVisible((v) => !v);
-							setSearchQuery("");
-							setSearchDebounced("");
-						}}
-					/>
-					<HeaderIconButton
-						accessibilityLabel={
-							isNativeCurrency
-								? "Convert to INR"
-								: "Show native currencies"
-						}
-						icon="earth-outline"
-						isActive={!isNativeCurrency}
-						onPress={() => void handleToggleCurrency()}
-					/>
-				</View>
+				<HeaderIconButton
+					accessibilityLabel={
+						searchVisible ? "Close search" : "Search"
+					}
+					icon={searchVisible ? "close-outline" : "search-outline"}
+					isActive={searchVisible}
+					onPress={() => {
+						setSearchVisible((visible) => !visible);
+						setSearchQuery("");
+						setSearchDebounced("");
+					}}
+				/>
 			),
 		});
-	}, [handleToggleCurrency, isNativeCurrency, navigation, searchVisible]);
+	}, [navigation, searchVisible]);
 
 	const handleArchive = useCallback(
 		async (id: string): Promise<void> => {

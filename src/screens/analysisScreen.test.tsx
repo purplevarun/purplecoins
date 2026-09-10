@@ -1,8 +1,15 @@
+import type HeaderIconButtonProps from "@/types/HeaderIconButtonProps";
+import type { ReactElement } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+type HeaderOptions = {
+	headerRight: () => ReactElement<HeaderIconButtonProps>;
+};
 
 const reactMocks = vi.hoisted(() => ({
 	useCallback: vi.fn((fn: any) => fn),
 	useEffect: vi.fn(),
+	useLayoutEffect: vi.fn<(effect: () => void) => void>(),
 	useMemo: vi.fn((factory: () => unknown) => factory()),
 	useState: vi.fn(),
 }));
@@ -31,6 +38,7 @@ vi.mock("react", async (importOriginal) => {
 		...actual,
 		useCallback: reactMocks.useCallback,
 		useEffect: reactMocks.useEffect,
+		useLayoutEffect: reactMocks.useLayoutEffect,
 		useMemo: reactMocks.useMemo,
 		useState: reactMocks.useState,
 	};
@@ -170,6 +178,7 @@ const findByPredicate = (
 describe("AnalysisScreen", () => {
 	beforeEach(() => {
 		reactMocks.useEffect.mockReset();
+		reactMocks.useLayoutEffect.mockReset();
 		reactMocks.useState.mockReset();
 		reactMocks.useEffect.mockImplementation((effect: () => void) => {
 			effect();
@@ -252,8 +261,11 @@ describe("AnalysisScreen", () => {
 		serviceMocks.sumMoney.mockReturnValue("400");
 	});
 
-	it("renders default summary mode and navigates from category, investment and rates links", async () => {
-		const navigation = { navigate: vi.fn() };
+	it("renders default summary mode and manages exchange rates only from the header", async () => {
+		const navigation = {
+			navigate: vi.fn(),
+			setOptions: vi.fn<(options: HeaderOptions) => void>(),
+		};
 		const anchorSetter = vi.fn();
 		let stateCall = 0;
 		reactMocks.useState.mockImplementation((initial: any) => {
@@ -301,12 +313,16 @@ describe("AnalysisScreen", () => {
 				typeof node?.props?.onPress === "function" &&
 				node?.props?.style === undefined,
 		).forEach((node) => node.props.onPress());
-		findByPredicate(
-			tree,
-			(node) =>
-				typeof node?.props?.onPress === "function" &&
-				JSON.stringify(node).includes("Manage exchange rates"),
-		)[0]?.props?.onPress();
+		expect(JSON.stringify(tree)).not.toContain("Manage exchange rates");
+		reactMocks.useLayoutEffect.mock.calls.forEach(([effect]) => effect());
+		expect(navigation.setOptions).toHaveBeenCalledOnce();
+		const ratesButton =
+			navigation.setOptions.mock.calls[0]?.[0].headerRight();
+		expect(ratesButton?.props.accessibilityLabel).toBe(
+			"Manage exchange rates",
+		);
+		expect(ratesButton?.props.icon).toBe("swap-horizontal-outline");
+		ratesButton?.props.onPress();
 		findByPredicate(
 			tree,
 			(node) =>
@@ -333,8 +349,11 @@ describe("AnalysisScreen", () => {
 		);
 	});
 
-	it("renders missing-currency branch and exchange-rate shortcut", async () => {
-		const navigation = { navigate: vi.fn() };
+	it("keeps exchange rates in the header when currencies are missing", async () => {
+		const navigation = {
+			navigate: vi.fn(),
+			setOptions: vi.fn<(options: HeaderOptions) => void>(),
+		};
 		let stateCall = 0;
 		reactMocks.useState.mockImplementation((initial: any) => {
 			stateCall += 1;
@@ -360,11 +379,18 @@ describe("AnalysisScreen", () => {
 		const tree = AnalysisScreen({ navigation } as any);
 		await flush();
 
-		findByPredicate(
-			tree,
-			(node) => typeof node?.props?.onPress === "function",
-		).forEach((node) => node.props.onPress());
-
+		expect(JSON.stringify(tree)).toContain(
+			"Update INR exchange rates for USD",
+		);
+		expect(JSON.stringify(tree)).not.toContain("Manage exchange rates");
+		reactMocks.useLayoutEffect.mock.calls.forEach(([effect]) => effect());
+		expect(navigation.setOptions).toHaveBeenCalledOnce();
+		const ratesButton =
+			navigation.setOptions.mock.calls[0]?.[0].headerRight();
+		expect(ratesButton?.props.accessibilityLabel).toBe(
+			"Manage exchange rates",
+		);
+		ratesButton?.props.onPress();
 		expect(navigation.navigate).toHaveBeenCalledWith("ExchangeRates");
 	});
 

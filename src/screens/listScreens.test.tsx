@@ -1,14 +1,31 @@
+import type HeaderIconButtonProps from "@/types/HeaderIconButtonProps";
+import type { ReactElement } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+type HeaderOptions = {
+	headerRight: () => ReactElement<HeaderIconButtonProps>;
+};
 
 const reactMocks = vi.hoisted(() => ({
 	useCallback: vi.fn((fn: any) => fn),
 	useEffect: vi.fn(),
+	useLayoutEffect: vi.fn<(effect: () => void) => void>(),
 	useMemo: vi.fn((factory: () => unknown) => factory()),
 	useState: vi.fn(),
 }));
 
+const navigationMocks = vi.hoisted(() => ({
+	useFocusEffect: vi.fn((callback: () => void) => callback()),
+}));
+
 const serviceMocks = vi.hoisted(() => ({
 	getAnalysisSummary: vi.fn(),
+	getCategories: vi.fn(),
+	getInvestments: vi.fn(),
+	getTrips: vi.fn(),
+	getTripTotals: vi.fn(),
+	getNativeCurrencyDisplay: vi.fn(),
+	updateNativeCurrencyDisplay: vi.fn(),
 	getBudgets: vi.fn(),
 	deleteBudget: vi.fn(),
 	getNotes: vi.fn(),
@@ -51,13 +68,14 @@ vi.mock("react", async (importOriginal) => {
 		...actual,
 		useCallback: reactMocks.useCallback,
 		useEffect: reactMocks.useEffect,
+		useLayoutEffect: reactMocks.useLayoutEffect,
 		useMemo: reactMocks.useMemo,
 		useState: reactMocks.useState,
 	};
 });
 
 vi.mock("@react-navigation/native", () => ({
-	useFocusEffect: (callback: () => void) => callback(),
+	useFocusEffect: navigationMocks.useFocusEffect,
 }));
 
 vi.mock("@expo/vector-icons", () => ({
@@ -158,6 +176,7 @@ vi.mock("@/services/sourceService", () => ({
 }));
 vi.mock("@/services/categoryService", () => ({
 	default: {
+		getCategories: serviceMocks.getCategories,
 		getArchivedCategories: serviceMocks.getArchivedCategories,
 		setCategoryArchived: serviceMocks.setCategoryArchived,
 		deleteCategory: serviceMocks.deleteCategory,
@@ -165,6 +184,7 @@ vi.mock("@/services/categoryService", () => ({
 }));
 vi.mock("@/services/tripService", () => ({
 	default: {
+		getTrips: serviceMocks.getTrips,
 		getArchivedTrips: serviceMocks.getArchivedTrips,
 		setTripArchived: serviceMocks.setTripArchived,
 		deleteTrip: serviceMocks.deleteTrip,
@@ -172,10 +192,20 @@ vi.mock("@/services/tripService", () => ({
 }));
 vi.mock("@/services/investmentService", () => ({
 	default: {
+		getInvestments: serviceMocks.getInvestments,
 		getArchivedInvestments: serviceMocks.getArchivedInvestments,
 		setInvestmentArchived: serviceMocks.setInvestmentArchived,
 		deleteInvestment: serviceMocks.deleteInvestment,
 	},
+}));
+vi.mock("@/services/settingsService", () => ({
+	default: {
+		getNativeCurrencyDisplay: serviceMocks.getNativeCurrencyDisplay,
+		updateNativeCurrencyDisplay: serviceMocks.updateNativeCurrencyDisplay,
+	},
+}));
+vi.mock("@/services/tripTotalService", () => ({
+	default: { getTripTotals: serviceMocks.getTripTotals },
 }));
 vi.mock("@/services/transactionService", () => ({
 	default: {
@@ -224,10 +254,14 @@ vi.mock("@/utils/runAfterRender", () => ({
 
 import ArchivedRelationsScreen from "@/screens/ArchivedRelationsScreen";
 import BudgetsScreen from "@/screens/BudgetsScreen";
+import CategoriesScreen from "@/screens/CategoriesScreen";
 import ExchangeRatesScreen from "@/screens/ExchangeRatesScreen";
+import InvestmentsScreen from "@/screens/InvestmentsScreen";
 import LinkedTransactionsScreen from "@/screens/LinkedTransactionsScreen";
 import NotesScreen from "@/screens/NotesScreen";
+import SourcesScreen from "@/screens/SourcesScreen";
 import TodosScreen from "@/screens/TodosScreen";
+import TripsScreen from "@/screens/TripsScreen";
 
 const flush = async (): Promise<void> => {
 	await Promise.resolve();
@@ -256,7 +290,9 @@ const findByPredicate = (
 describe("list screens", () => {
 	beforeEach(() => {
 		reactMocks.useEffect.mockReset();
+		reactMocks.useLayoutEffect.mockReset();
 		reactMocks.useState.mockReset();
+		navigationMocks.useFocusEffect.mockClear();
 		reactMocks.useEffect.mockImplementation((effect: () => void) => {
 			effect();
 		});
@@ -269,6 +305,11 @@ describe("list screens", () => {
 		Object.values(hookMocks).forEach((mockFn) => mockFn.mockReset());
 		folderState.folders = [{ id: "f1", name: "Home" }];
 
+		serviceMocks.getCategories.mockResolvedValue([]);
+		serviceMocks.getInvestments.mockResolvedValue([]);
+		serviceMocks.getTrips.mockResolvedValue([]);
+		serviceMocks.getTripTotals.mockResolvedValue([]);
+		serviceMocks.getNativeCurrencyDisplay.mockResolvedValue(true);
 		serviceMocks.getAnalysisSummary.mockResolvedValue({
 			categories: [
 				{
@@ -324,6 +365,66 @@ describe("list screens", () => {
 		serviceMocks.deleteTrip.mockResolvedValue(undefined);
 		serviceMocks.deleteInvestment.mockResolvedValue(undefined);
 	});
+
+	it.each([
+		{ name: "Categories", Screen: CategoriesScreen, currencyStateIndex: 4 },
+		{
+			name: "Investments",
+			Screen: InvestmentsScreen,
+			currencyStateIndex: 3,
+		},
+		{ name: "Sources", Screen: SourcesScreen, currencyStateIndex: 2 },
+		{ name: "Trips", Screen: TripsScreen, currencyStateIndex: 3 },
+	])(
+		"$name reads currency changes from Settings and only offers header search",
+		async ({ Screen, currencyStateIndex }) => {
+			const navigation = {
+				navigate: vi.fn(),
+				setOptions: vi.fn<(options: HeaderOptions) => void>(),
+			};
+			const setNativeCurrency = vi.fn();
+			let stateCall = 0;
+			reactMocks.useState.mockImplementation((initial: unknown) => {
+				stateCall += 1;
+				return [
+					typeof initial === "function"
+						? (initial as () => unknown)()
+						: initial,
+					stateCall === currencyStateIndex
+						? setNativeCurrency
+						: vi.fn(),
+				];
+			});
+
+			const renderScreen = Screen as (props: unknown) => ReactElement;
+			renderScreen({ navigation });
+			await flush();
+			expect(setNativeCurrency).toHaveBeenLastCalledWith(true);
+
+			serviceMocks.getNativeCurrencyDisplay.mockResolvedValue(false);
+			navigationMocks.useFocusEffect.mock.calls[0]?.[0]();
+			await flush();
+			expect(serviceMocks.getNativeCurrencyDisplay).toHaveBeenCalledWith({
+				id: "db",
+			});
+			expect(serviceMocks.getNativeCurrencyDisplay).toHaveBeenCalledTimes(
+				2,
+			);
+			expect(setNativeCurrency).toHaveBeenLastCalledWith(false);
+
+			reactMocks.useLayoutEffect.mock.calls.forEach(([effect]) =>
+				effect(),
+			);
+			const header =
+				navigation.setOptions.mock.calls[0]?.[0].headerRight();
+			expect(header?.props.accessibilityLabel).toBe("Search");
+			expect(header?.props.icon).toBe("search-outline");
+			header?.props.onPress();
+			expect(
+				serviceMocks.updateNativeCurrencyDisplay,
+			).not.toHaveBeenCalled();
+		},
+	);
 
 	it("executes ExchangeRatesScreen fetch and manual save flows", async () => {
 		let call = 0;

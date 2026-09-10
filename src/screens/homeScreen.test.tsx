@@ -189,7 +189,8 @@ describe("HomeScreen", () => {
 		expect(navigation.navigate).toHaveBeenCalledWith("Sources");
 		expect(navigation.navigate).toHaveBeenCalledWith("Budgets");
 		expect(navigation.navigate).toHaveBeenCalledWith("Analysis");
-		expect(navigation.navigate).toHaveBeenCalledWith("ExchangeRates");
+		expect(navigation.navigate).not.toHaveBeenCalledWith("ExchangeRates");
+		expect(JSON.stringify(tree)).not.toContain("Exchange rates");
 	});
 
 	it("renders tools mode tiles and vault mode menu selection branches", () => {

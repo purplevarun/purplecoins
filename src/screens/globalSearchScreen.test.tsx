@@ -298,8 +298,9 @@ describe("GlobalSearchScreen", () => {
 		});
 	});
 
-	it("loads FINANCE mode and opens all finance result kinds", async () => {
+	it("loads FINANCE records without an exchange-rate management shortcut", async () => {
 		const navigation = { navigate: vi.fn() };
+		const setResults = vi.fn();
 		const financeResults = [
 			{
 				id: "tx1",
@@ -349,20 +350,12 @@ describe("GlobalSearchScreen", () => {
 				icon: "speedometer-outline",
 				color: "#6",
 			},
-			{
-				id: "USD",
-				kind: "EXCHANGE_RATE",
-				title: "USD",
-				subtitle: "Rate",
-				icon: "earth-outline",
-				color: "#7",
-			},
 		];
 
 		let stateCall = 0;
 		reactMocks.useState.mockImplementation((initial: any) => {
 			stateCall += 1;
-			if (stateCall === 1) return [[], vi.fn()];
+			if (stateCall === 1) return [[], setResults];
 			if (stateCall === 2) return ["lu", vi.fn()];
 			return [
 				typeof initial === "function" ? initial() : initial,
@@ -398,9 +391,12 @@ describe("GlobalSearchScreen", () => {
 		expect(serviceMocks.getTrips).toHaveBeenCalledWith({ id: "db" });
 		expect(serviceMocks.getInvestments).toHaveBeenCalledWith({ id: "db" });
 		expect(serviceMocks.getBudgets).toHaveBeenCalledWith({ id: "db" });
-		expect(serviceMocks.getExchangeRates).toHaveBeenCalledWith({
-			id: "db",
-		});
+		expect(serviceMocks.getExchangeRates).not.toHaveBeenCalled();
+		expect(setResults).toHaveBeenCalledWith(
+			expect.not.arrayContaining([
+				expect.objectContaining({ kind: "EXCHANGE_RATE" }),
+			]),
+		);
 
 		expect(navigation.navigate).toHaveBeenCalledWith("TransactionForm", {
 			transactionId: "tx1",
@@ -428,7 +424,7 @@ describe("GlobalSearchScreen", () => {
 		expect(navigation.navigate).toHaveBeenCalledWith("BudgetForm", {
 			budgetId: "b1",
 		});
-		expect(navigation.navigate).toHaveBeenCalledWith("ExchangeRates");
+		expect(navigation.navigate).not.toHaveBeenCalledWith("ExchangeRates");
 	});
 
 	it("loads VAULT mode and opens PASSWORD CARD and IDENTITY results", async () => {

@@ -251,13 +251,6 @@ const HomeScreen = ({ navigation }: HomeScreenProps): React.JSX.Element => {
 					color: "#C9A7FF",
 					handlePress: () => navigation.navigate("Analysis"),
 				},
-				{
-					label: "Exchange rates",
-					subtitle: "Master INR rates",
-					icon: "earth-outline",
-					color: "#66E0C2",
-					handlePress: () => navigation.navigate("ExchangeRates"),
-				},
 			],
 			VAULT: [
 				{

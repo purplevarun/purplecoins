@@ -1,7 +1,13 @@
 import CustomText from "@/components/CustomText";
 
 import { Ionicons } from "@expo/vector-icons";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useState,
+} from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
 import AppButton from "@/components/AppButton";
@@ -9,6 +15,7 @@ import DateField from "@/components/DateField";
 import DonutChart from "@/components/DonutChart";
 import EmptyState from "@/components/EmptyState";
 import GlassCard from "@/components/GlassCard";
+import HeaderIconButton from "@/components/HeaderIconButton";
 import Notice from "@/components/Notice";
 import ScreenContainer from "@/components/ScreenContainer";
 import SectionHeading from "@/components/SectionHeading";
@@ -293,6 +300,18 @@ const AnalysisScreen = ({
 		[dataVersion, getScreenData],
 	);
 
+	useLayoutEffect(() => {
+		navigation.setOptions({
+			headerRight: () => (
+				<HeaderIconButton
+					accessibilityLabel="Manage exchange rates"
+					icon="swap-horizontal-outline"
+					onPress={() => navigation.navigate("ExchangeRates")}
+				/>
+			),
+		});
+	}, [navigation]);
+
 	const handlePeriodChange = (value: string): void => {
 		setPeriod(value as AnalysisPeriod);
 	};
@@ -463,21 +482,7 @@ const AnalysisScreen = ({
 				/>
 			) : null}
 			{error ? <Notice message={error} tone="danger" /> : null}
-			{hasMissingCurrencies ? (
-				<Pressable
-					onPress={() => navigation.navigate("ExchangeRates")}
-					style={styles.ratesLink}
-				>
-					<Ionicons
-						color={COLORS.primaryBright}
-						name="earth-outline"
-						size={18}
-					/>
-					<CustomText style={styles.ratesLinkText}>
-						Manage exchange rates
-					</CustomText>
-				</Pressable>
-			) : (
+			{!hasMissingCurrencies ? (
 				<>
 					<View style={styles.summaryGrid}>
 						{summaryMetrics.map(renderMetric)}
@@ -549,21 +554,8 @@ const AnalysisScreen = ({
 							title="No trend data"
 						/>
 					)}
-					<Pressable
-						onPress={() => navigation.navigate("ExchangeRates")}
-						style={styles.ratesLink}
-					>
-						<Ionicons
-							color={COLORS.primaryBright}
-							name="earth-outline"
-							size={18}
-						/>
-						<CustomText style={styles.ratesLinkText}>
-							Manage exchange rates
-						</CustomText>
-					</Pressable>
 				</>
-			)}
+			) : null}
 		</ScreenContainer>
 	);
 };
@@ -632,18 +624,6 @@ const styles = StyleSheet.create({
 		fontSize: 14,
 		fontWeight: "900",
 		marginTop: 5,
-	},
-	ratesLink: {
-		flexDirection: "row",
-		gap: 8,
-		alignItems: "center",
-		justifyContent: "center",
-		padding: 14,
-	},
-	ratesLinkText: {
-		color: COLORS.primaryBright,
-		fontSize: 13,
-		fontWeight: "800",
 	},
 });
 

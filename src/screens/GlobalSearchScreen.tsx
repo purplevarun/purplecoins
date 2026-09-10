@@ -16,7 +16,6 @@ import useDatabaseContext from "@/hooks/useDatabaseContext";
 import budgetService from "@/services/budgetService";
 import cardService from "@/services/cardService";
 import categoryService from "@/services/categoryService";
-import exchangeRateService from "@/services/exchangeRateService";
 import identityService from "@/services/identityService";
 import investmentService from "@/services/investmentService";
 import noteService from "@/services/noteService";
@@ -36,7 +35,6 @@ const { DEFAULT_CURRENCY_CODE } = appConstants;
 const { getBudgets } = budgetService;
 const { getCards } = cardService;
 const { getCategories } = categoryService;
-const { getExchangeRates } = exchangeRateService;
 const { getIdentities } = identityService;
 const { getInvestments } = investmentService;
 const { getNotes } = noteService;
@@ -102,7 +100,6 @@ const GlobalSearchScreen = ({
 					trips,
 					investments,
 					budgets,
-					exchangeRates,
 				] = await Promise.all([
 					getTransactions(database),
 					getSources(database),
@@ -110,7 +107,6 @@ const GlobalSearchScreen = ({
 					getTrips(database),
 					getInvestments(database),
 					getBudgets(database),
-					getExchangeRates(database),
 				]);
 				setResults([
 					...transactions.map((transaction): GlobalSearchResult => ({
@@ -172,18 +168,6 @@ const GlobalSearchScreen = ({
 						icon: "speedometer-outline",
 						color: "#FF8FA3",
 						searchExtra: `${budget.period} ${budget.amount}`,
-					})),
-					...exchangeRates.map((rate): GlobalSearchResult => ({
-						id: rate.currencyCode,
-						kind: "EXCHANGE_RATE",
-						title: rate.currencyCode,
-						subtitle: `Exchange rate · ${formatMoney(
-							rate.rateToInr,
-							DEFAULT_CURRENCY_CODE,
-						)}`,
-						icon: "earth-outline",
-						color: "#66E0C2",
-						searchExtra: `${rate.source} ${rate.rateToInr}`,
 					})),
 				]);
 			} else {
@@ -267,10 +251,6 @@ const GlobalSearchScreen = ({
 			}
 			if (result.kind === "BUDGET") {
 				navigation.navigate("BudgetForm", { budgetId: result.id });
-				return;
-			}
-			if (result.kind === "EXCHANGE_RATE") {
-				navigation.navigate("ExchangeRates");
 				return;
 			}
 			if (result.kind === "NOTE") {
