@@ -158,8 +158,7 @@ const SettingsScreen = ({
 						Version {version}
 					</CustomText>
 					<CustomText style={styles.description}>
-						Local-first finance, tools and vault. No account and no
-						cloud dependency.
+						Track every penny
 					</CustomText>
 				</View>
 			</GlassCard>

@@ -153,6 +153,13 @@ describe("SettingsScreen", () => {
 		const tree = SettingsScreen({ navigation } as any);
 		await flush();
 
+		expect(
+			findByPredicate(
+				tree,
+				(node) => node?.props?.children === "Track every penny",
+			),
+		).toHaveLength(1);
+
 		findByPredicate(
 			tree,
 			(node) => typeof node?.props?.onValueChange === "function",

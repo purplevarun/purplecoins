@@ -106,7 +106,7 @@ function App() {
           <h1 id="app-title">
             Purplecoins<span className="title-dot">.</span>
           </h1>
-          <p className="app-subtitle">Your money. Your everyday. Your space.</p>
+          <p className="app-subtitle">Track every penny</p>
 
           <div className="download-actions">
             <a
