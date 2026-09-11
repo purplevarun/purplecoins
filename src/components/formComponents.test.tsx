@@ -1,3 +1,5 @@
+import type { ReactElement } from "react";
+import type { TextProps } from "react-native";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const reactMocks = vi.hoisted(() => ({
@@ -140,6 +142,38 @@ describe("form components", () => {
 		expect(pressables[0]?.props.style[1].flexBasis).toContain("%");
 		pressables[1]?.props.onPress();
 		expect(onChange).toHaveBeenCalledWith("b");
+		const labels = findAllByType(
+			segmented,
+			"CustomText",
+		) as ReactElement<TextProps>[];
+		for (const label of labels) {
+			expect(label.props.numberOfLines).toBe(1);
+		}
+	});
+
+	it("allows SegmentedControl labels to wrap when requested", () => {
+		const segmented = SegmentedControl({
+			value: "PENDING_VALIDATION",
+			onChange: vi.fn(),
+			labelNumberOfLines: 2,
+			options: [
+				{ label: "All", value: "ALL" },
+				{ label: "Validated", value: "VALIDATED" },
+				{ label: "Pending Validation", value: "PENDING_VALIDATION" },
+			],
+		});
+		const labels = findAllByType(
+			segmented,
+			"CustomText",
+		) as ReactElement<TextProps>[];
+		expect(labels.map((label) => label.props.numberOfLines)).toEqual([
+			2, 2, 2,
+		]);
+		expect(labels[2]?.props.style).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({ textAlign: "center" }),
+			]),
+		);
 	});
 
 	it("covers TextField secure and non-secure branches", () => {

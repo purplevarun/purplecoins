@@ -8,6 +8,7 @@ const SegmentedControl = ({
 	value,
 	options,
 	onChange,
+	labelNumberOfLines = 1,
 }: SegmentedControlProps): React.JSX.Element => {
 	const columnCount = Math.min(Math.max(options.length, 1), 3);
 	const basis = `${100 / columnCount - 3}%` as DimensionValue;
@@ -28,7 +29,7 @@ const SegmentedControl = ({
 						]}
 					>
 						<CustomText
-							numberOfLines={1}
+							numberOfLines={labelNumberOfLines}
 							style={[
 								styles.label,
 								isSelected && styles.selectedLabel,
@@ -72,6 +73,7 @@ const styles = StyleSheet.create({
 		color: COLORS.textMuted,
 		fontSize: 13,
 		fontWeight: "700",
+		textAlign: "center",
 	},
 	selectedLabel: {
 		color: COLORS.primaryBright,

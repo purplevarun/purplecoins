@@ -1,3 +1,5 @@
+import FloatingAddButton from "@/components/FloatingAddButton";
+import { isValidElement, type ComponentProps, type ReactElement } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const reactMocks = vi.hoisted(() => ({
@@ -232,8 +234,50 @@ describe("TransactionsScreen", () => {
 		expect(navigation.navigate).toHaveBeenCalledWith("TransactionForm", {
 			cloneFromTransactionId: "t1",
 		});
-		expect(navigation.navigate).toHaveBeenCalledWith("TransactionForm");
+		expect(navigation.navigate).toHaveBeenCalledWith("TransactionForm", {
+			initialTransactionAt: expect.any(Number),
+		});
 	});
+
+	it.each([
+		{ day: "August 24", selectedDate: new Date(2026, 7, 24, 14, 30) },
+		{ day: "today", selectedDate: new Date() },
+	])(
+		"passes $day from the list to a new transaction",
+		async ({ selectedDate }) => {
+			const navigation = { navigate: vi.fn(), setOptions: vi.fn() };
+			let stateCall = 0;
+			reactMocks.useState.mockImplementation((initial: unknown) => {
+				stateCall += 1;
+				if (stateCall === 7) return [selectedDate, vi.fn()];
+				return [
+					typeof initial === "function"
+						? (initial as () => unknown)()
+						: initial,
+					vi.fn(),
+				];
+			});
+			const renderScreen = TransactionsScreen as (
+				props: unknown,
+			) => ReactElement;
+			const tree = renderScreen({ navigation });
+			await flush();
+			const [addButton] = findByPredicate(
+				tree,
+				(node: unknown) =>
+					isValidElement(node) && node.type === FloatingAddButton,
+			) as ReactElement<ComponentProps<typeof FloatingAddButton>>[];
+
+			addButton?.props.onPress();
+
+			expect(navigation.navigate).toHaveBeenCalledWith(
+				"TransactionForm",
+				{
+					initialTransactionAt: selectedDate.getTime(),
+				},
+			);
+		},
+	);
 
 	it("covers debounced search timer callback execution", async () => {
 		const navigation = { navigate: vi.fn(), setOptions: vi.fn() };

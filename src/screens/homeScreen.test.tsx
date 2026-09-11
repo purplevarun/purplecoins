@@ -187,9 +187,11 @@ describe("HomeScreen", () => {
 		expect(navigation.navigate).toHaveBeenCalledWith("Settings");
 		expect(navigation.navigate).toHaveBeenCalledWith("Transactions");
 		expect(navigation.navigate).toHaveBeenCalledWith("Sources");
-		expect(navigation.navigate).toHaveBeenCalledWith("Budgets");
+		expect(navigation.navigate).toHaveBeenCalledWith("Categories");
 		expect(navigation.navigate).toHaveBeenCalledWith("Analysis");
+		expect(navigation.navigate).not.toHaveBeenCalledWith("Budgets");
 		expect(navigation.navigate).not.toHaveBeenCalledWith("ExchangeRates");
+		expect(JSON.stringify(tree)).not.toContain("Budgets");
 		expect(JSON.stringify(tree)).not.toContain("Exchange rates");
 	});
 

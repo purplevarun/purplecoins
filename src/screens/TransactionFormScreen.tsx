@@ -73,7 +73,9 @@ const TransactionFormScreen = ({
 	const [tripId, setTripId] = useState("");
 	const [investmentId, setInvestmentId] = useState("");
 	const [reason, setReason] = useState("");
-	const [transactionAt, setTransactionAt] = useState(() => Date.now());
+	const [transactionAt, setTransactionAt] = useState(
+		() => route.params?.initialTransactionAt ?? Date.now(),
+	);
 	const [sources, setSources] = useState<readonly Source[]>([]);
 	const [categories, setCategories] = useState<readonly Category[]>([]);
 	const [trips, setTrips] = useState<readonly Trip[]>([]);

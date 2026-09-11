@@ -6,7 +6,12 @@ type RootStackParamList = {
 	Home: undefined;
 	Transactions: undefined;
 	TransactionForm:
-		{ transactionId?: string; cloneFromTransactionId?: string } | undefined;
+		| {
+				transactionId?: string;
+				cloneFromTransactionId?: string;
+				initialTransactionAt?: number;
+		  }
+		| undefined;
 	Sources: undefined;
 	SourceForm: { entityId?: string } | undefined;
 	Categories: undefined;

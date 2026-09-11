@@ -1,3 +1,6 @@
+import AppButton from "@/components/AppButton";
+import DateField from "@/components/DateField";
+import { isValidElement, type ComponentProps, type ReactElement } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const reactMocks = vi.hoisted(() => ({
@@ -180,6 +183,71 @@ describe("TransactionFormScreen", () => {
 			onConfirm(),
 		);
 	});
+
+	it.each([
+		{
+			day: "August 24",
+			initialTransactionAt: new Date(2026, 7, 24, 14, 30).getTime(),
+		},
+		{ day: "today", initialTransactionAt: new Date().getTime() },
+		{ day: "the Unix epoch", initialTransactionAt: 0 },
+	])(
+		"prefills and saves $day supplied by the transaction list",
+		async ({ initialTransactionAt }) => {
+			const navigation = { goBack: vi.fn() };
+			const setTransactionAt = vi.fn();
+			let stateCall = 0;
+			reactMocks.useState.mockImplementation((initial: unknown) => {
+				stateCall += 1;
+				if (stateCall === 3) return ["s1", vi.fn()];
+				if (stateCall === 5) return ["15", vi.fn()];
+				if (stateCall === 7) return ["c1", vi.fn()];
+				if (stateCall === 10) return ["Lunch", vi.fn()];
+				return [
+					typeof initial === "function"
+						? (initial as () => unknown)()
+						: initial,
+					stateCall === 11 ? setTransactionAt : vi.fn(),
+				];
+			});
+			const renderScreen = TransactionFormScreen as (
+				props: unknown,
+			) => ReactElement;
+			const tree = renderScreen({
+				navigation,
+				route: {
+					key: "new-transaction",
+					name: "TransactionForm",
+					params: { initialTransactionAt },
+				},
+			});
+			await flush();
+			const [dateField] = findByPredicate(
+				tree,
+				(node: unknown) =>
+					isValidElement(node) && node.type === DateField,
+			) as ReactElement<ComponentProps<typeof DateField>>[];
+			expect(dateField?.props.value).toBe(initialTransactionAt);
+			expect(setTransactionAt).not.toHaveBeenCalled();
+
+			const [saveButton] = findByPredicate(
+				tree,
+				(node: unknown) =>
+					isValidElement<ComponentProps<typeof AppButton>>(node) &&
+					node.type === AppButton &&
+					node.props.label === "Save transaction",
+			) as ReactElement<ComponentProps<typeof AppButton>>[];
+			saveButton?.props.onPress();
+			await flush();
+			expect(serviceMocks.saveTransaction).toHaveBeenCalledWith(
+				{ id: "db" },
+				expect.objectContaining({
+					transactionAt: initialTransactionAt,
+				}),
+			);
+			expect(navigation.goBack).toHaveBeenCalled();
+		},
+	);
 
 	it("saves GENERAL transfer with derived toAmount and deletes existing transaction", async () => {
 		const navigation = { goBack: vi.fn() };

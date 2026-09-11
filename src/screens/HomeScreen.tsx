@@ -238,13 +238,6 @@ const HomeScreen = ({ navigation }: HomeScreenProps): React.JSX.Element => {
 					handlePress: () => navigation.navigate("Investments"),
 				},
 				{
-					label: "Budgets",
-					subtitle: "Calendar targets",
-					icon: "speedometer-outline",
-					color: "#FF8FA3",
-					handlePress: () => navigation.navigate("Budgets"),
-				},
-				{
 					label: "Analysis",
 					subtitle: "Category-driven",
 					icon: "pie-chart-outline",

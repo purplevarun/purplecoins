@@ -229,7 +229,11 @@ const TransactionsScreen = ({
 				renderItem={renderTransaction}
 			/>
 			<FloatingAddButton
-				onPress={() => navigation.navigate("TransactionForm")}
+				onPress={() =>
+					navigation.navigate("TransactionForm", {
+						initialTransactionAt: activeDate.getTime(),
+					})
+				}
 			/>
 		</View>
 	);

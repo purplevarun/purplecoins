@@ -109,18 +109,27 @@ const CategoriesScreen = ({
 	useLayoutEffect(() => {
 		navigation.setOptions({
 			headerRight: () => (
-				<HeaderIconButton
-					accessibilityLabel={
-						searchVisible ? "Close search" : "Search"
-					}
-					icon={searchVisible ? "close-outline" : "search-outline"}
-					isActive={searchVisible}
-					onPress={() => {
-						setSearchVisible((visible) => !visible);
-						setSearchQuery("");
-						setSearchDebounced("");
-					}}
-				/>
+				<View style={styles.headerActions}>
+					<HeaderIconButton
+						accessibilityLabel={
+							searchVisible ? "Close search" : "Search"
+						}
+						icon={
+							searchVisible ? "close-outline" : "search-outline"
+						}
+						isActive={searchVisible}
+						onPress={() => {
+							setSearchVisible((visible) => !visible);
+							setSearchQuery("");
+							setSearchDebounced("");
+						}}
+					/>
+					<HeaderIconButton
+						accessibilityLabel="Budgets"
+						icon="speedometer-outline"
+						onPress={() => navigation.navigate("Budgets")}
+					/>
+				</View>
 			),
 		});
 	}, [navigation, searchVisible]);
@@ -368,6 +377,11 @@ const styles = StyleSheet.create({
 	screen: {
 		flex: 1,
 		backgroundColor: COLORS.background,
+	},
+	headerActions: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 8,
 	},
 	row: {
 		flexDirection: "row",

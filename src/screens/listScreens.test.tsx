@@ -1,9 +1,18 @@
 import type HeaderIconButtonProps from "@/types/HeaderIconButtonProps";
-import type { ReactElement } from "react";
+import type SegmentedControlProps from "@/types/SegmentedControlProps";
+import type Source from "@/types/Source";
+import { isValidElement, type ReactElement } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 type HeaderOptions = {
-	headerRight: () => ReactElement<HeaderIconButtonProps>;
+	headerRight: () => ReactElement;
+};
+
+type SourceListTestProps = {
+	data: readonly Source[];
+	ListHeaderComponent: ReactElement;
+	ListEmptyComponent: ReactElement<{ title: string }>;
+	renderItem: (props: { item: Source }) => ReactElement;
 };
 
 const reactMocks = vi.hoisted(() => ({
@@ -287,6 +296,19 @@ const findByPredicate = (
 	return acc;
 };
 
+const findElement = <Props,>(
+	tree: unknown,
+	predicate: (props: Props) => boolean,
+): ReactElement<Props> => {
+	const [element] = findByPredicate(
+		tree,
+		(candidate: unknown) =>
+			isValidElement<Props>(candidate) && predicate(candidate.props),
+	) as ReactElement<Props>[];
+	if (!element) throw new Error("Expected element was not found");
+	return element;
+};
+
 describe("list screens", () => {
 	beforeEach(() => {
 		reactMocks.useEffect.mockReset();
@@ -376,7 +398,7 @@ describe("list screens", () => {
 		{ name: "Sources", Screen: SourcesScreen, currencyStateIndex: 2 },
 		{ name: "Trips", Screen: TripsScreen, currencyStateIndex: 3 },
 	])(
-		"$name reads currency changes from Settings and only offers header search",
+		"$name reads currency changes from Settings and keeps header search",
 		async ({ Screen, currencyStateIndex }) => {
 			const navigation = {
 				navigate: vi.fn(),
@@ -417,12 +439,171 @@ describe("list screens", () => {
 			);
 			const header =
 				navigation.setOptions.mock.calls[0]?.[0].headerRight();
-			expect(header?.props.accessibilityLabel).toBe("Search");
-			expect(header?.props.icon).toBe("search-outline");
-			header?.props.onPress();
+			const searchButton = findElement<HeaderIconButtonProps>(
+				header,
+				(props) => props.accessibilityLabel === "Search",
+			);
+			expect(searchButton.props.icon).toBe("search-outline");
+			searchButton.props.onPress();
 			expect(
 				serviceMocks.updateNativeCurrencyDisplay,
 			).not.toHaveBeenCalled();
+		},
+	);
+
+	it("opens Budgets from the Categories header", async () => {
+		const navigation = {
+			navigate: vi.fn(),
+			setOptions: vi.fn<(options: HeaderOptions) => void>(),
+		};
+		const renderScreen = CategoriesScreen as (
+			props: unknown,
+		) => ReactElement;
+		renderScreen({ navigation });
+		await flush();
+		reactMocks.useLayoutEffect.mock.calls.forEach(([effect]) => effect());
+		const header = navigation.setOptions.mock.calls[0]?.[0].headerRight();
+		const budgetsButton = findElement<HeaderIconButtonProps>(
+			header,
+			(props) => props.accessibilityLabel === "Budgets",
+		);
+
+		expect(budgetsButton.props.icon).toBe("speedometer-outline");
+		budgetsButton.props.onPress();
+		expect(navigation.navigate).toHaveBeenCalledWith("Budgets");
+	});
+
+	it.each([
+		{
+			filter: "ALL",
+			search: "",
+			expectedNames: [
+				"Cash",
+				"Old Bank",
+				"Bank",
+				"Wallet",
+				"Empty Account",
+			],
+		},
+		{
+			filter: "VALIDATED",
+			search: "",
+			expectedNames: ["Bank", "Wallet", "Empty Account"],
+		},
+		{
+			filter: "PENDING_VALIDATION",
+			search: "",
+			expectedNames: ["Cash", "Old Bank"],
+		},
+		{
+			filter: "ALL",
+			search: " bAnK ",
+			expectedNames: ["Old Bank", "Bank"],
+		},
+		{ filter: "VALIDATED", search: " bAnK ", expectedNames: ["Bank"] },
+		{
+			filter: "PENDING_VALIDATION",
+			search: " bAnK ",
+			expectedNames: ["Old Bank"],
+		},
+		{ filter: "VALIDATED", search: "missing", expectedNames: [] },
+		{ filter: "PENDING_VALIDATION", search: "missing", expectedNames: [] },
+	])(
+		"filters Sources by $filter and search '$search' while preserving balance order",
+		async ({ filter, search, expectedNames }) => {
+			const sources: readonly Source[] = [
+				{
+					name: "Wallet",
+					balance: "30",
+					validatedAt: 300,
+					latestTransactionCreatedAt: 200,
+				},
+				{
+					name: "Cash",
+					balance: "0",
+					validatedAt: null,
+					latestTransactionCreatedAt: null,
+				},
+				{
+					name: "Empty Account",
+					balance: "40",
+					validatedAt: 0,
+					latestTransactionCreatedAt: null,
+				},
+				{
+					name: "Old Bank",
+					balance: "10",
+					validatedAt: 100,
+					latestTransactionCreatedAt: 200,
+				},
+				{
+					name: "Bank",
+					balance: "20",
+					validatedAt: 200,
+					latestTransactionCreatedAt: 200,
+				},
+			].map((source, index) => ({
+				...source,
+				id: `00000000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`,
+				currencyCode: "INR",
+				createdAt: 0,
+				updatedAt: 0,
+				archived: false,
+			}));
+			const setSourceFilter = vi.fn();
+			let stateCall = 0;
+			reactMocks.useState.mockImplementation((initial: unknown) => {
+				stateCall += 1;
+				if (stateCall === 1) return [sources, vi.fn()];
+				if (stateCall === 7) return [search, vi.fn()];
+				if (stateCall === 8) return [filter, setSourceFilter];
+				return [initial, vi.fn()];
+			});
+			const navigation = { navigate: vi.fn(), setOptions: vi.fn() };
+			const renderScreen = SourcesScreen as (
+				props: unknown,
+			) => ReactElement;
+			const tree = renderScreen({ navigation });
+			await flush();
+			const list = findElement<SourceListTestProps>(
+				tree,
+				(props) => typeof props.renderItem === "function",
+			);
+			expect(list.props.data.map((source) => source.name)).toEqual(
+				expectedNames,
+			);
+			const control = findElement<SegmentedControlProps>(
+				list.props.ListHeaderComponent,
+				(props) => Array.isArray(props.options),
+			);
+			expect(control.props.value).toBe(filter);
+			expect(control.props.labelNumberOfLines).toBe(2);
+			expect(control.props.options).toEqual([
+				{ label: "All", value: "ALL" },
+				{ label: "Validated", value: "VALIDATED" },
+				{ label: "Pending", value: "PENDING_VALIDATION" },
+			]);
+			for (const option of control.props.options) {
+				control.props.onChange(option.value);
+				expect(setSourceFilter).toHaveBeenLastCalledWith(option.value);
+			}
+			for (const source of list.props.data) {
+				const row = list.props.renderItem({ item: source });
+				const card = findElement<{ accent: string }>(
+					row,
+					(props) => typeof props.accent === "string",
+				);
+				expect(card.props.accent).toBe(
+					["Bank", "Wallet", "Empty Account"].includes(source.name)
+						? "success"
+						: "default",
+				);
+			}
+			expect(list.props.ListEmptyComponent.props.title).toBe(
+				filter !== "ALL" || search.trim()
+					? "No matching sources"
+					: "No sources yet",
+			);
 		},
 	);
 

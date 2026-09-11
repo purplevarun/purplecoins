@@ -20,6 +20,7 @@ import ListHeader from "@/components/ListHeader";
 import Notice from "@/components/Notice";
 import ScreenList from "@/components/ScreenList";
 import SearchBar from "@/components/SearchBar";
+import SegmentedControl from "@/components/SegmentedControl";
 import COLORS from "@/constants/colors";
 import useAppDialog from "@/hooks/useAppDialog";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
@@ -27,6 +28,7 @@ import exchangeRateService from "@/services/exchangeRateService";
 import settingsService from "@/services/settingsService";
 import sourceService from "@/services/sourceService";
 import type ExchangeRate from "@/types/ExchangeRate";
+import type SelectOption from "@/types/SelectOption";
 import type Source from "@/types/Source";
 import type SourcesScreenProps from "@/types/SourcesScreenProps";
 import getErrorMessage from "@/utils/error";
@@ -35,6 +37,17 @@ const { getExchangeRates } = exchangeRateService;
 const { getNativeCurrencyDisplay } = settingsService;
 const { getSources, setSourceArchived, validateSource } = sourceService;
 const { formatMoney } = moneyUtils;
+
+const SOURCE_FILTER_OPTIONS: readonly SelectOption[] = [
+	{ label: "All", value: "ALL" },
+	{ label: "Validated", value: "VALIDATED" },
+	{ label: "Pending", value: "PENDING_VALIDATION" },
+];
+
+const isSourceValidated = (source: Source): boolean =>
+	source.validatedAt !== null &&
+	(source.latestTransactionCreatedAt === null ||
+		source.validatedAt >= source.latestTransactionCreatedAt);
 
 const SourcesScreen = ({
 	navigation,
@@ -50,6 +63,7 @@ const SourcesScreen = ({
 	const [searchVisible, setSearchVisible] = useState(false);
 	const [searchQuery, setSearchQuery] = useState("");
 	const [searchDebounced, setSearchDebounced] = useState("");
+	const [sourceFilter, setSourceFilter] = useState("ALL");
 
 	const getScreenData = useCallback(async (): Promise<void> => {
 		try {
@@ -182,19 +196,21 @@ const SourcesScreen = ({
 	);
 
 	const filteredListData = useMemo(() => {
-		if (!searchDebounced.trim()) return listData;
-		const q = searchDebounced.trim().toLowerCase();
-		return listData.filter((source) =>
-			source.name.toLowerCase().includes(q),
-		);
-	}, [listData, searchDebounced]);
+		const query = searchDebounced.trim().toLowerCase();
+		return listData.filter((source) => {
+			if (
+				sourceFilter !== "ALL" &&
+				isSourceValidated(source) !== (sourceFilter === "VALIDATED")
+			) {
+				return false;
+			}
+			return source.name.toLowerCase().includes(query);
+		});
+	}, [listData, searchDebounced, sourceFilter]);
 
 	const renderSourceItem = useCallback(
 		({ item: source }: { item: Source }): React.JSX.Element => {
-			const isValidated =
-				source.validatedAt !== null &&
-				(source.latestTransactionCreatedAt === null ||
-					source.validatedAt >= source.latestTransactionCreatedAt);
+			const isValidated = isSourceValidated(source);
 			return (
 				<Pressable
 					onPress={() =>
@@ -311,6 +327,12 @@ const SourcesScreen = ({
 	const listHeader = useMemo(
 		() => (
 			<ListHeader>
+				<SegmentedControl
+					labelNumberOfLines={2}
+					onChange={setSourceFilter}
+					options={SOURCE_FILTER_OPTIONS}
+					value={sourceFilter}
+				/>
 				{searchVisible ? (
 					<SearchBar
 						onChangeText={setSearchQuery}
@@ -321,19 +343,23 @@ const SourcesScreen = ({
 				{error ? <Notice message={error} tone="danger" /> : null}
 			</ListHeader>
 		),
-		[error, searchQuery, searchVisible],
+		[error, searchQuery, searchVisible, sourceFilter],
 	);
 
-	const listEmpty = useMemo(
-		() => (
+	const listEmpty = useMemo(() => {
+		const isFiltered = sourceFilter !== "ALL" || !!searchDebounced.trim();
+		return (
 			<EmptyState
-				icon="add-circle-outline"
-				message="Add your first source to get started."
-				title="No sources yet"
+				icon={isFiltered ? "filter-outline" : "add-circle-outline"}
+				message={
+					isFiltered
+						? "No sources match the selected filters."
+						: "Add your first source to get started."
+				}
+				title={isFiltered ? "No matching sources" : "No sources yet"}
 			/>
-		),
-		[],
-	);
+		);
+	}, [searchDebounced, sourceFilter]);
 
 	return (
 		<View style={styles.screen}>
@@ -341,7 +367,7 @@ const SourcesScreen = ({
 				ListEmptyComponent={listEmpty}
 				ListHeaderComponent={listHeader}
 				data={filteredListData}
-				extraData={[isNativeCurrency, searchDebounced]}
+				extraData={[isNativeCurrency, searchDebounced, sourceFilter]}
 				keyExtractor={(source) => source.id}
 				renderItem={renderSourceItem}
 			/>
