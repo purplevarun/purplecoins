@@ -101,7 +101,10 @@ run_build() {
 
   (
     cd android
-    ./gradlew assembleRelease >> "../$LOG" 2>&1
+    ./gradlew assembleRelease --parallel --build-cache \
+      -Pexpo.useLegacyPackaging=true \
+      -Pandroid.enableMinifyInReleaseBuilds=true \
+      -Pandroid.enableShrinkResourcesInReleaseBuilds=true >> "../$LOG" 2>&1
   )
 
   APP_ID=$(get_app_id)
