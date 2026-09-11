@@ -179,7 +179,7 @@ run_release() {
 
   if gh release view "$TAG" >/dev/null 2>&1; then
     gh release upload "$TAG" "$APK_PATH" --clobber
-    gh release edit "$TAG" --title "$TAG"
+    gh release edit "$TAG" --title "$TAG" --draft=false
   else
     gh release create "$TAG" "$APK_PATH" --title "$TAG" --notes "Release $TAG"
   fi
