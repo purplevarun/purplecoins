@@ -112,7 +112,8 @@ function App() {
             <a
               className="download-button"
               href={release.downloadUrl}
-              download={release.name}
+              target="_blank"
+              rel="noopener noreferrer"
               onClick={() => {
                 if (installGuide.current) installGuide.current.open = true
               }}
@@ -122,7 +123,7 @@ function App() {
               <span className="button-platform">Android</span>
             </a>
             <a className="release-link" href={release.notesUrl} target="_blank" rel="noreferrer">
-              Release notes <ArrowUpRight size={15} aria-hidden="true" />
+              Download on GitHub <ArrowUpRight size={15} aria-hidden="true" />
             </a>
           </div>
 
