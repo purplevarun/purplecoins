@@ -58,9 +58,8 @@ const TransactionsScreen = ({
 		() => (selectedDate instanceof Date ? selectedDate : new Date()),
 		[selectedDate],
 	);
-	const [viewMode, setViewMode] = useState<"DAY" | "SCROLL">("DAY");
+	const [viewMode, setViewMode] = useState<"DAY" | "SCROLL">("SCROLL");
 	const [paging, setPaging] = useState({
-		start: null as number | null,
 		hasMore: false,
 		isLoading: true,
 	});
@@ -104,7 +103,6 @@ const TransactionsScreen = ({
 				pagination.current.start = dateRange.start;
 				setPaging((current) => ({
 					...current,
-					start: dateRange.start,
 					hasMore: page.hasMore,
 				}));
 				setError("");
@@ -130,7 +128,7 @@ const TransactionsScreen = ({
 		};
 		const cancel = runAfterRender(() => {
 			setTransactions([]);
-			setPaging({ start: null, hasMore: false, isLoading: true });
+			setPaging({ hasMore: false, isLoading: true });
 			setError("");
 			void getScreenData();
 		});
@@ -274,15 +272,7 @@ const TransactionsScreen = ({
 							/>
 						</Pressable>
 					</View>
-				) : (
-					<CustomText style={styles.rangeLabel}>
-						{formatDate(
-							paging.start ?? getWeekDateRange(activeDate).start,
-						)}
-						{" - "}
-						{formatDate(getDayDateRange(activeDate).end)}
-					</CustomText>
-				)}
+				) : null}
 				<SegmentedControl
 					onChange={setFilter}
 					options={FILTER_OPTIONS}
@@ -306,7 +296,6 @@ const TransactionsScreen = ({
 			searchQuery,
 			searchVisible,
 			activeDate,
-			paging.start,
 			viewMode,
 		],
 	);
@@ -395,14 +384,6 @@ const styles = StyleSheet.create({
 	headerActions: {
 		flexDirection: "row",
 		gap: 8,
-	},
-	rangeLabel: {
-		color: COLORS.textDim,
-		fontSize: 13,
-		fontWeight: "700",
-		textAlign: "center",
-		paddingVertical: 12,
-		marginBottom: 10,
 	},
 	footer: {
 		marginTop: 16,

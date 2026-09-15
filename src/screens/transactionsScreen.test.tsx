@@ -323,11 +323,9 @@ describe("TransactionsScreen", () => {
 				) as ReactElement<{ disabled?: boolean; onPress: () => void }>[]
 			)[0];
 
-		const createHarness = (mode: "DAY" | "SCROLL" = "SCROLL"): Harness => {
-			const states = new Map<number, unknown>([
-				[6, anchor],
-				[7, mode],
-			]);
+		const createHarness = (mode?: "DAY" | "SCROLL"): Harness => {
+			const states = new Map<number, unknown>([[6, anchor]]);
+			if (mode) states.set(7, mode);
 			const effects: EffectCallback[] = [];
 			const setOptions =
 				vi.fn<(options: { headerRight: () => ReactElement }) => void>();
@@ -400,7 +398,7 @@ describe("TransactionsScreen", () => {
 			vi.useRealTimers();
 		});
 
-		it("appends disjoint weeks once, preserves ordering, and stops at history's end", async () => {
+		it("defaults to scroll without a date range and appends disjoint weeks until history ends", async () => {
 			serviceMocks.getTransactionPage
 				.mockResolvedValueOnce({
 					transactions: [recent],
@@ -413,10 +411,20 @@ describe("TransactionsScreen", () => {
 			const harness = createHarness();
 			const initial = harness.render();
 			expect(listProps(initial).ListEmptyComponent).toBeNull();
+			expect(harness.headerButtons()[0]?.props.accessibilityLabel).toBe(
+				"Switch to day view",
+			);
+			expect(
+				elements(listProps(initial).ListHeaderComponent, CustomText),
+			).toHaveLength(0);
 			harness.reload();
 			await flush();
 			const first = harness.render();
 			expect(listProps(first).data).toEqual([recent]);
+			expect(serviceMocks.getTransactions).not.toHaveBeenCalled();
+			expect(
+				serviceMocks.getTransactionPage,
+			).toHaveBeenCalledExactlyOnceWith({ id: "db" }, firstRange);
 			expect(dayButton(first, "Previous day")).toBeUndefined();
 			const button = footerButton(first);
 			expect(button.label).toBe("Load more");
@@ -440,11 +448,7 @@ describe("TransactionsScreen", () => {
 				listProps(last).ListFooterComponent,
 				CustomText,
 			);
-			expect(headerTexts[0]?.props.children).toEqual([
-				`date:${secondRange.start}`,
-				" - ",
-				`date:${firstRange.end}`,
-			]);
+			expect(headerTexts).toHaveLength(0);
 			expect(footerTexts[0]?.props.children).toBe(
 				"No older transactions",
 			);
@@ -697,6 +701,12 @@ describe("TransactionsScreen", () => {
 			const harness = createHarness("DAY");
 			const today = harness.render();
 			expect(dayButton(today, "Next day")?.props.disabled).toBe(true);
+			expect(
+				elements<ComponentProps<typeof CustomText>>(
+					listProps(today).ListHeaderComponent,
+					CustomText,
+				)[0]?.props.children,
+			).toBe(`date:${new Date(2026, 8, 15).getTime()}`);
 			harness.reload();
 			await flush();
 			dayButton(today, "Previous day")?.props.onPress();
@@ -752,7 +762,7 @@ describe("TransactionsScreen", () => {
 		const tree = TransactionsScreen({ navigation } as any);
 		await flush();
 
-		expect(serviceMocks.getTransactions).toHaveBeenCalledWith(
+		expect(serviceMocks.getTransactionPage).toHaveBeenCalledWith(
 			{ id: "db" },
 			expect.objectContaining({
 				end: expect.any(Number),
@@ -1032,7 +1042,7 @@ describe("TransactionsScreen", () => {
 	it("covers search cleanup, load error branch, and list key extractor", async () => {
 		const navigation = { navigate: vi.fn(), setOptions: vi.fn() };
 		const clearSpy = vi.spyOn(globalThis, "clearTimeout");
-		serviceMocks.getTransactions.mockRejectedValueOnce(
+		serviceMocks.getTransactionPage.mockRejectedValueOnce(
 			new Error("load failed"),
 		);
 
@@ -1076,7 +1086,7 @@ describe("TransactionsScreen", () => {
 		const tree = TransactionsScreen({ navigation } as any);
 		await flush();
 
-		expect(serviceMocks.getTransactions).toHaveBeenCalledWith(
+		expect(serviceMocks.getTransactionPage).toHaveBeenCalledWith(
 			{ id: "db" },
 			expect.objectContaining({
 				end: expect.any(Number),

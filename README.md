@@ -33,13 +33,14 @@ and private vault records. SQLite is the source of truth.
 ## Transaction Views
 
 The button immediately left of Search switches between day and scroll views.
-Day view is the default and queries only the selected calendar day. The arrows
-move between days without loading the rest of the transaction history.
+Day view queries only the selected calendar day. The arrows move between days
+without loading the rest of the transaction history.
 
-Scroll view starts with the selected day and its six preceding days, newest
-first. **Load more** appends the preceding seven calendar days. Empty weeks do
-not hide older history, and the button disappears when no older transactions
-remain. Failed loads can be retried without discarding already-loaded rows.
+Scroll view is the default and starts with the selected day and its six preceding
+days, newest first, without a date-range heading. **Load more** appends the
+preceding seven calendar days. Empty weeks do not hide older history, and the
+button disappears when no older transactions remain. Failed loads can be retried
+without discarding already-loaded rows.
 
 Search and classification filters apply to the loaded transactions. Switching
 views retains the selected date and filters; changing views or refreshing data
