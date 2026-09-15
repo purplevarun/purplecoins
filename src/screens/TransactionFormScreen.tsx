@@ -59,6 +59,8 @@ const TransactionFormScreen = ({
 }: TransactionFormScreenProps): React.JSX.Element => {
 	const transactionId = route.params?.transactionId;
 	const cloneFromTransactionId = route.params?.cloneFromTransactionId;
+	const initialSourceId = route.params?.initialSourceId;
+	const initialCategoryId = route.params?.initialCategoryId;
 	const { database, refreshData } = useDatabaseContext();
 	const dialog = useAppDialog();
 	const attachment = useAttachment("TRANSACTION", transactionId);
@@ -112,6 +114,10 @@ const TransactionFormScreen = ({
 				setTrips(loadedTrips);
 				setInvestments(loadedInvestments);
 				if (!existingTransaction) {
+					if (!sourceId) {
+						setSourceId(initialSourceId ?? "");
+						setCategoryId(initialCategoryId ?? "");
+					}
 					// Prefill default trip for new transactions
 					if (defaultTrip) {
 						setTripId(defaultTrip);
@@ -139,7 +145,13 @@ const TransactionFormScreen = ({
 			}
 		};
 		void getFormData();
-	}, [database, transactionId, cloneFromTransactionId]);
+	}, [
+		database,
+		transactionId,
+		cloneFromTransactionId,
+		initialSourceId,
+		initialCategoryId,
+	]);
 
 	const selectedSource = sources.find((source) => source.id === sourceId);
 	const selectedDestination = sources.find(

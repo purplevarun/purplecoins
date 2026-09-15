@@ -10,6 +10,8 @@ type RootStackParamList = {
 				transactionId?: string;
 				cloneFromTransactionId?: string;
 				initialTransactionAt?: number;
+				initialSourceId?: string;
+				initialCategoryId?: string;
 		  }
 		| undefined;
 	Sources: undefined;

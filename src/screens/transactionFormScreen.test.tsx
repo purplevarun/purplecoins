@@ -186,6 +186,60 @@ describe("TransactionFormScreen", () => {
 
 	it.each([
 		{
+			context: "source",
+			params: { initialSourceId: "s2" },
+			sourceId: "s2",
+			categoryId: "",
+		},
+		{
+			context: "category",
+			params: { initialCategoryId: "c1" },
+			sourceId: "",
+			categoryId: "c1",
+		},
+		{
+			context: "no linked entity",
+			params: undefined,
+			sourceId: "",
+			categoryId: "",
+		},
+	])(
+		"prefills a new transaction from $context and retains the default trip",
+		async ({ params, sourceId, categoryId }) => {
+			const setSourceId = vi.fn();
+			const setCategoryId = vi.fn();
+			const setTripId = vi.fn();
+			let stateCall = 0;
+			reactMocks.useState.mockImplementation((initial: unknown) => {
+				stateCall += 1;
+				if (stateCall === 3) return ["", setSourceId];
+				if (stateCall === 7) return ["", setCategoryId];
+				if (stateCall === 8) return ["", setTripId];
+				return [
+					typeof initial === "function"
+						? (initial as () => unknown)()
+						: initial,
+					vi.fn(),
+				];
+			});
+			const renderScreen = TransactionFormScreen as (
+				props: unknown,
+			) => ReactElement;
+			renderScreen({
+				navigation: { goBack: vi.fn() },
+				route: { key: "new", name: "TransactionForm", params },
+			});
+			await flush();
+
+			expect(setSourceId).toHaveBeenCalledExactlyOnceWith(sourceId);
+			expect(setCategoryId).toHaveBeenCalledExactlyOnceWith(categoryId);
+			expect(setTripId).toHaveBeenCalledExactlyOnceWith("tr1");
+			expect(serviceMocks.getTransaction).not.toHaveBeenCalled();
+		},
+	);
+
+	it.each([
+		{
 			day: "August 24",
 			initialTransactionAt: new Date(2026, 7, 24, 14, 30).getTime(),
 		},
@@ -532,9 +586,13 @@ describe("TransactionFormScreen", () => {
 		});
 
 		const setTransactionAt = vi.fn();
+		const setSourceId = vi.fn();
+		const setCategoryId = vi.fn();
 		let stateCall = 0;
 		reactMocks.useState.mockImplementation((initial: any) => {
 			stateCall += 1;
+			if (stateCall === 3) return ["", setSourceId];
+			if (stateCall === 7) return ["", setCategoryId];
 			if (stateCall === 11) return [111, setTransactionAt];
 			return [
 				typeof initial === "function" ? initial() : initial,
@@ -547,13 +605,20 @@ describe("TransactionFormScreen", () => {
 			route: {
 				key: "k6",
 				name: "TransactionForm",
-				params: { transactionId: "tx1" },
+				params: {
+					transactionId: "tx1",
+					initialSourceId: "s2",
+					initialCategoryId: "other-category",
+				},
 			},
 		} as any);
 		await flush();
 		await flush();
 
 		expect(setTransactionAt).toHaveBeenCalledWith(12345);
+		expect(setSourceId).toHaveBeenCalledExactlyOnceWith("s1");
+		expect(setCategoryId).toHaveBeenCalledExactlyOnceWith("c1");
+		expect(serviceMocks.getDefaultTripId).not.toHaveBeenCalled();
 	});
 
 	it("does not copy original date when cloning a transaction", async () => {
@@ -574,9 +639,13 @@ describe("TransactionFormScreen", () => {
 		});
 
 		const setTransactionAt = vi.fn();
+		const setSourceId = vi.fn();
+		const setCategoryId = vi.fn();
 		let stateCall = 0;
 		reactMocks.useState.mockImplementation((initial: any) => {
 			stateCall += 1;
+			if (stateCall === 3) return ["", setSourceId];
+			if (stateCall === 7) return ["", setCategoryId];
 			if (stateCall === 11) return [111, setTransactionAt];
 			return [
 				typeof initial === "function" ? initial() : initial,
@@ -589,13 +658,20 @@ describe("TransactionFormScreen", () => {
 			route: {
 				key: "k7",
 				name: "TransactionForm",
-				params: { cloneFromTransactionId: "tx1" },
+				params: {
+					cloneFromTransactionId: "tx1",
+					initialSourceId: "s2",
+					initialCategoryId: "other-category",
+				},
 			},
 		} as any);
 		await flush();
 		await flush();
 
 		expect(setTransactionAt).not.toHaveBeenCalled();
+		expect(setSourceId).toHaveBeenCalledExactlyOnceWith("s1");
+		expect(setCategoryId).toHaveBeenCalledExactlyOnceWith("c1");
+		expect(serviceMocks.getDefaultTripId).not.toHaveBeenCalled();
 	});
 
 	it("covers classification and type segmented-control handlers", async () => {

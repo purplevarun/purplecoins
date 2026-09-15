@@ -7,6 +7,7 @@ import { StyleSheet, View } from "react-native";
 import AppButton from "@/components/AppButton";
 import CustomText from "@/components/CustomText";
 import EmptyState from "@/components/EmptyState";
+import FloatingAddButton from "@/components/FloatingAddButton";
 import GlassCard from "@/components/GlassCard";
 import ListHeader from "@/components/ListHeader";
 import Notice from "@/components/Notice";
@@ -262,6 +263,18 @@ const LinkedTransactionsScreen = ({
 				keyExtractor={(transaction) => transaction.id}
 				renderItem={renderTransaction}
 			/>
+			{kind === "SOURCE" || kind === "CATEGORY" ? (
+				<FloatingAddButton
+					onPress={() =>
+						navigation.navigate(
+							"TransactionForm",
+							kind === "SOURCE"
+								? { initialSourceId: entityId }
+								: { initialCategoryId: entityId },
+						)
+					}
+				/>
+			) : null}
 		</View>
 	);
 };

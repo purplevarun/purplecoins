@@ -1,4 +1,8 @@
+import { isValidElement, type ReactElement } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import FloatingAddButton from "@/components/FloatingAddButton";
+import type LinkedTransactionsScreenProps from "@/types/LinkedTransactionsScreenProps";
 
 const reactMocks = vi.hoisted(() => ({
 	useCallback: vi.fn((fn: any) => fn),
@@ -49,6 +53,9 @@ vi.mock("@/components/CustomText", () => ({
 }));
 vi.mock("@/components/EmptyState", () => ({
 	default: (props: any) => ({ type: "EmptyState", props }),
+}));
+vi.mock("@/components/FloatingAddButton", () => ({
+	default: "FloatingAddButton",
 }));
 vi.mock("@/components/GlassCard", () => ({
 	default: (props: any) => ({ type: "GlassCard", props }),
@@ -157,52 +164,109 @@ describe("LinkedTransactionsScreen", () => {
 		serviceMocks.deleteInvestment.mockResolvedValue(undefined);
 	});
 
-	it("covers edit and transaction navigation plus key extractor", async () => {
-		const navigation = { navigate: vi.fn(), goBack: vi.fn() };
-		const tree = LinkedTransactionsScreen({
-			navigation,
-			route: {
-				key: "k",
-				name: "LinkedTransactions",
-				params: {
-					entityId: "e1",
-					entityName: "Entity",
-					kind: "CATEGORY",
-				},
+	it.each([
+		{
+			kind: "SOURCE" as const,
+			params: {
+				initialSourceId: "b17200f8-746c-4e14-a24c-087e087e6e96",
 			},
-		} as any);
-		await flush();
+		},
+		{
+			kind: "CATEGORY" as const,
+			params: {
+				initialCategoryId: "b17200f8-746c-4e14-a24c-087e087e6e96",
+			},
+		},
+	])(
+		"adds a transaction from an empty $kind linked list",
+		async ({ kind, params }) => {
+			const navigation = { navigate: vi.fn(), goBack: vi.fn() };
+			serviceMocks.getLinkedTransactions.mockResolvedValue([]);
+			const tree = LinkedTransactionsScreen({
+				navigation,
+				route: {
+					key: "linked",
+					name: "LinkedTransactions",
+					params: {
+						entityId: "b17200f8-746c-4e14-a24c-087e087e6e96",
+						entityName: "Linked entity",
+						kind,
+					},
+				},
+			} as unknown as LinkedTransactionsScreenProps);
+			await flush();
 
-		findByPredicate(
-			tree,
-			(node) =>
-				node?.props?.label === "Edit" &&
-				typeof node?.props?.onPress === "function",
-		)[0]?.props?.onPress();
+			const addButtons = findByPredicate(
+				tree,
+				(node: unknown) =>
+					isValidElement(node) && node.type === FloatingAddButton,
+			) as ReactElement<{ onPress: () => void }>[];
+			expect(addButtons).toHaveLength(1);
+			addButtons[0]?.props.onPress();
+			expect(navigation.navigate).toHaveBeenCalledExactlyOnceWith(
+				"TransactionForm",
+				params,
+			);
+		},
+	);
 
-		const screenList = findByPredicate(
-			tree,
-			(node) =>
-				typeof node?.props?.renderItem === "function" &&
-				typeof node?.props?.keyExtractor === "function",
-		)[0];
-		expect(screenList.props.keyExtractor({ id: "tx9" })).toBe("tx9");
+	it.each([
+		["SOURCE", "SourceForm"],
+		["CATEGORY", "CategoryForm"],
+		["TRIP", "TripForm"],
+		["INVESTMENT", "InvestmentForm"],
+	] as const)(
+		"covers %s edit and transaction navigation plus key extractor",
+		async (kind, formRoute) => {
+			const navigation = { navigate: vi.fn(), goBack: vi.fn() };
+			const tree = LinkedTransactionsScreen({
+				navigation,
+				route: {
+					key: "k",
+					name: "LinkedTransactions",
+					params: {
+						entityId: "e1",
+						entityName: "Entity",
+						kind,
+					},
+				},
+			} as any);
+			await flush();
 
-		const rendered = screenList.props.renderItem({
-			item: { id: "tx9", transactionAt: 125 },
-		});
-		findByPredicate(
-			rendered,
-			(node) => typeof node?.props?.onPress === "function",
-		)[0]?.props?.onPress();
+			findByPredicate(
+				tree,
+				(node) =>
+					node?.props?.label === "Edit" &&
+					typeof node?.props?.onPress === "function",
+			)[0]?.props?.onPress();
 
-		expect(navigation.navigate).toHaveBeenCalledWith("CategoryForm", {
-			entityId: "e1",
-		});
-		expect(navigation.navigate).toHaveBeenCalledWith("TransactionForm", {
-			transactionId: "tx9",
-		});
-	});
+			const screenList = findByPredicate(
+				tree,
+				(node) =>
+					typeof node?.props?.renderItem === "function" &&
+					typeof node?.props?.keyExtractor === "function",
+			)[0];
+			expect(screenList.props.keyExtractor({ id: "tx9" })).toBe("tx9");
+
+			const rendered = screenList.props.renderItem({
+				item: { id: "tx9", transactionAt: 125 },
+			});
+			findByPredicate(
+				rendered,
+				(node) => typeof node?.props?.onPress === "function",
+			)[0]?.props?.onPress();
+
+			expect(navigation.navigate).toHaveBeenCalledWith(formRoute, {
+				entityId: "e1",
+			});
+			expect(navigation.navigate).toHaveBeenCalledWith(
+				"TransactionForm",
+				{
+					transactionId: "tx9",
+				},
+			);
+		},
+	);
 
 	it("covers load and delete error branches", async () => {
 		const navigation = { navigate: vi.fn(), goBack: vi.fn() };
