@@ -15,6 +15,7 @@ const {
 	getSourceRow,
 	getTransactionRow,
 	getTransactionRows,
+	hasTransactionRowsBefore,
 	updateTransactionRow,
 } = financeRepository;
 const { compareMoney, normalizeMoney } = moneyUtils;
@@ -32,6 +33,17 @@ const getTransactions = async (
 		? await getTransactionRows(database, dateRange.start, dateRange.end)
 		: await getTransactionRows(database);
 	return transactions.map(mapTransaction);
+};
+
+const getTransactionPage = async (
+	database: SQLiteDatabase,
+	dateRange: DateRange,
+): Promise<{ transactions: readonly Transaction[]; hasMore: boolean }> => {
+	const [transactions, hasMore] = await Promise.all([
+		getTransactions(database, dateRange),
+		hasTransactionRowsBefore(database, dateRange.start),
+	]);
+	return { transactions, hasMore };
 };
 
 const isLinkedTransaction = (
@@ -220,6 +232,7 @@ const transactionService = {
 	getLinkedTransactions,
 	getTransaction,
 	getTransactionDisplayReason,
+	getTransactionPage,
 	getTransactions,
 	saveTransaction,
 };

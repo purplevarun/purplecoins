@@ -1,3 +1,4 @@
+import type { ReactElement } from "react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("react-native", () => ({
@@ -81,6 +82,14 @@ describe("TrendLineChart helpers", () => {
 		expect(getY(1_000_000, 0, 1_000_000)).toBe(10);
 	});
 
+	it("handles equal, reversed, and default y-axis bounds", () => {
+		expect(getY(100, 100, 100)).toBe(150);
+		expect(getY(50, 100, 0)).toBe(80);
+		expect(getY(MIN_AXIS_VALUE)).toBe(150);
+		expect(getY(MAX_AXIS_VALUE)).toBe(10);
+		expect(getSeriesPoints(series, "income")).toBe("32,150 292,10");
+	});
+
 	it("builds a polyline points string for a series key", () => {
 		expect(getSeriesPoints(series, "income", 0, 10_000_000)).toContain(
 			"32,",
@@ -92,6 +101,35 @@ describe("TrendLineChart helpers", () => {
 });
 
 describe("TrendLineChart", () => {
+	it.each([
+		{ label: "empty", points: [] },
+		{
+			label: "non-numeric",
+			points: [
+				{
+					year: "2026",
+					income: "NaN",
+					expenses: "NaN",
+					networth: "NaN",
+				},
+			],
+		},
+	])("uses finite fallback axes for $label series", ({ points }) => {
+		const tree = TrendLineChart({ series: points });
+		const gridLines = findByPredicate(
+			tree,
+			(node: { props?: { y1?: unknown } }) =>
+				typeof node.props?.y1 === "number",
+		) as ReactElement<{ y1: number; y2: number }>[];
+		expect(gridLines).toHaveLength(5);
+		for (const line of gridLines) {
+			expect(Number.isFinite(line.props.y1)).toBe(true);
+			expect(line.props.y1).toBe(line.props.y2);
+		}
+		expect(gridLines[0]?.props.y1).toBe(150);
+		expect(gridLines.at(-1)?.props.y1).toBe(10);
+	});
+
 	it("renders a legend entry, a grid line per tick, a polyline per series, and a label per year", () => {
 		const tree = TrendLineChart({ series });
 		const polylines = findByPredicate(

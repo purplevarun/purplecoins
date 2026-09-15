@@ -1,5 +1,6 @@
 import financeRepository from "@/repositories/financeRepository";
 
+import type { SQLiteDatabase } from "expo-sqlite";
 import { describe, expect, it, vi } from "vitest";
 
 const {
@@ -31,6 +32,7 @@ const {
 	getTransactionRowsInRange,
 	getTripRow,
 	getTripRows,
+	hasTransactionRowsBefore,
 	investmentTypeNameExistsRow,
 	setCategoryArchivedRow,
 	setSimpleEntityArchivedRow,
@@ -49,6 +51,53 @@ const {
 } = financeRepository;
 
 describe("financeRepository", () => {
+	it.each([true, false])(
+		"filters active categories by isIncome=%s in SQL",
+		async (isIncome) => {
+			const getAllAsync = vi.fn().mockResolvedValue([]);
+			const database = { getAllAsync } as unknown as SQLiteDatabase;
+
+			expect(await getCategoryRows(database, isIncome)).toEqual([]);
+			expect(getAllAsync).toHaveBeenCalledExactlyOnceWith(
+				expect.stringContaining("AND category.is_income = ?"),
+				Number(isIncome),
+			);
+		},
+	);
+
+	it("bounds transaction rows in SQL and keeps newest-first ordering", async () => {
+		const getAllAsync = vi.fn().mockResolvedValue([]);
+		const database = { getAllAsync } as unknown as SQLiteDatabase;
+
+		expect(await getTransactionRows(database, 100, 200)).toEqual([]);
+		expect(getAllAsync).toHaveBeenCalledWith(
+			expect.stringContaining(
+				"WHERE t.transaction_at BETWEEN ? AND ? ORDER BY t.transaction_at DESC, t.created_at DESC;",
+			),
+			100,
+			200,
+		);
+	});
+
+	it.each([
+		{ row: { found: 1 }, expected: true },
+		{ row: null, expected: false },
+	])("reports older transactions as $expected", async ({ row, expected }) => {
+		const getFirstAsync = vi.fn().mockResolvedValue(row);
+		const getAllAsync = vi.fn();
+		const database = {
+			getFirstAsync,
+			getAllAsync,
+		} as unknown as SQLiteDatabase;
+
+		expect(await hasTransactionRowsBefore(database, 100)).toBe(expected);
+		expect(getFirstAsync).toHaveBeenCalledWith(
+			"SELECT 1 AS found FROM transactions WHERE transaction_at < ? LIMIT 1;",
+			100,
+		);
+		expect(getAllAsync).not.toHaveBeenCalled();
+	});
+
 	it("queries source/category/trip/investment rows", async () => {
 		const database = {
 			getAllAsync: vi

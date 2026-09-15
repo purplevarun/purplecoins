@@ -4,10 +4,12 @@ import {
 	useEffect,
 	useLayoutEffect,
 	useMemo,
+	useRef,
 	useState,
 } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
 
+import AppButton from "@/components/AppButton";
 import CustomText from "@/components/CustomText";
 import EmptyState from "@/components/EmptyState";
 import FloatingAddButton from "@/components/FloatingAddButton";
@@ -28,8 +30,9 @@ import dateUtils from "@/utils/date";
 import getErrorMessage from "@/utils/error";
 import moneyUtils from "@/utils/money";
 import runAfterRender from "@/utils/runAfterRender";
-const { getTransactionDisplayReason, getTransactions } = transactionService;
-const { formatDate, getDayDateRange, shiftDay } = dateUtils;
+const { getTransactionDisplayReason, getTransactionPage, getTransactions } =
+	transactionService;
+const { formatDate, getDayDateRange, getWeekDateRange, shiftDay } = dateUtils;
 const { formatMoney } = moneyUtils;
 
 const FILTER_OPTIONS: readonly SelectOption[] = [
@@ -51,26 +54,92 @@ const TransactionsScreen = ({
 	const [searchQuery, setSearchQuery] = useState("");
 	const [searchDebounced, setSearchDebounced] = useState("");
 	const [selectedDate, setSelectedDate] = useState(() => new Date());
-	const activeDate = selectedDate instanceof Date ? selectedDate : new Date();
-
-	const getScreenData = useCallback(async (): Promise<void> => {
-		try {
-			setTransactions(
-				await getTransactions(database, getDayDateRange(activeDate)),
-			);
-			setError("");
-		} catch (caughtError: unknown) {
-			setError(getErrorMessage(caughtError));
-		}
-	}, [activeDate, database]);
-
-	useEffect(
-		() =>
-			runAfterRender(() => {
-				void getScreenData();
-			}),
-		[dataVersion, getScreenData],
+	const activeDate = useMemo(
+		() => (selectedDate instanceof Date ? selectedDate : new Date()),
+		[selectedDate],
 	);
+	const [viewMode, setViewMode] = useState<"DAY" | "SCROLL">("DAY");
+	const [paging, setPaging] = useState({
+		start: null as number | null,
+		hasMore: false,
+		isLoading: true,
+	});
+	const pagination = useRef({
+		requestId: 0,
+		loading: false,
+		start: null as number | null,
+	});
+
+	const getScreenData = useCallback(
+		async (append = false): Promise<void> => {
+			if (pagination.current.loading) return;
+			const requestId = ++pagination.current.requestId;
+			pagination.current.loading = true;
+			setPaging((current) => ({ ...current, isLoading: true }));
+			const endDate =
+				append && pagination.current.start !== null
+					? new Date(pagination.current.start - 1)
+					: activeDate;
+			const dateRange =
+				viewMode === "DAY"
+					? getDayDateRange(activeDate)
+					: getWeekDateRange(endDate);
+			try {
+				const page =
+					viewMode === "DAY"
+						? {
+								transactions: await getTransactions(
+									database,
+									dateRange,
+								),
+								hasMore: false,
+							}
+						: await getTransactionPage(database, dateRange);
+				if (requestId !== pagination.current.requestId) return;
+				setTransactions((current) =>
+					append
+						? [...current, ...page.transactions]
+						: page.transactions,
+				);
+				pagination.current.start = dateRange.start;
+				setPaging((current) => ({
+					...current,
+					start: dateRange.start,
+					hasMore: page.hasMore,
+				}));
+				setError("");
+			} catch (caughtError: unknown) {
+				if (requestId === pagination.current.requestId) {
+					setError(getErrorMessage(caughtError));
+				}
+			} finally {
+				if (requestId === pagination.current.requestId) {
+					pagination.current.loading = false;
+					setPaging((current) => ({ ...current, isLoading: false }));
+				}
+			}
+		},
+		[activeDate, database, viewMode],
+	);
+
+	useEffect(() => {
+		pagination.current = {
+			requestId: pagination.current.requestId + 1,
+			loading: false,
+			start: null,
+		};
+		const cancel = runAfterRender(() => {
+			setTransactions([]);
+			setPaging({ start: null, hasMore: false, isLoading: true });
+			setError("");
+			void getScreenData();
+		});
+		return () => {
+			cancel();
+			pagination.current.requestId += 1;
+			pagination.current.loading = false;
+		};
+	}, [dataVersion, getScreenData]);
 
 	const isToday = activeDate.toDateString() === new Date().toDateString();
 	const handleDayChange = useCallback((direction: -1 | 1): void => {
@@ -85,21 +154,43 @@ const TransactionsScreen = ({
 	useLayoutEffect(() => {
 		navigation.setOptions({
 			headerRight: () => (
-				<HeaderIconButton
-					accessibilityLabel={
-						searchVisible ? "Close search" : "Search"
-					}
-					icon={searchVisible ? "close-outline" : "search-outline"}
-					isActive={searchVisible}
-					onPress={() => {
-						setSearchVisible((v) => !v);
-						setSearchQuery("");
-						setSearchDebounced("");
-					}}
-				/>
+				<View style={styles.headerActions}>
+					<HeaderIconButton
+						accessibilityLabel={
+							viewMode === "DAY"
+								? "Switch to scroll view"
+								: "Switch to day view"
+						}
+						icon={
+							viewMode === "DAY"
+								? "list-outline"
+								: "calendar-outline"
+						}
+						isActive={viewMode === "SCROLL"}
+						onPress={() => {
+							setViewMode((current) =>
+								current === "DAY" ? "SCROLL" : "DAY",
+							);
+						}}
+					/>
+					<HeaderIconButton
+						accessibilityLabel={
+							searchVisible ? "Close search" : "Search"
+						}
+						icon={
+							searchVisible ? "close-outline" : "search-outline"
+						}
+						isActive={searchVisible}
+						onPress={() => {
+							setSearchVisible((v) => !v);
+							setSearchQuery("");
+							setSearchDebounced("");
+						}}
+					/>
+				</View>
 			),
 		});
-	}, [navigation, searchVisible]);
+	}, [navigation, searchVisible, viewMode]);
 
 	const filteredTransactions = useMemo(() => {
 		let list = transactions;
@@ -149,39 +240,49 @@ const TransactionsScreen = ({
 	const listHeader = useMemo(
 		() => (
 			<ListHeader>
-				<View style={styles.dayRow}>
-					<Pressable
-						accessibilityLabel="Previous day"
-						accessibilityRole="button"
-						onPress={() => handleDayChange(-1)}
-						style={styles.dayButton}
-					>
-						<Ionicons
-							color={COLORS.text}
-							name="chevron-back"
-							size={21}
-						/>
-					</Pressable>
-					<CustomText style={styles.dayLabel}>
-						{formatDate(getDayDateRange(activeDate).start)}
+				{viewMode === "DAY" ? (
+					<View style={styles.dayRow}>
+						<Pressable
+							accessibilityLabel="Previous day"
+							accessibilityRole="button"
+							onPress={() => handleDayChange(-1)}
+							style={styles.dayButton}
+						>
+							<Ionicons
+								color={COLORS.text}
+								name="chevron-back"
+								size={21}
+							/>
+						</Pressable>
+						<CustomText style={styles.dayLabel}>
+							{formatDate(getDayDateRange(activeDate).start)}
+						</CustomText>
+						<Pressable
+							accessibilityLabel="Next day"
+							accessibilityRole="button"
+							disabled={isToday}
+							onPress={() => handleDayChange(1)}
+							style={[
+								styles.dayButton,
+								isToday && styles.dayButtonDisabled,
+							]}
+						>
+							<Ionicons
+								color={isToday ? COLORS.textDim : COLORS.text}
+								name="chevron-forward"
+								size={21}
+							/>
+						</Pressable>
+					</View>
+				) : (
+					<CustomText style={styles.rangeLabel}>
+						{formatDate(
+							paging.start ?? getWeekDateRange(activeDate).start,
+						)}
+						{" - "}
+						{formatDate(getDayDateRange(activeDate).end)}
 					</CustomText>
-					<Pressable
-						accessibilityLabel="Next day"
-						accessibilityRole="button"
-						disabled={isToday}
-						onPress={() => handleDayChange(1)}
-						style={[
-							styles.dayButton,
-							isToday && styles.dayButtonDisabled,
-						]}
-					>
-						<Ionicons
-							color={isToday ? COLORS.textDim : COLORS.text}
-							name="chevron-forward"
-							size={21}
-						/>
-					</Pressable>
-				</View>
+				)}
 				<SegmentedControl
 					onChange={setFilter}
 					options={FILTER_OPTIONS}
@@ -205,8 +306,51 @@ const TransactionsScreen = ({
 			searchQuery,
 			searchVisible,
 			activeDate,
+			paging.start,
+			viewMode,
 		],
 	);
+
+	const listFooter = useMemo(() => {
+		if (paging.isLoading) {
+			return (
+				<ActivityIndicator
+					accessibilityLabel="Loading transactions"
+					color={COLORS.primary}
+					style={styles.footer}
+				/>
+			);
+		}
+		if (error) {
+			return (
+				<AppButton
+					icon="refresh-outline"
+					label="Retry"
+					onPress={() => {
+						void getScreenData(viewMode === "SCROLL");
+					}}
+					style={styles.footer}
+					variant="secondary"
+				/>
+			);
+		}
+		if (viewMode === "DAY") return null;
+		return paging.hasMore ? (
+			<AppButton
+				icon="chevron-down-outline"
+				label="Load more"
+				onPress={() => {
+					void getScreenData(true);
+				}}
+				style={styles.footer}
+				variant="secondary"
+			/>
+		) : (
+			<CustomText style={styles.endLabel}>
+				No older transactions
+			</CustomText>
+		);
+	}, [error, getScreenData, paging.hasMore, paging.isLoading, viewMode]);
 
 	const listEmpty = useMemo(
 		() => (
@@ -222,7 +366,11 @@ const TransactionsScreen = ({
 	return (
 		<View style={styles.screen}>
 			<ScreenList
-				ListEmptyComponent={listEmpty}
+				key={`${viewMode}:${activeDate.getTime()}:${dataVersion}`}
+				ListEmptyComponent={
+					paging.isLoading || error ? null : listEmpty
+				}
+				ListFooterComponent={listFooter}
 				ListHeaderComponent={listHeader}
 				data={filteredTransactions}
 				keyExtractor={(transaction) => transaction.id}
@@ -243,6 +391,28 @@ const styles = StyleSheet.create({
 	screen: {
 		flex: 1,
 		backgroundColor: COLORS.background,
+	},
+	headerActions: {
+		flexDirection: "row",
+		gap: 8,
+	},
+	rangeLabel: {
+		color: COLORS.textDim,
+		fontSize: 13,
+		fontWeight: "700",
+		textAlign: "center",
+		paddingVertical: 12,
+		marginBottom: 10,
+	},
+	footer: {
+		marginTop: 16,
+		minHeight: 50,
+	},
+	endLabel: {
+		color: COLORS.textDim,
+		fontSize: 13,
+		textAlign: "center",
+		marginTop: 24,
 	},
 	dayRow: {
 		flexDirection: "row",

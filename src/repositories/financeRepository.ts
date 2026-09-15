@@ -623,6 +623,17 @@ const getTransactionRows = async (
 		...(start === undefined || end === undefined ? [] : [start, end]),
 	);
 
+const hasTransactionRowsBefore = async (
+	database: SQLiteDatabase,
+	start: number,
+): Promise<boolean> => {
+	const row = await database.getFirstAsync<{ found: number }>(
+		"SELECT 1 AS found FROM transactions WHERE transaction_at < ? LIMIT 1;",
+		start,
+	);
+	return row !== null;
+};
+
 const getTransactionRowsInRange = async (
 	database: SQLiteDatabase,
 	start: number,
@@ -863,6 +874,7 @@ const financeRepository = {
 	getTransactionRow,
 	getTransactionRows,
 	getTransactionRowsInRange,
+	hasTransactionRowsBefore,
 	getTripRow,
 	getTripRows,
 	investmentTypeNameExistsRow,

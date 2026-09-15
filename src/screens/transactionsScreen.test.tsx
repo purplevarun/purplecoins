@@ -1,18 +1,42 @@
+import AppButton from "@/components/AppButton";
+import CustomText from "@/components/CustomText";
 import FloatingAddButton from "@/components/FloatingAddButton";
-import { isValidElement, type ComponentProps, type ReactElement } from "react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import HeaderIconButton from "@/components/HeaderIconButton";
+import ScreenList from "@/components/ScreenList";
+import type ScreenListProps from "@/types/ScreenListProps";
+import type Transaction from "@/types/Transaction";
+import type TransactionsScreenProps from "@/types/TransactionsScreenProps";
+import type dateUtils from "@/utils/date";
+import {
+	isValidElement,
+	type ComponentProps,
+	type EffectCallback,
+	type ReactElement,
+} from "react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const reactMocks = vi.hoisted(() => ({
 	useCallback: vi.fn((fn: any) => fn),
 	useEffect: vi.fn(),
 	useLayoutEffect: vi.fn(),
 	useMemo: vi.fn((factory: () => unknown) => factory()),
+	useRef: vi.fn((initial: unknown) => ({ current: initial })),
 	useState: vi.fn(),
 }));
 
 const serviceMocks = vi.hoisted(() => ({
 	getTransactions: vi.fn(),
+	getTransactionPage: vi.fn(),
 	getTransactionDisplayReason: vi.fn(),
+}));
+
+const databaseMocks = vi.hoisted(() => ({
+	database: { id: "db" },
+	dataVersion: 1,
+}));
+const renderMocks = vi.hoisted(() => ({
+	cancel: vi.fn(),
+	runAfterRender: vi.fn<(callback: () => void) => () => void>(),
 }));
 
 vi.mock("react", async (importOriginal) => {
@@ -23,6 +47,7 @@ vi.mock("react", async (importOriginal) => {
 		useEffect: reactMocks.useEffect,
 		useLayoutEffect: reactMocks.useLayoutEffect,
 		useMemo: reactMocks.useMemo,
+		useRef: reactMocks.useRef,
 		useState: reactMocks.useState,
 	};
 });
@@ -31,11 +56,18 @@ vi.mock("react-native", () => ({
 	StyleSheet: { create: (styles: any) => styles },
 	View: (props: any) => ({ type: "View", props }),
 	Pressable: (props: any) => ({ type: "Pressable", props }),
+	ActivityIndicator: (props: unknown) => ({
+		type: "ActivityIndicator",
+		props,
+	}),
 }));
 vi.mock("@expo/vector-icons", () => ({
 	Ionicons: (props: any) => ({ type: "Ionicons", props }),
 }));
 
+vi.mock("@/components/AppButton", () => ({
+	default: (props: unknown) => ({ type: "AppButton", props }),
+}));
 vi.mock("@/components/EmptyState", () => ({
 	default: (props: any) => ({ type: "EmptyState", props }),
 }));
@@ -68,27 +100,26 @@ vi.mock("@/components/TransactionCard", () => ({
 }));
 
 vi.mock("@/hooks/useDatabaseContext", () => ({
-	default: () => ({ database: { id: "db" }, dataVersion: 1 }),
+	default: () => databaseMocks,
 }));
 
 vi.mock("@/services/transactionService", () => ({
 	default: {
 		getTransactions: serviceMocks.getTransactions,
+		getTransactionPage: serviceMocks.getTransactionPage,
 		getTransactionDisplayReason: serviceMocks.getTransactionDisplayReason,
 	},
 }));
 
-vi.mock("@/utils/date", () => ({
-	default: {
-		formatDate: (value: number) => `date:${value}`,
-		getDayDateRange: (date: Date) => ({
-			start: date.getTime(),
-			end: date.getTime() + 86_399_999,
-		}),
-		shiftDay: (date: Date, direction: -1 | 1) =>
-			new Date(date.getTime() + direction * 86_400_000),
-	},
-}));
+vi.mock("@/utils/date", async (importOriginal) => {
+	const actual = await importOriginal<{ default: typeof dateUtils }>();
+	return {
+		default: {
+			...actual.default,
+			formatDate: (value: number) => `date:${value}`,
+		},
+	};
+});
 vi.mock("@/utils/error", () => ({
 	default: (caughtError: unknown) =>
 		caughtError instanceof Error ? caughtError.message : "Unknown error",
@@ -100,7 +131,7 @@ vi.mock("@/utils/money", () => ({
 	},
 }));
 vi.mock("@/utils/runAfterRender", () => ({
-	default: (fn: () => void) => fn(),
+	default: renderMocks.runAfterRender,
 }));
 
 import TransactionsScreen from "@/screens/TransactionsScreen";
@@ -131,6 +162,13 @@ const findByPredicate = (
 
 describe("TransactionsScreen", () => {
 	beforeEach(() => {
+		databaseMocks.dataVersion = 1;
+		renderMocks.cancel.mockReset();
+		renderMocks.runAfterRender.mockReset();
+		renderMocks.runAfterRender.mockImplementation((callback) => {
+			callback();
+			return renderMocks.cancel;
+		});
 		vi.spyOn(globalThis, "setTimeout").mockImplementation(((fn: any) => {
 			fn();
 			return 0;
@@ -140,6 +178,10 @@ describe("TransactionsScreen", () => {
 		reactMocks.useEffect.mockReset();
 		reactMocks.useLayoutEffect.mockReset();
 		reactMocks.useState.mockReset();
+		reactMocks.useRef.mockReset();
+		reactMocks.useRef.mockImplementation((initial: unknown) => ({
+			current: initial,
+		}));
 		reactMocks.useEffect.mockImplementation((effect: () => void) => {
 			effect();
 		});
@@ -152,6 +194,11 @@ describe("TransactionsScreen", () => {
 		]);
 
 		serviceMocks.getTransactions.mockReset();
+		serviceMocks.getTransactionPage.mockReset();
+		serviceMocks.getTransactionPage.mockResolvedValue({
+			transactions: [],
+			hasMore: false,
+		});
 		serviceMocks.getTransactionDisplayReason.mockReset();
 		serviceMocks.getTransactions.mockResolvedValue([
 			{
@@ -178,6 +225,526 @@ describe("TransactionsScreen", () => {
 		);
 	});
 
+	describe("weekly paging lifecycle", () => {
+		const anchor = new Date(2026, 8, 15, 14, 30);
+		const firstRange = {
+			start: new Date(2026, 8, 9).getTime(),
+			end: new Date(2026, 8, 15, 23, 59, 59, 999).getTime(),
+		};
+		const secondRange = {
+			start: new Date(2026, 8, 2).getTime(),
+			end: firstRange.start - 1,
+		};
+		const recent: Transaction = {
+			id: "00000000-0000-4000-8000-000000000001",
+			classification: "GENERAL",
+			type: "DEBIT",
+			sourceId: "00000000-0000-4000-8000-000000000002",
+			destinationSourceId: null,
+			amount: "100",
+			toAmount: null,
+			categoryId: null,
+			tripId: null,
+			investmentId: null,
+			reason: "Lunch",
+			transactionAt: anchor.getTime(),
+			createdAt: anchor.getTime(),
+			updatedAt: anchor.getTime(),
+			sourceName: "Cash",
+			sourceCurrencyCode: "INR",
+			destinationSourceName: null,
+			destinationCurrencyCode: null,
+			categoryName: null,
+			tripName: null,
+			investmentName: null,
+			hasAttachment: false,
+		};
+		const older: Transaction = {
+			...recent,
+			id: "00000000-0000-4000-8000-000000000003",
+			transactionAt: secondRange.end,
+		};
+		type Page = { transactions: readonly Transaction[]; hasMore: boolean };
+		type HeaderButton = ReactElement<
+			ComponentProps<typeof HeaderIconButton>
+		>;
+		type Harness = {
+			render: () => ReactElement;
+			reload: () => void;
+			unmount: () => void;
+			headerButtons: () => HeaderButton[];
+			setState: (index: number, value: unknown) => void;
+		};
+
+		const elements = <Props,>(
+			tree: unknown,
+			component: unknown,
+		): ReactElement<Props>[] =>
+			findByPredicate(
+				tree,
+				(node: unknown) =>
+					isValidElement(node) && node.type === component,
+			) as ReactElement<Props>[];
+
+		const listProps = (
+			tree: ReactElement,
+		): ScreenListProps<Transaction> => {
+			const [list] = elements<ScreenListProps<Transaction>>(
+				tree,
+				ScreenList,
+			);
+			if (!list) throw new Error("Expected transaction list");
+			return list.props;
+		};
+
+		const footerButton = (
+			tree: ReactElement,
+		): ComponentProps<typeof AppButton> => {
+			const [button] = elements<ComponentProps<typeof AppButton>>(
+				tree,
+				AppButton,
+			);
+			if (!button) throw new Error("Expected footer button");
+			return button.props;
+		};
+
+		const dayButton = (
+			tree: ReactElement,
+			label: string,
+		):
+			| ReactElement<{ disabled?: boolean; onPress: () => void }>
+			| undefined =>
+			(
+				findByPredicate(
+					tree,
+					(node: unknown) =>
+						isValidElement<{ accessibilityLabel?: string }>(node) &&
+						node.props.accessibilityLabel === label,
+				) as ReactElement<{ disabled?: boolean; onPress: () => void }>[]
+			)[0];
+
+		const createHarness = (mode: "DAY" | "SCROLL" = "SCROLL"): Harness => {
+			const states = new Map<number, unknown>([
+				[6, anchor],
+				[7, mode],
+			]);
+			const effects: EffectCallback[] = [];
+			const setOptions =
+				vi.fn<(options: { headerRight: () => ReactElement }) => void>();
+			let stateIndex = 0;
+			let cleanup: (() => void) | undefined;
+			reactMocks.useRef.mockReturnValue({
+				current: { requestId: 0, loading: false, start: null },
+			});
+			reactMocks.useEffect.mockImplementation(
+				(effect: EffectCallback) => {
+					effects.push(effect);
+				},
+			);
+			reactMocks.useState.mockImplementation((initial: unknown) => {
+				const index = stateIndex++;
+				if (!states.has(index)) {
+					states.set(
+						index,
+						typeof initial === "function"
+							? (initial as () => unknown)()
+							: initial,
+					);
+				}
+				return [
+					states.get(index),
+					(update: unknown): void => {
+						states.set(
+							index,
+							typeof update === "function"
+								? (update as (current: unknown) => unknown)(
+										states.get(index),
+									)
+								: update,
+						);
+					},
+				];
+			});
+			return {
+				render: () => {
+					stateIndex = 0;
+					effects.length = 0;
+					return TransactionsScreen({
+						navigation: { navigate: vi.fn(), setOptions },
+					} as unknown as TransactionsScreenProps);
+				},
+				reload: () => {
+					cleanup?.();
+					const result = effects[0]?.();
+					cleanup = typeof result === "function" ? result : undefined;
+				},
+				unmount: () => {
+					cleanup?.();
+				},
+				headerButtons: () =>
+					elements<ComponentProps<typeof HeaderIconButton>>(
+						setOptions.mock.calls.at(-1)?.[0].headerRight(),
+						HeaderIconButton,
+					),
+				setState: (index, value) => {
+					states.set(index, value);
+				},
+			};
+		};
+
+		beforeEach(() => {
+			vi.useFakeTimers({ toFake: ["Date"] });
+			vi.setSystemTime(anchor);
+		});
+		afterEach(() => {
+			vi.useRealTimers();
+		});
+
+		it("appends disjoint weeks once, preserves ordering, and stops at history's end", async () => {
+			serviceMocks.getTransactionPage
+				.mockResolvedValueOnce({
+					transactions: [recent],
+					hasMore: true,
+				})
+				.mockResolvedValueOnce({
+					transactions: [older],
+					hasMore: false,
+				});
+			const harness = createHarness();
+			const initial = harness.render();
+			expect(listProps(initial).ListEmptyComponent).toBeNull();
+			harness.reload();
+			await flush();
+			const first = harness.render();
+			expect(listProps(first).data).toEqual([recent]);
+			expect(dayButton(first, "Previous day")).toBeUndefined();
+			const button = footerButton(first);
+			expect(button.label).toBe("Load more");
+			button.onPress();
+			button.onPress();
+			expect(serviceMocks.getTransactionPage).toHaveBeenCalledTimes(2);
+			expect(elements(harness.render(), AppButton)).toHaveLength(0);
+			await flush();
+			const last = harness.render();
+			expect(listProps(last).data).toEqual([recent, older]);
+			expect(serviceMocks.getTransactionPage.mock.calls).toEqual([
+				[{ id: "db" }, firstRange],
+				[{ id: "db" }, secondRange],
+			]);
+			expect(elements(last, AppButton)).toHaveLength(0);
+			const headerTexts = elements<ComponentProps<typeof CustomText>>(
+				listProps(last).ListHeaderComponent,
+				CustomText,
+			);
+			const footerTexts = elements<ComponentProps<typeof CustomText>>(
+				listProps(last).ListFooterComponent,
+				CustomText,
+			);
+			expect(headerTexts[0]?.props.children).toEqual([
+				`date:${secondRange.start}`,
+				" - ",
+				`date:${firstRange.end}`,
+			]);
+			expect(footerTexts[0]?.props.children).toBe(
+				"No older transactions",
+			);
+			expect(elements(last, ScreenList)[0]?.key).toBe(
+				elements(first, ScreenList)[0]?.key,
+			);
+		});
+
+		it("keeps loading past empty weeks when older transactions exist", async () => {
+			serviceMocks.getTransactionPage
+				.mockResolvedValueOnce({ transactions: [], hasMore: true })
+				.mockResolvedValueOnce({ transactions: [], hasMore: true })
+				.mockResolvedValueOnce({
+					transactions: [older],
+					hasMore: false,
+				});
+			const harness = createHarness();
+			harness.render();
+			harness.reload();
+			await flush();
+			const empty = harness.render();
+			expect(listProps(empty).ListEmptyComponent).not.toBeNull();
+			footerButton(empty).onPress();
+			await flush();
+			footerButton(harness.render()).onPress();
+			await flush();
+			expect(serviceMocks.getTransactionPage).toHaveBeenLastCalledWith(
+				{ id: "db" },
+				{
+					start: new Date(2026, 7, 26).getTime(),
+					end: secondRange.start - 1,
+				},
+			);
+			expect(listProps(harness.render()).data).toEqual([older]);
+		});
+
+		it.each(["DAY", "SCROLL"] as const)(
+			"retries the same initial %s window after failure",
+			async (mode) => {
+				const query =
+					mode === "DAY"
+						? serviceMocks.getTransactions
+						: serviceMocks.getTransactionPage;
+				query
+					.mockRejectedValueOnce(new Error("initial failed"))
+					.mockResolvedValueOnce(
+						mode === "DAY"
+							? [recent]
+							: { transactions: [recent], hasMore: false },
+					);
+				const harness = createHarness(mode);
+				harness.render();
+				harness.reload();
+				await flush();
+				const failed = harness.render();
+				expect(listProps(failed).ListEmptyComponent).toBeNull();
+				expect(footerButton(failed).label).toBe("Retry");
+				footerButton(failed).onPress();
+				await flush();
+				expect(query.mock.calls[1]).toEqual(query.mock.calls[0]);
+				expect(listProps(harness.render()).data).toEqual([recent]);
+				expect(elements(harness.render(), AppButton)).toHaveLength(0);
+			},
+		);
+
+		it("retries a failed older week without losing rows or advancing its cursor", async () => {
+			serviceMocks.getTransactionPage
+				.mockResolvedValueOnce({
+					transactions: [recent],
+					hasMore: true,
+				})
+				.mockRejectedValueOnce(new Error("older week failed"))
+				.mockResolvedValueOnce({
+					transactions: [older],
+					hasMore: false,
+				});
+			const harness = createHarness();
+			harness.render();
+			harness.reload();
+			await flush();
+			footerButton(harness.render()).onPress();
+			await flush();
+			const failed = harness.render();
+			expect(listProps(failed).data).toEqual([recent]);
+			expect(footerButton(failed).label).toBe("Retry");
+			footerButton(failed).onPress();
+			await flush();
+			expect(serviceMocks.getTransactionPage.mock.calls[1]).toEqual([
+				{ id: "db" },
+				secondRange,
+			]);
+			expect(serviceMocks.getTransactionPage.mock.calls[2]).toEqual(
+				serviceMocks.getTransactionPage.mock.calls[1],
+			);
+			expect(listProps(harness.render()).data).toEqual([recent, older]);
+		});
+
+		it("resets paging on mode switches while keeping the selected day and filters", async () => {
+			serviceMocks.getTransactionPage
+				.mockResolvedValueOnce({
+					transactions: [recent],
+					hasMore: true,
+				})
+				.mockResolvedValueOnce({ transactions: [older], hasMore: true })
+				.mockResolvedValueOnce({
+					transactions: [recent],
+					hasMore: false,
+				});
+			serviceMocks.getTransactions.mockResolvedValueOnce([recent]);
+			const harness = createHarness();
+			harness.setState(1, "GENERAL");
+			harness.setState(5, "lunch");
+			harness.render();
+			harness.reload();
+			await flush();
+			footerButton(harness.render()).onPress();
+			await flush();
+			const scroll = harness.render();
+			harness.headerButtons()[0]?.props.onPress();
+			const day = harness.render();
+			expect(elements(day, ScreenList)[0]?.key).not.toBe(
+				elements(scroll, ScreenList)[0]?.key,
+			);
+			harness.reload();
+			await flush();
+			expect(listProps(harness.render()).data).toEqual([recent]);
+			expect(
+				serviceMocks.getTransactions,
+			).toHaveBeenCalledExactlyOnceWith(
+				{ id: "db" },
+				{
+					start: new Date(2026, 8, 15).getTime(),
+					end: firstRange.end,
+				},
+			);
+			harness.headerButtons()[0]?.props.onPress();
+			harness.render();
+			harness.reload();
+			await flush();
+			expect(serviceMocks.getTransactionPage).toHaveBeenLastCalledWith(
+				{ id: "db" },
+				firstRange,
+			);
+			expect(listProps(harness.render()).data).toEqual([recent]);
+		});
+
+		it("refreshes only the first week when database data changes", async () => {
+			serviceMocks.getTransactionPage
+				.mockResolvedValueOnce({
+					transactions: [recent],
+					hasMore: true,
+				})
+				.mockResolvedValueOnce({ transactions: [older], hasMore: true })
+				.mockResolvedValueOnce({ transactions: [], hasMore: false });
+			const harness = createHarness();
+			harness.render();
+			harness.reload();
+			await flush();
+			footerButton(harness.render()).onPress();
+			await flush();
+			databaseMocks.dataVersion += 1;
+			harness.render();
+			harness.reload();
+			await flush();
+			expect(serviceMocks.getTransactionPage).toHaveBeenLastCalledWith(
+				{ id: "db" },
+				firstRange,
+			);
+			expect(listProps(harness.render()).data).toEqual([]);
+		});
+
+		it.each(["resolve", "reject"] as const)(
+			"ignores a late %s after switching mode while the new query is pending",
+			async (settlement) => {
+				let resolvePage: ((page: Page) => void) | undefined;
+				let rejectPage: ((error: Error) => void) | undefined;
+				let resolveDay:
+					| ((transactions: readonly Transaction[]) => void)
+					| undefined;
+				serviceMocks.getTransactionPage.mockReturnValueOnce(
+					new Promise<Page>((resolve, reject) => {
+						resolvePage = resolve;
+						rejectPage = reject;
+					}),
+				);
+				serviceMocks.getTransactions.mockReturnValueOnce(
+					new Promise<readonly Transaction[]>((resolve) => {
+						resolveDay = resolve;
+					}),
+				);
+				const harness = createHarness();
+				harness.render();
+				harness.reload();
+				harness.headerButtons()[0]?.props.onPress();
+				harness.render();
+				harness.reload();
+				if (settlement === "resolve")
+					resolvePage?.({ transactions: [older], hasMore: true });
+				else rejectPage?.(new Error("stale error"));
+				await flush();
+				const pending = harness.render();
+				expect(listProps(pending).data).toEqual([]);
+				expect(listProps(pending).ListEmptyComponent).toBeNull();
+				expect(elements(pending, AppButton)).toHaveLength(0);
+				resolveDay?.([recent]);
+				await flush();
+				expect(listProps(harness.render()).data).toEqual([recent]);
+				expect(elements(harness.render(), AppButton)).toHaveLength(0);
+			},
+		);
+
+		it.each(["resolve", "reject"] as const)(
+			"ignores a late %s after unmount",
+			async (settlement) => {
+				let resolvePage: ((page: Page) => void) | undefined;
+				let rejectPage: ((error: Error) => void) | undefined;
+				serviceMocks.getTransactionPage.mockReturnValueOnce(
+					new Promise<Page>((resolve, reject) => {
+						resolvePage = resolve;
+						rejectPage = reject;
+					}),
+				);
+				const harness = createHarness();
+				harness.render();
+				harness.reload();
+				harness.unmount();
+				if (settlement === "resolve")
+					resolvePage?.({ transactions: [recent], hasMore: true });
+				else rejectPage?.(new Error("unmounted error"));
+				await flush();
+				expect(listProps(harness.render()).data).toEqual([]);
+				expect(elements(harness.render(), AppButton)).toHaveLength(0);
+				expect(renderMocks.cancel).toHaveBeenCalledOnce();
+			},
+		);
+
+		it("cancels a scheduled query before it starts", () => {
+			renderMocks.runAfterRender.mockImplementationOnce(
+				() => renderMocks.cancel,
+			);
+			const harness = createHarness();
+			harness.render();
+			harness.reload();
+			harness.unmount();
+			expect(serviceMocks.getTransactionPage).not.toHaveBeenCalled();
+			expect(renderMocks.cancel).toHaveBeenCalledOnce();
+		});
+
+		it("queries adjacent days and disables next-day navigation at today", async () => {
+			const harness = createHarness("DAY");
+			const today = harness.render();
+			expect(dayButton(today, "Next day")?.props.disabled).toBe(true);
+			harness.reload();
+			await flush();
+			dayButton(today, "Previous day")?.props.onPress();
+			const yesterday = harness.render();
+			expect(dayButton(yesterday, "Next day")?.props.disabled).toBe(
+				false,
+			);
+			harness.reload();
+			await flush();
+			expect(serviceMocks.getTransactions).toHaveBeenLastCalledWith(
+				{ id: "db" },
+				{
+					start: new Date(2026, 8, 14).getTime(),
+					end: new Date(2026, 8, 14, 23, 59, 59, 999).getTime(),
+				},
+			);
+			dayButton(yesterday, "Next day")?.props.onPress();
+			harness.render();
+			harness.reload();
+			await flush();
+			expect(serviceMocks.getTransactions).toHaveBeenLastCalledWith(
+				{ id: "db" },
+				{
+					start: new Date(2026, 8, 15).getTime(),
+					end: firstRange.end,
+				},
+			);
+			expect(serviceMocks.getTransactionPage).not.toHaveBeenCalled();
+		});
+
+		it("falls back to today if the selected date is unavailable", async () => {
+			const harness = createHarness("DAY");
+			harness.setState(6, undefined);
+			harness.render();
+			harness.reload();
+			await flush();
+			expect(
+				serviceMocks.getTransactions,
+			).toHaveBeenCalledExactlyOnceWith(
+				{ id: "db" },
+				{
+					start: new Date(2026, 8, 15).getTime(),
+					end: firstRange.end,
+				},
+			);
+		});
+	});
+
 	it("loads transactions and executes navigation actions", async () => {
 		const setOptions = vi.fn();
 		const navigation = { navigate: vi.fn(), setOptions };
@@ -195,8 +762,13 @@ describe("TransactionsScreen", () => {
 		expect(setOptions).toHaveBeenCalled();
 
 		const headerRight = setOptions.mock.calls[0][0].headerRight;
-		const headerButton = headerRight();
-		headerButton.props.onPress();
+		const [headerButton] = findByPredicate(
+			headerRight(),
+			(node: unknown) =>
+				isValidElement<ComponentProps<typeof HeaderIconButton>>(node) &&
+				node.props.accessibilityLabel === "Search",
+		) as ReactElement<ComponentProps<typeof HeaderIconButton>>[];
+		headerButton?.props.onPress();
 
 		const screenList = findByPredicate(
 			tree,
@@ -325,14 +897,87 @@ describe("TransactionsScreen", () => {
 		await flush();
 
 		const headerRight = setOptions.mock.calls[0]?.[0]?.headerRight;
-		const headerButton = headerRight?.();
-		headerButton?.props?.onPress?.();
+		const [headerButton] = findByPredicate(
+			headerRight?.(),
+			(node: unknown) =>
+				isValidElement<ComponentProps<typeof HeaderIconButton>>(node) &&
+				node.props.accessibilityLabel === "Search",
+		) as ReactElement<ComponentProps<typeof HeaderIconButton>>[];
+		headerButton?.props.onPress();
 
 		const updater = setSearchVisible.mock.calls[0]?.[0] as (
 			current: boolean,
 		) => boolean;
 		expect(updater(true)).toBe(false);
 	});
+
+	it.each(["DAY", "SCROLL"] as const)(
+		"places the %s mode toggle left of search and queries only its date window",
+		async (mode) => {
+			const selectedDate = new Date(2026, 8, 15, 14, 30);
+			const setMode =
+				vi.fn<
+					(
+						update: (current: "DAY" | "SCROLL") => "DAY" | "SCROLL",
+					) => void
+				>();
+			const setOptions =
+				vi.fn<(options: { headerRight: () => ReactElement }) => void>();
+			const navigation = { navigate: vi.fn(), setOptions };
+			let stateCall = 0;
+			reactMocks.useState.mockImplementation((initial: unknown) => {
+				stateCall += 1;
+				if (stateCall === 7) return [selectedDate, vi.fn()];
+				if (stateCall === 8) return [mode, setMode];
+				return [
+					typeof initial === "function"
+						? (initial as () => unknown)()
+						: initial,
+					vi.fn(),
+				];
+			});
+
+			TransactionsScreen({
+				navigation,
+			} as unknown as TransactionsScreenProps);
+			await flush();
+			const header = setOptions.mock.calls[0]?.[0].headerRight();
+			const [toggle, search] = findByPredicate(
+				header,
+				(node: unknown) =>
+					isValidElement(node) && node.type === HeaderIconButton,
+			) as ReactElement<ComponentProps<typeof HeaderIconButton>>[];
+			expect(toggle?.props.accessibilityLabel).toBe(
+				mode === "DAY" ? "Switch to scroll view" : "Switch to day view",
+			);
+			expect(toggle?.props.icon).toBe(
+				mode === "DAY" ? "list-outline" : "calendar-outline",
+			);
+			expect(toggle?.props.isActive).toBe(mode === "SCROLL");
+			expect(search?.props.accessibilityLabel).toBe("Search");
+			toggle?.props.onPress();
+			expect(setMode.mock.calls[0]?.[0](mode)).toBe(
+				mode === "DAY" ? "SCROLL" : "DAY",
+			);
+
+			const query =
+				mode === "DAY"
+					? serviceMocks.getTransactions
+					: serviceMocks.getTransactionPage;
+			const otherQuery =
+				mode === "DAY"
+					? serviceMocks.getTransactionPage
+					: serviceMocks.getTransactions;
+			expect(query).toHaveBeenCalledExactlyOnceWith(
+				{ id: "db" },
+				{
+					start: new Date(2026, 8, mode === "DAY" ? 15 : 9).getTime(),
+					end: new Date(2026, 8, 15, 23, 59, 59, 999).getTime(),
+				},
+			);
+			expect(otherQuery).not.toHaveBeenCalled();
+		},
+	);
 
 	it("applies classification and search filters", async () => {
 		const navigation = { navigate: vi.fn(), setOptions: vi.fn() };

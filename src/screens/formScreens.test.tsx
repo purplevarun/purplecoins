@@ -1,4 +1,14 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import type AppButtonProps from "@/types/AppButtonProps";
+import { isValidElement, type ReactElement } from "react";
+import {
+	afterEach,
+	beforeEach,
+	describe,
+	expect,
+	it,
+	vi,
+	type Mock,
+} from "vitest";
 
 const reactMocks = vi.hoisted(() => ({
 	useEffect: vi.fn(),
@@ -9,6 +19,17 @@ const serviceMocks = vi.hoisted(() => ({
 	getBudget: vi.fn(),
 	saveBudget: vi.fn(),
 	getCategories: vi.fn(),
+	getCategory: vi.fn(),
+	saveCategory: vi.fn(),
+	getSource: vi.fn(),
+	createSource: vi.fn(),
+	updateSourceName: vi.fn(),
+	getTrip: vi.fn(),
+	saveTrip: vi.fn(),
+	getInvestment: vi.fn(),
+	saveInvestment: vi.fn(),
+	getInvestmentTypes: vi.fn(),
+	saveInvestmentType: vi.fn(),
 	getNote: vi.fn(),
 	saveNote: vi.fn(),
 	deleteNote: vi.fn(),
@@ -69,6 +90,9 @@ vi.mock("@/components/FolderPicker", () => ({
 vi.mock("@/components/GlassCard", () => ({
 	default: (props: any) => ({ type: "GlassCard", props }),
 }));
+vi.mock("@/components/InvestmentTypePicker", () => ({
+	default: (props: unknown) => ({ type: "InvestmentTypePicker", props }),
+}));
 vi.mock("@/components/Notice", () => ({
 	default: (props: any) => ({ type: "Notice", props }),
 }));
@@ -121,6 +145,30 @@ vi.mock("@/services/budgetService", () => ({
 vi.mock("@/services/categoryService", () => ({
 	default: {
 		getCategories: serviceMocks.getCategories,
+		getCategory: serviceMocks.getCategory,
+		saveCategory: serviceMocks.saveCategory,
+	},
+}));
+vi.mock("@/services/sourceService", () => ({
+	default: {
+		getSource: serviceMocks.getSource,
+		createSource: serviceMocks.createSource,
+		updateSourceName: serviceMocks.updateSourceName,
+	},
+}));
+vi.mock("@/services/tripService", () => ({
+	default: { getTrip: serviceMocks.getTrip, saveTrip: serviceMocks.saveTrip },
+}));
+vi.mock("@/services/investmentService", () => ({
+	default: {
+		getInvestment: serviceMocks.getInvestment,
+		saveInvestment: serviceMocks.saveInvestment,
+	},
+}));
+vi.mock("@/services/investmentTypeService", () => ({
+	default: {
+		getInvestmentTypes: serviceMocks.getInvestmentTypes,
+		saveInvestmentType: serviceMocks.saveInvestmentType,
 	},
 }));
 vi.mock("@/services/noteService", () => ({
@@ -165,8 +213,12 @@ vi.mock("@/utils/error", () => ({
 }));
 
 import BudgetFormScreen from "@/screens/BudgetFormScreen";
+import CategoryFormScreen from "@/screens/CategoryFormScreen";
+import InvestmentFormScreen from "@/screens/InvestmentFormScreen";
 import NoteFormScreen from "@/screens/NoteFormScreen";
+import SourceFormScreen from "@/screens/SourceFormScreen";
 import TodoFormScreen from "@/screens/TodoFormScreen";
+import TripFormScreen from "@/screens/TripFormScreen";
 import VaultFormScreen from "@/screens/VaultFormScreen";
 
 const flush = async (): Promise<void> => {
@@ -282,6 +334,330 @@ describe("form screens", () => {
 		serviceMocks.savePassword.mockResolvedValue("pw1");
 
 		hookMocks.processAttachment.mockResolvedValue(undefined);
+	});
+
+	describe("finance forms", () => {
+		const forms = [
+			{
+				name: "source",
+				Screen: SourceFormScreen,
+				load: "getSource",
+				save: "createSource",
+				savingIndex: 3,
+				errorIndex: 4,
+				values: { 2: "USD" },
+			},
+			{
+				name: "category",
+				Screen: CategoryFormScreen,
+				load: "getCategory",
+				save: "saveCategory",
+				savingIndex: 4,
+				errorIndex: 5,
+				values: { 2: true, 3: true },
+			},
+			{
+				name: "trip",
+				Screen: TripFormScreen,
+				load: "getTrip",
+				save: "saveTrip",
+				savingIndex: 2,
+				errorIndex: 3,
+				values: {},
+			},
+			{
+				name: "investment",
+				Screen: InvestmentFormScreen,
+				load: "getInvestment",
+				save: "saveInvestment",
+				savingIndex: 5,
+				errorIndex: 6,
+				values: { 2: "Long term", 3: "type" },
+			},
+		] as const;
+		const entity = {
+			name: "Existing",
+			currencyCode: "USD",
+			isIncome: true,
+			label: "Long term",
+			investmentTypeId: "type",
+		};
+		const types = [
+			{ id: "type", name: "Equity", createdAt: 1, updatedAt: 1 },
+		];
+		const findElement = <Props,>(
+			tree: unknown,
+			predicate: (props: Props) => boolean,
+		): ReactElement<Props> => {
+			const [element] = findByPredicate(
+				tree,
+				(node: unknown) =>
+					isValidElement<Props>(node) && predicate(node.props),
+			) as ReactElement<Props>[];
+			if (!element) throw new Error("Expected form element");
+			return element;
+		};
+		const setStateValues = (
+			values: Record<number, unknown>,
+		): Map<number, Mock<(value: unknown) => void>> => {
+			let stateIndex = 0;
+			const setters = new Map<number, Mock<(value: unknown) => void>>();
+			reactMocks.useState.mockImplementation((initial: unknown) => {
+				stateIndex += 1;
+				const setter = vi.fn<(value: unknown) => void>();
+				setters.set(stateIndex, setter);
+				return [
+					stateIndex in values
+						? values[stateIndex]
+						: typeof initial === "function"
+							? (initial as () => unknown)()
+							: initial,
+					setter,
+				];
+			});
+			return setters;
+		};
+
+		beforeEach(() => {
+			vi.useFakeTimers();
+			for (const form of forms) {
+				serviceMocks[form.load].mockResolvedValue(entity);
+				serviceMocks[form.save].mockResolvedValue("saved");
+			}
+			serviceMocks.updateSourceName.mockResolvedValue(undefined);
+			serviceMocks.getInvestmentTypes.mockResolvedValue(types);
+			serviceMocks.saveInvestmentType.mockResolvedValue("new-type");
+		});
+		afterEach(() => {
+			vi.useRealTimers();
+		});
+
+		it.each(
+			forms.flatMap((form) => [
+				{ ...form, mode: "new", entityId: undefined },
+				{ ...form, mode: "edit", entityId: "entity" },
+			]),
+		)(
+			"loads and saves $mode $name forms before navigating back",
+			async ({
+				name,
+				Screen,
+				load,
+				save,
+				savingIndex,
+				values,
+				entityId,
+			}) => {
+				const setters = setStateValues({ 1: "Entered", ...values });
+				const navigation = { goBack: vi.fn() };
+				const tree = (Screen as (props: unknown) => ReactElement)({
+					navigation,
+					route: { params: entityId ? { entityId } : undefined },
+				});
+				await flush();
+				if (entityId) {
+					expect(serviceMocks[load]).toHaveBeenCalledWith(
+						{ id: "db" },
+						entityId,
+					);
+					expect(setters.get(1)).toHaveBeenCalledWith("Existing");
+				} else expect(serviceMocks[load]).not.toHaveBeenCalled();
+				if (name === "source")
+					expect(
+						findElement<{ label: string; isEditable: boolean }>(
+							tree,
+							(props) => props.label === "Currency",
+						).props.isEditable,
+					).toBe(!entityId);
+				findElement<AppButtonProps>(
+					tree,
+					(props) => props.label === "Save",
+				).props.onPress();
+				await flush();
+				expect(hookMocks.refreshData).toHaveBeenCalledOnce();
+				expect(navigation.goBack).not.toHaveBeenCalled();
+				await vi.runAllTimersAsync();
+				expect(navigation.goBack).toHaveBeenCalledOnce();
+				expect(setters.get(savingIndex)).toHaveBeenCalledWith(true);
+				expect(setters.get(savingIndex)).toHaveBeenLastCalledWith(
+					false,
+				);
+				const saveMock =
+					name === "source" && entityId
+						? serviceMocks.updateSourceName
+						: serviceMocks[save];
+				const argumentsByForm = {
+					source: entityId
+						? [entityId, "Entered"]
+						: ["Entered", "USD"],
+					category: [entityId, "Entered", true],
+					trip: [entityId, "Entered"],
+					investment: [entityId, "Entered", "Long term", "type"],
+				};
+				expect(saveMock).toHaveBeenCalledWith(
+					{ id: "db" },
+					...argumentsByForm[name],
+				);
+			},
+		);
+
+		it.each(forms)(
+			"reports $name load/save failures and leaves the form open",
+			async ({
+				name,
+				Screen,
+				load,
+				save,
+				savingIndex,
+				errorIndex,
+				values,
+			}) => {
+				const setters = setStateValues({
+					...values,
+					[errorIndex]: "visible error",
+				});
+				serviceMocks[load].mockRejectedValueOnce(
+					new Error("load failed"),
+				);
+				const saveMock =
+					name === "source"
+						? serviceMocks.updateSourceName
+						: serviceMocks[save];
+				saveMock.mockRejectedValueOnce(new Error("save failed"));
+				const navigation = { goBack: vi.fn() };
+				const tree = (Screen as (props: unknown) => ReactElement)({
+					navigation,
+					route: { params: { entityId: "entity" } },
+				});
+				await flush();
+				expect(setters.get(errorIndex)).toHaveBeenCalledWith(
+					"load failed",
+				);
+				expect(
+					findElement<{ message: string }>(
+						tree,
+						(props) => props.message === "visible error",
+					),
+				).toBeDefined();
+				findElement<AppButtonProps>(
+					tree,
+					(props) => props.label === "Save",
+				).props.onPress();
+				await flush();
+				expect(setters.get(errorIndex)).toHaveBeenLastCalledWith(
+					"save failed",
+				);
+				expect(setters.get(savingIndex)).toHaveBeenLastCalledWith(
+					false,
+				);
+				expect(hookMocks.refreshData).not.toHaveBeenCalled();
+				expect(navigation.goBack).not.toHaveBeenCalled();
+			},
+		);
+
+		it.each(forms)(
+			"handles a missing $name record",
+			async ({ name, Screen, load }) => {
+				const setters = setStateValues({});
+				serviceMocks[load].mockResolvedValueOnce(null);
+				(Screen as (props: unknown) => ReactElement)({
+					navigation: { goBack: vi.fn() },
+					route: { params: { entityId: "missing" } },
+				});
+				await flush();
+				if (name === "source" || name === "category")
+					expect(setters.get(1)).not.toHaveBeenCalled();
+				else expect(setters.get(1)).toHaveBeenCalledWith("");
+			},
+		);
+
+		it.each([true, false])(
+			"confirms category classification changes to income=%s before saving",
+			async (isIncome) => {
+				const setters = setStateValues({
+					1: "Category",
+					2: isIncome,
+					3: !isIncome,
+				});
+				const navigation = { goBack: vi.fn() };
+				const tree = (
+					CategoryFormScreen as (props: unknown) => ReactElement
+				)({ navigation, route: { params: { entityId: "category" } } });
+				await flush();
+				findElement<AppButtonProps>(
+					tree,
+					(props) => props.label === "Save",
+				).props.onPress();
+				expect(serviceMocks.saveCategory).not.toHaveBeenCalled();
+				expect(navigation.goBack).not.toHaveBeenCalled();
+				const confirmation = hookMocks.confirm.mock.calls[0]?.[0] as {
+					title: string;
+					onConfirm: () => void;
+				};
+				expect(confirmation.title).toBe(
+					"Change analysis classification?",
+				);
+				confirmation.onConfirm();
+				await vi.runAllTimersAsync();
+				expect(serviceMocks.saveCategory).toHaveBeenCalledWith(
+					{ id: "db" },
+					"category",
+					"Category",
+					isIncome,
+				);
+				expect(navigation.goBack).toHaveBeenCalledOnce();
+				findElement<{ onValueChange: (value: boolean) => void }>(
+					tree,
+					(props) => typeof props.onValueChange === "function",
+				).props.onValueChange(!isIncome);
+				expect(setters.get(2)).toHaveBeenLastCalledWith(!isIncome);
+			},
+		);
+
+		it("loads optional investment fields, creates types, and saves with no type", async () => {
+			const setters = setStateValues({ 1: "Fund", 2: "", 3: "" });
+			serviceMocks.getInvestment.mockResolvedValueOnce({
+				name: "Fund",
+				label: null,
+				investmentTypeId: null,
+			});
+			const tree = (
+				InvestmentFormScreen as (props: unknown) => ReactElement
+			)({
+				navigation: { goBack: vi.fn() },
+				route: { params: { entityId: "fund" } },
+			});
+			await flush();
+			expect(setters.get(2)).toHaveBeenCalledWith("");
+			expect(setters.get(3)).toHaveBeenCalledWith("");
+			expect(setters.get(4)).toHaveBeenCalledWith(types);
+			const picker = findElement<{
+				onCreateInvestmentType: (name: string) => Promise<string>;
+			}>(
+				tree,
+				(props) => typeof props.onCreateInvestmentType === "function",
+			);
+			await expect(
+				picker.props.onCreateInvestmentType("New type"),
+			).resolves.toBe("new-type");
+			expect(serviceMocks.saveInvestmentType).toHaveBeenCalledWith(
+				{ id: "db" },
+				"New type",
+			);
+			expect(serviceMocks.getInvestmentTypes).toHaveBeenCalledTimes(2);
+			findElement<AppButtonProps>(
+				tree,
+				(props) => props.label === "Save",
+			).props.onPress();
+			await vi.runAllTimersAsync();
+			expect(serviceMocks.saveInvestment).toHaveBeenCalledWith(
+				{ id: "db" },
+				"fund",
+				"Fund",
+				"",
+				null,
+			);
+		});
 	});
 
 	it("executes VaultFormScreen branches for password card and identity", async () => {

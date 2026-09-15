@@ -57,8 +57,7 @@ const getY = (
 	}
 	const safeMin = Math.min(minValue, maxValue);
 	const safeMax = Math.max(minValue, maxValue);
-	const ratio =
-		safeMax === safeMin ? 0 : (value - safeMin) / (safeMax - safeMin);
+	const ratio = (value - safeMin) / (safeMax - safeMin);
 	return CHART_HEIGHT - PADDING_Y - ratio * (CHART_HEIGHT - PADDING_Y * 2);
 };
 

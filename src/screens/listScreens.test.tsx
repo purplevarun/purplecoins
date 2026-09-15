@@ -1,8 +1,17 @@
+import type Category from "@/types/Category";
 import type HeaderIconButtonProps from "@/types/HeaderIconButtonProps";
 import type SegmentedControlProps from "@/types/SegmentedControlProps";
 import type Source from "@/types/Source";
 import { isValidElement, type ReactElement } from "react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+	afterEach,
+	beforeEach,
+	describe,
+	expect,
+	it,
+	vi,
+	type Mock,
+} from "vitest";
 
 type HeaderOptions = {
 	headerRight: () => ReactElement;
@@ -29,6 +38,8 @@ const navigationMocks = vi.hoisted(() => ({
 
 const serviceMocks = vi.hoisted(() => ({
 	getAnalysisSummary: vi.fn(),
+	getInvestmentNetAmount: vi.fn(),
+	getInvestmentNetLabel: vi.fn(),
 	getCategories: vi.fn(),
 	getInvestments: vi.fn(),
 	getTrips: vi.fn(),
@@ -44,6 +55,7 @@ const serviceMocks = vi.hoisted(() => ({
 	getExchangeRates: vi.fn(),
 	saveManualExchangeRate: vi.fn(),
 	getSources: vi.fn(),
+	validateSource: vi.fn(),
 	getArchivedSources: vi.fn(),
 	setSourceArchived: vi.fn(),
 	getArchivedCategories: vi.fn(),
@@ -157,7 +169,11 @@ vi.mock("@/hooks/useFolders", () => ({
 }));
 
 vi.mock("@/services/analysisService", () => ({
-	default: { getAnalysisSummary: serviceMocks.getAnalysisSummary },
+	default: {
+		getAnalysisSummary: serviceMocks.getAnalysisSummary,
+		getInvestmentNetAmount: serviceMocks.getInvestmentNetAmount,
+		getInvestmentNetLabel: serviceMocks.getInvestmentNetLabel,
+	},
 }));
 vi.mock("@/services/budgetService", () => ({
 	default: {
@@ -178,6 +194,7 @@ vi.mock("@/services/exchangeRateService", () => ({
 vi.mock("@/services/sourceService", () => ({
 	default: {
 		getSources: serviceMocks.getSources,
+		validateSource: serviceMocks.validateSource,
 		getArchivedSources: serviceMocks.getArchivedSources,
 		setSourceArchived: serviceMocks.setSourceArchived,
 		deleteSource: serviceMocks.deleteSource,
@@ -309,6 +326,41 @@ const findElement = <Props,>(
 	return element;
 };
 
+const mockStateValues = (
+	values: Record<number, unknown>,
+): Map<number, Mock<(value: unknown) => void>> => {
+	let stateIndex = 0;
+	const setters = new Map<number, Mock<(value: unknown) => void>>();
+	reactMocks.useState.mockImplementation((initial: unknown) => {
+		stateIndex += 1;
+		const setter = vi.fn<(value: unknown) => void>();
+		setters.set(stateIndex, setter);
+		return [
+			stateIndex in values
+				? values[stateIndex]
+				: typeof initial === "function"
+					? (initial as () => unknown)()
+					: initial,
+			setter,
+		];
+	});
+	return setters;
+};
+
+type FinanceListProps<Item> = {
+	data: readonly Item[];
+	keyExtractor: (item: Item) => string;
+	renderItem: (props: {
+		item: Item;
+	}) => ReactElement<{ onPress: () => void }>;
+};
+
+type ActionProps = {
+	accessibilityLabel: string;
+	onPress: () => void;
+	style: (state: { pressed: boolean }) => unknown;
+};
+
 describe("list screens", () => {
 	beforeEach(() => {
 		reactMocks.useEffect.mockReset();
@@ -332,6 +384,11 @@ describe("list screens", () => {
 		serviceMocks.getTrips.mockResolvedValue([]);
 		serviceMocks.getTripTotals.mockResolvedValue([]);
 		serviceMocks.getNativeCurrencyDisplay.mockResolvedValue(true);
+		serviceMocks.getInvestmentNetAmount.mockImplementation((net: string) =>
+			String(Math.abs(Number(net))),
+		);
+		serviceMocks.getInvestmentNetLabel.mockReturnValue("Net");
+		serviceMocks.validateSource.mockResolvedValue(undefined);
 		serviceMocks.getAnalysisSummary.mockResolvedValue({
 			categories: [
 				{
@@ -386,6 +443,743 @@ describe("list screens", () => {
 		serviceMocks.deleteCategory.mockResolvedValue(undefined);
 		serviceMocks.deleteTrip.mockResolvedValue(undefined);
 		serviceMocks.deleteInvestment.mockResolvedValue(undefined);
+	});
+
+	describe("finance list details", () => {
+		const source: Source = {
+			id: "cash",
+			name: "Cash",
+			currencyCode: "INR",
+			balance: "5",
+			validatedAt: null,
+			latestTransactionCreatedAt: 2,
+			createdAt: 1,
+			updatedAt: 1,
+			archived: false,
+		};
+		const sources: readonly Source[] = [
+			source,
+			{
+				...source,
+				id: "positive",
+				name: "Positive",
+				currencyCode: "USD",
+				balance: "10",
+				validatedAt: 3,
+			},
+			{
+				...source,
+				id: "negative",
+				name: "Negative",
+				currencyCode: "USD",
+				balance: "-10",
+				validatedAt: 1,
+			},
+			{
+				...source,
+				id: "unknown",
+				name: "Unknown",
+				currencyCode: "ZZZ",
+				balance: "100",
+				validatedAt: 1,
+				latestTransactionCreatedAt: null,
+			},
+			{
+				...source,
+				id: "zero",
+				name: "Zero",
+				currencyCode: "USD",
+				balance: "0",
+			},
+		];
+		const trips = [
+			{ id: "spent", name: "Holiday" },
+			{ id: "refund", name: "Refund" },
+			{ id: "empty", name: "Empty" },
+			{ id: "unknown", name: "Unknown" },
+		];
+		const investments = [
+			{
+				id: "redeemed",
+				name: "Redeemed",
+				label: "Long term",
+				investmentTypeName: "Equity",
+			},
+			{
+				id: "invested",
+				name: "Invested",
+				label: " Long term ",
+				investmentTypeName: " Equity ",
+			},
+			{ id: "zero", name: "Zero", label: " ", investmentTypeName: " " },
+			{
+				id: "empty",
+				name: "Empty",
+				label: null,
+				investmentTypeName: undefined,
+			},
+			{
+				id: "unknown",
+				name: "Unknown",
+				label: undefined,
+				investmentTypeName: "Debt",
+			},
+		];
+		type InvestmentItem =
+			| { kind: "INVESTMENT"; entity: (typeof investments)[number] }
+			| { kind: "GROUP_HEADER"; title: string };
+
+		beforeEach(() => {
+			vi.useFakeTimers();
+			reactMocks.useLayoutEffect.mockImplementation((effect) => effect());
+			reactMocks.useEffect.mockImplementation(
+				(effect: () => () => void) => {
+					const cleanup = effect();
+					vi.runAllTimers();
+					cleanup();
+				},
+			);
+		});
+		afterEach(() => {
+			vi.useRealTimers();
+		});
+
+		it.each([true, false])(
+			"sorts and renders source balances with native currency=%s",
+			async (nativeCurrency) => {
+				mockStateValues({
+					1: sources,
+					2: nativeCurrency,
+					3: [{ currencyCode: "USD", rateToInr: "2" }],
+				});
+				const navigation = { navigate: vi.fn(), setOptions: vi.fn() };
+				const tree = (
+					SourcesScreen as (props: unknown) => ReactElement
+				)({ navigation });
+				await flush();
+				const list = findElement<FinanceListProps<Source>>(
+					tree,
+					(props) => Array.isArray(props.data),
+				).props;
+				expect(list.data.map((item) => item.id)).toEqual([
+					"negative",
+					"unknown",
+					"zero",
+					"cash",
+					"positive",
+				]);
+				for (const item of list.data) {
+					expect(list.keyExtractor(item)).toBe(item.id);
+					const row = list.renderItem({ item });
+					row.props.onPress();
+					expect(navigation.navigate).toHaveBeenLastCalledWith(
+						"LinkedTransactions",
+						{
+							kind: "SOURCE",
+							entityId: item.id,
+							entityName: item.name,
+						},
+					);
+					for (const label of ["Validate", "Archive"]) {
+						const action = findElement<ActionProps>(
+							row,
+							(props) => props.accessibilityLabel === label,
+						).props;
+						expect(action.style({ pressed: true })).not.toEqual(
+							action.style({ pressed: false }),
+						);
+						action.onPress();
+						if (label === "Archive") {
+							const confirmation =
+								hookMocks.confirm.mock.calls.at(-1)?.[0] as {
+									onConfirm: () => void;
+								};
+							confirmation.onConfirm();
+						}
+						await flush();
+					}
+					expect(
+						serviceMocks.validateSource,
+					).toHaveBeenLastCalledWith({ id: "db" }, item.id);
+					expect(
+						serviceMocks.setSourceArchived,
+					).toHaveBeenLastCalledWith({ id: "db" }, item.id, true);
+				}
+				expect(hookMocks.refreshData).toHaveBeenCalledTimes(
+					sources.length * 2,
+				);
+				findElement<{ onPress: () => void }>(
+					tree,
+					(props) => typeof props.onPress === "function",
+				).props.onPress();
+				expect(navigation.navigate).toHaveBeenLastCalledWith(
+					"SourceForm",
+				);
+			},
+		);
+
+		it.each([true, false])(
+			"sorts and renders trip spending with native currency=%s",
+			async (nativeCurrency) => {
+				mockStateValues({
+					1: trips,
+					2: [
+						{ tripId: "spent", currencyCode: "USD", total: "10" },
+						{ tripId: "spent", currencyCode: "INR", total: "10" },
+						{ tripId: "refund", currencyCode: "USD", total: "-5" },
+						{
+							tripId: "unknown",
+							currencyCode: "ZZZ",
+							total: "100",
+						},
+					],
+					3: nativeCurrency,
+					4: [{ currencyCode: "USD", rateToInr: "2" }],
+				});
+				const navigation = { navigate: vi.fn(), setOptions: vi.fn() };
+				const tree = (TripsScreen as (props: unknown) => ReactElement)({
+					navigation,
+				});
+				await flush();
+				const list = findElement<
+					FinanceListProps<(typeof trips)[number]>
+				>(tree, (props) => Array.isArray(props.data)).props;
+				expect(list.data.map((item) => item.id)).toEqual([
+					"spent",
+					"empty",
+					"unknown",
+					"refund",
+				]);
+				for (const item of list.data) {
+					expect(list.keyExtractor(item)).toBe(item.id);
+					const row = list.renderItem({ item });
+					row.props.onPress();
+					expect(navigation.navigate).toHaveBeenLastCalledWith(
+						"LinkedTransactions",
+						{
+							kind: "TRIP",
+							entityId: item.id,
+							entityName: item.name,
+						},
+					);
+					const action = findElement<ActionProps>(
+						row,
+						(props) => props.accessibilityLabel === "Archive",
+					).props;
+					expect(action.style({ pressed: true })).not.toEqual(
+						action.style({ pressed: false }),
+					);
+					action.onPress();
+					const confirmation = hookMocks.confirm.mock.calls.at(
+						-1,
+					)?.[0] as { onConfirm: () => void };
+					confirmation.onConfirm();
+					await flush();
+					expect(
+						serviceMocks.setTripArchived,
+					).toHaveBeenLastCalledWith({ id: "db" }, item.id, true);
+				}
+				expect(hookMocks.refreshData).toHaveBeenCalledTimes(
+					trips.length,
+				);
+				findElement<{ onPress: () => void }>(
+					tree,
+					(props) => typeof props.onPress === "function",
+				).props.onPress();
+				expect(navigation.navigate).toHaveBeenLastCalledWith(
+					"TripForm",
+				);
+			},
+		);
+
+		it.each([
+			{ groupBy: "NONE", nativeCurrency: true },
+			{ groupBy: "NONE", nativeCurrency: false },
+			{ groupBy: "LABEL", nativeCurrency: true },
+			{ groupBy: "TYPE", nativeCurrency: false },
+		])(
+			"renders investment totals grouped by $groupBy, native=$nativeCurrency",
+			async ({ groupBy, nativeCurrency }) => {
+				const setters = mockStateValues({
+					1: investments,
+					2: {
+						investments: [
+							{
+								investmentId: "invested",
+								currencyCode: "USD",
+								net: "10",
+								totalInvested: "10",
+								totalRedeemed: "0",
+							},
+							{
+								investmentId: "redeemed",
+								currencyCode: "INR",
+								net: "-5",
+								totalInvested: "5",
+								totalRedeemed: "10",
+							},
+							{
+								investmentId: "zero",
+								currencyCode: "INR",
+								net: "0",
+								totalInvested: "0",
+								totalRedeemed: "0",
+							},
+							{
+								investmentId: "unknown",
+								currencyCode: "ZZZ",
+								net: "100",
+								totalInvested: "100",
+								totalRedeemed: "0",
+							},
+						],
+						missingCurrencies: ["ZZZ"],
+					},
+					3: nativeCurrency,
+					4: [{ currencyCode: "USD", rateToInr: "2" }],
+					9: groupBy,
+				});
+				const navigation = { navigate: vi.fn(), setOptions: vi.fn() };
+				const tree = (
+					InvestmentsScreen as (props: unknown) => ReactElement
+				)({ navigation });
+				await flush();
+				const list = findElement<FinanceListProps<InvestmentItem>>(
+					tree,
+					(props) => Array.isArray(props.data),
+				).props;
+				const headers = list.data
+					.filter((item) => item.kind === "GROUP_HEADER")
+					.map((item) => item.title);
+				expect(headers).toEqual(
+					groupBy === "NONE"
+						? []
+						: groupBy === "LABEL"
+							? ["Long term", "No label"]
+							: ["Debt", "Equity", "No type"],
+				);
+				if (groupBy === "NONE")
+					expect(
+						list.data
+							.filter((item) => item.kind === "INVESTMENT")
+							.map((item) => item.entity.id),
+					).toEqual([
+						"invested",
+						"zero",
+						"empty",
+						"unknown",
+						"redeemed",
+					]);
+				for (const item of list.data) {
+					const row = list.renderItem({ item });
+					if (item.kind === "GROUP_HEADER") {
+						expect(list.keyExtractor(item)).toBe(
+							`group:${item.title}`,
+						);
+						expect(
+							findElement<{ children: string }>(
+								row,
+								(props) => props.children === item.title,
+							),
+						).toBeDefined();
+						continue;
+					}
+					expect(list.keyExtractor(item)).toBe(item.entity.id);
+					row.props.onPress();
+					expect(navigation.navigate).toHaveBeenLastCalledWith(
+						"LinkedTransactions",
+						{
+							kind: "INVESTMENT",
+							entityId: item.entity.id,
+							entityName: item.entity.name,
+						},
+					);
+					const action = findElement<ActionProps>(
+						row,
+						(props) => props.accessibilityLabel === "Archive",
+					).props;
+					expect(action.style({ pressed: true })).not.toEqual(
+						action.style({ pressed: false }),
+					);
+					action.onPress();
+					const confirmation = hookMocks.confirm.mock.calls.at(
+						-1,
+					)?.[0] as { onConfirm: () => void };
+					confirmation.onConfirm();
+					await flush();
+					expect(
+						serviceMocks.setInvestmentArchived,
+					).toHaveBeenLastCalledWith(
+						{ id: "db" },
+						item.entity.id,
+						true,
+					);
+				}
+				expect(hookMocks.refreshData).toHaveBeenCalledTimes(
+					investments.length,
+				);
+				findElement<SegmentedControlProps>(tree, (props) =>
+					Array.isArray(props.options),
+				).props.onChange("TYPE");
+				expect(setters.get(9)).toHaveBeenCalledWith("TYPE");
+				findElement<{ onPress: () => void }>(
+					tree,
+					(props) => typeof props.onPress === "function",
+				).props.onPress();
+				expect(navigation.navigate).toHaveBeenLastCalledWith(
+					"InvestmentForm",
+				);
+			},
+		);
+
+		it.each([
+			{
+				kind: "SOURCE",
+				Screen: SourcesScreen,
+				load: "getSources",
+				archive: "setSourceArchived",
+				errorIndex: 4,
+				searchIndex: 5,
+			},
+			{
+				kind: "TRIP",
+				Screen: TripsScreen,
+				load: "getTrips",
+				archive: "setTripArchived",
+				errorIndex: 5,
+				searchIndex: 6,
+			},
+			{
+				kind: "INVESTMENT",
+				Screen: InvestmentsScreen,
+				load: "getInvestments",
+				archive: "setInvestmentArchived",
+				errorIndex: 5,
+				searchIndex: 6,
+			},
+		] as const)(
+			"handles $kind search, loading and archive failures",
+			async ({
+				kind,
+				Screen,
+				load,
+				archive,
+				errorIndex,
+				searchIndex,
+			}) => {
+				const matching = { ...source, id: "match", name: "Keep" };
+				const entities = [
+					matching,
+					{ ...source, id: "drop", name: "Drop" },
+				];
+				const setters = mockStateValues({
+					1: entities,
+					[errorIndex]: "visible error",
+					[searchIndex]: true,
+					[searchIndex + 1]: " keep ",
+					[searchIndex + 2]: " keep ",
+				});
+				serviceMocks[load].mockRejectedValueOnce(
+					new Error("load failed"),
+				);
+				serviceMocks[archive].mockRejectedValueOnce(
+					new Error("archive failed"),
+				);
+				const navigation = {
+					navigate: vi.fn(),
+					setOptions: vi.fn<(options: HeaderOptions) => void>(),
+				};
+				const tree = (Screen as (props: unknown) => ReactElement)({
+					navigation,
+				});
+				await flush();
+				await flush();
+				expect(setters.get(errorIndex)).toHaveBeenCalledWith(
+					"load failed",
+				);
+				expect(setters.get(searchIndex + 2)).toHaveBeenCalledWith(
+					" keep ",
+				);
+				expect(
+					findElement<{ message: string }>(
+						tree,
+						(props) => props.message === "visible error",
+					),
+				).toBeDefined();
+				type Item =
+					| typeof matching
+					| { kind: "INVESTMENT"; entity: typeof matching };
+				const list = findElement<FinanceListProps<Item>>(
+					tree,
+					(props) => Array.isArray(props.data),
+				).props;
+				const item: Item =
+					kind === "INVESTMENT"
+						? { kind: "INVESTMENT", entity: matching }
+						: matching;
+				expect(list.data).toEqual([item]);
+				const row = list.renderItem({ item });
+				findElement<ActionProps>(
+					row,
+					(props) => props.accessibilityLabel === "Archive",
+				).props.onPress();
+				const confirmation = hookMocks.confirm.mock.calls[0]?.[0] as {
+					onConfirm: () => void;
+				};
+				confirmation.onConfirm();
+				await flush();
+				expect(hookMocks.showMessage).toHaveBeenLastCalledWith({
+					title: "Unable to archive",
+					message: "archive failed",
+					variant: "danger",
+				});
+				if (kind === "SOURCE") {
+					serviceMocks.validateSource.mockRejectedValueOnce(
+						new Error("validate failed"),
+					);
+					findElement<ActionProps>(
+						row,
+						(props) => props.accessibilityLabel === "Validate",
+					).props.onPress();
+					await flush();
+					expect(hookMocks.showMessage).toHaveBeenLastCalledWith({
+						title: "Unable to validate",
+						message: "validate failed",
+						variant: "danger",
+					});
+				}
+				expect(hookMocks.refreshData).not.toHaveBeenCalled();
+				const header =
+					navigation.setOptions.mock.calls[0]?.[0].headerRight();
+				findElement<HeaderIconButtonProps>(
+					header,
+					(props) => props.accessibilityLabel === "Close search",
+				).props.onPress();
+				const update = setters.get(searchIndex)?.mock.calls[0]?.[0] as (
+					current: boolean,
+				) => boolean;
+				expect(update(true)).toBe(false);
+				expect(update(false)).toBe(true);
+				expect(setters.get(searchIndex + 1)).toHaveBeenCalledWith("");
+				expect(setters.get(searchIndex + 2)).toHaveBeenLastCalledWith(
+					"",
+				);
+			},
+		);
+	});
+
+	describe("category list details", () => {
+		const expense: Category = {
+			id: "expense",
+			name: "Food",
+			isIncome: false,
+			createdAt: 1,
+			updatedAt: 1,
+			archived: false,
+		};
+		const income: Category = {
+			...expense,
+			id: "income",
+			name: "Salary",
+			isIncome: true,
+		};
+		const empty: Category = { ...expense, id: "empty", name: "Unused" };
+		const unpriced: Category = {
+			...expense,
+			id: "unpriced",
+			name: "Travel",
+		};
+		const analysis = {
+			categories: [
+				{ categoryId: expense.id, currencyCode: "INR", net: "-10" },
+				{ categoryId: expense.id, currencyCode: "USD", net: "-10" },
+				{ categoryId: income.id, currencyCode: "INR", net: "10" },
+				{ categoryId: unpriced.id, currencyCode: "ZZZ", net: "-100" },
+			],
+			missingCurrencies: ["ZZZ"],
+		};
+		const renderCategories = (navigation: unknown): ReactElement =>
+			(CategoriesScreen as (props: unknown) => ReactElement)({
+				navigation,
+			});
+
+		beforeEach(() => {
+			vi.useFakeTimers();
+			reactMocks.useLayoutEffect.mockImplementation((effect) => effect());
+			reactMocks.useEffect.mockImplementation(
+				(effect: () => () => void) => {
+					const cleanup = effect();
+					vi.runAllTimers();
+					cleanup();
+				},
+			);
+		});
+		afterEach(() => {
+			vi.useRealTimers();
+		});
+
+		it.each([true, false])(
+			"renders sorted category totals with native currency=%s",
+			async (nativeCurrency) => {
+				mockStateValues({
+					1: [income, expense, empty, unpriced],
+					3: analysis,
+					4: nativeCurrency,
+					5: [{ currencyCode: "USD", rateToInr: "2" }],
+				});
+				const navigation = { navigate: vi.fn(), setOptions: vi.fn() };
+				const tree = renderCategories(navigation);
+				await flush();
+				const list = findElement<FinanceListProps<Category>>(
+					tree,
+					(props) => Array.isArray(props.data),
+				).props;
+				expect(list.data.map((category) => category.id)).toEqual([
+					"expense",
+					"empty",
+					"unpriced",
+					"income",
+				]);
+				for (const category of list.data) {
+					expect(list.keyExtractor(category)).toBe(category.id);
+					const row = list.renderItem({ item: category });
+					row.props.onPress();
+					expect(navigation.navigate).toHaveBeenLastCalledWith(
+						"LinkedTransactions",
+						{
+							kind: "CATEGORY",
+							entityId: category.id,
+							entityName: category.name,
+						},
+					);
+					const archive = findElement<ActionProps>(
+						row,
+						(props) => props.accessibilityLabel === "Archive",
+					);
+					expect(archive.props.style({ pressed: true })).not.toEqual(
+						archive.props.style({ pressed: false }),
+					);
+					archive.props.onPress();
+					const confirmation = hookMocks.confirm.mock.calls.at(
+						-1,
+					)?.[0] as { onConfirm: () => void };
+					confirmation.onConfirm();
+					await flush();
+					expect(
+						serviceMocks.setCategoryArchived,
+					).toHaveBeenLastCalledWith({ id: "db" }, category.id, true);
+				}
+				expect(hookMocks.refreshData).toHaveBeenCalledTimes(4);
+				findElement<{ onPress: () => void }>(
+					tree,
+					(props) => typeof props.onPress === "function",
+				).props.onPress();
+				expect(navigation.navigate).toHaveBeenLastCalledWith(
+					"CategoryForm",
+				);
+				expect(
+					findElement<{ message: string }>(
+						tree,
+						(props) =>
+							typeof props.message === "string" &&
+							props.message.startsWith("Missing INR rates"),
+					).props.message,
+				).toContain("ZZZ");
+			},
+		);
+
+		it.each(["INCOME", "EXPENSE", "ALL"])(
+			"applies the %s classification and debounced search",
+			async (filter) => {
+				const setters = mockStateValues({
+					1: [expense, income],
+					2: filter,
+					3: { categories: [], missingCurrencies: [] },
+					6: "visible error",
+					7: true,
+					8: " food ",
+					9: " food ",
+				});
+				const navigation = {
+					navigate: vi.fn(),
+					setOptions: vi.fn<(options: HeaderOptions) => void>(),
+				};
+				const tree = renderCategories(navigation);
+				await flush();
+				expect(serviceMocks.getCategories).toHaveBeenCalledWith(
+					{ id: "db" },
+					filter === "ALL" ? undefined : filter === "INCOME",
+				);
+				expect(setters.get(9)).toHaveBeenCalledWith(" food ");
+				const list = findElement<FinanceListProps<Category>>(
+					tree,
+					(props) => Array.isArray(props.data),
+				).props;
+				expect(list.data).toEqual([expense]);
+				expect(
+					findElement<{ message: string }>(
+						tree,
+						(props) => props.message === "visible error",
+					),
+				).toBeDefined();
+				const header =
+					navigation.setOptions.mock.calls[0]?.[0].headerRight();
+				findElement<HeaderIconButtonProps>(
+					header,
+					(props) => props.accessibilityLabel === "Close search",
+				).props.onPress();
+				const update = setters.get(7)?.mock.calls[0]?.[0] as (
+					current: boolean,
+				) => boolean;
+				expect(update(true)).toBe(false);
+				expect(update(false)).toBe(true);
+				expect(setters.get(8)).toHaveBeenCalledWith("");
+				expect(setters.get(9)).toHaveBeenLastCalledWith("");
+			},
+		);
+
+		it("renders zero totals before analysis arrives and reports load and archive failures", async () => {
+			const setters = mockStateValues({ 1: [expense, income] });
+			serviceMocks.getCategories.mockRejectedValueOnce(
+				new Error("categories failed"),
+			);
+			serviceMocks.setCategoryArchived.mockRejectedValueOnce(
+				new Error("archive failed"),
+			);
+			const tree = renderCategories({
+				navigate: vi.fn(),
+				setOptions: vi.fn(),
+			});
+			await flush();
+			await flush();
+			expect(setters.get(6)).toHaveBeenCalledWith("categories failed");
+			const list = findElement<FinanceListProps<Category>>(
+				tree,
+				(props) => Array.isArray(props.data),
+			).props;
+			const row = list.renderItem({ item: expense });
+			expect(
+				findElement<{ children: string }>(
+					row,
+					(props) => props.children === "INR 0",
+				),
+			).toBeDefined();
+			findElement<ActionProps>(
+				row,
+				(props) => props.accessibilityLabel === "Archive",
+			).props.onPress();
+			const confirmation = hookMocks.confirm.mock.calls[0]?.[0] as {
+				onConfirm: () => void;
+			};
+			confirmation.onConfirm();
+			await flush();
+			expect(hookMocks.showMessage).toHaveBeenCalledWith({
+				title: "Unable to archive",
+				message: "archive failed",
+				variant: "danger",
+			});
+			expect(hookMocks.refreshData).not.toHaveBeenCalled();
+		});
 	});
 
 	it.each([

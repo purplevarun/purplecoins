@@ -1,4 +1,5 @@
 import AppError from "@/errors/AppError";
+import type { SQLiteDatabase } from "expo-sqlite";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => {
@@ -9,6 +10,7 @@ const mocks = vi.hoisted(() => {
 		getSourceRow: vi.fn(async () => null),
 		getTransactionRow: vi.fn(async () => null),
 		getTransactionRows: vi.fn(async () => []),
+		hasTransactionRowsBefore: vi.fn(() => Promise.resolve(false)),
 		updateTransactionRow: vi.fn(async () => {}),
 		createId: vi.fn(() => "new-transaction-id"),
 	};
@@ -22,6 +24,7 @@ vi.mock("@/repositories/financeRepository", () => ({
 		getSourceRow: mocks.getSourceRow,
 		getTransactionRow: mocks.getTransactionRow,
 		getTransactionRows: mocks.getTransactionRows,
+		hasTransactionRowsBefore: mocks.hasTransactionRowsBefore,
 		updateTransactionRow: mocks.updateTransactionRow,
 	},
 }));
@@ -32,7 +35,7 @@ vi.mock("@/utils/id", () => ({
 
 import transactionService from "@/services/transactionService";
 
-const database = {} as any;
+const database = {} as SQLiteDatabase;
 
 describe("transactionService", () => {
 	beforeEach(() => {
@@ -44,6 +47,64 @@ describe("transactionService", () => {
 			}
 		});
 	});
+
+	it("queries only the requested day without paging metadata", async () => {
+		mocks.getTransactionRows.mockResolvedValueOnce([]);
+
+		expect(
+			await transactionService.getTransactions(database, {
+				start: 100,
+				end: 200,
+			}),
+		).toEqual([]);
+		expect(mocks.getTransactionRows).toHaveBeenCalledWith(
+			database,
+			100,
+			200,
+		);
+		expect(mocks.hasTransactionRowsBefore).not.toHaveBeenCalled();
+	});
+
+	it.each([true, false])(
+		"returns an empty week with hasMore=%s without fetching older rows",
+		async (hasMore) => {
+			mocks.getTransactionRows.mockResolvedValueOnce([]);
+			mocks.hasTransactionRowsBefore.mockResolvedValueOnce(hasMore);
+
+			expect(
+				await transactionService.getTransactionPage(database, {
+					start: 100,
+					end: 200,
+				}),
+			).toEqual({ transactions: [], hasMore });
+			expect(mocks.getTransactionRows).toHaveBeenCalledExactlyOnceWith(
+				database,
+				100,
+				200,
+			);
+			expect(
+				mocks.hasTransactionRowsBefore,
+			).toHaveBeenCalledExactlyOnceWith(database, 100);
+		},
+	);
+
+	it.each(["getTransactionRows", "hasTransactionRowsBefore"] as const)(
+		"propagates a paging failure from %s",
+		async (query) => {
+			mocks.getTransactionRows.mockResolvedValueOnce([]);
+			mocks.hasTransactionRowsBefore.mockResolvedValueOnce(false);
+			mocks[query]
+				.mockReset()
+				.mockRejectedValueOnce(new Error("page failed"));
+
+			await expect(
+				transactionService.getTransactionPage(database, {
+					start: 100,
+					end: 200,
+				}),
+			).rejects.toThrow("page failed");
+		},
+	);
 
 	it("maps hasAttachment in getTransactions and getTransaction", async () => {
 		mocks.getTransactionRows.mockResolvedValueOnce([
