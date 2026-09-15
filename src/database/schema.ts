@@ -208,6 +208,8 @@ CREATE TABLE IF NOT EXISTS settings (
 
 CREATE INDEX IF NOT EXISTS idx_transactions_date
 	ON transactions(transaction_at DESC);
+CREATE INDEX IF NOT EXISTS idx_transactions_created
+	ON transactions(created_at DESC, id DESC);
 CREATE INDEX IF NOT EXISTS idx_transactions_source
 	ON transactions(source_id);
 CREATE INDEX IF NOT EXISTS idx_transactions_destination

@@ -36,15 +36,17 @@ The button immediately left of Search switches between day and scroll views.
 Day view queries only the selected calendar day. The arrows move between days
 without loading the rest of the transaction history.
 
-Scroll view is the default and starts with the selected day and its six preceding
-days, newest first, without a date-range heading. **Load more** appends the
-preceding seven calendar days. Empty weeks do not hide older history, and the
-button disappears when no older transactions remain. Failed loads can be retried
-without discarding already-loaded rows.
+Scroll view is the default and starts with the 10 most recently created
+transactions, regardless of their transaction dates, without a date-range heading.
+**Load more** appends the next 10 transactions, or the remaining transactions if
+fewer are available. The button is hidden when the list is empty or no more
+transactions remain. Failed loads can be retried without discarding already-loaded
+rows. Paging uses creation time and transaction ID to keep a stable order when
+multiple transactions share the same creation timestamp.
 
 Search and classification filters apply to the loaded transactions. Switching
 views retains the selected date and filters; changing views or refreshing data
-resets scroll pagination to its first week.
+resets scroll pagination to its first 10 transactions.
 
 ## Architecture
 

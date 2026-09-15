@@ -25,6 +25,7 @@ import useDatabaseContext from "@/hooks/useDatabaseContext";
 import transactionService from "@/services/transactionService";
 import type SelectOption from "@/types/SelectOption";
 import type Transaction from "@/types/Transaction";
+import type TransactionCursor from "@/types/TransactionCursor";
 import type TransactionsScreenProps from "@/types/TransactionsScreenProps";
 import dateUtils from "@/utils/date";
 import getErrorMessage from "@/utils/error";
@@ -32,7 +33,7 @@ import moneyUtils from "@/utils/money";
 import runAfterRender from "@/utils/runAfterRender";
 const { getTransactionDisplayReason, getTransactionPage, getTransactions } =
 	transactionService;
-const { formatDate, getDayDateRange, getWeekDateRange, shiftDay } = dateUtils;
+const { formatDate, getDayDateRange, shiftDay } = dateUtils;
 const { formatMoney } = moneyUtils;
 
 const FILTER_OPTIONS: readonly SelectOption[] = [
@@ -66,7 +67,7 @@ const TransactionsScreen = ({
 	const pagination = useRef({
 		requestId: 0,
 		loading: false,
-		start: null as number | null,
+		cursor: undefined as TransactionCursor | undefined,
 	});
 
 	const getScreenData = useCallback(
@@ -75,32 +76,27 @@ const TransactionsScreen = ({
 			const requestId = ++pagination.current.requestId;
 			pagination.current.loading = true;
 			setPaging((current) => ({ ...current, isLoading: true }));
-			const endDate =
-				append && pagination.current.start !== null
-					? new Date(pagination.current.start - 1)
-					: activeDate;
-			const dateRange =
-				viewMode === "DAY"
-					? getDayDateRange(activeDate)
-					: getWeekDateRange(endDate);
 			try {
 				const page =
 					viewMode === "DAY"
 						? {
 								transactions: await getTransactions(
 									database,
-									dateRange,
+									getDayDateRange(activeDate),
 								),
 								hasMore: false,
 							}
-						: await getTransactionPage(database, dateRange);
+						: await getTransactionPage(
+								database,
+								append ? pagination.current.cursor : undefined,
+							);
 				if (requestId !== pagination.current.requestId) return;
 				setTransactions((current) =>
 					append
 						? [...current, ...page.transactions]
 						: page.transactions,
 				);
-				pagination.current.start = dateRange.start;
+				pagination.current.cursor = page.transactions.at(-1);
 				setPaging((current) => ({
 					...current,
 					hasMore: page.hasMore,
@@ -124,7 +120,7 @@ const TransactionsScreen = ({
 		pagination.current = {
 			requestId: pagination.current.requestId + 1,
 			loading: false,
-			start: null,
+			cursor: undefined,
 		};
 		const cancel = runAfterRender(() => {
 			setTransactions([]);

@@ -155,12 +155,6 @@ const getDayDateRange = (date: Date): DateRange => {
 	return { start: start.getTime(), end: end.getTime() };
 };
 
-const getWeekDateRange = (date: Date): DateRange => {
-	const startDate = new Date(date);
-	startDate.setDate(startDate.getDate() - 6);
-	return getCustomDateRange(startDate.getTime(), date.getTime());
-};
-
 const shiftDay = (date: Date, direction: -1 | 1): Date => {
 	const shifted = new Date(date);
 	shifted.setDate(shifted.getDate() + direction);
@@ -190,7 +184,6 @@ const dateUtils = {
 	getCustomDateRange,
 	getDayDateRange,
 	getFyDateRange,
-	getWeekDateRange,
 	getYtdDateRange,
 	shiftDay,
 	shiftAnalysisAnchor,

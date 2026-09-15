@@ -27,12 +27,12 @@ const {
 	getSourceRow,
 	getSourceRows,
 	getTransactionMinMaxDate,
+	getTransactionPageRows,
 	getTransactionRow,
 	getTransactionRows,
 	getTransactionRowsInRange,
 	getTripRow,
 	getTripRows,
-	hasTransactionRowsBefore,
 	investmentTypeNameExistsRow,
 	setCategoryArchivedRow,
 	setSimpleEntityArchivedRow,
@@ -51,6 +51,40 @@ const {
 } = financeRepository;
 
 describe("financeRepository", () => {
+	it.each([
+		undefined,
+		{ createdAt: 100, id: "00000000-0000-4000-8000-000000000010" },
+	])(
+		"queries a count-limited creation-ordered page with cursor %j",
+		async (cursor) => {
+			const getAllAsync = vi
+				.fn<
+					(
+						sql: string,
+						...parameters: (string | number)[]
+					) => Promise<readonly unknown[]>
+				>()
+				.mockResolvedValue([]);
+			const database = { getAllAsync } as unknown as SQLiteDatabase;
+
+			expect(await getTransactionPageRows(database, 11, cursor)).toEqual(
+				[],
+			);
+			expect(getAllAsync).toHaveBeenCalledExactlyOnceWith(
+				expect.stringContaining(
+					"ORDER BY t.created_at DESC, t.id DESC LIMIT ?;",
+				),
+				...(cursor ? [cursor.createdAt, cursor.id, 11] : [11]),
+			);
+			const sql = getAllAsync.mock.calls[0]?.[0];
+			expect(sql).not.toContain("transaction_at BETWEEN");
+			expect(sql).not.toContain("OFFSET");
+			if (cursor)
+				expect(sql).toContain("WHERE (t.created_at, t.id) < (?, ?)");
+			else expect(sql).not.toContain("WHERE (t.created_at, t.id)");
+		},
+	);
+
 	it.each([true, false])(
 		"filters active categories by isIncome=%s in SQL",
 		async (isIncome) => {
@@ -77,25 +111,6 @@ describe("financeRepository", () => {
 			100,
 			200,
 		);
-	});
-
-	it.each([
-		{ row: { found: 1 }, expected: true },
-		{ row: null, expected: false },
-	])("reports older transactions as $expected", async ({ row, expected }) => {
-		const getFirstAsync = vi.fn().mockResolvedValue(row);
-		const getAllAsync = vi.fn();
-		const database = {
-			getFirstAsync,
-			getAllAsync,
-		} as unknown as SQLiteDatabase;
-
-		expect(await hasTransactionRowsBefore(database, 100)).toBe(expected);
-		expect(getFirstAsync).toHaveBeenCalledWith(
-			"SELECT 1 AS found FROM transactions WHERE transaction_at < ? LIMIT 1;",
-			100,
-		);
-		expect(getAllAsync).not.toHaveBeenCalled();
 	});
 
 	it("queries source/category/trip/investment rows", async () => {

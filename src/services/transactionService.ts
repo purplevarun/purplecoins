@@ -3,6 +3,7 @@ import financeRepository from "@/repositories/financeRepository";
 import type DateRange from "@/types/DateRange";
 import type LinkedTransactionFilter from "@/types/LinkedTransactionFilter";
 import type Transaction from "@/types/Transaction";
+import type TransactionCursor from "@/types/TransactionCursor";
 import type TransactionInput from "@/types/TransactionInput";
 import createId from "@/utils/id";
 import moneyUtils from "@/utils/money";
@@ -13,12 +14,13 @@ const {
 	deleteTransactionRow,
 	getCategoryRow,
 	getSourceRow,
+	getTransactionPageRows,
 	getTransactionRow,
 	getTransactionRows,
-	hasTransactionRowsBefore,
 	updateTransactionRow,
 } = financeRepository;
 const { compareMoney, normalizeMoney } = moneyUtils;
+const TRANSACTION_PAGE_SIZE = 10;
 
 const mapTransaction = (transaction: Transaction): Transaction => ({
 	...transaction,
@@ -37,13 +39,17 @@ const getTransactions = async (
 
 const getTransactionPage = async (
 	database: SQLiteDatabase,
-	dateRange: DateRange,
+	cursor?: TransactionCursor,
 ): Promise<{ transactions: readonly Transaction[]; hasMore: boolean }> => {
-	const [transactions, hasMore] = await Promise.all([
-		getTransactions(database, dateRange),
-		hasTransactionRowsBefore(database, dateRange.start),
-	]);
-	return { transactions, hasMore };
+	const rows = await getTransactionPageRows(
+		database,
+		TRANSACTION_PAGE_SIZE + 1,
+		cursor,
+	);
+	return {
+		transactions: rows.slice(0, TRANSACTION_PAGE_SIZE).map(mapTransaction),
+		hasMore: rows.length > TRANSACTION_PAGE_SIZE,
+	};
 };
 
 const isLinkedTransaction = (

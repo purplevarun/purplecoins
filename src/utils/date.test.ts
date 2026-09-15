@@ -8,51 +8,11 @@ const {
 	getAnalysisDateRange,
 	getCustomDateRange,
 	getFyDateRange,
-	getWeekDateRange,
 	getYtdDateRange,
 	shiftAnalysisAnchor,
 } = dateUtils;
 
 describe("date utils", () => {
-	it.each([
-		{
-			label: "a regular week",
-			anchor: new Date(2026, 8, 15, 14, 30),
-			start: new Date(2026, 8, 9),
-		},
-		{
-			label: "a year boundary",
-			anchor: new Date(2026, 0, 3, 14, 30),
-			start: new Date(2025, 11, 28),
-		},
-		{
-			label: "a leap day",
-			anchor: new Date(2024, 2, 2, 14, 30),
-			start: new Date(2024, 1, 25),
-		},
-		{
-			label: "spring daylight saving",
-			anchor: new Date(2026, 2, 10, 14, 30),
-			start: new Date(2026, 2, 4),
-		},
-		{
-			label: "autumn daylight saving",
-			anchor: new Date(2026, 10, 3, 14, 30),
-			start: new Date(2026, 9, 28),
-		},
-	])("returns seven calendar days across $label", ({ anchor, start }) => {
-		const originalTimestamp = anchor.getTime();
-		const range = getWeekDateRange(anchor);
-		const end = new Date(anchor);
-		end.setHours(23, 59, 59, 999);
-
-		expect(range).toEqual({ start: start.getTime(), end: end.getTime() });
-		expect(anchor.getTime()).toBe(originalTimestamp);
-		expect(getWeekDateRange(new Date(range.start - 1)).end).toBe(
-			range.start - 1,
-		);
-	});
-
 	it("returns all-time range for ALL and CUSTOM", () => {
 		const anchor = new Date("2026-08-25T10:00:00.000Z");
 		expect(getAnalysisDateRange("ALL", anchor)).toEqual({

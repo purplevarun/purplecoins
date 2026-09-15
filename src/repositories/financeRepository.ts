@@ -8,6 +8,7 @@ import type InvestmentType from "@/types/InvestmentType";
 import type SimpleEntity from "@/types/SimpleEntity";
 import type Source from "@/types/Source";
 import type Transaction from "@/types/Transaction";
+import type TransactionCursor from "@/types/TransactionCursor";
 import type TransactionInput from "@/types/TransactionInput";
 import type Trip from "@/types/Trip";
 
@@ -623,16 +624,17 @@ const getTransactionRows = async (
 		...(start === undefined || end === undefined ? [] : [start, end]),
 	);
 
-const hasTransactionRowsBefore = async (
+const getTransactionPageRows = async (
 	database: SQLiteDatabase,
-	start: number,
-): Promise<boolean> => {
-	const row = await database.getFirstAsync<{ found: number }>(
-		"SELECT 1 AS found FROM transactions WHERE transaction_at < ? LIMIT 1;",
-		start,
+	limit: number,
+	cursor?: TransactionCursor,
+): Promise<readonly Transaction[]> =>
+	database.getAllAsync<Transaction>(
+		`${TRANSACTION_SELECT}
+			${cursor ? "WHERE (t.created_at, t.id) < (?, ?)" : ""}
+			ORDER BY t.created_at DESC, t.id DESC LIMIT ?;`,
+		...(cursor ? [cursor.createdAt, cursor.id, limit] : [limit]),
 	);
-	return row !== null;
-};
 
 const getTransactionRowsInRange = async (
 	database: SQLiteDatabase,
@@ -871,10 +873,10 @@ const financeRepository = {
 	getSourceRow,
 	getSourceRows,
 	getTransactionMinMaxDate,
+	getTransactionPageRows,
 	getTransactionRow,
 	getTransactionRows,
 	getTransactionRowsInRange,
-	hasTransactionRowsBefore,
 	getTripRow,
 	getTripRows,
 	investmentTypeNameExistsRow,
