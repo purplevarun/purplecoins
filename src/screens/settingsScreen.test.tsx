@@ -1,4 +1,7 @@
+import { isValidElement, type ComponentProps, type ReactElement } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import SelectField from "@/components/SelectField";
 
 const reactMocks = vi.hoisted(() => ({
 	useEffect: vi.fn(),
@@ -8,12 +11,15 @@ const reactMocks = vi.hoisted(() => ({
 const serviceMocks = vi.hoisted(() => ({
 	exportBackup: vi.fn(),
 	restoreBackup: vi.fn(),
+	getDefaultSourceId: vi.fn(),
 	getDefaultTripId: vi.fn(),
 	getFyStartMonth: vi.fn(),
 	getNativeCurrencyDisplay: vi.fn(),
+	updateDefaultSourceId: vi.fn(),
 	updateDefaultTripId: vi.fn(),
 	updateFyStartMonth: vi.fn(),
 	updateNativeCurrencyDisplay: vi.fn(),
+	getSources: vi.fn(),
 	getTrips: vi.fn(),
 }));
 
@@ -74,13 +80,18 @@ vi.mock("@/services/backupService", () => ({
 }));
 vi.mock("@/services/settingsService", () => ({
 	default: {
+		getDefaultSourceId: serviceMocks.getDefaultSourceId,
 		getDefaultTripId: serviceMocks.getDefaultTripId,
 		getFyStartMonth: serviceMocks.getFyStartMonth,
 		getNativeCurrencyDisplay: serviceMocks.getNativeCurrencyDisplay,
+		updateDefaultSourceId: serviceMocks.updateDefaultSourceId,
 		updateDefaultTripId: serviceMocks.updateDefaultTripId,
 		updateFyStartMonth: serviceMocks.updateFyStartMonth,
 		updateNativeCurrencyDisplay: serviceMocks.updateNativeCurrencyDisplay,
 	},
+}));
+vi.mock("@/services/sourceService", () => ({
+	default: { getSources: serviceMocks.getSources },
 }));
 vi.mock("@/services/tripService", () => ({
 	default: {
@@ -94,6 +105,11 @@ vi.mock("@/utils/error", () => ({
 }));
 
 import SettingsScreen from "@/screens/SettingsScreen";
+
+const defaultSourceId = "2e78d253-f5f0-4c4b-adfa-891a39a3f91a";
+const sources = [
+	{ id: defaultSourceId, name: "Cash", currencyCode: "INR", balance: "0" },
+];
 
 const flush = async (): Promise<void> => {
 	await Promise.resolve();
@@ -136,10 +152,13 @@ describe("SettingsScreen", () => {
 
 		serviceMocks.getNativeCurrencyDisplay.mockResolvedValue(true);
 		serviceMocks.getFyStartMonth.mockResolvedValue(4);
+		serviceMocks.getDefaultSourceId.mockResolvedValue(defaultSourceId);
 		serviceMocks.getDefaultTripId.mockResolvedValue("trip1");
+		serviceMocks.getSources.mockResolvedValue(sources);
 		serviceMocks.getTrips.mockResolvedValue([{ id: "trip1", name: "Goa" }]);
 		serviceMocks.updateNativeCurrencyDisplay.mockResolvedValue(undefined);
 		serviceMocks.updateFyStartMonth.mockResolvedValue(undefined);
+		serviceMocks.updateDefaultSourceId.mockResolvedValue(undefined);
 		serviceMocks.updateDefaultTripId.mockResolvedValue(undefined);
 		serviceMocks.exportBackup.mockResolvedValue(undefined);
 		serviceMocks.restoreBackup.mockResolvedValue(true);
@@ -147,6 +166,144 @@ describe("SettingsScreen", () => {
 			onConfirm(),
 		);
 	});
+
+	it.each([
+		{
+			action: "selects a source",
+			initialSourceId: null,
+			selectedSourceId: defaultSourceId,
+			stored: defaultSourceId,
+		},
+		{
+			action: "clears the default source",
+			initialSourceId: defaultSourceId,
+			selectedSourceId: "",
+			stored: null,
+		},
+	])(
+		"$action after loading source settings",
+		async ({ initialSourceId, selectedSourceId, stored }) => {
+			serviceMocks.getDefaultSourceId.mockResolvedValue(initialSourceId);
+			const setDefaultSourceId = vi.fn();
+			const setSources = vi.fn();
+			let stateCall = 0;
+			reactMocks.useState.mockImplementation((initial: unknown) => {
+				stateCall += 1;
+				if (stateCall === 8)
+					return [initialSourceId ?? "", setDefaultSourceId];
+				if (stateCall === 9) return [sources, setSources];
+				return [
+					typeof initial === "function"
+						? (initial as () => unknown)()
+						: initial,
+					vi.fn(),
+				];
+			});
+			const renderScreen = SettingsScreen as (
+				props: unknown,
+			) => ReactElement;
+			const tree = renderScreen({ navigation: { navigate: vi.fn() } });
+			await flush();
+
+			expect(serviceMocks.getDefaultSourceId).toHaveBeenCalledWith({
+				id: "db",
+			});
+			expect(serviceMocks.getSources).toHaveBeenCalledWith({ id: "db" });
+			expect(setDefaultSourceId).toHaveBeenCalledWith(
+				initialSourceId ?? "",
+			);
+			expect(setSources).toHaveBeenCalledWith(sources);
+			const [field] = findByPredicate(
+				tree,
+				(node: unknown) =>
+					isValidElement<ComponentProps<typeof SelectField>>(node) &&
+					node.type === SelectField &&
+					node.props.label === "Default source",
+			) as ReactElement<ComponentProps<typeof SelectField>>[];
+			expect(field?.props.value).toBe(initialSourceId ?? "");
+			expect(field?.props.options).toEqual([
+				{ label: "None", value: "" },
+				{ label: "Cash", value: defaultSourceId, description: "INR" },
+			]);
+			field?.props.onChange(selectedSourceId);
+			await flush();
+
+			expect(
+				serviceMocks.updateDefaultSourceId,
+			).toHaveBeenCalledExactlyOnceWith({ id: "db" }, stored);
+			expect(setDefaultSourceId).toHaveBeenLastCalledWith(
+				selectedSourceId,
+			);
+			expect(hookMocks.refreshData).toHaveBeenCalledExactlyOnceWith();
+		},
+	);
+
+	it("offers only None when no sources are available", async () => {
+		serviceMocks.getSources.mockResolvedValue([]);
+		serviceMocks.getDefaultSourceId.mockResolvedValue(null);
+		const renderScreen = SettingsScreen as (props: unknown) => ReactElement;
+		const tree = renderScreen({ navigation: { navigate: vi.fn() } });
+		await flush();
+		const [field] = findByPredicate(
+			tree,
+			(node: unknown) =>
+				isValidElement<ComponentProps<typeof SelectField>>(node) &&
+				node.type === SelectField &&
+				node.props.label === "Default source",
+		) as ReactElement<ComponentProps<typeof SelectField>>[];
+		expect(field?.props.value).toBe("");
+		expect(field?.props.options).toEqual([{ label: "None", value: "" }]);
+	});
+
+	it.each(["load", "save"] as const)(
+		"reports default-source %s errors",
+		async (operation) => {
+			const setError = vi.fn();
+			const setDefaultSourceId = vi.fn();
+			let stateCall = 0;
+			reactMocks.useState.mockImplementation((initial: unknown) => {
+				stateCall += 1;
+				if (stateCall === 3) return ["", setError];
+				if (stateCall === 8)
+					return [defaultSourceId, setDefaultSourceId];
+				return [
+					typeof initial === "function"
+						? (initial as () => unknown)()
+						: initial,
+					vi.fn(),
+				];
+			});
+			const failingService =
+				operation === "load"
+					? serviceMocks.getDefaultSourceId
+					: serviceMocks.updateDefaultSourceId;
+			failingService.mockRejectedValueOnce(
+				new Error("Source setting failed"),
+			);
+			const renderScreen = SettingsScreen as (
+				props: unknown,
+			) => ReactElement;
+			const tree = renderScreen({ navigation: { navigate: vi.fn() } });
+			await flush();
+			if (operation === "save") {
+				setDefaultSourceId.mockClear();
+				const [field] = findByPredicate(
+					tree,
+					(node: unknown) =>
+						isValidElement<ComponentProps<typeof SelectField>>(
+							node,
+						) &&
+						node.type === SelectField &&
+						node.props.label === "Default source",
+				) as ReactElement<ComponentProps<typeof SelectField>>[];
+				field?.props.onChange("");
+			}
+			await flush();
+			expect(setError).toHaveBeenCalledWith("Source setting failed");
+			expect(setDefaultSourceId).not.toHaveBeenCalled();
+			expect(hookMocks.refreshData).not.toHaveBeenCalled();
+		},
+	);
 
 	it("loads settings and executes configuration and backup actions", async () => {
 		const navigation = { navigate: vi.fn() };

@@ -11,6 +11,7 @@ const reactMocks = vi.hoisted(() => ({
 const serviceMocks = vi.hoisted(() => ({
 	getCategories: vi.fn(),
 	getInvestments: vi.fn(),
+	getDefaultSourceId: vi.fn(),
 	getDefaultTripId: vi.fn(),
 	getSources: vi.fn(),
 	deleteTransaction: vi.fn(),
@@ -101,7 +102,10 @@ vi.mock("@/services/investmentService", () => ({
 	default: { getInvestments: serviceMocks.getInvestments },
 }));
 vi.mock("@/services/settingsService", () => ({
-	default: { getDefaultTripId: serviceMocks.getDefaultTripId },
+	default: {
+		getDefaultSourceId: serviceMocks.getDefaultSourceId,
+		getDefaultTripId: serviceMocks.getDefaultTripId,
+	},
 }));
 vi.mock("@/services/sourceService", () => ({
 	default: { getSources: serviceMocks.getSources },
@@ -174,6 +178,7 @@ describe("TransactionFormScreen", () => {
 		serviceMocks.getInvestments.mockResolvedValue([
 			{ id: "i1", name: "MF" },
 		]);
+		serviceMocks.getDefaultSourceId.mockResolvedValue(null);
 		serviceMocks.getDefaultTripId.mockResolvedValue("tr1");
 		serviceMocks.getTransaction.mockResolvedValue(null);
 		serviceMocks.saveTransaction.mockResolvedValue("txSaved");
@@ -188,24 +193,42 @@ describe("TransactionFormScreen", () => {
 		{
 			context: "source",
 			params: { initialSourceId: "s2" },
+			defaultSource: "s1",
 			sourceId: "s2",
 			categoryId: "",
 		},
 		{
 			context: "category",
 			params: { initialCategoryId: "c1" },
-			sourceId: "",
+			defaultSource: "s1",
+			sourceId: "s1",
 			categoryId: "c1",
+		},
+		{
+			context: "saved default source",
+			params: undefined,
+			defaultSource: "s1",
+			sourceId: "s1",
+			categoryId: "",
+		},
+		{
+			context: "unavailable default source",
+			params: undefined,
+			defaultSource: "missing-source",
+			sourceId: "",
+			categoryId: "",
 		},
 		{
 			context: "no linked entity",
 			params: undefined,
+			defaultSource: null,
 			sourceId: "",
 			categoryId: "",
 		},
 	])(
 		"prefills a new transaction from $context and retains the default trip",
-		async ({ params, sourceId, categoryId }) => {
+		async ({ params, defaultSource, sourceId, categoryId }) => {
+			serviceMocks.getDefaultSourceId.mockResolvedValue(defaultSource);
 			const setSourceId = vi.fn();
 			const setCategoryId = vi.fn();
 			const setTripId = vi.fn();
@@ -234,9 +257,74 @@ describe("TransactionFormScreen", () => {
 			expect(setSourceId).toHaveBeenCalledExactlyOnceWith(sourceId);
 			expect(setCategoryId).toHaveBeenCalledExactlyOnceWith(categoryId);
 			expect(setTripId).toHaveBeenCalledExactlyOnceWith("tr1");
+			expect(
+				serviceMocks.getDefaultSourceId,
+			).toHaveBeenCalledExactlyOnceWith({ id: "db" });
 			expect(serviceMocks.getTransaction).not.toHaveBeenCalled();
 		},
 	);
+
+	it("saves the prefilled source, linked category, and default trip", async () => {
+		serviceMocks.getDefaultSourceId.mockResolvedValue("s1");
+		const stateValues = new Map<number, unknown>([[5, "15"]]);
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: unknown) => {
+			stateCall += 1;
+			const stateIndex = stateCall;
+			if (!stateValues.has(stateIndex)) {
+				stateValues.set(
+					stateIndex,
+					typeof initial === "function"
+						? (initial as () => unknown)()
+						: initial,
+				);
+			}
+			return [
+				stateValues.get(stateIndex),
+				vi.fn((value: unknown) => {
+					stateValues.set(stateIndex, value);
+				}),
+			];
+		});
+		const navigation = { goBack: vi.fn() };
+		const props = {
+			navigation,
+			route: {
+				key: "prefilled",
+				name: "TransactionForm",
+				params: { initialCategoryId: "c1" },
+			},
+		};
+		const renderScreen = TransactionFormScreen as (
+			props: unknown,
+		) => ReactElement;
+		renderScreen(props);
+		await flush();
+		reactMocks.useEffect.mockImplementation(() => undefined);
+		stateCall = 0;
+		const tree = renderScreen(props);
+		const [saveButton] = findByPredicate(
+			tree,
+			(node: unknown) =>
+				isValidElement<ComponentProps<typeof AppButton>>(node) &&
+				node.type === AppButton &&
+				node.props.label === "Save transaction",
+		) as ReactElement<ComponentProps<typeof AppButton>>[];
+		expect(saveButton?.props.isDisabled).toBe(false);
+		saveButton?.props.onPress();
+		await flush();
+
+		expect(serviceMocks.saveTransaction).toHaveBeenCalledWith(
+			{ id: "db" },
+			expect.objectContaining({
+				sourceId: "s1",
+				categoryId: "c1",
+				tripId: "tr1",
+				amount: "15",
+			}),
+		);
+		expect(navigation.goBack).toHaveBeenCalled();
+	});
 
 	it.each([
 		{
@@ -618,6 +706,7 @@ describe("TransactionFormScreen", () => {
 		expect(setTransactionAt).toHaveBeenCalledWith(12345);
 		expect(setSourceId).toHaveBeenCalledExactlyOnceWith("s1");
 		expect(setCategoryId).toHaveBeenCalledExactlyOnceWith("c1");
+		expect(serviceMocks.getDefaultSourceId).not.toHaveBeenCalled();
 		expect(serviceMocks.getDefaultTripId).not.toHaveBeenCalled();
 	});
 
@@ -671,6 +760,7 @@ describe("TransactionFormScreen", () => {
 		expect(setTransactionAt).not.toHaveBeenCalled();
 		expect(setSourceId).toHaveBeenCalledExactlyOnceWith("s1");
 		expect(setCategoryId).toHaveBeenCalledExactlyOnceWith("c1");
+		expect(serviceMocks.getDefaultSourceId).not.toHaveBeenCalled();
 		expect(serviceMocks.getDefaultTripId).not.toHaveBeenCalled();
 	});
 

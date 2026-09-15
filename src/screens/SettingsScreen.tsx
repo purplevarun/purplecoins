@@ -15,22 +15,27 @@ import useAppDialog from "@/hooks/useAppDialog";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import backupService from "@/services/backupService";
 import settingsService from "@/services/settingsService";
+import sourceService from "@/services/sourceService";
 import tripService from "@/services/tripService";
 import type SelectOption from "@/types/SelectOption";
 import type SettingsScreenProps from "@/types/SettingsScreenProps";
+import type Source from "@/types/Source";
 import type Trip from "@/types/Trip";
 import getErrorMessage from "@/utils/error";
 const { APP_NAME } = appConstants;
 const { version } = packageJson;
 const { exportBackup, restoreBackup } = backupService;
 const {
+	getDefaultSourceId,
 	getDefaultTripId,
 	getFyStartMonth,
 	getNativeCurrencyDisplay,
+	updateDefaultSourceId,
 	updateDefaultTripId,
 	updateFyStartMonth,
 	updateNativeCurrencyDisplay,
 } = settingsService;
+const { getSources } = sourceService;
 const { getTrips } = tripService;
 
 const MONTH_OPTIONS: readonly SelectOption[] = [
@@ -65,21 +70,30 @@ const SettingsScreen = ({
 	const [fyStartMonth, setFyStartMonth] = useState(4);
 	const [defaultTripId, setDefaultTripId] = useState("");
 	const [trips, setTrips] = useState<readonly Trip[]>([]);
+	const [defaultSourceId, setDefaultSourceId] = useState("");
+	const [sources, setSources] = useState<readonly Source[]>([]);
 
 	useEffect(() => {
 		const getSettings = async (): Promise<void> => {
-			const [native, fy, tripId, loadedTrips] = await Promise.all([
-				getNativeCurrencyDisplay(database),
-				getFyStartMonth(database),
-				getDefaultTripId(database),
-				getTrips(database),
-			]);
+			const [native, fy, tripId, loadedTrips, sourceId, loadedSources] =
+				await Promise.all([
+					getNativeCurrencyDisplay(database),
+					getFyStartMonth(database),
+					getDefaultTripId(database),
+					getTrips(database),
+					getDefaultSourceId(database),
+					getSources(database),
+				]);
 			setIsNativeCurrency(native);
 			setFyStartMonth(fy);
 			setDefaultTripId(tripId ?? "");
 			setTrips(loadedTrips);
+			setDefaultSourceId(sourceId ?? "");
+			setSources(loadedSources);
 		};
-		void getSettings();
+		void getSettings().catch((caughtError: unknown) => {
+			setError(getErrorMessage(caughtError));
+		});
 	}, [database]);
 
 	const handleCurrencyToggle = async (value: boolean): Promise<void> => {
@@ -99,6 +113,17 @@ const SettingsScreen = ({
 		setDefaultTripId(value);
 		await updateDefaultTripId(database, value || null);
 		refreshData();
+	};
+
+	const handleDefaultSourceChange = async (value: string): Promise<void> => {
+		setError("");
+		try {
+			await updateDefaultSourceId(database, value || null);
+			setDefaultSourceId(value);
+			refreshData();
+		} catch (caughtError: unknown) {
+			setError(getErrorMessage(caughtError));
+		}
 	};
 
 	const handleExport = async (): Promise<void> => {
@@ -147,6 +172,15 @@ const SettingsScreen = ({
 	const tripOptions: readonly SelectOption[] = [
 		{ label: "None", value: "" },
 		...trips.map((t) => ({ label: t.name, value: t.id })),
+	];
+
+	const sourceOptions: readonly SelectOption[] = [
+		{ label: "None", value: "" },
+		...sources.map((source) => ({
+			label: source.name,
+			value: source.id,
+			description: source.currencyCode,
+		})),
 	];
 
 	return (
@@ -205,6 +239,16 @@ const SettingsScreen = ({
 							{getFyEndMonthLabel(fyStartMonth)}
 						</CustomText>
 					</CustomText>
+					<SelectField
+						isOptional
+						label="Default source"
+						onChange={(value) =>
+							void handleDefaultSourceChange(value)
+						}
+						options={sourceOptions}
+						placeholder="No default source"
+						value={defaultSourceId}
+					/>
 					<SelectField
 						isOptional
 						label="Default trip"

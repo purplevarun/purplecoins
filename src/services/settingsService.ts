@@ -6,6 +6,7 @@ const { getSettingRow, upsertSettingRow } = settingsRepository;
 const NATIVE_CURRENCY_KEY = "native_currency_display";
 const FY_START_MONTH_KEY = "fy_start_month";
 const DEFAULT_TRIP_ID_KEY = "default_trip_id";
+const DEFAULT_SOURCE_ID_KEY = "default_source_id";
 
 const getNativeCurrencyDisplay = async (
 	database: SQLiteDatabase,
@@ -53,10 +54,30 @@ const updateDefaultTripId = async (
 ): Promise<void> =>
 	upsertSettingRow(database, DEFAULT_TRIP_ID_KEY, tripId ?? "", Date.now());
 
+const getDefaultSourceId = async (
+	database: SQLiteDatabase,
+): Promise<string | null> => {
+	const value = await getSettingRow(database, DEFAULT_SOURCE_ID_KEY);
+	return value === "" ? null : value;
+};
+
+const updateDefaultSourceId = async (
+	database: SQLiteDatabase,
+	sourceId: string | null,
+): Promise<void> =>
+	upsertSettingRow(
+		database,
+		DEFAULT_SOURCE_ID_KEY,
+		sourceId ?? "",
+		Date.now(),
+	);
+
 const settingsService = {
+	getDefaultSourceId,
 	getDefaultTripId,
 	getFyStartMonth,
 	getNativeCurrencyDisplay,
+	updateDefaultSourceId,
 	updateDefaultTripId,
 	updateFyStartMonth,
 	updateNativeCurrencyDisplay,

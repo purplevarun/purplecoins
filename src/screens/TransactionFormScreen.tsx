@@ -33,7 +33,7 @@ import type Trip from "@/types/Trip";
 import getErrorMessage from "@/utils/error";
 const { getCategories } = categoryService;
 const { getInvestments } = investmentService;
-const { getDefaultTripId } = settingsService;
+const { getDefaultSourceId, getDefaultTripId } = settingsService;
 const { getSources } = sourceService;
 const { deleteTransaction, getTransaction, saveTransaction } =
 	transactionService;
@@ -88,7 +88,8 @@ const TransactionFormScreen = ({
 	useEffect(() => {
 		const getFormData = async (): Promise<void> => {
 			try {
-				const sourceId = transactionId ?? cloneFromTransactionId;
+				const lookupTransactionId =
+					transactionId ?? cloneFromTransactionId;
 				const [
 					loadedSources,
 					loadedCategories,
@@ -96,17 +97,21 @@ const TransactionFormScreen = ({
 					loadedInvestments,
 					existingTransaction,
 					defaultTrip,
+					defaultSource,
 				] = await Promise.all([
 					getSources(database),
 					getCategories(database),
 					getTrips(database),
 					getInvestments(database),
-					sourceId
-						? getTransaction(database, sourceId)
+					lookupTransactionId
+						? getTransaction(database, lookupTransactionId)
 						: Promise.resolve(null),
 					// Only load default trip for new (non-edit, non-clone) txns
-					!sourceId
+					!lookupTransactionId
 						? getDefaultTripId(database)
+						: Promise.resolve(null),
+					!lookupTransactionId
+						? getDefaultSourceId(database)
 						: Promise.resolve(null),
 				]);
 				setSources(loadedSources);
@@ -114,8 +119,14 @@ const TransactionFormScreen = ({
 				setTrips(loadedTrips);
 				setInvestments(loadedInvestments);
 				if (!existingTransaction) {
-					if (!sourceId) {
-						setSourceId(initialSourceId ?? "");
+					if (!lookupTransactionId) {
+						setSourceId(
+							initialSourceId ??
+								loadedSources.find(
+									(source) => source.id === defaultSource,
+								)?.id ??
+								"",
+						);
 						setCategoryId(initialCategoryId ?? "");
 					}
 					// Prefill default trip for new transactions
