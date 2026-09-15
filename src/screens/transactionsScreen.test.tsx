@@ -713,6 +713,48 @@ describe("TransactionsScreen", () => {
 			expect(renderMocks.cancel).toHaveBeenCalledOnce();
 		});
 
+		it.each([false, true])(
+			"switches to day view without accessing a scroll cursor, hasTransactions=%s",
+			async (hasTransactions) => {
+				const dayTransactions = hasTransactions ? [recent] : [];
+				const readCursor = vi
+					.spyOn(dayTransactions, "at")
+					.mockImplementation(() => {
+						throw new Error(
+							"Day view must not access a scroll cursor",
+						);
+					});
+				serviceMocks.getTransactionPage.mockResolvedValueOnce({
+					transactions: [older],
+					hasMore: true,
+				});
+				serviceMocks.getTransactions.mockResolvedValueOnce(
+					dayTransactions,
+				);
+				const harness = createHarness();
+				harness.render();
+				harness.reload();
+				await flush();
+				harness.headerButtons()[0]?.props.onPress();
+				harness.render();
+				harness.reload();
+				await flush();
+
+				const day = harness.render();
+				expect(
+					serviceMocks.getTransactions,
+				).toHaveBeenCalledExactlyOnceWith({ id: "db" }, dayRange);
+				expect(readCursor).not.toHaveBeenCalled();
+				expect(listProps(day).data).toEqual(dayTransactions);
+				expect(elements(day, AppButton)).toHaveLength(0);
+				expect(dayButton(day, "Next day")?.props.disabled).toBe(true);
+				expect(
+					reactMocks.useRef.mock.results.at(-1)?.value,
+				).toMatchObject({ current: { cursor: undefined } });
+				readCursor.mockRestore();
+			},
+		);
+
 		it("queries adjacent days and disables next-day navigation at today", async () => {
 			const harness = createHarness("DAY");
 			const today = harness.render();

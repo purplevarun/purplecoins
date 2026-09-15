@@ -77,29 +77,34 @@ const TransactionsScreen = ({
 			pagination.current.loading = true;
 			setPaging((current) => ({ ...current, isLoading: true }));
 			try {
-				const page =
-					viewMode === "DAY"
-						? {
-								transactions: await getTransactions(
-									database,
-									getDayDateRange(activeDate),
-								),
-								hasMore: false,
-							}
-						: await getTransactionPage(
-								database,
-								append ? pagination.current.cursor : undefined,
-							);
+				let loadedTransactions: readonly Transaction[];
+				let hasMore = false;
+				if (viewMode === "DAY") {
+					loadedTransactions = await getTransactions(
+						database,
+						getDayDateRange(activeDate),
+					);
+				} else {
+					const page = await getTransactionPage(
+						database,
+						append ? pagination.current.cursor : undefined,
+					);
+					loadedTransactions = page.transactions;
+					hasMore = page.hasMore;
+				}
 				if (requestId !== pagination.current.requestId) return;
 				setTransactions((current) =>
 					append
-						? [...current, ...page.transactions]
-						: page.transactions,
+						? [...current, ...loadedTransactions]
+						: loadedTransactions,
 				);
-				pagination.current.cursor = page.transactions.at(-1);
+				pagination.current.cursor =
+					viewMode === "SCROLL"
+						? loadedTransactions[loadedTransactions.length - 1]
+						: undefined;
 				setPaging((current) => ({
 					...current,
-					hasMore: page.hasMore,
+					hasMore,
 				}));
 				setError("");
 			} catch (caughtError: unknown) {
