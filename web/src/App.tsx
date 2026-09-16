@@ -222,6 +222,7 @@ function App() {
             purplevarun
           </a>
         </span>
+        <a href={`${import.meta.env.BASE_URL}privacy.html`}>Privacy policy</a>
         <a href={`${REPOSITORY_URL}/issues`} target="_blank" rel="noreferrer">
           Report an issue <ArrowUpRight size={14} aria-hidden="true" />
         </a>

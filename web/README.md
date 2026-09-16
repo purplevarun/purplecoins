@@ -70,6 +70,23 @@ base-prefixed asset and home links, so nested missing URLs work too. The return
 link works without JavaScript. Vite's local preview uses an SPA fallback for unknown
 URLs; open `/purplecoins/404.html` to preview the custom page locally.
 
+## Privacy Policy
+
+[privacy.html](privacy.html) is the privacy policy for the Android app and website.
+The homepage footer links to it, and Vite emits it as a standalone page that works
+without JavaScript, including when opened directly or refreshed.
+
+After the website changes are deployed, the public policy URL is
+<https://purplevarun.github.io/purplecoins/privacy.html>. Use this URL for app-store
+privacy-policy fields. Locally, open `/purplecoins/privacy.html` on the Vite server.
+The existing Pages workflow publishes the page with the rest of `dist/` when the
+changes are pushed to `main`.
+
+Keep the policy aligned with the app's actual data handling, especially unencrypted
+exports, Android system backups and third-party exchange-rate requests. The current
+contact channel is the public GitHub issue tracker; never request sensitive records
+or backups in public issues.
+
 ## Android Installation
 
 The page can start the download and reveal installation guidance, but a website
