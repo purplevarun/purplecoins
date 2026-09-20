@@ -12,6 +12,7 @@ import SelectField from "@/components/SelectField";
 import TextField from "@/components/TextField";
 import appConstants from "@/constants/appConstants";
 import COLORS from "@/constants/colors";
+import financeConstants from "@/constants/financeConstants";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import budgetService from "@/services/budgetService";
 import categoryService from "@/services/categoryService";
@@ -24,10 +25,7 @@ const { DEFAULT_CURRENCY_CODE } = appConstants;
 const { getBudget, saveBudget } = budgetService;
 const { getCategories } = categoryService;
 
-const PERIOD_OPTIONS: readonly SelectOption[] = [
-	{ label: "Monthly", value: "MONTHLY" },
-	{ label: "Yearly", value: "YEARLY" },
-];
+const { BUDGET_PERIOD_OPTIONS, DEFAULT_BUDGET_PERIOD } = financeConstants;
 
 const BudgetFormScreen = ({
 	navigation,
@@ -37,7 +35,7 @@ const BudgetFormScreen = ({
 	const { database, refreshData } = useDatabaseContext();
 	const [categoryId, setCategoryId] = useState("");
 	const [amount, setAmount] = useState("");
-	const [period, setPeriod] = useState<BudgetPeriod>("MONTHLY");
+	const [period, setPeriod] = useState<BudgetPeriod>(DEFAULT_BUDGET_PERIOD);
 	const [categories, setCategories] = useState<readonly Category[]>([]);
 	const [isSaving, setIsSaving] = useState(false);
 	const [error, setError] = useState("");
@@ -112,7 +110,7 @@ const BudgetFormScreen = ({
 						onChange={(value) =>
 							setPeriod(value === "YEARLY" ? "YEARLY" : "MONTHLY")
 						}
-						options={PERIOD_OPTIONS}
+						options={BUDGET_PERIOD_OPTIONS}
 						value={period}
 					/>
 					<Notice message="The period follows calendar boundaries, not a rolling window." />

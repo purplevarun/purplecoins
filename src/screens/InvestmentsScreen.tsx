@@ -23,6 +23,7 @@ import ScreenList from "@/components/ScreenList";
 import SearchBar from "@/components/SearchBar";
 import SegmentedControl from "@/components/SegmentedControl";
 import COLORS from "@/constants/colors";
+import dateConstants from "@/constants/dateConstants";
 import useAppDialog from "@/hooks/useAppDialog";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import analysisService from "@/services/analysisService";
@@ -45,8 +46,7 @@ const { getInvestments, setInvestmentArchived } = investmentService;
 const { getNativeCurrencyDisplay } = settingsService;
 const { compareMoney, formatMoney, ZERO_AMOUNT } = moneyUtils;
 
-const ALL_TIME_START = 0;
-const ALL_TIME_END = 8_640_000_000_000_000;
+const { ALL_TIME_END, ALL_TIME_START } = dateConstants;
 
 const GROUP_BY_OPTIONS: readonly SelectOption[] = [
 	{ label: "None", value: "NONE" },

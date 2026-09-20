@@ -23,6 +23,8 @@ import SegmentedControl from "@/components/SegmentedControl";
 import TrendLineChart from "@/components/TrendLineChart";
 import appConstants from "@/constants/appConstants";
 import COLORS from "@/constants/colors";
+import dateConstants from "@/constants/dateConstants";
+import financeConstants from "@/constants/financeConstants";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import financeRepository from "@/repositories/financeRepository";
 import analysisService from "@/services/analysisService";
@@ -33,7 +35,6 @@ import type AnalysisScreenProps from "@/types/AnalysisScreenProps";
 import type AnalysisSummary from "@/types/AnalysisSummary";
 import type ChartDatum from "@/types/ChartDatum";
 import type DateRange from "@/types/DateRange";
-import type SelectOption from "@/types/SelectOption";
 import type SummaryMetricInput from "@/types/SummaryMetricInput";
 import type Transaction from "@/types/Transaction";
 import dateUtils from "@/utils/date";
@@ -61,14 +62,8 @@ const {
 	ZERO_AMOUNT,
 } = moneyUtils;
 
-const PERIOD_OPTIONS: readonly SelectOption[] = [
-	{ label: "Month", value: "MONTH" },
-	{ label: "Year", value: "YEAR" },
-	{ label: "FY", value: "FY" },
-	{ label: "YTD", value: "YTD" },
-	{ label: "All", value: "ALL" },
-	{ label: "Custom", value: "CUSTOM" },
-];
+const { DEFAULT_FY_START_MONTH } = dateConstants;
+const { ANALYSIS_PERIOD_OPTIONS, DEFAULT_ANALYSIS_PERIOD } = financeConstants;
 
 const CHART_COLORS = [
 	"#A87CFF",
@@ -243,13 +238,15 @@ const AnalysisScreen = ({
 	navigation,
 }: AnalysisScreenProps): React.JSX.Element => {
 	const { database, dataVersion } = useDatabaseContext();
-	const [period, setPeriod] = useState<AnalysisPeriod>("MONTH");
+	const [period, setPeriod] = useState<AnalysisPeriod>(
+		DEFAULT_ANALYSIS_PERIOD,
+	);
 	const [anchorDate, setAnchorDate] = useState(new Date());
 	const [customStartAt, setCustomStartAt] = useState(() => Date.now());
 	const [customEndAt, setCustomEndAt] = useState(() => Date.now());
 	const [summary, setSummary] = useState<AnalysisSummary | null>(null);
 	const [error, setError] = useState("");
-	const [fyStartMonth, setFyStartMonth] = useState(4);
+	const [fyStartMonth, setFyStartMonth] = useState(DEFAULT_FY_START_MONTH);
 	const [minTxnDate, setMinTxnDate] = useState<number | undefined>(undefined);
 	const [maxTxnDate, setMaxTxnDate] = useState<number | undefined>(undefined);
 	const [trendTransactions, setTrendTransactions] = useState<
@@ -396,7 +393,7 @@ const AnalysisScreen = ({
 		<ScreenContainer>
 			<SegmentedControl
 				onChange={handlePeriodChange}
-				options={PERIOD_OPTIONS}
+				options={ANALYSIS_PERIOD_OPTIONS}
 				value={period}
 			/>
 			{HAS_ARROWS.includes(period) ? (

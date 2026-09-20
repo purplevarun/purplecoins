@@ -23,6 +23,8 @@ import ScreenList from "@/components/ScreenList";
 import SearchBar from "@/components/SearchBar";
 import SegmentedControl from "@/components/SegmentedControl";
 import COLORS from "@/constants/colors";
+import dateConstants from "@/constants/dateConstants";
+import financeConstants from "@/constants/financeConstants";
 import useAppDialog from "@/hooks/useAppDialog";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import analysisService from "@/services/analysisService";
@@ -33,7 +35,6 @@ import type AnalysisSummary from "@/types/AnalysisSummary";
 import type CategoriesScreenProps from "@/types/CategoriesScreenProps";
 import type Category from "@/types/Category";
 import type ExchangeRate from "@/types/ExchangeRate";
-import type SelectOption from "@/types/SelectOption";
 import getErrorMessage from "@/utils/error";
 import moneyUtils from "@/utils/money";
 const { getAnalysisSummary } = analysisService;
@@ -42,14 +43,8 @@ const { getExchangeRates } = exchangeRateService;
 const { getNativeCurrencyDisplay } = settingsService;
 const { compareMoney, formatMoney, ZERO_AMOUNT } = moneyUtils;
 
-const CATEGORY_FILTER_OPTIONS: readonly SelectOption[] = [
-	{ label: "All", value: "ALL" },
-	{ label: "Expense", value: "EXPENSE" },
-	{ label: "Income", value: "INCOME" },
-];
-
-const ALL_TIME_START = 0;
-const ALL_TIME_END = 8_640_000_000_000_000;
+const { ALL_TIME_END, ALL_TIME_START } = dateConstants;
+const { CATEGORY_FILTER_OPTIONS } = financeConstants;
 
 const CategoriesScreen = ({
 	navigation,

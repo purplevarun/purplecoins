@@ -23,13 +23,13 @@ import ScreenList from "@/components/ScreenList";
 import SearchBar from "@/components/SearchBar";
 import SegmentedControl from "@/components/SegmentedControl";
 import COLORS from "@/constants/colors";
+import financeConstants from "@/constants/financeConstants";
 import useAppDialog from "@/hooks/useAppDialog";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import exchangeRateService from "@/services/exchangeRateService";
 import settingsService from "@/services/settingsService";
 import sourceService from "@/services/sourceService";
 import type ExchangeRate from "@/types/ExchangeRate";
-import type SelectOption from "@/types/SelectOption";
 import type Source from "@/types/Source";
 import type SourcesScreenProps from "@/types/SourcesScreenProps";
 import getErrorMessage from "@/utils/error";
@@ -39,11 +39,7 @@ const { getNativeCurrencyDisplay } = settingsService;
 const { getSources, setSourceArchived, validateSource } = sourceService;
 const { formatMoney } = moneyUtils;
 
-const SOURCE_FILTER_OPTIONS: readonly SelectOption[] = [
-	{ label: "All", value: "ALL" },
-	{ label: "Validated", value: "VALIDATED" },
-	{ label: "Pending", value: "PENDING_VALIDATION" },
-];
+const { SOURCE_FILTER_OPTIONS } = financeConstants;
 
 const isSourceValidated = (source: Source): boolean =>
 	source.validatedAt !== null &&

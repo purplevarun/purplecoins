@@ -11,6 +11,7 @@ import Notice from "@/components/Notice";
 import ScreenContainer from "@/components/ScreenContainer";
 import SelectField from "@/components/SelectField";
 import COLORS from "@/constants/colors";
+import dateConstants from "@/constants/dateConstants";
 import useAppDialog from "@/hooks/useAppDialog";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import backupService from "@/services/backupService";
@@ -38,20 +39,7 @@ const {
 const { getSources } = sourceService;
 const { getTrips } = tripService;
 
-const MONTH_OPTIONS: readonly SelectOption[] = [
-	{ label: "Jan", value: "1" },
-	{ label: "Feb", value: "2" },
-	{ label: "Mar", value: "3" },
-	{ label: "Apr", value: "4" },
-	{ label: "May", value: "5" },
-	{ label: "Jun", value: "6" },
-	{ label: "Jul", value: "7" },
-	{ label: "Aug", value: "8" },
-	{ label: "Sep", value: "9" },
-	{ label: "Oct", value: "10" },
-	{ label: "Nov", value: "11" },
-	{ label: "Dec", value: "12" },
-];
+const { DEFAULT_FY_START_MONTH, MONTH_OPTIONS } = dateConstants;
 
 const getFyEndMonthLabel = (startMonth: number): string => {
 	const endMonth = startMonth === 1 ? 12 : startMonth - 1;
@@ -67,7 +55,7 @@ const SettingsScreen = ({
 	const [isWorking, setIsWorking] = useState(false);
 	const [error, setError] = useState("");
 	const [message, setMessage] = useState("");
-	const [fyStartMonth, setFyStartMonth] = useState(4);
+	const [fyStartMonth, setFyStartMonth] = useState(DEFAULT_FY_START_MONTH);
 	const [defaultTripId, setDefaultTripId] = useState("");
 	const [trips, setTrips] = useState<readonly Trip[]>([]);
 	const [defaultSourceId, setDefaultSourceId] = useState("");

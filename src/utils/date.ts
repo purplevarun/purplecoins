@@ -1,8 +1,8 @@
+import dateConstants from "@/constants/dateConstants";
 import type AnalysisPeriod from "@/types/AnalysisPeriod";
 import type DateRange from "@/types/DateRange";
 
-const ALL_TIME_START = 0;
-const ALL_TIME_END = 8_640_000_000_000_000;
+const { ALL_TIME_END, ALL_TIME_START, DEFAULT_FY_START_MONTH } = dateConstants;
 const DAY_END_HOURS = 23;
 const DAY_END_MINUTES = 59;
 const DAY_END_SECONDS = 59;
@@ -48,7 +48,7 @@ const getYtdDateRange = (): DateRange => {
 const getAnalysisDateRange = (
 	period: AnalysisPeriod,
 	anchorDate: Date,
-	fyStartMonth = 4,
+	fyStartMonth = DEFAULT_FY_START_MONTH,
 ): DateRange => {
 	if (period === "ALL" || period === "CUSTOM") {
 		return { start: ALL_TIME_START, end: ALL_TIME_END };

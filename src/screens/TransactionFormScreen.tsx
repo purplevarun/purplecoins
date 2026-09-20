@@ -14,6 +14,7 @@ import SegmentedControl from "@/components/SegmentedControl";
 import SelectField from "@/components/SelectField";
 import TextField from "@/components/TextField";
 import COLORS from "@/constants/colors";
+import financeConstants from "@/constants/financeConstants";
 import useAppDialog from "@/hooks/useAppDialog";
 import useAttachment from "@/hooks/useAttachment";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
@@ -45,19 +46,13 @@ const { deleteTransaction, getTransaction, saveTransaction } =
 	transactionService;
 const { getTrips } = tripService;
 
-const CLASSIFICATION_OPTIONS: readonly SelectOption[] = [
-	{ label: "General", value: "GENERAL" },
-	{ label: "Investment", value: "INVESTMENT" },
-];
-const GENERAL_TYPE_OPTIONS: readonly SelectOption[] = [
-	{ label: "Debit", value: "DEBIT" },
-	{ label: "Credit", value: "CREDIT" },
-	{ label: "Transfer", value: "TRANSFER" },
-];
-const INVESTMENT_TYPE_OPTIONS: readonly SelectOption[] = [
-	{ label: "Debit", value: "DEBIT" },
-	{ label: "Credit", value: "CREDIT" },
-];
+const {
+	DEFAULT_TRANSACTION_CLASSIFICATION,
+	DEFAULT_TRANSACTION_TYPE,
+	GENERAL_TRANSACTION_TYPE_OPTIONS,
+	INVESTMENT_TRANSACTION_TYPE_OPTIONS,
+	TRANSACTION_CLASSIFICATION_OPTIONS,
+} = financeConstants;
 
 const createItemDraft = (
 	amount = "",
@@ -76,8 +71,8 @@ const TransactionFormScreen = ({
 	const dialog = useAppDialog();
 	const attachment = useAttachment("TRANSACTION", transactionId);
 	const [classification, setClassification] =
-		useState<TransactionClassification>("GENERAL");
-	const [type, setType] = useState<TransactionType>("DEBIT");
+		useState<TransactionClassification>(DEFAULT_TRANSACTION_CLASSIFICATION);
+	const [type, setType] = useState<TransactionType>(DEFAULT_TRANSACTION_TYPE);
 	const [sourceId, setSourceId] = useState("");
 	const [destinationSourceId, setDestinationSourceId] = useState("");
 	const [amount, setAmount] = useState("");
@@ -392,15 +387,15 @@ const TransactionFormScreen = ({
 					</CustomText>
 					<SegmentedControl
 						onChange={handleClassificationChange}
-						options={CLASSIFICATION_OPTIONS}
+						options={TRANSACTION_CLASSIFICATION_OPTIONS}
 						value={classification}
 					/>
 					<SegmentedControl
 						onChange={handleTypeChange}
 						options={
 							classification === "GENERAL"
-								? GENERAL_TYPE_OPTIONS
-								: INVESTMENT_TYPE_OPTIONS
+								? GENERAL_TRANSACTION_TYPE_OPTIONS
+								: INVESTMENT_TRANSACTION_TYPE_OPTIONS
 						}
 						value={type}
 					/>

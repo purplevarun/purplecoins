@@ -21,10 +21,11 @@ import ScreenList from "@/components/ScreenList";
 import SearchBar from "@/components/SearchBar";
 import SegmentedControl from "@/components/SegmentedControl";
 import TransactionCard from "@/components/TransactionCard";
+import appConstants from "@/constants/appConstants";
 import COLORS from "@/constants/colors";
+import financeConstants from "@/constants/financeConstants";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import transactionService from "@/services/transactionService";
-import type SelectOption from "@/types/SelectOption";
 import type Transaction from "@/types/Transaction";
 import type TransactionCursor from "@/types/TransactionCursor";
 import type TransactionsScreenProps from "@/types/TransactionsScreenProps";
@@ -37,11 +38,8 @@ const { getTransactionDisplayReason, getTransactionPage, getTransactions } =
 const { formatDate, getDayDateRange, shiftDay } = dateUtils;
 const { formatMoney } = moneyUtils;
 
-const FILTER_OPTIONS: readonly SelectOption[] = [
-	{ label: "All", value: "ALL" },
-	{ label: "General", value: "GENERAL" },
-	{ label: "Investment", value: "INVESTMENT" },
-];
+const { DEFAULT_TRANSACTION_VIEW_MODE } = appConstants;
+const { TRANSACTION_FILTER_OPTIONS } = financeConstants;
 
 const TransactionsScreen = ({
 	navigation,
@@ -60,7 +58,9 @@ const TransactionsScreen = ({
 		() => (selectedDate instanceof Date ? selectedDate : new Date()),
 		[selectedDate],
 	);
-	const [viewMode, setViewMode] = useState<"DAY" | "SCROLL">("SCROLL");
+	const [viewMode, setViewMode] = useState<"DAY" | "SCROLL">(
+		DEFAULT_TRANSACTION_VIEW_MODE,
+	);
 	const [paging, setPaging] = useState({
 		hasMore: false,
 		isLoading: true,
@@ -288,7 +288,7 @@ const TransactionsScreen = ({
 				) : null}
 				<SegmentedControl
 					onChange={setFilter}
-					options={FILTER_OPTIONS}
+					options={TRANSACTION_FILTER_OPTIONS}
 					value={filter}
 				/>
 				{searchVisible ? (

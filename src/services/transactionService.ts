@@ -1,3 +1,4 @@
+import appConstants from "@/constants/appConstants";
 import AppError from "@/errors/AppError";
 import financeRepository from "@/repositories/financeRepository";
 import attachmentService from "@/services/attachmentService";
@@ -27,7 +28,7 @@ const {
 } = financeRepository;
 const { compareMoney, normalizeMoney, sumMoney } = moneyUtils;
 const { saveAttachment, deleteAttachment } = attachmentService;
-const TRANSACTION_PAGE_SIZE = 10;
+const { TRANSACTION_PAGE_SIZE } = appConstants;
 
 const mapTransaction = (transaction: Transaction): Transaction => ({
 	...transaction,
