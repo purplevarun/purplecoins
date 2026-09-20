@@ -1,10 +1,11 @@
+import type SettingRow from "@/types/SettingRow";
 import type { SQLiteDatabase } from "expo-sqlite";
 
 const getSettingRow = async (
 	database: SQLiteDatabase,
 	key: string,
 ): Promise<string | null> => {
-	const row = await database.getFirstAsync<Readonly<{ value: string }>>(
+	const row = await database.getFirstAsync<SettingRow>(
 		"SELECT value FROM settings WHERE key = ?;",
 		key,
 	);

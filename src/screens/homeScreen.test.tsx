@@ -28,7 +28,7 @@ const animatedMocks = vi.hoisted(() => ({
 }));
 
 vi.mock("react", async (importOriginal) => {
-	const actual = (await importOriginal()) as typeof import("react");
+	const actual = await importOriginal<typeof import("react")>();
 	return {
 		...actual,
 		useCallback: reactMocks.useCallback,
@@ -283,7 +283,7 @@ describe("HomeScreen", () => {
 		expect(setMenuVisible).toHaveBeenCalledWith(true);
 		expect(setMenuVisible).toHaveBeenCalledWith(false);
 		expect(setMode).toHaveBeenCalled();
-		const updater = setMode.mock.calls[0][0];
+		const updater = setMode.mock.calls[0]?.[0];
 		expect(typeof updater).toBe("function");
 		expect(updater("FINANCE")).toBe("VAULT");
 		expect(updater("VAULT")).toBe("TOOLS");
@@ -456,8 +456,7 @@ describe("HomeScreen", () => {
 			tree,
 			(node) =>
 				typeof node?.props?.onPress === "function" &&
-				String(JSON.stringify(node) ?? "").includes("modeMenu") ===
-					false,
+				!String(JSON.stringify(node) ?? "").includes("modeMenu"),
 		);
 		closers[0]?.props?.onPress();
 

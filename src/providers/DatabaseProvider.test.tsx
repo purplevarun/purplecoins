@@ -16,7 +16,7 @@ const reactMocks = vi.hoisted(() => ({
 }));
 
 vi.mock("react", async (importOriginal) => {
-	const actual = (await importOriginal()) as typeof import("react");
+	const actual = await importOriginal<typeof import("react")>();
 	return {
 		...actual,
 		useEffect: reactMocks.useEffect,
@@ -87,7 +87,7 @@ describe("DatabaseProvider", () => {
 		} as any) as any;
 		const value = element.props.value;
 
-		expect(stateSetters.setShowLoader).toHaveBeenCalledWith(false);
+		expect(stateSetters.setShowLoader).not.toHaveBeenCalled();
 		value.refreshData();
 		expect(stateSetters.setDataVersion).toHaveBeenCalledWith(
 			expect.any(Function),
@@ -126,11 +126,15 @@ describe("DatabaseProvider", () => {
 			.spyOn(globalThis, "clearTimeout")
 			.mockImplementation(() => undefined);
 
-		DatabaseProvider({ children: null, database: {} as any } as any);
+		DatabaseProvider({ children: null, database: {} as any });
 
 		expect(timeoutSpy).toHaveBeenCalledWith(expect.any(Function), 120);
 		expect(stateSetters.setShowLoader).toHaveBeenCalledWith(true);
 		expect(clearSpy).toHaveBeenCalledWith(777);
+		setupStates(0, 0, true);
+		DatabaseProvider({ children: null, database: {} as any });
+		expect(timeoutSpy).toHaveBeenCalledWith(expect.any(Function), 0);
+		expect(stateSetters.setShowLoader).toHaveBeenCalledWith(false);
 
 		timeoutSpy.mockRestore();
 		clearSpy.mockRestore();

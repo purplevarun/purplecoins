@@ -1,6 +1,7 @@
 import AppError from "@/errors/AppError";
 import contentRepository from "@/repositories/contentRepository";
 import type IdentityEntry from "@/types/IdentityEntry";
+import type IdentityInput from "@/types/IdentityInput";
 import createId from "@/utils/id";
 import type { SQLiteDatabase } from "expo-sqlite";
 
@@ -29,12 +30,7 @@ const getIdentity = async (
 
 const saveIdentity = async (
 	database: SQLiteDatabase,
-	entry: Readonly<{
-		id?: string;
-		title: string;
-		idNumber: string;
-		notes: string;
-	}>,
+	entry: IdentityInput,
 ): Promise<string> => {
 	const title = entry.title.trim();
 	if (!title) {

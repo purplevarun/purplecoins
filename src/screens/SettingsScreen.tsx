@@ -1,9 +1,9 @@
 import appConstants from "@/constants/appConstants";
 
-import packageJson from "@/../package.json";
 import CustomText from "@/components/CustomText";
 import { useEffect, useState } from "react";
 import { StyleSheet, Switch, View } from "react-native";
+import packageJson from "../../package.json";
 
 import AppButton from "@/components/AppButton";
 import GlassCard from "@/components/GlassCard";

@@ -1,17 +1,12 @@
 import CustomText from "@/components/CustomText";
+import type ButtonColors from "@/types/ButtonColors";
 import { Ionicons } from "@expo/vector-icons";
 import { ActivityIndicator, Pressable, StyleSheet } from "react-native";
 
 import COLORS from "@/constants/colors";
 import type AppButtonProps from "@/types/AppButtonProps";
 
-const getButtonColors = (
-	variant: AppButtonProps["variant"],
-): Readonly<{
-	backgroundColor: string;
-	color: string;
-	borderColor: string;
-}> => {
+const getButtonColors = (variant: AppButtonProps["variant"]): ButtonColors => {
 	if (variant === "danger") {
 		return {
 			backgroundColor: COLORS.dangerMuted,

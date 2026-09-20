@@ -1,7 +1,8 @@
+import type TestAsyncFunction from "@/types/testing/TestAsyncFunction";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-	getTransactionRows: vi.fn(async () => []),
+	getTransactionRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
 }));
 
 vi.mock("@/repositories/financeRepository", () => ({

@@ -1,4 +1,5 @@
 import settingsRepository from "@/repositories/settingsRepository";
+import type TestAsyncFunction from "@/types/testing/TestAsyncFunction";
 
 import { describe, expect, it, vi } from "vitest";
 
@@ -21,7 +22,9 @@ describe("settingsRepository", () => {
 	});
 
 	it("upserts setting row", async () => {
-		const database = { runAsync: vi.fn(async () => {}) } as any;
+		const database = {
+			runAsync: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
+		} as any;
 		await upsertSettingRow(database, "k", "v", 123);
 		expect(database.runAsync).toHaveBeenCalledWith(
 			expect.stringContaining("INSERT INTO settings"),

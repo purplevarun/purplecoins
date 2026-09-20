@@ -1,3 +1,4 @@
+import type { EffectCallback } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const reactMocks = vi.hoisted(() => ({
@@ -24,7 +25,7 @@ const serviceMocks = vi.hoisted(() => ({
 }));
 
 vi.mock("react", async (importOriginal) => {
-	const actual = (await importOriginal()) as typeof import("react");
+	const actual = await importOriginal<typeof import("react")>();
 	return {
 		...actual,
 		useCallback: reactMocks.useCallback,
@@ -162,7 +163,7 @@ describe("GlobalSearchScreen", () => {
 
 		reactMocks.useEffect.mockReset();
 		reactMocks.useState.mockReset();
-		reactMocks.useEffect.mockImplementation((effect: () => void) => {
+		reactMocks.useEffect.mockImplementation((effect: EffectCallback) => {
 			effect();
 		});
 		reactMocks.useState.mockImplementation((initial: any) => [
@@ -854,7 +855,7 @@ describe("GlobalSearchScreen", () => {
 		const navigation = { navigate: vi.fn() };
 		const clearSpy = vi.spyOn(globalThis, "clearTimeout");
 
-		reactMocks.useEffect.mockImplementation((effect: () => void) => {
+		reactMocks.useEffect.mockImplementation((effect: EffectCallback) => {
 			const cleanup = effect();
 			if (typeof cleanup === "function") cleanup();
 		});

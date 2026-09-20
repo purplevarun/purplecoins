@@ -1,10 +1,6 @@
 import type HeaderIconButtonProps from "@/types/HeaderIconButtonProps";
-import type { ReactElement } from "react";
+import type HeaderOptions from "@/types/testing/HeaderOptions";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-
-type HeaderOptions = {
-	headerRight: () => ReactElement<HeaderIconButtonProps>;
-};
 
 const reactMocks = vi.hoisted(() => ({
 	useCallback: vi.fn((fn: any) => fn),
@@ -33,7 +29,7 @@ const serviceMocks = vi.hoisted(() => ({
 }));
 
 vi.mock("react", async (importOriginal) => {
-	const actual = (await importOriginal()) as typeof import("react");
+	const actual = await importOriginal<typeof import("react")>();
 	return {
 		...actual,
 		useCallback: reactMocks.useCallback,
@@ -264,7 +260,10 @@ describe("AnalysisScreen", () => {
 	it("renders default summary mode and manages exchange rates only from the header", async () => {
 		const navigation = {
 			navigate: vi.fn(),
-			setOptions: vi.fn<(options: HeaderOptions) => void>(),
+			setOptions:
+				vi.fn<
+					(options: HeaderOptions<HeaderIconButtonProps>) => void
+				>(),
 		};
 		const anchorSetter = vi.fn();
 		let stateCall = 0;
@@ -352,7 +351,10 @@ describe("AnalysisScreen", () => {
 	it("keeps exchange rates in the header when currencies are missing", async () => {
 		const navigation = {
 			navigate: vi.fn(),
-			setOptions: vi.fn<(options: HeaderOptions) => void>(),
+			setOptions:
+				vi.fn<
+					(options: HeaderOptions<HeaderIconButtonProps>) => void
+				>(),
 		};
 		let stateCall = 0;
 		reactMocks.useState.mockImplementation((initial: any) => {

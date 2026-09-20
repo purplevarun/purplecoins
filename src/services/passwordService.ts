@@ -1,6 +1,7 @@
 import AppError from "@/errors/AppError";
 import contentRepository from "@/repositories/contentRepository";
 import type PasswordEntry from "@/types/PasswordEntry";
+import type PasswordInput from "@/types/PasswordInput";
 import createId from "@/utils/id";
 import type { SQLiteDatabase } from "expo-sqlite";
 
@@ -18,14 +19,7 @@ const getPassword = async (
 
 const savePassword = async (
 	database: SQLiteDatabase,
-	entry: Readonly<{
-		id?: string;
-		title: string;
-		username: string;
-		password: string;
-		website: string;
-		notes: string;
-	}>,
+	entry: PasswordInput,
 ): Promise<string> => {
 	const title = entry.title.trim();
 	if (!title) {

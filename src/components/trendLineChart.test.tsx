@@ -1,4 +1,5 @@
 import type { ReactElement } from "react";
+import type { LineProps } from "react-native-svg";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("react-native", () => ({
@@ -118,9 +119,9 @@ describe("TrendLineChart", () => {
 		const tree = TrendLineChart({ series: points });
 		const gridLines = findByPredicate(
 			tree,
-			(node: { props?: { y1?: unknown } }) =>
+			(node: Partial<ReactElement<LineProps>>) =>
 				typeof node.props?.y1 === "number",
-		) as ReactElement<{ y1: number; y2: number }>[];
+		) as ReactElement<LineProps>[];
 		expect(gridLines).toHaveLength(5);
 		for (const line of gridLines) {
 			expect(Number.isFinite(line.props.y1)).toBe(true);

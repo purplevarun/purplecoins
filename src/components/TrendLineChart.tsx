@@ -1,6 +1,10 @@
 import CustomText from "@/components/CustomText";
 import COLORS from "@/constants/colors";
+import type ChartBounds from "@/types/ChartBounds";
+import type TrendLineChartProps from "@/types/TrendLineChartProps";
 import type TrendPoint from "@/types/TrendPoint";
+import type TrendSeriesConfig from "@/types/TrendSeriesConfig";
+import type TrendSeriesKey from "@/types/TrendSeriesKey";
 import { StyleSheet, View } from "react-native";
 import Svg, { Line, Polyline } from "react-native-svg";
 
@@ -16,14 +20,6 @@ const MAX_AXIS_VALUE = 10_000_000; // 1 cr
 const AXIS_TICKS = [
 	100_000, 2_500_000, 5_000_000, 7_500_000, 10_000_000,
 ] as const;
-
-type TrendSeriesKey = "income" | "expenses" | "networth";
-
-type TrendSeriesConfig = Readonly<{
-	key: TrendSeriesKey;
-	label: string;
-	color: string;
-}>;
 
 const TREND_SERIES_CONFIG: readonly TrendSeriesConfig[] = [
 	{ key: "income", label: "Income", color: COLORS.success },
@@ -61,7 +57,7 @@ const getY = (
 	return CHART_HEIGHT - PADDING_Y - ratio * (CHART_HEIGHT - PADDING_Y * 2);
 };
 
-const getChartBounds = (series: readonly TrendPoint[]) => {
+const getChartBounds = (series: readonly TrendPoint[]): ChartBounds => {
 	const values = series.flatMap((point) => [
 		Number(point.income),
 		Number(point.expenses),
@@ -93,11 +89,7 @@ const getSeriesPoints = (
 		)
 		.join(" ");
 
-const TrendLineChart = ({
-	series,
-}: {
-	series: readonly TrendPoint[];
-}): React.JSX.Element => {
+const TrendLineChart = ({ series }: TrendLineChartProps): React.JSX.Element => {
 	const chartBounds = getChartBounds(series);
 	const axisTicks = Array.from(
 		{ length: 5 },

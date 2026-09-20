@@ -1,6 +1,7 @@
 import AppError from "@/errors/AppError";
 import contentRepository from "@/repositories/contentRepository";
 import type Todo from "@/types/Todo";
+import type TodoInput from "@/types/TodoInput";
 import createId from "@/utils/id";
 import type { SQLiteDatabase } from "expo-sqlite";
 
@@ -28,14 +29,7 @@ const getTodo = async (
 
 const saveTodo = async (
 	database: SQLiteDatabase,
-	todo: Readonly<{
-		id?: string;
-		title: string;
-		description: string;
-		folderId?: string;
-		dueAt?: number;
-		isDone: boolean;
-	}>,
+	todo: TodoInput,
 ): Promise<string> => {
 	const normalizedTitle = todo.title.trim();
 	if (!normalizedTitle) {

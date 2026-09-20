@@ -1,18 +1,27 @@
-import AppError from "@/errors/AppError";
+import type TestAsyncFunction from "@/types/testing/TestAsyncFunction";
+import type TestCallback from "@/types/testing/TestCallback";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-	getDocumentAsync: vi.fn(async () => ({ canceled: true })),
-	deleteAttachmentRow: vi.fn(async () => {}),
-	getAttachmentContentRow: vi.fn(async () => null),
-	getAttachmentMetadataRow: vi.fn(async () => null),
-	upsertAttachmentRow: vi.fn(async () => {}),
+	getDocumentAsync: vi
+		.fn<TestAsyncFunction>()
+		.mockResolvedValue({ canceled: true }),
+	deleteAttachmentRow: vi
+		.fn<TestAsyncFunction>()
+		.mockResolvedValue(undefined),
+	getAttachmentContentRow: vi.fn<TestAsyncFunction>().mockResolvedValue(null),
+	getAttachmentMetadataRow: vi
+		.fn<TestAsyncFunction>()
+		.mockResolvedValue(null),
+	upsertAttachmentRow: vi
+		.fn<TestAsyncFunction>()
+		.mockResolvedValue(undefined),
 	createId: vi.fn(() => "attachment-id"),
 	isAvailableAsync: vi.fn(async () => true),
-	shareAsync: vi.fn(async () => {}),
+	shareAsync: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
 	fileBytes: vi.fn(async () => new Uint8Array([1, 2, 3])),
-	fileCreate: vi.fn(() => {}),
-	fileWrite: vi.fn(() => {}),
+	fileCreate: vi.fn<TestCallback>().mockReturnValue(undefined),
+	fileWrite: vi.fn<TestCallback>().mockReturnValue(undefined),
 }));
 
 vi.mock("@/constants/appConstants", () => ({
@@ -107,9 +116,7 @@ describe("attachmentService", () => {
 			canceled: false,
 			assets: [],
 		});
-		await expect(
-			attachmentService.pickAttachment(),
-		).rejects.toMatchObject<AppError>({
+		await expect(attachmentService.pickAttachment()).rejects.toMatchObject({
 			code: "ATTACHMENT_PICK_FAILED",
 		});
 	});
@@ -125,9 +132,7 @@ describe("attachmentService", () => {
 				},
 			],
 		});
-		await expect(
-			attachmentService.pickAttachment(),
-		).rejects.toMatchObject<AppError>({
+		await expect(attachmentService.pickAttachment()).rejects.toMatchObject({
 			code: "ATTACHMENT_TOO_LARGE",
 		});
 	});
@@ -144,9 +149,7 @@ describe("attachmentService", () => {
 				},
 			],
 		});
-		await expect(
-			attachmentService.pickAttachment(),
-		).rejects.toMatchObject<AppError>({
+		await expect(attachmentService.pickAttachment()).rejects.toMatchObject({
 			code: "ATTACHMENT_TOO_LARGE",
 		});
 	});
@@ -214,7 +217,7 @@ describe("attachmentService", () => {
 				sizeBytes: 3 * 1024 * 1024,
 				content: new Uint8Array([1]),
 			}),
-		).rejects.toMatchObject<AppError>({ code: "ATTACHMENT_TOO_LARGE" });
+		).rejects.toMatchObject({ code: "ATTACHMENT_TOO_LARGE" });
 
 		await attachmentService.saveAttachment(database, "NOTE", "n1", {
 			fileName: "x",
@@ -251,7 +254,7 @@ describe("attachmentService", () => {
 		mocks.getAttachmentContentRow.mockResolvedValueOnce(null);
 		await expect(
 			attachmentService.openAttachment(database, metadata as any),
-		).rejects.toMatchObject<AppError>({
+		).rejects.toMatchObject({
 			code: "ATTACHMENT_NOT_FOUND",
 		});
 
@@ -261,7 +264,7 @@ describe("attachmentService", () => {
 		mocks.isAvailableAsync.mockResolvedValueOnce(false);
 		await expect(
 			attachmentService.openAttachment(database, metadata as any),
-		).rejects.toMatchObject<AppError>({
+		).rejects.toMatchObject({
 			code: "SHARING_UNAVAILABLE",
 		});
 	});

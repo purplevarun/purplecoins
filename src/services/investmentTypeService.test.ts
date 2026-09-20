@@ -1,10 +1,12 @@
-import AppError from "@/errors/AppError";
+import type TestAsyncFunction from "@/types/testing/TestAsyncFunction";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-	getInvestmentTypeRows: vi.fn(async () => []),
+	getInvestmentTypeRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
 	investmentTypeNameExistsRow: vi.fn(async () => false),
-	upsertInvestmentTypeRow: vi.fn(async () => {}),
+	upsertInvestmentTypeRow: vi
+		.fn<TestAsyncFunction>()
+		.mockResolvedValue(undefined),
 	createId: vi.fn(() => "type-id"),
 }));
 
@@ -43,14 +45,14 @@ describe("investmentTypeService", () => {
 	it("validates and saves an investment type", async () => {
 		await expect(
 			investmentTypeService.saveInvestmentType(database, "   "),
-		).rejects.toMatchObject<AppError>({
+		).rejects.toMatchObject({
 			code: "INVESTMENT_TYPE_NAME_REQUIRED",
 		});
 
 		mocks.investmentTypeNameExistsRow.mockResolvedValueOnce(true);
 		await expect(
 			investmentTypeService.saveInvestmentType(database, "Mutual Fund"),
-		).rejects.toMatchObject<AppError>({
+		).rejects.toMatchObject({
 			code: "INVESTMENT_TYPE_NAME_DUPLICATE",
 		});
 

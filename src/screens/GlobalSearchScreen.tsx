@@ -1,4 +1,5 @@
 import CustomText from "@/components/CustomText";
+import type ListItemProps from "@/types/ListItemProps";
 
 import { Ionicons } from "@expo/vector-icons";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -301,7 +302,9 @@ const GlobalSearchScreen = ({
 	);
 
 	const renderResult = useCallback(
-		({ item: result }: { item: GlobalSearchResult }): React.JSX.Element => (
+		({
+			item: result,
+		}: ListItemProps<GlobalSearchResult>): React.JSX.Element => (
 			<Pressable onPress={() => handleOpenResult(result)}>
 				<GlassCard>
 					<View style={styles.row}>

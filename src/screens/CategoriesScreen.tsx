@@ -1,4 +1,5 @@
 import CustomText from "@/components/CustomText";
+import type ListItemProps from "@/types/ListItemProps";
 
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
@@ -214,7 +215,7 @@ const CategoriesScreen = ({
 	}, [listData, searchDebounced]);
 
 	const renderCategoryItem = useCallback(
-		({ item: category }: { item: Category }): React.JSX.Element => {
+		({ item: category }: ListItemProps<Category>): React.JSX.Element => {
 			const totals =
 				analysis?.categories.filter(
 					(row) => row.categoryId === category.id,

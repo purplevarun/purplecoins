@@ -1,4 +1,7 @@
 import CustomText from "@/components/CustomText";
+import type CopyRowProps from "@/types/CopyRowProps";
+import type ListItemProps from "@/types/ListItemProps";
+import type VaultFormParams from "@/types/VaultFormParams";
 
 import { Ionicons } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
@@ -41,8 +44,7 @@ const CARD_TYPE_LABEL: Record<string, string> = {
 const getVaultFormParams = (
 	kind: VaultKind,
 	entryId?: string,
-): { kind: VaultKind; entryId?: string } =>
-	entryId ? { kind, entryId } : { kind };
+): VaultFormParams => (entryId ? { kind, entryId } : { kind });
 
 const getPasswordSubtitle = (username: string, website: string): string =>
 	username || website || "No username";
@@ -91,11 +93,7 @@ const CopyRow = ({
 	label,
 	value,
 	onCopy,
-}: {
-	label: string;
-	value: string;
-	onCopy: (value: string, label: string) => void;
-}): React.JSX.Element | null => {
+}: CopyRowProps): React.JSX.Element | null => {
 	if (!value) return null;
 	return (
 		<View style={styles.copyRow}>
@@ -205,7 +203,7 @@ const VaultScreen = ({
 	);
 
 	const renderVaultItem = useCallback(
-		({ item }: { item: VaultListItem }): React.JSX.Element => {
+		({ item }: ListItemProps<VaultListItem>): React.JSX.Element => {
 			if (item.kind === "PASSWORD") {
 				const entry = item.entry;
 				return (

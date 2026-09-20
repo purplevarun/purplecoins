@@ -1,4 +1,5 @@
 import CustomText from "@/components/CustomText";
+import type ListItemProps from "@/types/ListItemProps";
 
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
@@ -209,7 +210,7 @@ const SourcesScreen = ({
 	}, [listData, searchDebounced, sourceFilter]);
 
 	const renderSourceItem = useCallback(
-		({ item: source }: { item: Source }): React.JSX.Element => {
+		({ item: source }: ListItemProps<Source>): React.JSX.Element => {
 			const isValidated = isSourceValidated(source);
 			return (
 				<Pressable

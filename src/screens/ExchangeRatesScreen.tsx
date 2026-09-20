@@ -1,4 +1,5 @@
 import CustomText from "@/components/CustomText";
+import type ListItemProps from "@/types/ListItemProps";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -120,7 +121,7 @@ const ExchangeRatesScreen = (
 	);
 
 	const renderCurrency = useCallback(
-		({ item: currencyCode }: { item: string }): React.JSX.Element => {
+		({ item: currencyCode }: ListItemProps<string>): React.JSX.Element => {
 			const rate = rates.find(
 				(existingRate) => existingRate.currencyCode === currencyCode,
 			);

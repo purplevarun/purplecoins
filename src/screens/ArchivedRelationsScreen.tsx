@@ -1,4 +1,5 @@
 import CustomText from "@/components/CustomText";
+import type ListItemProps from "@/types/ListItemProps";
 
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
@@ -177,7 +178,7 @@ const ArchivedRelationsScreen = (
 	}, [categories, investments, searchDebounced, sources, trips]);
 
 	const renderArchivedItem = useCallback(
-		({ item }: { item: ArchivedListRow }): React.JSX.Element => {
+		({ item }: ListItemProps<ArchivedListRow>): React.JSX.Element => {
 			if (item.type === "header") {
 				return (
 					<CustomText style={styles.sectionHeading}>

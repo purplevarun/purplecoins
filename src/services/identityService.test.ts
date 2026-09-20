@@ -1,11 +1,11 @@
-import AppError from "@/errors/AppError";
+import type TestAsyncFunction from "@/types/testing/TestAsyncFunction";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-	deleteContentRow: vi.fn(async () => {}),
-	getIdentityRow: vi.fn(async () => null),
-	getIdentityRows: vi.fn(async () => []),
-	upsertIdentityRow: vi.fn(async () => {}),
+	deleteContentRow: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
+	getIdentityRow: vi.fn<TestAsyncFunction>().mockResolvedValue(null),
+	getIdentityRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
+	upsertIdentityRow: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
 	createId: vi.fn(() => "identity-id"),
 }));
 
@@ -62,7 +62,7 @@ describe("identityService", () => {
 				idNumber: "x",
 				notes: "y",
 			}),
-		).rejects.toMatchObject<AppError>({ code: "IDENTITY_TITLE_REQUIRED" });
+		).rejects.toMatchObject({ code: "IDENTITY_TITLE_REQUIRED" });
 
 		const id = await identityService.saveIdentity(database, {
 			title: "  Passport  ",

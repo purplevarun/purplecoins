@@ -1,14 +1,20 @@
-import AppError from "@/errors/AppError";
+import type TestAsyncFunction from "@/types/testing/TestAsyncFunction";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-	deleteSimpleEntityRow: vi.fn(async () => {}),
-	getArchivedTripRows: vi.fn(async () => []),
-	getTripRow: vi.fn(async () => null),
-	getTripRows: vi.fn(async () => []),
-	setSimpleEntityArchivedRow: vi.fn(async () => {}),
+	deleteSimpleEntityRow: vi
+		.fn<TestAsyncFunction>()
+		.mockResolvedValue(undefined),
+	getArchivedTripRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
+	getTripRow: vi.fn<TestAsyncFunction>().mockResolvedValue(null),
+	getTripRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
+	setSimpleEntityArchivedRow: vi
+		.fn<TestAsyncFunction>()
+		.mockResolvedValue(undefined),
 	simpleEntityNameExistsRow: vi.fn(async () => false),
-	upsertSimpleEntityRow: vi.fn(async () => {}),
+	upsertSimpleEntityRow: vi
+		.fn<TestAsyncFunction>()
+		.mockResolvedValue(undefined),
 	createId: vi.fn(() => "trip-id"),
 }));
 
@@ -66,14 +72,14 @@ describe("tripService", () => {
 	it("validates and saves trip", async () => {
 		await expect(
 			tripService.saveTrip(database, undefined, "   "),
-		).rejects.toMatchObject<AppError>({
+		).rejects.toMatchObject({
 			code: "TRIP_NAME_REQUIRED",
 		});
 
 		mocks.simpleEntityNameExistsRow.mockResolvedValueOnce(true);
 		await expect(
 			tripService.saveTrip(database, undefined, "Trip A"),
-		).rejects.toMatchObject<AppError>({
+		).rejects.toMatchObject({
 			code: "TRIP_NAME_DUPLICATE",
 		});
 
@@ -132,7 +138,7 @@ describe("tripService", () => {
 		);
 		await expect(
 			tripService.deleteTrip(database, "t1"),
-		).rejects.toMatchObject<AppError>({
+		).rejects.toMatchObject({
 			code: "TRIP_IN_USE",
 		});
 

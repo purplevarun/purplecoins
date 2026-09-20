@@ -8,7 +8,7 @@ const reactMocks = vi.hoisted(() => ({
 }));
 
 vi.mock("react", async (importOriginal) => {
-	const actual = (await importOriginal()) as typeof import("react");
+	const actual = await importOriginal<typeof import("react")>();
 	return {
 		...actual,
 		useMemo: reactMocks.useMemo,
@@ -109,7 +109,7 @@ describe("form components", () => {
 			isLoading: true,
 			isCompact: true,
 			isDisabled: true,
-		} as any);
+		});
 		expect(loadingButton.props.disabled).toBe(true);
 		expect(findAllByType(loadingButton, "ActivityIndicator").length).toBe(
 			1,
@@ -135,7 +135,7 @@ describe("form components", () => {
 				{ label: "C", value: "c" },
 				{ label: "D", value: "d" },
 			],
-		} as any);
+		});
 
 		const pressables = findAllByType(segmented, "Pressable");
 		expect(pressables).toHaveLength(4);
@@ -192,7 +192,7 @@ describe("form components", () => {
 			isSecure: true,
 			isMultiline: true,
 			isEditable: false,
-		} as any);
+		});
 
 		const secureInput = findAllByType(secureField, "CustomTextInput")[0];
 		expect(secureInput.props.secureTextEntry).toBe(true);
@@ -217,7 +217,7 @@ describe("form components", () => {
 			value: "topsecret",
 			onChangeText,
 			isSecure: true,
-		} as any);
+		});
 		expect(findAllByType(revealedField, "Ionicons")[0]?.props.name).toBe(
 			"eye-off-outline",
 		);
@@ -228,7 +228,7 @@ describe("form components", () => {
 			value: "Alice",
 			onChangeText,
 			isSecure: false,
-		} as any);
+		});
 		expect(findAllByType(plainField, "Pressable")).toHaveLength(0);
 	});
 
@@ -250,7 +250,7 @@ describe("form components", () => {
 			options,
 			onChange,
 			isOptional: false,
-		} as any);
+		});
 		const closedPressables = findAllByType(closed, "Pressable");
 		closedPressables[0]?.props.onPress();
 		expect(setSearch).toHaveBeenCalledWith("");
@@ -265,7 +265,7 @@ describe("form components", () => {
 			options,
 			onChange,
 			isOptional: true,
-		} as any);
+		});
 
 		const modal = findAllByType(openNoResults, "Modal")[0];
 		expect(modal.props.visible).toBe(true);
@@ -297,7 +297,7 @@ describe("form components", () => {
 			options,
 			onChange,
 			isOptional: false,
-		} as any);
+		});
 		const openMatchModal = findAllByType(openMatch, "Modal")[0];
 		const cashOption = findPressableByText(openMatchModal, "Cash Wallet");
 		expect(cashOption).toBeTruthy();

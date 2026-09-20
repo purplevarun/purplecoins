@@ -1,5 +1,5 @@
 import type HomeMode from "@/types/HomeMode";
-import { Ionicons } from "@expo/vector-icons";
+import type { Ionicons } from "@expo/vector-icons";
 import { type ComponentProps } from "react";
 
 type HomeModeOption = Readonly<{

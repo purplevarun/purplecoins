@@ -1,11 +1,11 @@
-import AppError from "@/errors/AppError";
+import type TestAsyncFunction from "@/types/testing/TestAsyncFunction";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-	deleteBudgetRow: vi.fn(async () => {}),
-	getBudgetRow: vi.fn(async () => null),
-	getBudgetRows: vi.fn(async () => []),
-	upsertBudgetRow: vi.fn(async () => {}),
+	deleteBudgetRow: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
+	getBudgetRow: vi.fn<TestAsyncFunction>().mockResolvedValue(null),
+	getBudgetRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
+	upsertBudgetRow: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
 	createId: vi.fn(() => "budget-id"),
 }));
 
@@ -47,8 +47,8 @@ describe("budgetService", () => {
 
 	it("requires categoryId", async () => {
 		await expect(
-			budgetService.saveBudget(database, undefined, "", "100", "MONTH"),
-		).rejects.toMatchObject<AppError>({ code: "BUDGET_CATEGORY_REQUIRED" });
+			budgetService.saveBudget(database, undefined, "", "100", "MONTHLY"),
+		).rejects.toMatchObject({ code: "BUDGET_CATEGORY_REQUIRED" });
 	});
 
 	it("creates new budget and normalizes amount", async () => {
@@ -57,7 +57,7 @@ describe("budgetService", () => {
 			undefined,
 			"cat1",
 			"00123.4500",
-			"MONTH",
+			"MONTHLY",
 		);
 		expect(id).toBe("budget-id");
 		expect(mocks.upsertBudgetRow).toHaveBeenCalledWith(
@@ -66,7 +66,7 @@ describe("budgetService", () => {
 				id: "budget-id",
 				categoryId: "cat1",
 				amount: "123.45",
-				period: "MONTH",
+				period: "MONTHLY",
 				createdAt: new Date("2026-08-25T12:00:00.000Z").getTime(),
 				categoryName: "",
 			}),
@@ -85,7 +85,7 @@ describe("budgetService", () => {
 			"b1",
 			"cat2",
 			"100",
-			"YEAR",
+			"YEARLY",
 		);
 		expect(id).toBe("b1");
 		expect(mocks.upsertBudgetRow).toHaveBeenCalledWith(
@@ -95,7 +95,7 @@ describe("budgetService", () => {
 				categoryId: "cat2",
 				categoryName: "Rent",
 				createdAt: 101,
-				period: "YEAR",
+				period: "YEARLY",
 			}),
 		);
 	});
@@ -110,9 +110,9 @@ describe("budgetService", () => {
 				undefined,
 				"cat1",
 				"100",
-				"MONTH",
+				"MONTHLY",
 			),
-		).rejects.toMatchObject<AppError>({ code: "DUPLICATE_BUDGET" });
+		).rejects.toMatchObject({ code: "DUPLICATE_BUDGET" });
 	});
 
 	it("rethrows unknown upsert errors and deletes budget", async () => {
@@ -123,7 +123,7 @@ describe("budgetService", () => {
 				undefined,
 				"cat1",
 				"100",
-				"MONTH",
+				"MONTHLY",
 			),
 		).rejects.toThrow("disk");
 

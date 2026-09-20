@@ -1,4 +1,5 @@
 import CustomText from "@/components/CustomText";
+import type ListItemProps from "@/types/ListItemProps";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -126,7 +127,7 @@ const BudgetsScreen = ({
 	);
 
 	const renderBudget = useCallback(
-		({ item: budget }: { item: Budget }): React.JSX.Element => {
+		({ item: budget }: ListItemProps<Budget>): React.JSX.Element => {
 			const spent = getSpent(budget);
 			const rawProgress =
 				Number(spent) / Math.max(Number(budget.amount), 1);

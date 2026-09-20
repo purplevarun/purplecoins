@@ -22,7 +22,7 @@ const eslintConfig = tseslint.config(
 	reactPlugin.configs.flat["jsx-runtime"],
 	reactHooks.configs.flat.recommended,
 	{
-		files: ["**/*.{ts,tsx}"],
+		files: ["**/*.{ts,tsx,mts}"],
 		languageOptions: {
 			parserOptions: {
 				projectService: true,
@@ -69,6 +69,21 @@ const eslintConfig = tseslint.config(
 			"@typescript-eslint/no-unsafe-assignment": "off",
 			"@typescript-eslint/no-unsafe-call": "off",
 			"@typescript-eslint/no-unsafe-member-access": "off",
+		},
+	},
+	{
+		files: ["**/*.{ts,tsx,mts}"],
+		ignores: ["**/types/**", "**/*.d.ts"],
+		rules: {
+			"no-restricted-syntax": [
+				"error",
+				{
+					selector:
+						"TSTypeAliasDeclaration, TSInterfaceDeclaration, TSTypeLiteral",
+					message:
+						"Define types in dedicated files under the types directory and import them here.",
+				},
+			],
 		},
 	},
 );

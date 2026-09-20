@@ -1,5 +1,10 @@
 import type AppButtonProps from "@/types/AppButtonProps";
+import type AppDialogConfirmOptions from "@/types/AppDialogConfirmOptions";
+import type InvestmentTypePickerProps from "@/types/InvestmentTypePickerProps";
+import type NoticeProps from "@/types/NoticeProps";
+import type TextFieldProps from "@/types/TextFieldProps";
 import { isValidElement, type ReactElement } from "react";
+import type { SwitchProps } from "react-native";
 import {
 	afterEach,
 	beforeEach,
@@ -58,7 +63,7 @@ const hookMocks = vi.hoisted(() => ({
 }));
 
 vi.mock("react", async (importOriginal) => {
-	const actual = (await importOriginal()) as typeof import("react");
+	const actual = await importOriginal<typeof import("react")>();
 	return {
 		...actual,
 		useEffect: reactMocks.useEffect,
@@ -464,10 +469,10 @@ describe("form screens", () => {
 				} else expect(serviceMocks[load]).not.toHaveBeenCalled();
 				if (name === "source")
 					expect(
-						findElement<{ label: string; isEditable: boolean }>(
-							tree,
-							(props) => props.label === "Currency",
-						).props.isEditable,
+						findElement<
+							Pick<TextFieldProps, "label" | "isEditable">
+						>(tree, (props) => props.label === "Currency").props
+							.isEditable,
 					).toBe(!entityId);
 				findElement<AppButtonProps>(
 					tree,
@@ -534,7 +539,7 @@ describe("form screens", () => {
 					"load failed",
 				);
 				expect(
-					findElement<{ message: string }>(
+					findElement<Pick<NoticeProps, "message">>(
 						tree,
 						(props) => props.message === "visible error",
 					),
@@ -590,10 +595,11 @@ describe("form screens", () => {
 				).props.onPress();
 				expect(serviceMocks.saveCategory).not.toHaveBeenCalled();
 				expect(navigation.goBack).not.toHaveBeenCalled();
-				const confirmation = hookMocks.confirm.mock.calls[0]?.[0] as {
-					title: string;
-					onConfirm: () => void;
-				};
+				const confirmation = hookMocks.confirm.mock
+					.calls[0]?.[0] as Pick<
+					AppDialogConfirmOptions,
+					"title" | "onConfirm"
+				>;
 				expect(confirmation.title).toBe(
 					"Change analysis classification?",
 				);
@@ -606,10 +612,10 @@ describe("form screens", () => {
 					isIncome,
 				);
 				expect(navigation.goBack).toHaveBeenCalledOnce();
-				findElement<{ onValueChange: (value: boolean) => void }>(
+				findElement<Required<Pick<SwitchProps, "onValueChange">>>(
 					tree,
 					(props) => typeof props.onValueChange === "function",
-				).props.onValueChange(!isIncome);
+				).props.onValueChange?.(!isIncome);
 				expect(setters.get(2)).toHaveBeenLastCalledWith(!isIncome);
 			},
 		);
@@ -631,9 +637,9 @@ describe("form screens", () => {
 			expect(setters.get(2)).toHaveBeenCalledWith("");
 			expect(setters.get(3)).toHaveBeenCalledWith("");
 			expect(setters.get(4)).toHaveBeenCalledWith(types);
-			const picker = findElement<{
-				onCreateInvestmentType: (name: string) => Promise<string>;
-			}>(
+			const picker = findElement<
+				Pick<InvestmentTypePickerProps, "onCreateInvestmentType">
+			>(
 				tree,
 				(props) => typeof props.onCreateInvestmentType === "function",
 			);

@@ -16,12 +16,10 @@ const DatabaseProvider = ({
 	const [showLoader, setShowLoader] = useState(false);
 
 	useEffect(() => {
-		if (pendingOperations <= 0) {
-			setShowLoader(false);
-			return;
-		}
-
-		const timeoutId = setTimeout(() => setShowLoader(true), 120);
+		const timeoutId = setTimeout(
+			() => setShowLoader(pendingOperations > 0),
+			pendingOperations > 0 ? 120 : 0,
+		);
 		return () => clearTimeout(timeoutId);
 	}, [pendingOperations]);
 
@@ -29,22 +27,20 @@ const DatabaseProvider = ({
 		() =>
 			new Proxy(database, {
 				get(target, prop, receiver) {
-					const value = Reflect.get(target, prop, receiver);
+					const value: unknown = Reflect.get(target, prop, receiver);
 					if (typeof value !== "function") {
 						return value;
 					}
 
-					return (...args: unknown[]) => {
-						const result = value.apply(target, args);
-						if (
-							result !== null &&
-							typeof result === "object" &&
-							"then" in result &&
-							typeof (result as Promise<unknown>).then ===
-								"function"
-						) {
+					return (...args: unknown[]): unknown => {
+						const result: unknown = Reflect.apply(
+							value,
+							target,
+							args,
+						);
+						if (result instanceof Promise) {
 							setPendingOperations((current) => current + 1);
-							return (result as Promise<unknown>).finally(() => {
+							return result.finally(() => {
 								setPendingOperations((current) =>
 									current > 0 ? current - 1 : 0,
 								);
@@ -54,7 +50,7 @@ const DatabaseProvider = ({
 						return result;
 					};
 				},
-			}) as DatabaseContextValue["database"],
+			}),
 		[database],
 	);
 
@@ -71,7 +67,7 @@ const DatabaseProvider = ({
 	return (
 		<DatabaseContext.Provider value={value}>
 			{children}
-			<Modal transparent visible={showLoader}>
+			<Modal transparent visible={pendingOperations > 0 && showLoader}>
 				<View style={styles.loaderOverlay}>
 					<View style={styles.loaderCard}>
 						<ActivityIndicator

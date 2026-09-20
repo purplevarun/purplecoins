@@ -1,11 +1,11 @@
-import AppError from "@/errors/AppError";
+import type TestAsyncFunction from "@/types/testing/TestAsyncFunction";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-	deleteContentRow: vi.fn(async () => {}),
-	getCardRow: vi.fn(async () => null),
-	getCardRows: vi.fn(async () => []),
-	upsertCardRow: vi.fn(async () => {}),
+	deleteContentRow: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
+	getCardRow: vi.fn<TestAsyncFunction>().mockResolvedValue(null),
+	getCardRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
+	upsertCardRow: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
 	createId: vi.fn(() => "card-id"),
 }));
 
@@ -65,7 +65,7 @@ describe("cardService", () => {
 				network: "VISA",
 				notes: "x",
 			}),
-		).rejects.toMatchObject<AppError>({ code: "CARD_FIELDS_REQUIRED" });
+		).rejects.toMatchObject({ code: "CARD_FIELDS_REQUIRED" });
 
 		await expect(
 			cardService.saveCard(database, {
@@ -78,7 +78,7 @@ describe("cardService", () => {
 				network: "VISA",
 				notes: "x",
 			}),
-		).rejects.toMatchObject<AppError>({ code: "CARD_FIELDS_REQUIRED" });
+		).rejects.toMatchObject({ code: "CARD_FIELDS_REQUIRED" });
 	});
 
 	it("creates new card with normalized strings", async () => {

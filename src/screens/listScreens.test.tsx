@@ -1,8 +1,22 @@
+import type AppButtonProps from "@/types/AppButtonProps";
+import type AppDialogConfirmOptions from "@/types/AppDialogConfirmOptions";
 import type Category from "@/types/Category";
+import type GlassCardProps from "@/types/GlassCardProps";
 import type HeaderIconButtonProps from "@/types/HeaderIconButtonProps";
+import type InvestmentListItem from "@/types/InvestmentListItem";
+import type NoticeProps from "@/types/NoticeProps";
 import type SegmentedControlProps from "@/types/SegmentedControlProps";
 import type Source from "@/types/Source";
-import { isValidElement, type ReactElement } from "react";
+import type ActionProps from "@/types/testing/ActionProps";
+import type FinanceListProps from "@/types/testing/FinanceListProps";
+import type FinanceTestItem from "@/types/testing/FinanceTestItem";
+import type HeaderOptions from "@/types/testing/HeaderOptions";
+import type SourceListTestProps from "@/types/testing/SourceListTestProps";
+import {
+	isValidElement,
+	type PropsWithChildren,
+	type ReactElement,
+} from "react";
 import {
 	afterEach,
 	beforeEach,
@@ -12,17 +26,6 @@ import {
 	vi,
 	type Mock,
 } from "vitest";
-
-type HeaderOptions = {
-	headerRight: () => ReactElement;
-};
-
-type SourceListTestProps = {
-	data: readonly Source[];
-	ListHeaderComponent: ReactElement;
-	ListEmptyComponent: ReactElement<{ title: string }>;
-	renderItem: (props: { item: Source }) => ReactElement;
-};
 
 const reactMocks = vi.hoisted(() => ({
 	useCallback: vi.fn((fn: any) => fn),
@@ -84,7 +87,7 @@ const folderState = vi.hoisted(() => ({
 }));
 
 vi.mock("react", async (importOriginal) => {
-	const actual = (await importOriginal()) as typeof import("react");
+	const actual = await importOriginal<typeof import("react")>();
 	return {
 		...actual,
 		useCallback: reactMocks.useCallback,
@@ -347,20 +350,6 @@ const mockStateValues = (
 	return setters;
 };
 
-type FinanceListProps<Item> = {
-	data: readonly Item[];
-	keyExtractor: (item: Item) => string;
-	renderItem: (props: {
-		item: Item;
-	}) => ReactElement<{ onPress: () => void }>;
-};
-
-type ActionProps = {
-	accessibilityLabel: string;
-	onPress: () => void;
-	style: (state: { pressed: boolean }) => unknown;
-};
-
 describe("list screens", () => {
 	beforeEach(() => {
 		reactMocks.useEffect.mockReset();
@@ -525,9 +514,6 @@ describe("list screens", () => {
 				investmentTypeName: "Debt",
 			},
 		];
-		type InvestmentItem =
-			| { kind: "INVESTMENT"; entity: (typeof investments)[number] }
-			| { kind: "GROUP_HEADER"; title: string };
 
 		beforeEach(() => {
 			vi.useFakeTimers();
@@ -591,9 +577,12 @@ describe("list screens", () => {
 						action.onPress();
 						if (label === "Archive") {
 							const confirmation =
-								hookMocks.confirm.mock.calls.at(-1)?.[0] as {
-									onConfirm: () => void;
-								};
+								hookMocks.confirm.mock.calls.at(
+									-1,
+								)?.[0] as Pick<
+									AppDialogConfirmOptions,
+									"onConfirm"
+								>;
 							confirmation.onConfirm();
 						}
 						await flush();
@@ -608,7 +597,7 @@ describe("list screens", () => {
 				expect(hookMocks.refreshData).toHaveBeenCalledTimes(
 					sources.length * 2,
 				);
-				findElement<{ onPress: () => void }>(
+				findElement<Pick<AppButtonProps, "onPress">>(
 					tree,
 					(props) => typeof props.onPress === "function",
 				).props.onPress();
@@ -672,7 +661,7 @@ describe("list screens", () => {
 					action.onPress();
 					const confirmation = hookMocks.confirm.mock.calls.at(
 						-1,
-					)?.[0] as { onConfirm: () => void };
+					)?.[0] as Pick<AppDialogConfirmOptions, "onConfirm">;
 					confirmation.onConfirm();
 					await flush();
 					expect(
@@ -682,7 +671,7 @@ describe("list screens", () => {
 				expect(hookMocks.refreshData).toHaveBeenCalledTimes(
 					trips.length,
 				);
-				findElement<{ onPress: () => void }>(
+				findElement<Pick<AppButtonProps, "onPress">>(
 					tree,
 					(props) => typeof props.onPress === "function",
 				).props.onPress();
@@ -744,10 +733,11 @@ describe("list screens", () => {
 					InvestmentsScreen as (props: unknown) => ReactElement
 				)({ navigation });
 				await flush();
-				const list = findElement<FinanceListProps<InvestmentItem>>(
-					tree,
-					(props) => Array.isArray(props.data),
-				).props;
+				const list = findElement<
+					FinanceListProps<
+						InvestmentListItem<(typeof investments)[number]>
+					>
+				>(tree, (props) => Array.isArray(props.data)).props;
 				const headers = list.data
 					.filter((item) => item.kind === "GROUP_HEADER")
 					.map((item) => item.title);
@@ -777,7 +767,7 @@ describe("list screens", () => {
 							`group:${item.title}`,
 						);
 						expect(
-							findElement<{ children: string }>(
+							findElement<PropsWithChildren>(
 								row,
 								(props) => props.children === item.title,
 							),
@@ -804,7 +794,7 @@ describe("list screens", () => {
 					action.onPress();
 					const confirmation = hookMocks.confirm.mock.calls.at(
 						-1,
-					)?.[0] as { onConfirm: () => void };
+					)?.[0] as Pick<AppDialogConfirmOptions, "onConfirm">;
 					confirmation.onConfirm();
 					await flush();
 					expect(
@@ -822,7 +812,7 @@ describe("list screens", () => {
 					Array.isArray(props.options),
 				).props.onChange("TYPE");
 				expect(setters.get(9)).toHaveBeenCalledWith("TYPE");
-				findElement<{ onPress: () => void }>(
+				findElement<Pick<AppButtonProps, "onPress">>(
 					tree,
 					(props) => typeof props.onPress === "function",
 				).props.onPress();
@@ -901,19 +891,16 @@ describe("list screens", () => {
 					" keep ",
 				);
 				expect(
-					findElement<{ message: string }>(
+					findElement<Pick<NoticeProps, "message">>(
 						tree,
 						(props) => props.message === "visible error",
 					),
 				).toBeDefined();
-				type Item =
-					| typeof matching
-					| { kind: "INVESTMENT"; entity: typeof matching };
-				const list = findElement<FinanceListProps<Item>>(
-					tree,
-					(props) => Array.isArray(props.data),
-				).props;
-				const item: Item =
+
+				const list = findElement<
+					FinanceListProps<FinanceTestItem<typeof matching>>
+				>(tree, (props) => Array.isArray(props.data)).props;
+				const item: FinanceTestItem<typeof matching> =
 					kind === "INVESTMENT"
 						? { kind: "INVESTMENT", entity: matching }
 						: matching;
@@ -923,9 +910,11 @@ describe("list screens", () => {
 					row,
 					(props) => props.accessibilityLabel === "Archive",
 				).props.onPress();
-				const confirmation = hookMocks.confirm.mock.calls[0]?.[0] as {
-					onConfirm: () => void;
-				};
+				const confirmation = hookMocks.confirm.mock
+					.calls[0]?.[0] as Pick<
+					AppDialogConfirmOptions,
+					"onConfirm"
+				>;
 				confirmation.onConfirm();
 				await flush();
 				expect(hookMocks.showMessage).toHaveBeenLastCalledWith({
@@ -1062,7 +1051,7 @@ describe("list screens", () => {
 					archive.props.onPress();
 					const confirmation = hookMocks.confirm.mock.calls.at(
 						-1,
-					)?.[0] as { onConfirm: () => void };
+					)?.[0] as Pick<AppDialogConfirmOptions, "onConfirm">;
 					confirmation.onConfirm();
 					await flush();
 					expect(
@@ -1070,7 +1059,7 @@ describe("list screens", () => {
 					).toHaveBeenLastCalledWith({ id: "db" }, category.id, true);
 				}
 				expect(hookMocks.refreshData).toHaveBeenCalledTimes(4);
-				findElement<{ onPress: () => void }>(
+				findElement<Pick<AppButtonProps, "onPress">>(
 					tree,
 					(props) => typeof props.onPress === "function",
 				).props.onPress();
@@ -1078,7 +1067,7 @@ describe("list screens", () => {
 					"CategoryForm",
 				);
 				expect(
-					findElement<{ message: string }>(
+					findElement<Pick<NoticeProps, "message">>(
 						tree,
 						(props) =>
 							typeof props.message === "string" &&
@@ -1117,7 +1106,7 @@ describe("list screens", () => {
 				).props;
 				expect(list.data).toEqual([expense]);
 				expect(
-					findElement<{ message: string }>(
+					findElement<Pick<NoticeProps, "message">>(
 						tree,
 						(props) => props.message === "visible error",
 					),
@@ -1159,7 +1148,7 @@ describe("list screens", () => {
 			).props;
 			const row = list.renderItem({ item: expense });
 			expect(
-				findElement<{ children: string }>(
+				findElement<PropsWithChildren>(
 					row,
 					(props) => props.children === "INR 0",
 				),
@@ -1168,9 +1157,10 @@ describe("list screens", () => {
 				row,
 				(props) => props.accessibilityLabel === "Archive",
 			).props.onPress();
-			const confirmation = hookMocks.confirm.mock.calls[0]?.[0] as {
-				onConfirm: () => void;
-			};
+			const confirmation = hookMocks.confirm.mock.calls[0]?.[0] as Pick<
+				AppDialogConfirmOptions,
+				"onConfirm"
+			>;
 			confirmation.onConfirm();
 			await flush();
 			expect(hookMocks.showMessage).toHaveBeenCalledWith({
@@ -1383,7 +1373,7 @@ describe("list screens", () => {
 			}
 			for (const source of list.props.data) {
 				const row = list.props.renderItem({ item: source });
-				const card = findElement<{ accent: string }>(
+				const card = findElement<Pick<GlassCardProps, "accent">>(
 					row,
 					(props) => typeof props.accent === "string",
 				);

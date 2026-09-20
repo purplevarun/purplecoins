@@ -32,7 +32,7 @@ const getAttachmentContentRow = async (
 	ownerType: AttachmentOwnerType,
 	ownerId: string,
 ): Promise<Uint8Array | null> => {
-	const row = await database.getFirstAsync<Readonly<{ content: Uint8Array }>>(
+	const row = await database.getFirstAsync<Pick<AttachmentInput, "content">>(
 		`
 			SELECT content
 			FROM attachments

@@ -1,4 +1,5 @@
 import CustomText from "@/components/CustomText";
+import type ListItemProps from "@/types/ListItemProps";
 
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
@@ -31,6 +32,8 @@ import settingsService from "@/services/settingsService";
 import type AnalysisSummary from "@/types/AnalysisSummary";
 import type ExchangeRate from "@/types/ExchangeRate";
 import type Investment from "@/types/Investment";
+import type InvestmentGroupBy from "@/types/InvestmentGroupBy";
+import type InvestmentListItem from "@/types/InvestmentListItem";
 import type InvestmentsScreenProps from "@/types/InvestmentsScreenProps";
 import type SelectOption from "@/types/SelectOption";
 import getErrorMessage from "@/utils/error";
@@ -45,8 +48,6 @@ const { compareMoney, formatMoney, ZERO_AMOUNT } = moneyUtils;
 const ALL_TIME_START = 0;
 const ALL_TIME_END = 8_640_000_000_000_000;
 
-type InvestmentGroupBy = "NONE" | "LABEL" | "TYPE";
-
 const GROUP_BY_OPTIONS: readonly SelectOption[] = [
 	{ label: "None", value: "NONE" },
 	{ label: "Label", value: "LABEL" },
@@ -56,14 +57,15 @@ const GROUP_BY_OPTIONS: readonly SelectOption[] = [
 const getInvestmentGroupKey = (
 	investment: Investment,
 	groupBy: "LABEL" | "TYPE",
-): string =>
-	groupBy === "LABEL"
-		? investment.label?.trim() || "No label"
-		: investment.investmentTypeName?.trim() || "No type";
-
-type InvestmentListItem =
-	| { kind: "INVESTMENT"; entity: Investment }
-	| { kind: "GROUP_HEADER"; title: string };
+): string => {
+	const label =
+		(groupBy === "LABEL"
+			? investment.label
+			: investment.investmentTypeName
+		)?.trim() ?? "";
+	if (label.length > 0) return label;
+	return groupBy === "LABEL" ? "No label" : "No type";
+};
 
 const InvestmentsScreen = ({
 	navigation,
@@ -239,7 +241,7 @@ const InvestmentsScreen = ({
 	}, [filteredListData, groupBy]);
 
 	const renderInvestmentItem = useCallback(
-		({ item }: { item: InvestmentListItem }): React.JSX.Element => {
+		({ item }: ListItemProps<InvestmentListItem>): React.JSX.Element => {
 			if (item.kind === "GROUP_HEADER") {
 				return (
 					<View style={styles.groupHeader}>

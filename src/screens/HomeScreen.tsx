@@ -14,9 +14,12 @@ import appConstants from "@/constants/appConstants";
 import COLORS from "@/constants/colors";
 import HOME_MODES from "@/constants/homeModes";
 import type HomeMode from "@/types/HomeMode";
+import type HomeModeMenuOption from "@/types/HomeModeMenuOption";
 import type HomeModeOption from "@/types/HomeModeOption";
+import type HomeModeOptionState from "@/types/HomeModeOptionState";
 import type HomeScreenProps from "@/types/HomeScreenProps";
 import type HomeTile from "@/types/HomeTile";
+import type { ViewStyle } from "react-native";
 const { APP_NAME } = appConstants;
 
 const MODE_OPTIONS: readonly HomeModeOption[] = [
@@ -57,12 +60,7 @@ const shouldCycleFromGesture = (
 const getModeOptionState = (
 	optionMode: HomeMode,
 	currentMode: HomeMode,
-): Readonly<{
-	isSelected: boolean;
-	iconColor: string;
-	showCheckmark: boolean;
-	textColor: string;
-}> => {
+): HomeModeOptionState => {
 	const isSelected = optionMode === currentMode;
 	return {
 		isSelected,
@@ -72,22 +70,15 @@ const getModeOptionState = (
 	};
 };
 
-const getPressableScaleStyle = (pressed: boolean): readonly unknown[] => [
-	pressed && styles.pressed,
-];
+const getPressableScaleStyle = (
+	pressed: boolean,
+): readonly (ViewStyle | false)[] => [pressed && styles.pressed];
 
 const getTileIconBackgroundColor = (color: string): string => `${color}20`;
 
 const getModeMenuOptions = (
 	currentMode: HomeMode,
-): ReadonlyArray<
-	HomeModeOption &
-		Readonly<{
-			iconColor: string;
-			isSelected: boolean;
-			showCheckmark: boolean;
-		}>
-> =>
+): readonly HomeModeMenuOption[] =>
 	MODE_OPTIONS.map((option) => {
 		const optionState = getModeOptionState(option.mode, currentMode);
 		return {

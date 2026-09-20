@@ -1,12 +1,13 @@
 import AppError from "@/errors/AppError";
+import type TestFunction from "@/types/testing/TestFunction";
 import { describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-	useContext: vi.fn(() => null),
+	useContext: vi.fn<TestFunction>().mockReturnValue(null),
 }));
 
 vi.mock("react", async (importOriginal) => {
-	const actual = (await importOriginal()) as typeof import("react");
+	const actual = await importOriginal<typeof import("react")>();
 	return {
 		...actual,
 		useContext: mocks.useContext,

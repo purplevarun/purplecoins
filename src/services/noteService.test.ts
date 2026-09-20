@@ -1,11 +1,11 @@
-import AppError from "@/errors/AppError";
+import type TestAsyncFunction from "@/types/testing/TestAsyncFunction";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-	deleteContentRow: vi.fn(async () => {}),
-	getNoteRow: vi.fn(async () => null),
-	getNoteRows: vi.fn(async () => []),
-	upsertNoteRow: vi.fn(async () => {}),
+	deleteContentRow: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
+	getNoteRow: vi.fn<TestAsyncFunction>().mockResolvedValue(null),
+	getNoteRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
+	upsertNoteRow: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
 	createId: vi.fn(() => "note-id"),
 }));
 
@@ -64,7 +64,7 @@ describe("noteService", () => {
 	it("validates and creates note", async () => {
 		await expect(
 			noteService.saveNote(database, undefined, "   ", "x", undefined),
-		).rejects.toMatchObject<AppError>({
+		).rejects.toMatchObject({
 			code: "NOTE_TITLE_REQUIRED",
 		});
 

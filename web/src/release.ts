@@ -1,25 +1,17 @@
+import type Release from './types/Release.js'
+import type ApkAsset from './types/ApkAsset.js'
+
+export type { default as Release } from './types/Release.js'
+
 export const REPOSITORY = 'purplevarun/purplecoins'
 export const REPOSITORY_URL = `https://github.com/${REPOSITORY}`
 export const RELEASE_API = `https://api.github.com/repos/${REPOSITORY}/releases/latest`
-
-export type Release = {
-  version: string
-  publishedAt: string
-  name: string
-  size: number
-  downloadUrl: string
-  notesUrl: string
-}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
 }
 
-function isApkAsset(value: unknown): value is Record<string, unknown> & {
-  name: string
-  size: number
-  browser_download_url: string
-} {
+function isApkAsset(value: unknown): value is ApkAsset {
   if (
     !isRecord(value) ||
     value.state !== 'uploaded' ||

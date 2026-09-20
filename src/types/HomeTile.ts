@@ -1,4 +1,4 @@
-import { Ionicons } from "@expo/vector-icons";
+import type { Ionicons } from "@expo/vector-icons";
 import { type ComponentProps } from "react";
 
 type HomeTile = Readonly<{

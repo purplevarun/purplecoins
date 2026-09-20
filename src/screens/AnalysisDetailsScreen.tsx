@@ -6,9 +6,11 @@ import COLORS from "@/constants/colors";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import analysisService from "@/services/analysisService";
 import type AnalysisDetailsScreenProps from "@/types/AnalysisDetailsScreenProps";
+import type AnalysisDetailsView from "@/types/AnalysisDetailsView";
 import type AnalysisSummary from "@/types/AnalysisSummary";
 import type CategoryAnalysis from "@/types/CategoryAnalysis";
 import type InvestmentAnalysis from "@/types/InvestmentAnalysis";
+import type ListItemProps from "@/types/ListItemProps";
 import getErrorMessage from "@/utils/error";
 import moneyUtils from "@/utils/money";
 import runAfterRender from "@/utils/runAfterRender";
@@ -17,7 +19,7 @@ import { Pressable, StyleSheet, View } from "react-native";
 
 const { getAnalysisSummary, getInvestmentNetAmount, getInvestmentNetLabel } =
 	analysisService;
-const { compareMoney, formatMoney, subtractMoney, ZERO_AMOUNT } = moneyUtils;
+const { compareMoney, formatMoney, ZERO_AMOUNT } = moneyUtils;
 
 const getCategoryAccent = (net: string): "success" | "danger" =>
 	compareMoney(net, ZERO_AMOUNT) >= 0 ? "success" : "danger";
@@ -50,13 +52,7 @@ const resolveDetailsView = (
 	mode: "CATEGORIES" | "INVESTMENTS",
 	summary: AnalysisSummary | null,
 	error: string,
-): {
-	type: "error" | "empty" | "list";
-	items: Array<CategoryAnalysis | InvestmentAnalysis>;
-	emptyMessage: string;
-	emptyTitle: string;
-	errorMessage: string;
-} => {
+): AnalysisDetailsView => {
 	if (error) {
 		return {
 			type: "error",
@@ -141,9 +137,9 @@ const AnalysisDetailsScreen = ({
 	const renderItem = useCallback(
 		({
 			item,
-		}: {
-			item: CategoryAnalysis | InvestmentAnalysis;
-		}): React.JSX.Element => {
+		}: ListItemProps<
+			CategoryAnalysis | InvestmentAnalysis
+		>): React.JSX.Element => {
 			if (mode === "CATEGORIES") {
 				const category = item as CategoryAnalysis;
 				return (

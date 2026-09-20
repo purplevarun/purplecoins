@@ -1,3 +1,4 @@
+import type TestAsyncFunction from "@/types/testing/TestAsyncFunction";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const setters = vi.hoisted(() => ({
@@ -12,11 +13,11 @@ const reactMocks = vi.hoisted(() => ({
 }));
 
 const attachmentServiceMocks = vi.hoisted(() => ({
-	deleteAttachment: vi.fn(async () => {}),
-	getAttachmentMetadata: vi.fn(async () => null),
-	openAttachment: vi.fn(async () => {}),
-	pickAttachment: vi.fn(async () => null),
-	saveAttachment: vi.fn(async () => {}),
+	deleteAttachment: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
+	getAttachmentMetadata: vi.fn<TestAsyncFunction>().mockResolvedValue(null),
+	openAttachment: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
+	pickAttachment: vi.fn<TestAsyncFunction>().mockResolvedValue(null),
+	saveAttachment: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
 }));
 
 const useDatabaseContextMock = vi.hoisted(() =>

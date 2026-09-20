@@ -5,7 +5,7 @@ const reactMocks = vi.hoisted(() => ({
 }));
 
 vi.mock("react", async (importOriginal) => {
-	const actual = (await importOriginal()) as typeof import("react");
+	const actual = await importOriginal<typeof import("react")>();
 	return {
 		...actual,
 		useState: reactMocks.useState,
@@ -85,7 +85,7 @@ describe("field components", () => {
 			pendingAttachment: null,
 			isRemoved: false,
 			...handlers,
-		} as any);
+		});
 		const emptyButtons = findAllByType(empty, "AppButton");
 		expect(emptyButtons).toHaveLength(1);
 		expect(emptyButtons[0]?.props.label).toBe("Choose document");
@@ -171,19 +171,19 @@ describe("field components", () => {
 			label: "Date",
 			value: 1_000,
 			onChange,
-		} as any);
+		});
 		expect(findAllByType(closed, "DateTimePicker")).toHaveLength(0);
 		const trigger = findAllByType(closed, "Pressable")[0];
 		trigger.props.onPress();
 		expect(setVisible).toHaveBeenCalledWith(true);
 
-		(Platform as { OS: string }).OS = "ios";
+		(Platform as Pick<typeof Platform, "OS">).OS = "ios";
 		reactMocks.useState.mockImplementationOnce(() => [true, setVisible]);
 		const openIos = DateField({
 			label: "Date",
 			value: 1_000,
 			onChange,
-		} as any);
+		});
 		const pickerIos = findAllByType(openIos, "DateTimePicker")[0];
 		expect(pickerIos.props.display).toBe("inline");
 		pickerIos.props.onDismiss();
@@ -191,13 +191,13 @@ describe("field components", () => {
 		pickerIos.props.onValueChange({}, new Date(2_000));
 		expect(onChange).toHaveBeenCalledWith(2_000);
 
-		(Platform as { OS: string }).OS = "android";
+		(Platform as Pick<typeof Platform, "OS">).OS = "android";
 		reactMocks.useState.mockImplementationOnce(() => [true, setVisible]);
 		const openAndroid = DateField({
 			label: "Date",
 			value: 1_000,
 			onChange,
-		} as any);
+		});
 		const pickerAndroid = findAllByType(openAndroid, "DateTimePicker")[0];
 		expect(pickerAndroid.props.display).toBe("default");
 		pickerAndroid.props.onValueChange({}, new Date(3_000));
@@ -285,7 +285,7 @@ describe("field components", () => {
 			],
 			onChange,
 			onCreateInvestmentType,
-		} as any);
+		});
 		const closedButtons = findAllByType(closed, "AppButton");
 		expect(closedButtons).toHaveLength(1);
 		expect(closedButtons[0]?.props.label).toBe("New investment type");
@@ -302,7 +302,7 @@ describe("field components", () => {
 			],
 			onChange,
 			onCreateInvestmentType,
-		} as any);
+		});
 
 		const openButtons = findAllByType(open, "AppButton");
 		expect(openButtons.map((button) => button.props.label)).toEqual([

@@ -115,6 +115,11 @@ describe("AppNavigator", () => {
 		expect(byName("AnalysisDetails")).toBeTruthy();
 		expect(
 			byName("AnalysisDetails")?.props?.options({
+				route: { params: { mode: "CATEGORIES" } },
+			}).title,
+		).toBe("All categories");
+		expect(
+			byName("AnalysisDetails")?.props?.options({
 				route: { params: { mode: "INVESTMENTS" } },
 			}).title,
 		).toBe("All investments");

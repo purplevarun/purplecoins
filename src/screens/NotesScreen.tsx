@@ -1,4 +1,6 @@
 import CustomText from "@/components/CustomText";
+import type Folder from "@/types/Folder";
+import type ListItemProps from "@/types/ListItemProps";
 
 import { Ionicons } from "@expo/vector-icons";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -69,7 +71,7 @@ const NotesScreen = ({ navigation }: NotesScreenProps): React.JSX.Element => {
 	);
 
 	const renderNote = useCallback(
-		({ item: note }: { item: Note }): React.JSX.Element => (
+		({ item: note }: ListItemProps<Note>): React.JSX.Element => (
 			<Pressable
 				onPress={() =>
 					navigation.navigate("NoteForm", {
@@ -108,7 +110,7 @@ const NotesScreen = ({ navigation }: NotesScreenProps): React.JSX.Element => {
 	);
 
 	const handleDeleteFolderWithConfirm = useCallback(
-		(folder: { id: string; name: string }): void => {
+		(folder: Pick<Folder, "id" | "name">): void => {
 			dialog.confirm({
 				title: `Delete "${folder.name}"?`,
 				message:
@@ -134,7 +136,7 @@ const NotesScreen = ({ navigation }: NotesScreenProps): React.JSX.Element => {
 	);
 
 	const handleRenameFolderWithModal = useCallback(
-		(folder: { id: string; name: string }, newName: string): void => {
+		(folder: Pick<Folder, "id" | "name">, newName: string): void => {
 			const processRename = async (): Promise<void> => {
 				try {
 					await handleRenameFolder(folder.id, newName);

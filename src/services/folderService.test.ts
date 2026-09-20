@@ -1,10 +1,10 @@
-import AppError from "@/errors/AppError";
+import type TestAsyncFunction from "@/types/testing/TestAsyncFunction";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-	deleteFolderRow: vi.fn(async () => {}),
-	getFolderRows: vi.fn(async () => []),
-	upsertFolderRow: vi.fn(async () => {}),
+	deleteFolderRow: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
+	getFolderRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
+	upsertFolderRow: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
 	createId: vi.fn(() => "folder-id"),
 }));
 
@@ -44,7 +44,7 @@ describe("folderService", () => {
 	it("validates and creates folder", async () => {
 		await expect(
 			folderService.createFolder(database, "   ", "TODO"),
-		).rejects.toMatchObject<AppError>({
+		).rejects.toMatchObject({
 			code: "FOLDER_NAME_REQUIRED",
 		});
 
@@ -72,7 +72,7 @@ describe("folderService", () => {
 		);
 		await expect(
 			folderService.deleteFolder(database, "f1"),
-		).rejects.toMatchObject<AppError>({
+		).rejects.toMatchObject({
 			code: "FOLDER_IN_USE",
 		});
 
@@ -85,7 +85,7 @@ describe("folderService", () => {
 	it("renames folder with lookup across NOTE and TODO", async () => {
 		await expect(
 			folderService.renameFolder(database, "f1", "   "),
-		).rejects.toMatchObject<AppError>({
+		).rejects.toMatchObject({
 			code: "FOLDER_NAME_REQUIRED",
 		});
 
@@ -97,7 +97,7 @@ describe("folderService", () => {
 		]);
 		await expect(
 			folderService.renameFolder(database, "f1", "New"),
-		).rejects.toMatchObject<AppError>({
+		).rejects.toMatchObject({
 			code: "FOLDER_NOT_FOUND",
 		});
 

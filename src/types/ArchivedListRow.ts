@@ -1,3 +1,4 @@
+import type ArchivedEntity from "@/types/ArchivedEntity";
 import type RelationKind from "@/types/RelationKind";
 
 type ArchivedListRow =

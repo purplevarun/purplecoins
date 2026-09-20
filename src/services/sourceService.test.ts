@@ -1,18 +1,28 @@
-import AppError from "@/errors/AppError";
+import type TestAsyncFunction from "@/types/testing/TestAsyncFunction";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => {
 	return {
-		createSourceRow: vi.fn(async () => {}),
-		deleteSourceRow: vi.fn(async () => {}),
-		getArchivedSourceRows: vi.fn(async () => []),
-		getSourceRow: vi.fn(async () => null),
-		getSourceRows: vi.fn(async () => []),
-		getTransactionRows: vi.fn(async () => []),
-		setSourceArchivedRow: vi.fn(async () => {}),
+		createSourceRow: vi
+			.fn<TestAsyncFunction>()
+			.mockResolvedValue(undefined),
+		deleteSourceRow: vi
+			.fn<TestAsyncFunction>()
+			.mockResolvedValue(undefined),
+		getArchivedSourceRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
+		getSourceRow: vi.fn<TestAsyncFunction>().mockResolvedValue(null),
+		getSourceRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
+		getTransactionRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
+		setSourceArchivedRow: vi
+			.fn<TestAsyncFunction>()
+			.mockResolvedValue(undefined),
 		sourceNameExistsRow: vi.fn(async () => false),
-		updateSourceNameRow: vi.fn(async () => {}),
-		validateSourceRow: vi.fn(async () => {}),
+		updateSourceNameRow: vi
+			.fn<TestAsyncFunction>()
+			.mockResolvedValue(undefined),
+		validateSourceRow: vi
+			.fn<TestAsyncFunction>()
+			.mockResolvedValue(undefined),
 		createId: vi.fn(() => "source-id"),
 	};
 });
@@ -125,21 +135,21 @@ describe("sourceService", () => {
 	it("validates createSource input", async () => {
 		await expect(
 			sourceService.createSource(database, "   ", "INR"),
-		).rejects.toMatchObject<AppError>({
+		).rejects.toMatchObject({
 			code: "SOURCE_NAME_REQUIRED",
 		});
 
 		mocks.sourceNameExistsRow.mockResolvedValueOnce(true);
 		await expect(
 			sourceService.createSource(database, "Cash", "INR"),
-		).rejects.toMatchObject<AppError>({
+		).rejects.toMatchObject({
 			code: "SOURCE_NAME_DUPLICATE",
 		});
 
 		mocks.sourceNameExistsRow.mockResolvedValueOnce(false);
 		await expect(
 			sourceService.createSource(database, "Cash", "i9r"),
-		).rejects.toMatchObject<AppError>({
+		).rejects.toMatchObject({
 			code: "INVALID_CURRENCY",
 		});
 	});
@@ -167,14 +177,14 @@ describe("sourceService", () => {
 	it("validates and updates source name", async () => {
 		await expect(
 			sourceService.updateSourceName(database, "s1", "   "),
-		).rejects.toMatchObject<AppError>({
+		).rejects.toMatchObject({
 			code: "SOURCE_NAME_REQUIRED",
 		});
 
 		mocks.sourceNameExistsRow.mockResolvedValueOnce(true);
 		await expect(
 			sourceService.updateSourceName(database, "s1", "Cash"),
-		).rejects.toMatchObject<AppError>({
+		).rejects.toMatchObject({
 			code: "SOURCE_NAME_DUPLICATE",
 		});
 
@@ -211,7 +221,7 @@ describe("sourceService", () => {
 		);
 		await expect(
 			sourceService.deleteSource(database, "s1"),
-		).rejects.toMatchObject<AppError>({
+		).rejects.toMatchObject({
 			code: "SOURCE_IN_USE",
 		});
 	});

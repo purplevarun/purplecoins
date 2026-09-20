@@ -1,11 +1,11 @@
-import AppError from "@/errors/AppError";
+import type TestAsyncFunction from "@/types/testing/TestAsyncFunction";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-	deleteContentRow: vi.fn(async () => {}),
-	getPasswordRow: vi.fn(async () => null),
-	getPasswordRows: vi.fn(async () => []),
-	upsertPasswordRow: vi.fn(async () => {}),
+	deleteContentRow: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
+	getPasswordRow: vi.fn<TestAsyncFunction>().mockResolvedValue(null),
+	getPasswordRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
+	upsertPasswordRow: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
 	createId: vi.fn(() => "password-id"),
 }));
 
@@ -54,7 +54,7 @@ describe("passwordService", () => {
 				website: "w",
 				notes: "n",
 			}),
-		).rejects.toMatchObject<AppError>({ code: "PASSWORD_TITLE_REQUIRED" });
+		).rejects.toMatchObject({ code: "PASSWORD_TITLE_REQUIRED" });
 
 		await expect(
 			passwordService.savePassword(database, {
@@ -64,7 +64,7 @@ describe("passwordService", () => {
 				website: "w",
 				notes: "n",
 			}),
-		).rejects.toMatchObject<AppError>({ code: "PASSWORD_REQUIRED" });
+		).rejects.toMatchObject({ code: "PASSWORD_REQUIRED" });
 	});
 
 	it("creates and updates password", async () => {

@@ -1,14 +1,20 @@
-import AppError from "@/errors/AppError";
+import type TestAsyncFunction from "@/types/testing/TestAsyncFunction";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-	deleteSimpleEntityRow: vi.fn(async () => {}),
-	getArchivedInvestmentRows: vi.fn(async () => []),
-	getInvestmentRow: vi.fn(async () => null),
-	getInvestmentRows: vi.fn(async () => []),
-	setSimpleEntityArchivedRow: vi.fn(async () => {}),
+	deleteSimpleEntityRow: vi
+		.fn<TestAsyncFunction>()
+		.mockResolvedValue(undefined),
+	getArchivedInvestmentRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
+	getInvestmentRow: vi.fn<TestAsyncFunction>().mockResolvedValue(null),
+	getInvestmentRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
+	setSimpleEntityArchivedRow: vi
+		.fn<TestAsyncFunction>()
+		.mockResolvedValue(undefined),
 	simpleEntityNameExistsRow: vi.fn(async () => false),
-	upsertInvestmentRow: vi.fn(async () => {}),
+	upsertInvestmentRow: vi
+		.fn<TestAsyncFunction>()
+		.mockResolvedValue(undefined),
 	createId: vi.fn(() => "investment-id"),
 }));
 
@@ -71,14 +77,14 @@ describe("investmentService", () => {
 	it("validates and saves investment", async () => {
 		await expect(
 			investmentService.saveInvestment(database, undefined, "   "),
-		).rejects.toMatchObject<AppError>({
+		).rejects.toMatchObject({
 			code: "INVESTMENT_NAME_REQUIRED",
 		});
 
 		mocks.simpleEntityNameExistsRow.mockResolvedValueOnce(true);
 		await expect(
 			investmentService.saveInvestment(database, undefined, "Fund A"),
-		).rejects.toMatchObject<AppError>({
+		).rejects.toMatchObject({
 			code: "INVESTMENT_NAME_DUPLICATE",
 		});
 
@@ -141,7 +147,7 @@ describe("investmentService", () => {
 		);
 		await expect(
 			investmentService.deleteInvestment(database, "i1"),
-		).rejects.toMatchObject<AppError>({
+		).rejects.toMatchObject({
 			code: "INVESTMENT_IN_USE",
 		});
 

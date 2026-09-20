@@ -1,4 +1,6 @@
 import CustomText from "@/components/CustomText";
+import type Folder from "@/types/Folder";
+import type ListItemProps from "@/types/ListItemProps";
 
 import { Ionicons } from "@expo/vector-icons";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -65,7 +67,7 @@ const TodosScreen = ({ navigation }: TodosScreenProps): React.JSX.Element => {
 	);
 
 	const renderTodo = useCallback(
-		({ item: todo }: { item: Todo }): React.JSX.Element => (
+		({ item: todo }: ListItemProps<Todo>): React.JSX.Element => (
 			<Pressable
 				onPress={() =>
 					navigation.navigate("TodoForm", {
@@ -148,7 +150,7 @@ const TodosScreen = ({ navigation }: TodosScreenProps): React.JSX.Element => {
 	);
 
 	const handleDeleteFolderWithConfirm = useCallback(
-		(folder: { id: string; name: string }): void => {
+		(folder: Pick<Folder, "id" | "name">): void => {
 			dialog.confirm({
 				title: `Delete "${folder.name}"?`,
 				message:
@@ -174,7 +176,7 @@ const TodosScreen = ({ navigation }: TodosScreenProps): React.JSX.Element => {
 	);
 
 	const handleRenameFolderWithModal = useCallback(
-		(folder: { id: string; name: string }, newName: string): void => {
+		(folder: Pick<Folder, "id" | "name">, newName: string): void => {
 			const processRename = async (): Promise<void> => {
 				try {
 					await handleRenameFolder(folder.id, newName);

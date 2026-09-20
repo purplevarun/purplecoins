@@ -1,10 +1,12 @@
-import AppError from "@/errors/AppError";
+import type TestAsyncFunction from "@/types/testing/TestAsyncFunction";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-	getExchangeRateRows: vi.fn(async () => []),
-	getSourceRows: vi.fn(async () => []),
-	upsertExchangeRateRow: vi.fn(async () => {}),
+	getExchangeRateRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
+	getSourceRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
+	upsertExchangeRateRow: vi
+		.fn<TestAsyncFunction>()
+		.mockResolvedValue(undefined),
 }));
 
 vi.mock("@/constants/appConstants", () => ({
@@ -53,7 +55,7 @@ describe("exchangeRateService", () => {
 	it("validates manual currency code", async () => {
 		await expect(
 			exchangeRateService.saveManualExchangeRate(database, "x1", "10"),
-		).rejects.toMatchObject<AppError>({ code: "INVALID_CURRENCY" });
+		).rejects.toMatchObject({ code: "INVALID_CURRENCY" });
 	});
 
 	it("saves manual exchange rate with normalization", async () => {
@@ -92,7 +94,7 @@ describe("exchangeRateService", () => {
 		);
 		await expect(
 			exchangeRateService.fetchExchangeRates(database),
-		).rejects.toMatchObject<AppError>({
+		).rejects.toMatchObject({
 			code: "RATE_FETCH_FAILED",
 		});
 	});
@@ -108,7 +110,7 @@ describe("exchangeRateService", () => {
 		);
 		await expect(
 			exchangeRateService.fetchExchangeRates(database),
-		).rejects.toMatchObject<AppError>({
+		).rejects.toMatchObject({
 			code: "INVALID_RATE_RESPONSE",
 		});
 	});

@@ -1,9 +1,10 @@
+import type TestAsyncFunction from "@/types/testing/TestAsyncFunction";
 import type { SQLiteDatabase } from "expo-sqlite";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
 	getSettingRow: vi.fn<() => Promise<string | null>>(async () => null),
-	upsertSettingRow: vi.fn(async () => {}),
+	upsertSettingRow: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
 }));
 
 vi.mock("@/repositories/settingsRepository", () => ({

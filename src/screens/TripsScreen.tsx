@@ -1,4 +1,5 @@
 import CustomText from "@/components/CustomText";
+import type ListItemProps from "@/types/ListItemProps";
 
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
@@ -181,7 +182,7 @@ const TripsScreen = ({ navigation }: TripsScreenProps): React.JSX.Element => {
 	}, [listData, searchDebounced]);
 
 	const renderTripItem = useCallback(
-		({ item: trip }: { item: Trip }): React.JSX.Element => {
+		({ item: trip }: ListItemProps<Trip>): React.JSX.Element => {
 			const totals = tripTotals.filter((row) => row.tripId === trip.id);
 			return (
 				<Pressable

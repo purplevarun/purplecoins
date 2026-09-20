@@ -1,3 +1,4 @@
+import type TestAsyncFunction from "@/types/testing/TestAsyncFunction";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const setFolders = vi.fn();
@@ -9,9 +10,9 @@ const reactMocks = vi.hoisted(() => ({
 
 const folderServiceMocks = vi.hoisted(() => ({
 	createFolder: vi.fn(async () => "new-folder"),
-	deleteFolder: vi.fn(async () => {}),
+	deleteFolder: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
 	getFolders: vi.fn(async () => [{ id: "f1", name: "A", type: "NOTE" }]),
-	renameFolder: vi.fn(async () => {}),
+	renameFolder: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
 }));
 
 const useDatabaseContextMock = vi.hoisted(() =>
@@ -69,7 +70,7 @@ describe("useFolders", () => {
 		});
 		folderServiceMocks.getFolders.mockImplementation(async () => {
 			callOrder.push("reload");
-			return [{ id: "f-order", name: "Ordered", type: "NOTE" } as any];
+			return [{ id: "f-order", name: "Ordered", type: "NOTE" }];
 		});
 		const refreshData = vi.fn(() => {
 			callOrder.push("refresh");

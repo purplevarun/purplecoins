@@ -1,6 +1,7 @@
 import AppError from "@/errors/AppError";
 import contentRepository from "@/repositories/contentRepository";
 import type CardEntry from "@/types/CardEntry";
+import type CardInput from "@/types/CardInput";
 import createId from "@/utils/id";
 import type { SQLiteDatabase } from "expo-sqlite";
 
@@ -29,17 +30,7 @@ const getCard = async (
 
 const saveCard = async (
 	database: SQLiteDatabase,
-	entry: Readonly<{
-		id?: string;
-		name: string;
-		cardType: "CREDIT_CARD" | "DEBIT_CARD";
-		cardNumber: string;
-		expiry: string;
-		cvv: string;
-		pin: string;
-		network: string;
-		notes: string;
-	}>,
+	entry: CardInput,
 ): Promise<string> => {
 	const name = entry.name.trim();
 	if (!name || !entry.cardNumber.trim()) {

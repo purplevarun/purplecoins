@@ -1,4 +1,5 @@
 import contentRepository from "@/repositories/contentRepository";
+import type TestAsyncFunction from "@/types/testing/TestAsyncFunction";
 
 import { describe, expect, it, vi } from "vitest";
 
@@ -59,7 +60,9 @@ describe("contentRepository", () => {
 	});
 
 	it("upserts all content entities", async () => {
-		const database = { runAsync: vi.fn(async () => {}) } as any;
+		const database = {
+			runAsync: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
+		} as any;
 
 		await upsertFolderRow(database, {
 			id: "f1",
@@ -193,7 +196,9 @@ describe("contentRepository", () => {
 	});
 
 	it("maps todo isDone false to 0 in upsertTodoRow", async () => {
-		const database = { runAsync: vi.fn(async () => {}) } as any;
+		const database = {
+			runAsync: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
+		} as any;
 
 		await upsertTodoRow(database, {
 			id: "t2",
@@ -223,7 +228,7 @@ describe("contentRepository", () => {
 
 	it("deletes folder and deletes content rows with and without attachments", async () => {
 		const database = {
-			runAsync: vi.fn(async () => {}),
+			runAsync: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
 			withTransactionAsync: vi.fn(
 				async (callback: () => Promise<void>) => {
 					await callback();

@@ -9,7 +9,7 @@ const reactMocks = vi.hoisted(() => ({
 }));
 
 vi.mock("react", async (importOriginal) => {
-	const actual = (await importOriginal()) as typeof import("react");
+	const actual = await importOriginal<typeof import("react")>();
 	return {
 		...actual,
 		useState: reactMocks.useState,
@@ -115,7 +115,7 @@ describe("AppDialogProvider", () => {
 
 	it("exposes context actions that set dialog modes", () => {
 		setupState(null);
-		const element = AppDialogProvider({ children: null } as any) as any;
+		const element = AppDialogProvider({ children: null }) as any;
 		const contextValue = element.props.value;
 
 		contextValue.confirm({
@@ -153,7 +153,7 @@ describe("AppDialogProvider", () => {
 			},
 		});
 
-		const element = AppDialogProvider({ children: null } as any) as any;
+		const element = AppDialogProvider({ children: null }) as any;
 		const modalNodes = collectNodesByPredicate(element, (node) =>
 			Boolean(node?.props?.onRequestClose),
 		);
@@ -186,7 +186,7 @@ describe("AppDialogProvider", () => {
 			},
 		});
 
-		const element = AppDialogProvider({ children: null } as any) as any;
+		const element = AppDialogProvider({ children: null }) as any;
 		const textNodes = collectNodesByPredicate(
 			element,
 			(node) => node?.props?.children === "Info",
@@ -203,7 +203,7 @@ describe("AppDialogProvider", () => {
 			},
 		});
 
-		const element = AppDialogProvider({ children: null } as any) as any;
+		const element = AppDialogProvider({ children: null }) as any;
 		const closeButton = collectNodesByPredicate(
 			element,
 			(node) =>
@@ -228,7 +228,7 @@ describe("AppDialogProvider", () => {
 			},
 		});
 
-		const element = AppDialogProvider({ children: null } as any) as any;
+		const element = AppDialogProvider({ children: null }) as any;
 		const cancelButton = collectNodesByPredicate(
 			element,
 			(node) =>
@@ -255,7 +255,7 @@ describe("AppDialogProvider", () => {
 			},
 		});
 
-		const element = AppDialogProvider({ children: null } as any) as any;
+		const element = AppDialogProvider({ children: null }) as any;
 
 		const glassCard = collectNodesByPredicate(
 			element,

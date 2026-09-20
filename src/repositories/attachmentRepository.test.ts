@@ -1,4 +1,5 @@
 import attachmentRepository from "@/repositories/attachmentRepository";
+import type TestAsyncFunction from "@/types/testing/TestAsyncFunction";
 
 import { describe, expect, it, vi } from "vitest";
 
@@ -32,7 +33,9 @@ describe("attachmentRepository", () => {
 	});
 
 	it("upserts and deletes attachment rows", async () => {
-		const database = { runAsync: vi.fn(async () => {}) } as any;
+		const database = {
+			runAsync: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
+		} as any;
 		await upsertAttachmentRow(
 			database,
 			"a1",

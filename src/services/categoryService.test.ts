@@ -1,15 +1,23 @@
-import AppError from "@/errors/AppError";
+import type TestAsyncFunction from "@/types/testing/TestAsyncFunction";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => {
 	return {
 		categoryNameExistsRow: vi.fn(async () => false),
-		deleteCategoryRow: vi.fn(async () => {}),
-		getArchivedCategoryRows: vi.fn(async () => []),
-		getCategoryRow: vi.fn(async () => null),
-		getCategoryRows: vi.fn(async () => []),
-		setCategoryArchivedRow: vi.fn(async () => {}),
-		upsertCategoryRow: vi.fn(async () => {}),
+		deleteCategoryRow: vi
+			.fn<TestAsyncFunction>()
+			.mockResolvedValue(undefined),
+		getArchivedCategoryRows: vi
+			.fn<TestAsyncFunction>()
+			.mockResolvedValue([]),
+		getCategoryRow: vi.fn<TestAsyncFunction>().mockResolvedValue(null),
+		getCategoryRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
+		setCategoryArchivedRow: vi
+			.fn<TestAsyncFunction>()
+			.mockResolvedValue(undefined),
+		upsertCategoryRow: vi
+			.fn<TestAsyncFunction>()
+			.mockResolvedValue(undefined),
 		createId: vi.fn(() => "category-id"),
 	};
 });
@@ -77,14 +85,14 @@ describe("categoryService", () => {
 	it("validates saveCategory", async () => {
 		await expect(
 			categoryService.saveCategory(database, undefined, "   ", false),
-		).rejects.toMatchObject<AppError>({
+		).rejects.toMatchObject({
 			code: "CATEGORY_NAME_REQUIRED",
 		});
 
 		mocks.categoryNameExistsRow.mockResolvedValueOnce(true);
 		await expect(
 			categoryService.saveCategory(database, undefined, "Rent", false),
-		).rejects.toMatchObject<AppError>({
+		).rejects.toMatchObject({
 			code: "CATEGORY_NAME_DUPLICATE",
 		});
 	});
@@ -152,7 +160,7 @@ describe("categoryService", () => {
 		);
 		await expect(
 			categoryService.deleteCategory(database, "c1"),
-		).rejects.toMatchObject<AppError>({
+		).rejects.toMatchObject({
 			code: "CATEGORY_IN_USE",
 		});
 

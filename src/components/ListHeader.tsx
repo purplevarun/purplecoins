@@ -1,9 +1,9 @@
-import type { ReactElement, ReactNode } from "react";
+import type { PropsWithChildren, ReactElement } from "react";
 import { StyleSheet, View } from "react-native";
 
 const ListHeader = ({
 	children,
-}: Readonly<{ children: ReactNode }>): ReactElement => (
+}: PropsWithChildren): ReactElement<PropsWithChildren> => (
 	<View style={styles.header}>{children}</View>
 );
 

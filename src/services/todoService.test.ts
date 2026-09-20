@@ -1,12 +1,14 @@
-import AppError from "@/errors/AppError";
+import type TestAsyncFunction from "@/types/testing/TestAsyncFunction";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => {
 	return {
-		deleteContentRow: vi.fn(async () => {}),
-		getTodoRow: vi.fn(async () => null),
-		getTodoRows: vi.fn(async () => []),
-		upsertTodoRow: vi.fn(async () => {}),
+		deleteContentRow: vi
+			.fn<TestAsyncFunction>()
+			.mockResolvedValue(undefined),
+		getTodoRow: vi.fn<TestAsyncFunction>().mockResolvedValue(null),
+		getTodoRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
+		upsertTodoRow: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
 		createId: vi.fn(() => "new-todo-id"),
 	};
 });
@@ -91,7 +93,7 @@ describe("todoService", () => {
 				description: "desc",
 				isDone: false,
 			}),
-		).rejects.toMatchObject<AppError>({
+		).rejects.toMatchObject({
 			code: "TODO_TITLE_REQUIRED",
 		});
 	});
@@ -164,7 +166,7 @@ describe("todoService", () => {
 		mocks.getTodoRow.mockResolvedValueOnce(null);
 		await expect(
 			todoService.toggleTodo(database, "missing"),
-		).rejects.toMatchObject<AppError>({
+		).rejects.toMatchObject({
 			code: "TODO_NOT_FOUND",
 		});
 	});

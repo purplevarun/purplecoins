@@ -23,7 +23,7 @@ const hookMocks = vi.hoisted(() => ({
 }));
 
 vi.mock("react", async (importOriginal) => {
-	const actual = (await importOriginal()) as typeof import("react");
+	const actual = await importOriginal<typeof import("react")>();
 	return {
 		...actual,
 		useCallback: reactMocks.useCallback,
@@ -479,7 +479,7 @@ describe("VaultScreen", () => {
 			label: "PIN",
 			value: "1234",
 			onCopy,
-		} as any) as any;
+		}) as any;
 		const copyButton = findByPredicate(
 			row,
 			(node) => typeof node?.props?.onPress === "function",

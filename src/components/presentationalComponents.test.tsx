@@ -81,14 +81,14 @@ describe("presentational components", () => {
 		const textElement = CustomText({
 			style: { fontSize: 16 },
 			children: "Hi",
-		} as any);
+		});
 		expect(textElement.type).toBe("Text");
 		expect(applyAppFontStyleMock).toHaveBeenCalledWith({ fontSize: 16 });
 
 		const inputElement = CustomTextInput({
 			style: { fontSize: 14 },
 			value: "x",
-		} as any);
+		});
 		expect(inputElement.type).toBe("TextInput");
 		expect(applyAppFontStyleMock).toHaveBeenCalledWith({ fontSize: 14 });
 	});
@@ -102,26 +102,26 @@ describe("presentational components", () => {
 		expect(empty.type).toBe("View");
 		expect(findFirstByType(empty, "Ionicons")?.props.name).toBe("search");
 
-		const header = ListHeader({ children: "Body" } as any);
+		const header = ListHeader({ children: "Body" });
 		expect(header.type).toBe("View");
 		expect(header.props.children).toBe("Body");
 
 		const headingWithSubtitle = SectionHeading({
 			title: "Title",
 			subtitle: "Sub",
-		} as any);
+		});
 		expect(findFirstByType(headingWithSubtitle, "View")).toBeTruthy();
 		const headingWithoutSubtitle = SectionHeading({
 			title: "Title",
-		} as any);
+		});
 		expect(findFirstByType(headingWithoutSubtitle, "View")).toBeTruthy();
 	});
 
 	it("renders loading and error branches in LoadingScreen", () => {
-		const loading = LoadingScreen({ error: null } as any);
+		const loading = LoadingScreen({ error: null });
 		expect(findFirstByType(loading, "ActivityIndicator")).toBeTruthy();
 
-		const error = LoadingScreen({ error: "DB failed" } as any);
+		const error = LoadingScreen({ error: "DB failed" });
 		expect(findFirstByType(error, "ActivityIndicator")).toBeNull();
 	});
 
@@ -146,7 +146,7 @@ describe("presentational components", () => {
 		const searchDefault = SearchBar({
 			value: "",
 			onChangeText: vi.fn(),
-		} as any);
+		});
 		const defaultInput = findFirstByType(
 			searchDefault,
 			CustomTextInput as any,
@@ -159,7 +159,7 @@ describe("presentational components", () => {
 			onChangeText: vi.fn(),
 			placeholder: "Find",
 			autoFocus: false,
-		} as any);
+		});
 		const customInput = findFirstByType(
 			searchCustom,
 			CustomTextInput as any,
@@ -170,7 +170,7 @@ describe("presentational components", () => {
 
 	it("covers FloatingAddButton and HeaderIconButton style branches", () => {
 		const onPress = vi.fn();
-		const fab = FloatingAddButton({ onPress } as any);
+		const fab = FloatingAddButton({ onPress });
 		expect(fab.type).toBe("Pressable");
 		expect(fab.props.accessibilityLabel).toBe("Add");
 		expect(fab.props.style({ pressed: false })[1]).toBe(false);
@@ -209,16 +209,16 @@ describe("presentational components", () => {
 			children: "x",
 		} as any) as any;
 		expect(warning.props.style[1].borderColor).toBeTruthy();
-		const defaultCard = GlassCard({ children: "x" } as any) as any;
+		const defaultCard = GlassCard({ children: "x" }) as any;
 		expect(defaultCard.props.style[1].borderColor).toBeTruthy();
 	});
 
 	it("covers ScreenContainer and ScreenList branches", () => {
-		(Platform as { OS: string }).OS = "ios";
+		(Platform as Pick<typeof Platform, "OS">).OS = "ios";
 		const scrollable = ScreenContainer({
 			children: "x",
 			isScrollable: true,
-		} as any) as any;
+		}) as any;
 		const keyboardViewA = findFirstByType(
 			scrollable,
 			"KeyboardAvoidingView",
@@ -226,11 +226,11 @@ describe("presentational components", () => {
 		expect(keyboardViewA.props.behavior).toBe("padding");
 		expect(findFirstByType(scrollable, "ScrollView")).toBeTruthy();
 
-		(Platform as { OS: string }).OS = "android";
+		(Platform as Pick<typeof Platform, "OS">).OS = "android";
 		const staticContainer = ScreenContainer({
 			children: "x",
 			isScrollable: false,
-		} as any) as any;
+		}) as any;
 		const keyboardViewB = findFirstByType(
 			staticContainer,
 			"KeyboardAvoidingView",
