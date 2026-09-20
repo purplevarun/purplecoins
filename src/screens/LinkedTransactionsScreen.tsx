@@ -1,4 +1,5 @@
 import categoryService from "@/services/categoryService";
+import type ListItemProps from "@/types/ListItemProps";
 
 import { Ionicons } from "@expo/vector-icons";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -218,13 +219,11 @@ const LinkedTransactionsScreen = ({
 		),
 		[
 			dateRangeLabel,
-			entityId,
 			entityName,
 			error,
 			handleDelete,
 			handleEdit,
 			kind,
-			navigation,
 			transactions.length,
 		],
 	);
@@ -241,9 +240,12 @@ const LinkedTransactionsScreen = ({
 	);
 
 	const renderTransaction = useCallback(
-		({ item: transaction }: { item: Transaction }): React.JSX.Element => (
+		({
+			item: transaction,
+		}: ListItemProps<Transaction>): React.JSX.Element => (
 			<TransactionCard
 				transaction={transaction}
+				categoryId={kind === "CATEGORY" ? entityId : undefined}
 				onPress={() =>
 					navigation.navigate("TransactionForm", {
 						transactionId: transaction.id,
@@ -251,7 +253,7 @@ const LinkedTransactionsScreen = ({
 				}
 			/>
 		),
-		[navigation],
+		[navigation, kind, entityId],
 	);
 
 	return (

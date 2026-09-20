@@ -6,6 +6,7 @@ and private vault records. SQLite is the source of truth.
 ## Highlights
 
 - General debit, credit, and transfer transactions
+- Split expenses with multiple categorized items in one payment
 - Investment debit and credit transactions
 - Exact decimal amounts stored as canonical decimal strings
 - Cross-currency transfers with independent `amount` and `to_amount`
@@ -21,7 +22,13 @@ and private vault records. SQLite is the source of truth.
 
 - Credits include income, reimbursements, refunds, and redemptions.
 - Debits include expenses and invested amounts.
-- A general debit or credit has exactly one category and may have one trip.
+- A general debit has one or more amount/category items, with a shared source,
+  date, reason, optional trip, and receipt. Its total is the sum of its items.
+- A general credit has exactly one category and may have one trip.
+- Source balances and transaction counts include each payment once. Category
+  analysis and budgets allocate expense amounts using the individual items.
+- A blank expense reason defaults to the distinct item category names.
+- Creating, editing, or deleting an expense keeps its items and receipt atomic.
 - An investment transaction has one source and one investment only.
 - Transfers have a source, destination, from amount, and to amount.
 - Transfers are excluded from category analysis.
@@ -48,6 +55,10 @@ Search and classification filters apply to the loaded transactions. Switching
 views retains the selected date and filters; changing views or refreshing data
 resets scroll pagination to its first 10 transactions.
 
+Expense search includes item categories and amounts. Category-linked lists show
+the matched allocation alongside the payment total. Opening a split payment
+allows editing all items together; cloning creates a new payment and new item IDs.
+
 ## Architecture
 
 Dependencies flow in one direction:
@@ -65,6 +76,11 @@ Expo SQLite
 Shared domain types live in `src/types`. Database access is contained in
 repositories, business rules live in services, and screens focus on
 presentation and interaction.
+
+Keep named types and object type definitions in dedicated type files. Test-only
+types live in `src/types/testing`, and download-site types live in `web/src/types`.
+Reuse library prop types or existing domain types with `Pick`/`Omit` where suitable.
+Native ESLint rejects local type declarations outside the type directories.
 
 ## Development
 
@@ -89,50 +105,18 @@ Settings can export the live database as
 including attachment BLOBs. Restore checks the picked file before replacing
 local data.
 
-The PurpleCoins v2 migration can target the documented Purplecoins schema
-without changing the app's runtime data model.
+### Automatic Database Upgrades
 
-### Migrate an Older Backup
+The app applies versioned migrations automatically on startup, for both new and
+existing installations. Existing expenses become single-item payments without
+changing payment IDs, totals, timestamps, or receipts. No reinstall or manual SQL
+is required. Completed upgrades are not repeated on later launches.
 
-The [migration runner](scripts/migrate_backup.py) applies [migrations.sql](migrations.sql)
-to a copy of an existing backup. It preserves records and attachments, handles
-already-added columns, checks SQLite integrity and foreign keys, and produces a
-standalone file without WAL sidecars. It never overwrites the input or an existing
-output, and failed migrations do not publish a partial backup. Currently, the SQL
-adds investment types and the investment metadata columns.
-
-For sensitive backups, run locally with Python 3.10 or newer (no dependencies):
-
-```sh
-python3 -B scripts/migrate_backup.py original.purplecoins migrated.purplecoins
-```
-
-To use [GitHub Actions](.github/workflows/migrate-backup.yml):
-
-1. Make the input file available through a direct HTTPS download URL. GitHub's
-   manual workflow form does not support file uploads. The download must not need
-   an interactive login or a separate authorization header, and is limited to
-   512 MiB.
-2. Store a private or signed URL as the repository Actions secret
-   `PURPLECOINS_BACKUP_URL`. For a non-sensitive URL, use the `backup_url` workflow
-   input instead. Supply only one of these, and keep it valid until the download
-   completes. Do not put credentials or signed URLs in the visible workflow input.
-3. Open **Actions > Migrate PurpleCoins Backup > Run workflow**, select `main`,
-   acknowledge the unencrypted upload, and run it.
-4. Download the `migrated-purplecoins-<run-id>-<attempt>` artifact from the completed
-   run and extract `migrated.purplecoins`. Restore that file through the app's
-   Settings. The artifact expires after one day; delete it sooner when finished.
+Restoring an older backup upgrades and validates a temporary copy before replacing
+the live database. A failed migration leaves the live database and picked backup
+untouched. Databases from a newer, unsupported app version are rejected rather
+than downgraded. Older app versions may not understand upgraded backup files.
 
 **Privacy:** Backups are unencrypted and may include passwords, card details,
-identities, and financial records. Repository readers can download Actions
-artifacts; do not use a public repository workflow for sensitive backups. A secret
-URL hides the URL in logs, not the output artifact. Prefer local migration for
-private data. The workflow never commits backups and removes its runner copies
-even on failure. Backup files are also ignored by Git to prevent accidental commits.
-
-The workflow tests the runner before downloading the input. Run the same tests
-locally with:
-
-```sh
-python3 -B -m unittest discover -s scripts -p 'test_migrate_backup.py' -v
-```
+identities, and financial records. Keep them private. Backup files remain ignored
+by Git to prevent accidental commits.

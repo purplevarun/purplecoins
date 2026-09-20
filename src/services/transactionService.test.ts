@@ -1,4 +1,4 @@
-import AppError from "@/errors/AppError";
+import type TestAsyncFunction from "@/types/testing/TestAsyncFunction";
 import type Transaction from "@/types/Transaction";
 import type TransactionCursor from "@/types/TransactionCursor";
 import type { SQLiteDatabase } from "expo-sqlite";
@@ -6,10 +6,24 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => {
 	return {
-		createTransactionRow: vi.fn(async () => {}),
-		deleteTransactionRow: vi.fn(async () => {}),
-		getCategoryRow: vi.fn(async () => null),
-		getSourceRow: vi.fn(async () => null),
+		createTransactionRow: vi
+			.fn<TestAsyncFunction>()
+			.mockResolvedValue(undefined),
+		createTransactionItemRow: vi
+			.fn<TestAsyncFunction>()
+			.mockResolvedValue(undefined),
+		deleteTransactionItemRows: vi
+			.fn<TestAsyncFunction>()
+			.mockResolvedValue(undefined),
+		saveAttachment: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
+		deleteAttachment: vi
+			.fn<TestAsyncFunction>()
+			.mockResolvedValue(undefined),
+		deleteTransactionRow: vi
+			.fn<TestAsyncFunction>()
+			.mockResolvedValue(undefined),
+		getCategoryRow: vi.fn<TestAsyncFunction>().mockResolvedValue(null),
+		getSourceRow: vi.fn<TestAsyncFunction>().mockResolvedValue(null),
 		getTransactionPageRows: vi
 			.fn<
 				(
@@ -19,9 +33,11 @@ const mocks = vi.hoisted(() => {
 				) => Promise<readonly Transaction[]>
 			>()
 			.mockResolvedValue([]),
-		getTransactionRow: vi.fn(async () => null),
-		getTransactionRows: vi.fn(async () => []),
-		updateTransactionRow: vi.fn(async () => {}),
+		getTransactionRow: vi.fn<TestAsyncFunction>().mockResolvedValue(null),
+		getTransactionRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
+		updateTransactionRow: vi
+			.fn<TestAsyncFunction>()
+			.mockResolvedValue(undefined),
 		createId: vi.fn(() => "new-transaction-id"),
 	};
 });
@@ -29,6 +45,8 @@ const mocks = vi.hoisted(() => {
 vi.mock("@/repositories/financeRepository", () => ({
 	default: {
 		createTransactionRow: mocks.createTransactionRow,
+		createTransactionItemRow: mocks.createTransactionItemRow,
+		deleteTransactionItemRows: mocks.deleteTransactionItemRows,
 		deleteTransactionRow: mocks.deleteTransactionRow,
 		getCategoryRow: mocks.getCategoryRow,
 		getSourceRow: mocks.getSourceRow,
@@ -43,9 +61,18 @@ vi.mock("@/utils/id", () => ({
 	default: mocks.createId,
 }));
 
+vi.mock("@/services/attachmentService", () => ({
+	default: {
+		saveAttachment: mocks.saveAttachment,
+		deleteAttachment: mocks.deleteAttachment,
+	},
+}));
+
 import transactionService from "@/services/transactionService";
 
-const database = {} as SQLiteDatabase;
+const database = {
+	withTransactionAsync: async (callback: () => Promise<void>) => callback(),
+} as SQLiteDatabase;
 
 describe("transactionService", () => {
 	beforeEach(() => {
@@ -103,6 +130,7 @@ describe("transactionService", () => {
 					tripName: null,
 					investmentName: null,
 					hasAttachment: index % 2 === 0,
+					items: [],
 				}),
 			);
 			mocks.getTransactionPageRows.mockResolvedValueOnce(rows);
@@ -216,6 +244,7 @@ describe("transactionService", () => {
 				tripId: "tr1",
 				investmentId: "i1",
 				hasAttachment: 0,
+				items: [],
 			},
 			{
 				id: "b",
@@ -265,25 +294,28 @@ describe("transactionService", () => {
 	it("requires sourceId in saveTransaction", async () => {
 		await expect(
 			transactionService.saveTransaction(database, {
+				transactionAt: 1,
 				classification: "GENERAL",
 				type: "DEBIT",
 				sourceId: "",
 				amount: "10",
 				reason: "ok",
 			}),
-		).rejects.toMatchObject<AppError>({ code: "SOURCE_REQUIRED" });
+		).rejects.toMatchObject({ code: "SOURCE_REQUIRED" });
 	});
 
 	it("validates non-transfer categories", async () => {
 		await expect(
 			transactionService.saveTransaction(database, {
+				transactionAt: 1,
 				classification: "GENERAL",
 				type: "DEBIT",
 				sourceId: "s1",
 				amount: "10",
 				reason: "ok",
+				items: [{ categoryId: "", amount: "10" }],
 			}),
-		).rejects.toMatchObject<AppError>({ code: "CATEGORY_REQUIRED" });
+		).rejects.toMatchObject({ code: "CATEGORY_REQUIRED" });
 	});
 
 	it("defaults a blank non-transfer reason to the category name", async () => {
@@ -304,6 +336,7 @@ describe("transactionService", () => {
 			amount: "10",
 			reason: "   ",
 			transactionAt: 1,
+			items: [{ categoryId: "c1", amount: "10" }],
 		});
 
 		expect(id).toBe("new-transaction-id");
@@ -330,20 +363,22 @@ describe("transactionService", () => {
 				amount: "10",
 				reason: "   ",
 				transactionAt: 1,
+				items: [{ categoryId: "missing-category", amount: "10" }],
 			}),
-		).rejects.toMatchObject<AppError>({ code: "CATEGORY_NOT_FOUND" });
+		).rejects.toMatchObject({ code: "CATEGORY_NOT_FOUND" });
 	});
 
 	it("validates investment inputs", async () => {
 		await expect(
 			transactionService.saveTransaction(database, {
+				transactionAt: 1,
 				classification: "INVESTMENT",
 				type: "DEBIT",
 				sourceId: "s1",
 				amount: "10",
 				reason: "ok",
 			}),
-		).rejects.toMatchObject<AppError>({ code: "INVESTMENT_REQUIRED" });
+		).rejects.toMatchObject({ code: "INVESTMENT_REQUIRED" });
 
 		await expect(
 			transactionService.saveTransaction(database, {
@@ -355,11 +390,12 @@ describe("transactionService", () => {
 				reason: "   ",
 				transactionAt: 1,
 			}),
-		).rejects.toMatchObject<AppError>({
+		).rejects.toMatchObject({
 			code: "TRANSACTION_REASON_REQUIRED",
 		});
 
 		const id = await transactionService.saveTransaction(database, {
+			transactionAt: 1,
 			classification: "INVESTMENT",
 			type: "TRANSFER",
 			sourceId: "s1",
@@ -384,6 +420,7 @@ describe("transactionService", () => {
 		);
 
 		await transactionService.saveTransaction(database, {
+			transactionAt: 1,
 			classification: "INVESTMENT",
 			type: "CREDIT",
 			sourceId: "s1",
@@ -406,16 +443,18 @@ describe("transactionService", () => {
 	it("validates transfer destination rules", async () => {
 		await expect(
 			transactionService.saveTransaction(database, {
+				transactionAt: 1,
 				classification: "GENERAL",
 				type: "TRANSFER",
 				sourceId: "s1",
 				amount: "10",
 				reason: "ok",
 			}),
-		).rejects.toMatchObject<AppError>({ code: "DESTINATION_REQUIRED" });
+		).rejects.toMatchObject({ code: "DESTINATION_REQUIRED" });
 
 		await expect(
 			transactionService.saveTransaction(database, {
+				transactionAt: 1,
 				classification: "GENERAL",
 				type: "TRANSFER",
 				sourceId: "s1",
@@ -423,7 +462,7 @@ describe("transactionService", () => {
 				amount: "10",
 				reason: "ok",
 			}),
-		).rejects.toMatchObject<AppError>({ code: "SAME_TRANSFER_SOURCE" });
+		).rejects.toMatchObject({ code: "SAME_TRANSFER_SOURCE" });
 	});
 
 	it("handles cross-currency transfer by normalizing toAmount", async () => {
@@ -437,6 +476,7 @@ describe("transactionService", () => {
 		});
 
 		await transactionService.saveTransaction(database, {
+			transactionAt: 1,
 			classification: "GENERAL",
 			type: "TRANSFER",
 			sourceId: "s1",
@@ -472,6 +512,7 @@ describe("transactionService", () => {
 
 		await expect(
 			transactionService.saveTransaction(database, {
+				transactionAt: 1,
 				classification: "GENERAL",
 				type: "TRANSFER",
 				sourceId: "s1",
@@ -479,7 +520,7 @@ describe("transactionService", () => {
 				amount: "100",
 				reason: " move ",
 			}),
-		).rejects.toMatchObject<AppError>({ code: "INVALID_AMOUNT" });
+		).rejects.toMatchObject({ code: "INVALID_AMOUNT" });
 	});
 
 	it("rejects missing transfer sources and same-currency mismatch", async () => {
@@ -490,6 +531,7 @@ describe("transactionService", () => {
 		});
 		await expect(
 			transactionService.saveTransaction(database, {
+				transactionAt: 1,
 				classification: "GENERAL",
 				type: "TRANSFER",
 				sourceId: "s1",
@@ -498,7 +540,7 @@ describe("transactionService", () => {
 				toAmount: "10",
 				reason: "ok",
 			}),
-		).rejects.toMatchObject<AppError>({ code: "SOURCE_NOT_FOUND" });
+		).rejects.toMatchObject({ code: "SOURCE_NOT_FOUND" });
 
 		mocks.getSourceRow.mockResolvedValueOnce({
 			id: "s1",
@@ -509,6 +551,7 @@ describe("transactionService", () => {
 			currencyCode: "INR",
 		});
 		await transactionService.saveTransaction(database, {
+			transactionAt: 1,
 			classification: "GENERAL",
 			type: "TRANSFER",
 			sourceId: "s1",
@@ -526,7 +569,13 @@ describe("transactionService", () => {
 	});
 
 	it("updates existing transaction when id is provided", async () => {
+		mocks.getTransactionRow.mockResolvedValueOnce({
+			id: "existing",
+			items: [],
+		});
+		mocks.getCategoryRow.mockResolvedValueOnce({ id: "c1", name: "Food" });
 		await transactionService.saveTransaction(database, {
+			transactionAt: 1,
 			id: "existing",
 			classification: "GENERAL",
 			type: "DEBIT",
@@ -534,12 +583,13 @@ describe("transactionService", () => {
 			categoryId: "c1",
 			amount: "10",
 			reason: "ok",
+			items: [{ categoryId: "c1", amount: "10" }],
 		});
 
 		expect(mocks.updateTransactionRow).toHaveBeenCalledWith(
 			database,
 			expect.objectContaining({
-				categoryId: "c1",
+				categoryId: undefined,
 				investmentId: undefined,
 			}),
 			"existing",

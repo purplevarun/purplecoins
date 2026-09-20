@@ -24,7 +24,12 @@ describe("money utilities", () => {
 		expect(() => normalizeMoney("abc")).toThrow(
 			"Enter a valid positive amount.",
 		);
-		expect(normalizeMoney("0")).toBe("0");
+		expect(() => normalizeMoney("0")).toThrow(
+			"Amount must be greater than zero.",
+		);
+		expect(() => normalizeMoney("0.00")).toThrow(
+			"Amount must be greater than zero.",
+		);
 	});
 
 	it("compares, sums, and absolute-formats amounts", () => {

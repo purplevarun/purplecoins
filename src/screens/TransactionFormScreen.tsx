@@ -1,12 +1,13 @@
 import CustomText from "@/components/CustomText";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
 
 import AppButton from "@/components/AppButton";
 import AttachmentField from "@/components/AttachmentField";
 import DateField from "@/components/DateField";
 import GlassCard from "@/components/GlassCard";
+import HeaderIconButton from "@/components/HeaderIconButton";
 import Notice from "@/components/Notice";
 import ScreenContainer from "@/components/ScreenContainer";
 import SegmentedControl from "@/components/SegmentedControl";
@@ -28,9 +29,14 @@ import type SelectOption from "@/types/SelectOption";
 import type Source from "@/types/Source";
 import type TransactionClassification from "@/types/TransactionClassification";
 import type TransactionFormScreenProps from "@/types/TransactionFormScreenProps";
+import type TransactionItemDraft from "@/types/TransactionItemDraft";
+import type TransactionItemInput from "@/types/TransactionItemInput";
 import type TransactionType from "@/types/TransactionType";
 import type Trip from "@/types/Trip";
 import getErrorMessage from "@/utils/error";
+import createId from "@/utils/id";
+import moneyUtils from "@/utils/money";
+const { normalizeMoney, sumMoney, formatMoney } = moneyUtils;
 const { getCategories } = categoryService;
 const { getInvestments } = investmentService;
 const { getDefaultSourceId, getDefaultTripId } = settingsService;
@@ -52,6 +58,11 @@ const INVESTMENT_TYPE_OPTIONS: readonly SelectOption[] = [
 	{ label: "Debit", value: "DEBIT" },
 	{ label: "Credit", value: "CREDIT" },
 ];
+
+const createItemDraft = (
+	amount = "",
+	categoryId = "",
+): TransactionItemDraft => ({ key: createId(), amount, categoryId });
 
 const TransactionFormScreen = ({
 	navigation,
@@ -84,6 +95,10 @@ const TransactionFormScreen = ({
 	const [investments, setInvestments] = useState<readonly Investment[]>([]);
 	const [isSaving, setIsSaving] = useState(false);
 	const [error, setError] = useState("");
+	const [items, setItems] = useState<readonly TransactionItemDraft[]>(() => [
+		createItemDraft("", initialCategoryId ?? ""),
+	]);
+	const saving = useRef(false);
 
 	useEffect(() => {
 		const getFormData = async (): Promise<void> => {
@@ -147,6 +162,20 @@ const TransactionFormScreen = ({
 				setTripId(existingTransaction.tripId ?? "");
 				setInvestmentId(existingTransaction.investmentId ?? "");
 				setReason(existingTransaction.reason);
+				if (
+					existingTransaction.classification === "GENERAL" &&
+					existingTransaction.type === "DEBIT"
+				) {
+					setItems(
+						existingTransaction.items.map((item) => ({
+							key: createId(),
+							id: cloneFromTransactionId ? undefined : item.id,
+							amount: item.amount,
+							categoryId: item.categoryId,
+							categoryName: item.categoryName,
+						})),
+					);
+				}
 				// For clone mode: use today's date, not the original date
 				if (!cloneFromTransactionId) {
 					setTransactionAt(existingTransaction.transactionAt);
@@ -169,10 +198,30 @@ const TransactionFormScreen = ({
 		(source) => source.id === destinationSourceId,
 	);
 	const isTransfer = classification === "GENERAL" && type === "TRANSFER";
+	const isExpense = classification === "GENERAL" && type === "DEBIT";
 	const isSameCurrencyTransfer =
 		isTransfer &&
 		selectedSource?.currencyCode === selectedDestination?.currencyCode;
 	const effectiveToAmount = isSameCurrencyTransfer ? amount : toAmount;
+	let expenseTotal: string | null;
+	try {
+		expenseTotal = sumMoney(
+			items.map((item) => normalizeMoney(item.amount)),
+		);
+	} catch {
+		expenseTotal = null;
+	}
+
+	const updateItem = (
+		key: string,
+		changes: Partial<TransactionItemInput>,
+	): void => {
+		setItems((current) =>
+			current.map((item) =>
+				item.key === key ? { ...item, ...changes } : item,
+			),
+		);
+	};
 
 	const sourceOptions: readonly SelectOption[] = sources.map((source) => ({
 		label: source.name,
@@ -197,66 +246,111 @@ const TransactionFormScreen = ({
 		}),
 	);
 
+	const changeMode = (
+		nextClassification: TransactionClassification,
+		nextType: TransactionType,
+	): void => {
+		const nextIsExpense =
+			nextClassification === "GENERAL" && nextType === "DEBIT";
+		const applyChange = (): void => {
+			if (isExpense && !nextIsExpense) {
+				setAmount(expenseTotal ?? "");
+				setCategoryId(items[0]?.categoryId ?? "");
+				setItems([createItemDraft()]);
+			} else if (!isExpense && nextIsExpense) {
+				setItems([createItemDraft(amount, categoryId)]);
+			}
+			setClassification(nextClassification);
+			setType(nextType);
+		};
+		if (isExpense && !nextIsExpense && items.length > 1) {
+			dialog.confirm({
+				title: "Remove item breakdown?",
+				message:
+					"Keep the total as one amount and remove the individual expense items?",
+				confirmLabel: "Continue",
+				onConfirm: applyChange,
+			});
+		} else {
+			applyChange();
+		}
+	};
+
 	const handleClassificationChange = (value: string): void => {
 		const nextClassification =
 			value === "INVESTMENT" ? "INVESTMENT" : "GENERAL";
-		setClassification(nextClassification);
-		if (nextClassification === "INVESTMENT" && type === "TRANSFER") {
-			setType("DEBIT");
-		}
+		changeMode(
+			nextClassification,
+			nextClassification === "INVESTMENT" && type === "TRANSFER"
+				? "DEBIT"
+				: type,
+		);
 	};
 
 	const handleTypeChange = (value: string): void => {
-		if (value === "CREDIT" || value === "TRANSFER") {
-			setType(value);
-			return;
-		}
-		setType("DEBIT");
+		changeMode(
+			classification,
+			value === "CREDIT" || value === "TRANSFER" ? value : "DEBIT",
+		);
 	};
 
 	const handleSave = async (): Promise<void> => {
+		if (saving.current) return;
+		saving.current = true;
 		setIsSaving(true);
 		setError("");
 		try {
-			const savedId = await saveTransaction(database, {
-				id: transactionId,
-				classification,
-				type,
-				sourceId,
-				destinationSourceId:
-					isTransfer && destinationSourceId
-						? destinationSourceId
+			await saveTransaction(
+				database,
+				{
+					id: transactionId,
+					classification,
+					type,
+					sourceId,
+					destinationSourceId:
+						isTransfer && destinationSourceId
+							? destinationSourceId
+							: undefined,
+					amount: isExpense ? (expenseTotal ?? "0") : amount,
+					items: isExpense
+						? items.map((item) => ({
+								id: item.id,
+								amount: item.amount,
+								categoryId: item.categoryId,
+							}))
 						: undefined,
-				amount,
-				toAmount:
-					isTransfer && effectiveToAmount
-						? effectiveToAmount
-						: undefined,
-				categoryId:
-					classification === "GENERAL" &&
-					type !== "TRANSFER" &&
-					categoryId
-						? categoryId
-						: undefined,
-				tripId:
-					classification === "GENERAL" &&
-					type !== "TRANSFER" &&
-					tripId
-						? tripId
-						: undefined,
-				investmentId:
-					classification === "INVESTMENT" && investmentId
-						? investmentId
-						: undefined,
-				reason,
-				transactionAt,
-			});
-			await attachment.processAttachment(savedId);
+					toAmount:
+						isTransfer && effectiveToAmount
+							? effectiveToAmount
+							: undefined,
+					categoryId:
+						classification === "GENERAL" &&
+						type === "CREDIT" &&
+						categoryId
+							? categoryId
+							: undefined,
+					tripId:
+						classification === "GENERAL" &&
+						type !== "TRANSFER" &&
+						tripId
+							? tripId
+							: undefined,
+					investmentId:
+						classification === "INVESTMENT" && investmentId
+							? investmentId
+							: undefined,
+					reason,
+					transactionAt,
+				},
+				attachment.pendingAttachment ??
+					(attachment.isRemoved ? null : undefined),
+			);
 			refreshData();
 			navigation.goBack();
 		} catch (caughtError: unknown) {
 			setError(getErrorMessage(caughtError));
 		} finally {
+			saving.current = false;
 			setIsSaving(false);
 		}
 	};
@@ -285,7 +379,10 @@ const TransactionFormScreen = ({
 	return (
 		<ScreenContainer>
 			<GlassCard>
-				<View style={styles.form}>
+				<View
+					style={styles.form}
+					pointerEvents={isSaving ? "none" : "auto"}
+				>
 					<CustomText style={styles.heading}>
 						{transactionId
 							? "Edit transaction"
@@ -327,22 +424,122 @@ const TransactionFormScreen = ({
 							value={destinationSourceId}
 						/>
 					) : null}
-					<TextField
-						keyboardType="decimal-pad"
-						label={
-							isTransfer && selectedSource
-								? `From (${selectedSource.currencyCode})`
-								: `Amount${selectedSource ? ` (${selectedSource.currencyCode})` : ""}`
-						}
-						onChangeText={setAmount}
-						placeholder="0.00"
-						value={amount}
-					/>
+					{!isExpense ? (
+						<TextField
+							isEditable={!isSaving}
+							keyboardType="decimal-pad"
+							label={
+								isTransfer && selectedSource
+									? `From (${selectedSource.currencyCode})`
+									: `Amount${selectedSource ? ` (${selectedSource.currencyCode})` : ""}`
+							}
+							onChangeText={setAmount}
+							placeholder="0.00"
+							value={amount}
+						/>
+					) : null}
 					<DateField
 						label="Date"
 						onChange={setTransactionAt}
 						value={transactionAt}
 					/>
+					{isExpense ? (
+						<View style={styles.items}>
+							{items.map((item, position) => (
+								<View key={item.key} style={styles.item}>
+									<View style={styles.itemHeading}>
+										<CustomText
+											style={styles.itemTitle}
+										>{`Item ${position + 1}`}</CustomText>
+										{items.length > 1 ? (
+											<HeaderIconButton
+												icon="close-outline"
+												accessibilityLabel={`Remove item ${position + 1}`}
+												onPress={() =>
+													setItems((current) =>
+														current.filter(
+															(candidate) =>
+																candidate.key !==
+																item.key,
+														),
+													)
+												}
+											/>
+										) : null}
+									</View>
+									<TextField
+										isEditable={!isSaving}
+										keyboardType="decimal-pad"
+										label={`Amount${selectedSource ? ` (${selectedSource.currencyCode})` : ""}`}
+										placeholder="0.00"
+										value={item.amount}
+										onChangeText={(value) =>
+											updateItem(item.key, {
+												amount: value,
+											})
+										}
+									/>
+									<SelectField
+										label="Category"
+										placeholder="Select category"
+										value={item.categoryId}
+										onChange={(value) =>
+											updateItem(item.key, {
+												categoryId: value,
+											})
+										}
+										options={
+											item.categoryId &&
+											!categoryOptions.some(
+												(option) =>
+													option.value ===
+													item.categoryId,
+											)
+												? [
+														{
+															value: item.categoryId,
+															label:
+																item.categoryName ??
+																"Category",
+														},
+														...categoryOptions,
+													]
+												: categoryOptions
+										}
+									/>
+								</View>
+							))}
+							<AppButton
+								label="Add item"
+								icon="add"
+								variant="secondary"
+								isDisabled={isSaving}
+								onPress={() =>
+									setItems((current) => [
+										...current,
+										createItemDraft(),
+									])
+								}
+							/>
+							{items.length > 1 ? (
+								<View style={styles.totalRow}>
+									<CustomText style={styles.itemTitle}>
+										Total
+									</CustomText>
+									<CustomText style={styles.totalAmount}>
+										{expenseTotal === null
+											? "--"
+											: selectedSource
+												? formatMoney(
+														expenseTotal,
+														selectedSource.currencyCode,
+													)
+												: expenseTotal}
+									</CustomText>
+								</View>
+							) : null}
+						</View>
+					) : null}
 					{isTransfer ? (
 						<TextField
 							isEditable={!isSameCurrencyTransfer}
@@ -353,16 +550,17 @@ const TransactionFormScreen = ({
 							value={effectiveToAmount}
 						/>
 					) : null}
-					{/* Category + Trip as individual rows */}
 					{classification === "GENERAL" && type !== "TRANSFER" ? (
 						<>
-							<SelectField
-								label="Category"
-								onChange={setCategoryId}
-								options={categoryOptions}
-								placeholder="Select category"
-								value={categoryId}
-							/>
+							{!isExpense ? (
+								<SelectField
+									label="Category"
+									onChange={setCategoryId}
+									options={categoryOptions}
+									placeholder="Select category"
+									value={categoryId}
+								/>
+							) : null}
 							<SelectField
 								isOptional
 								label="Trip"
@@ -383,12 +581,15 @@ const TransactionFormScreen = ({
 						/>
 					) : null}
 					<TextField
+						isEditable={!isSaving}
 						label="Reason (optional)"
 						onChangeText={setReason}
 						placeholder={
 							isTransfer
 								? "Defaults to Source A to Source B"
-								: "Defaults to the selected category"
+								: isExpense && items.length > 1
+									? "Defaults to the item categories"
+									: "Defaults to the selected category"
 						}
 						value={reason}
 					/>
@@ -427,6 +628,28 @@ const TransactionFormScreen = ({
 };
 
 const styles = StyleSheet.create({
+	items: { gap: 16 },
+	item: { gap: 12 },
+	itemHeading: {
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "space-between",
+		minHeight: 44,
+	},
+	itemTitle: { color: COLORS.text, fontSize: 15, fontWeight: "700" },
+	totalRow: {
+		flexDirection: "row",
+		flexWrap: "wrap",
+		alignItems: "center",
+		justifyContent: "space-between",
+		gap: 12,
+	},
+	totalAmount: {
+		color: COLORS.text,
+		fontSize: 18,
+		fontWeight: "700",
+		flexShrink: 1,
+	},
 	form: {
 		gap: 16,
 	},
@@ -434,7 +657,7 @@ const styles = StyleSheet.create({
 		color: COLORS.text,
 		fontSize: 24,
 		fontWeight: "900",
-		letterSpacing: -0.5,
+		letterSpacing: 0,
 	},
 });
 

@@ -3,16 +3,20 @@ import CustomText from "@/components/CustomText";
 import FloatingAddButton from "@/components/FloatingAddButton";
 import HeaderIconButton from "@/components/HeaderIconButton";
 import ScreenList from "@/components/ScreenList";
+import type AppButtonProps from "@/types/AppButtonProps";
 import type ScreenListProps from "@/types/ScreenListProps";
 import type Transaction from "@/types/Transaction";
+import type Page from "@/types/TransactionPage";
 import type TransactionsScreenProps from "@/types/TransactionsScreenProps";
-import type dateUtils from "@/utils/date";
+import type HeaderOptions from "@/types/testing/HeaderOptions";
+import type Harness from "@/types/testing/TransactionListHarness";
 import {
 	isValidElement,
 	type ComponentProps,
 	type EffectCallback,
 	type ReactElement,
 } from "react";
+import type { PressableProps } from "react-native";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const reactMocks = vi.hoisted(() => ({
@@ -40,7 +44,7 @@ const renderMocks = vi.hoisted(() => ({
 }));
 
 vi.mock("react", async (importOriginal) => {
-	const actual = (await importOriginal()) as typeof import("react");
+	const actual = await importOriginal<typeof import("react")>();
 	return {
 		...actual,
 		useCallback: reactMocks.useCallback,
@@ -112,7 +116,7 @@ vi.mock("@/services/transactionService", () => ({
 }));
 
 vi.mock("@/utils/date", async (importOriginal) => {
-	const actual = await importOriginal<{ default: typeof dateUtils }>();
+	const actual = await importOriginal<typeof import("@/utils/date")>();
 	return {
 		default: {
 			...actual.default,
@@ -182,12 +186,14 @@ describe("TransactionsScreen", () => {
 		reactMocks.useRef.mockImplementation((initial: unknown) => ({
 			current: initial,
 		}));
-		reactMocks.useEffect.mockImplementation((effect: () => void) => {
+		reactMocks.useEffect.mockImplementation((effect: EffectCallback) => {
 			effect();
 		});
-		reactMocks.useLayoutEffect.mockImplementation((effect: () => void) => {
-			effect();
-		});
+		reactMocks.useLayoutEffect.mockImplementation(
+			(effect: EffectCallback) => {
+				effect();
+			},
+		);
 		reactMocks.useState.mockImplementation((initial: any) => [
 			typeof initial === "function" ? initial() : initial,
 			vi.fn(),
@@ -232,6 +238,7 @@ describe("TransactionsScreen", () => {
 			end: new Date(2026, 8, 15, 23, 59, 59, 999).getTime(),
 		};
 		const recent: Transaction = {
+			items: [],
 			id: "00000000-0000-4000-8000-000000000001",
 			classification: "GENERAL",
 			type: "DEBIT",
@@ -273,17 +280,6 @@ describe("TransactionsScreen", () => {
 		const firstPage = history.slice(0, 10);
 		const secondPage = history.slice(10, 20);
 		const lastPage = history.slice(20);
-		type Page = { transactions: readonly Transaction[]; hasMore: boolean };
-		type HeaderButton = ReactElement<
-			ComponentProps<typeof HeaderIconButton>
-		>;
-		type Harness = {
-			render: () => ReactElement;
-			reload: () => void;
-			unmount: () => void;
-			headerButtons: () => HeaderButton[];
-			setState: (index: number, value: unknown) => void;
-		};
 
 		const elements = <Props,>(
 			tree: unknown,
@@ -321,23 +317,29 @@ describe("TransactionsScreen", () => {
 			tree: ReactElement,
 			label: string,
 		):
-			| ReactElement<{ disabled?: boolean; onPress: () => void }>
+			| ReactElement<
+					Pick<PressableProps, "disabled"> &
+						Pick<AppButtonProps, "onPress">
+			  >
 			| undefined =>
 			(
 				findByPredicate(
 					tree,
 					(node: unknown) =>
-						isValidElement<{ accessibilityLabel?: string }>(node) &&
-						node.props.accessibilityLabel === label,
-				) as ReactElement<{ disabled?: boolean; onPress: () => void }>[]
+						isValidElement<
+							Pick<PressableProps, "accessibilityLabel">
+						>(node) && node.props.accessibilityLabel === label,
+				) as ReactElement<
+					Pick<PressableProps, "disabled"> &
+						Pick<AppButtonProps, "onPress">
+				>[]
 			)[0];
 
 		const createHarness = (mode?: "DAY" | "SCROLL"): Harness => {
 			const states = new Map<number, unknown>([[6, anchor]]);
 			if (mode) states.set(7, mode);
 			const effects: EffectCallback[] = [];
-			const setOptions =
-				vi.fn<(options: { headerRight: () => ReactElement }) => void>();
+			const setOptions = vi.fn<(options: HeaderOptions) => void>();
 			let stateIndex = 0;
 			let cleanup: (() => void) | undefined;
 			reactMocks.useRef.mockReturnValue({
@@ -826,7 +828,7 @@ describe("TransactionsScreen", () => {
 		);
 		expect(setOptions).toHaveBeenCalled();
 
-		const headerRight = setOptions.mock.calls[0][0].headerRight;
+		const headerRight = setOptions.mock.calls[0]?.[0].headerRight;
 		const [headerButton] = findByPredicate(
 			headerRight(),
 			(node: unknown) =>
@@ -921,7 +923,7 @@ describe("TransactionsScreen", () => {
 		const setSearchDebounced = vi.fn();
 		const clearSpy = vi.spyOn(globalThis, "clearTimeout");
 
-		reactMocks.useEffect.mockImplementation((effect: () => void) => {
+		reactMocks.useEffect.mockImplementation((effect: EffectCallback) => {
 			const cleanup = effect();
 			if (typeof cleanup === "function") cleanup();
 		});
@@ -986,8 +988,7 @@ describe("TransactionsScreen", () => {
 						update: (current: "DAY" | "SCROLL") => "DAY" | "SCROLL",
 					) => void
 				>();
-			const setOptions =
-				vi.fn<(options: { headerRight: () => ReactElement }) => void>();
+			const setOptions = vi.fn<(options: HeaderOptions) => void>();
 			const navigation = { navigate: vi.fn(), setOptions };
 			let stateCall = 0;
 			reactMocks.useState.mockImplementation((initial: unknown) => {
@@ -1111,7 +1112,7 @@ describe("TransactionsScreen", () => {
 			new Error("load failed"),
 		);
 
-		reactMocks.useEffect.mockImplementation((effect: () => void) => {
+		reactMocks.useEffect.mockImplementation((effect: EffectCallback) => {
 			const cleanup = effect();
 			if (typeof cleanup === "function") {
 				cleanup();
@@ -1222,6 +1223,21 @@ describe("TransactionsScreen", () => {
 	it.each([
 		["amount", "2000", { amount: "2,000" }],
 		["category", "gro", { categoryName: "Groceries" }],
+		[
+			"item category",
+			"gro",
+			{ items: [{ categoryName: "Grocery", amount: "75" }] },
+		],
+		[
+			"item amount",
+			"75",
+			{ items: [{ categoryName: "Food", amount: "75" }] },
+		],
+		[
+			"item formatted amount",
+			"usd 75",
+			{ items: [{ categoryName: "Food", amount: "75" }] },
+		],
 		["trip", "goa", { tripName: "Goa" }],
 		["investment", "mf", { investmentName: "MF" }],
 		["date", "date:45", { transactionAt: 45 }],
@@ -1243,6 +1259,7 @@ describe("TransactionsScreen", () => {
 						[
 							{
 								id: "t-branch",
+								items: [],
 								classification: "GENERAL",
 								amount: "100",
 								sourceName: "Wallet",
@@ -1288,6 +1305,7 @@ describe("TransactionsScreen", () => {
 					[
 						{
 							id: "t-none",
+							items: [],
 							classification: "GENERAL",
 							amount: "100",
 							sourceName: "Wallet",
@@ -1311,7 +1329,7 @@ describe("TransactionsScreen", () => {
 		const tree = TransactionsScreen({ navigation } as any);
 		await flush();
 
-		const headerRight = setOptions.mock.calls[0][0].headerRight;
+		const headerRight = setOptions.mock.calls[0]?.[0].headerRight;
 		const header = headerRight();
 		expect(
 			findByPredicate(

@@ -1,3 +1,4 @@
+import type AppButtonProps from "@/types/AppButtonProps";
 import { isValidElement, type ReactElement } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -26,7 +27,7 @@ const hookMocks = vi.hoisted(() => ({
 }));
 
 vi.mock("react", async (importOriginal) => {
-	const actual = (await importOriginal()) as typeof import("react");
+	const actual = await importOriginal<typeof import("react")>();
 	return {
 		...actual,
 		useCallback: reactMocks.useCallback,
@@ -200,7 +201,7 @@ describe("LinkedTransactionsScreen", () => {
 				tree,
 				(node: unknown) =>
 					isValidElement(node) && node.type === FloatingAddButton,
-			) as ReactElement<{ onPress: () => void }>[];
+			) as ReactElement<Pick<AppButtonProps, "onPress">>[];
 			expect(addButtons).toHaveLength(1);
 			addButtons[0]?.props.onPress();
 			expect(navigation.navigate).toHaveBeenCalledExactlyOnceWith(

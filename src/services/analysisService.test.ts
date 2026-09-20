@@ -36,6 +36,23 @@ const createTransaction = (overrides: Partial<Transaction>): Transaction => ({
 	tripName: null,
 	investmentName: null,
 	hasAttachment: false,
+	items:
+		overrides.categoryId &&
+		(overrides.classification ?? "GENERAL") === "GENERAL" &&
+		(overrides.type ?? "DEBIT") === "DEBIT"
+			? [
+					{
+						id: "item",
+						transactionId: overrides.id ?? "transaction",
+						categoryId: overrides.categoryId,
+						categoryName: "Category",
+						amount: overrides.amount ?? "0",
+						position: 0,
+						createdAt: NOW,
+						updatedAt: NOW,
+					},
+				]
+			: [],
 	...overrides,
 });
 
@@ -67,6 +84,76 @@ const CATEGORIES: readonly Category[] = [
 ];
 
 describe("category-driven analysis", () => {
+	it("ignores a credit with no category allocation", () => {
+		expect(
+			buildCategoryAnalysis(
+				[
+					createTransaction({
+						type: "CREDIT",
+						categoryId: null,
+						amount: "10",
+					}),
+				],
+				CATEGORIES,
+				true,
+				new Map(),
+			),
+		).toEqual([]);
+	});
+	it("allocates a split payment by item and combines repeated categories", () => {
+		const transaction = createTransaction({
+			amount: "200",
+			categoryId: null,
+			items: [
+				{
+					id: "one",
+					transactionId: "transaction",
+					categoryId: "rent",
+					categoryName: "Rent",
+					amount: "50",
+					position: 0,
+					createdAt: NOW,
+					updatedAt: NOW,
+				},
+				{
+					id: "two",
+					transactionId: "transaction",
+					categoryId: "company-trip",
+					categoryName: "Trip",
+					amount: "100",
+					position: 1,
+					createdAt: NOW,
+					updatedAt: NOW,
+				},
+				{
+					id: "three",
+					transactionId: "transaction",
+					categoryId: "rent",
+					categoryName: "Rent",
+					amount: "50",
+					position: 2,
+					createdAt: NOW,
+					updatedAt: NOW,
+				},
+			],
+		});
+		const result = buildCategoryAnalysis(
+			[transaction],
+			CATEGORIES,
+			true,
+			new Map(),
+		);
+		expect(
+			result.map((category) => [category.categoryId, category.debits]),
+		).toEqual([
+			["rent", "100"],
+			["company-trip", "100"],
+		]);
+		expect(buildCategoryCurrencySummaries(result)).toMatchObject([
+			{ totalExpense: "200" },
+		]);
+	});
+
 	it("nets reimbursements against the category debit", () => {
 		const transactions: readonly Transaction[] = [
 			createTransaction({

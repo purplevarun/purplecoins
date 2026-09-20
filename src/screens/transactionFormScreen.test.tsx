@@ -1,11 +1,20 @@
 import AppButton from "@/components/AppButton";
 import DateField from "@/components/DateField";
+import HeaderIconButton from "@/components/HeaderIconButton";
+import SegmentedControl from "@/components/SegmentedControl";
+import SelectField from "@/components/SelectField";
+import TextField from "@/components/TextField";
+import type AppDialogConfirmOptions from "@/types/AppDialogConfirmOptions";
+import type AttachmentInput from "@/types/AttachmentInput";
+import type AttachmentTestState from "@/types/testing/AttachmentTestState";
+import type TransactionFormHarness from "@/types/testing/TransactionFormHarness";
 import { isValidElement, type ComponentProps, type ReactElement } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const reactMocks = vi.hoisted(() => ({
 	useEffect: vi.fn(),
 	useState: vi.fn(),
+	useRef: vi.fn(() => ({ current: false })),
 }));
 
 const serviceMocks = vi.hoisted(() => ({
@@ -29,12 +38,18 @@ const hookMocks = vi.hoisted(() => ({
 	handleRemove: vi.fn(),
 }));
 
+const attachmentState = vi.hoisted((): AttachmentTestState => ({
+	pendingAttachment: null,
+	isRemoved: false,
+}));
+
 vi.mock("react", async (importOriginal) => {
-	const actual = (await importOriginal()) as typeof import("react");
+	const actual = await importOriginal<typeof import("react")>();
 	return {
 		...actual,
 		useEffect: reactMocks.useEffect,
 		useState: reactMocks.useState,
+		useRef: reactMocks.useRef,
 	};
 });
 
@@ -58,6 +73,14 @@ vi.mock("@/components/DateField", () => ({
 vi.mock("@/components/GlassCard", () => ({
 	default: (props: any) => ({ type: "GlassCard", props }),
 }));
+
+vi.mock("@/components/HeaderIconButton", () => ({
+	default: (props: unknown) => ({ type: "HeaderIconButton", props }),
+}));
+vi.mock("@/utils/id", () => {
+	let nextId = 0;
+	return { default: () => `draft-${nextId++}` };
+});
 vi.mock("@/components/Notice", () => ({
 	default: (props: any) => ({ type: "Notice", props }),
 }));
@@ -80,8 +103,8 @@ vi.mock("@/hooks/useAppDialog", () => ({
 vi.mock("@/hooks/useAttachment", () => ({
 	default: () => ({
 		existingAttachment: null,
-		isRemoved: false,
-		pendingAttachment: null,
+		isRemoved: attachmentState.isRemoved,
+		pendingAttachment: attachmentState.pendingAttachment,
 		processAttachment: hookMocks.processAttachment,
 		handleOpen: hookMocks.handleOpen,
 		handlePick: hookMocks.handlePick,
@@ -152,10 +175,83 @@ const findByPredicate = (
 	return acc;
 };
 
+const formElements = <Props,>(
+	tree: ReactElement,
+	component: unknown,
+): ReactElement<Props>[] =>
+	findByPredicate(
+		tree,
+		(node: unknown) =>
+			isValidElement<Props>(node) && node.type === component,
+	) as ReactElement<Props>[];
+
+const createFormHarness = (
+	overrides: ReadonlyMap<number, unknown> = new Map(),
+	params: Record<string, string | undefined> = {},
+): TransactionFormHarness => {
+	const values = new Map<number, unknown>([
+		[3, "s1"],
+		[11, 100],
+		[12, [{ id: "s1", name: "Bank", currencyCode: "INR", balance: "0" }]],
+		[
+			13,
+			[
+				{ id: "food", name: "Food", isIncome: false },
+				{ id: "grocery", name: "Grocery", isIncome: false },
+			],
+		],
+		...overrides,
+	]);
+	const navigation = { goBack: vi.fn() };
+	const saving = { current: false };
+	let stateIndex = 0;
+	reactMocks.useRef.mockReturnValue(saving);
+	reactMocks.useEffect.mockImplementation(() => undefined);
+	reactMocks.useState.mockImplementation((initial: unknown) => {
+		const index = ++stateIndex;
+		if (!values.has(index))
+			values.set(
+				index,
+				typeof initial === "function"
+					? (initial as () => unknown)()
+					: initial,
+			);
+		return [
+			values.get(index),
+			(value: unknown) =>
+				values.set(
+					index,
+					typeof value === "function"
+						? (value as (current: unknown) => unknown)(
+								values.get(index),
+							)
+						: value,
+				),
+		];
+	});
+	return {
+		values,
+		navigation,
+		render: () => {
+			stateIndex = 0;
+			const renderScreen = TransactionFormScreen as (
+				props: unknown,
+			) => ReactElement;
+			return renderScreen({
+				navigation,
+				route: { key: "items", name: "TransactionForm", params },
+			});
+		},
+	};
+};
+
 describe("TransactionFormScreen", () => {
 	beforeEach(() => {
+		attachmentState.pendingAttachment = null;
+		attachmentState.isRemoved = false;
 		reactMocks.useEffect.mockReset();
 		reactMocks.useState.mockReset();
+		reactMocks.useRef.mockImplementation(() => ({ current: false }));
 		reactMocks.useEffect.mockImplementation((effect: () => void) => {
 			effect();
 		});
@@ -187,6 +283,295 @@ describe("TransactionFormScreen", () => {
 		hookMocks.confirm.mockImplementation(({ onConfirm }: any) =>
 			onConfirm(),
 		);
+	});
+
+	it("starts with one item, adds independent fields, and never removes the last item", async () => {
+		const harness = createFormHarness();
+		let tree = harness.render();
+		expect(formElements(tree, HeaderIconButton)).toHaveLength(0);
+		formElements<ComponentProps<typeof TextField>>(tree, TextField)
+			.find((field) => field.props.keyboardType === "decimal-pad")
+			?.props.onChangeText("100");
+		formElements<ComponentProps<typeof SelectField>>(tree, SelectField)
+			.find((field) => field.props.label === "Category")
+			?.props.onChange("food");
+		formElements<ComponentProps<typeof AppButton>>(tree, AppButton)
+			.find((button) => button.props.label === "Add item")
+			?.props.onPress();
+		tree = harness.render();
+		const amounts = formElements<ComponentProps<typeof TextField>>(
+			tree,
+			TextField,
+		).filter((field) => field.props.keyboardType === "decimal-pad");
+		expect(amounts.map((field) => field.props.value)).toEqual(["100", ""]);
+		amounts[1]?.props.onChangeText("100");
+		formElements<ComponentProps<typeof SelectField>>(tree, SelectField)
+			.filter((field) => field.props.label === "Category")[1]
+			?.props.onChange("grocery");
+		tree = harness.render();
+		formElements<ComponentProps<typeof AppButton>>(tree, AppButton)
+			.find((button) => button.props.label === "Save transaction")
+			?.props.onPress();
+		await flush();
+		expect(serviceMocks.saveTransaction).toHaveBeenCalledWith(
+			{ id: "db" },
+			expect.objectContaining({
+				amount: "200",
+				categoryId: undefined,
+				sourceId: "s1",
+				transactionAt: 100,
+				items: [
+					{ id: undefined, amount: "100", categoryId: "food" },
+					{ id: undefined, amount: "100", categoryId: "grocery" },
+				],
+			}),
+			undefined,
+		);
+		formElements<ComponentProps<typeof HeaderIconButton>>(
+			tree,
+			HeaderIconButton,
+		)[0]?.props.onPress();
+		tree = harness.render();
+		expect(formElements(tree, HeaderIconButton)).toHaveLength(0);
+		expect(
+			formElements<ComponentProps<typeof TextField>>(
+				tree,
+				TextField,
+			).filter((field) => field.props.keyboardType === "decimal-pad"),
+		).toHaveLength(1);
+	});
+
+	it("keeps split drafts when a mode change is canceled and carries the total on confirmation", () => {
+		const harness = createFormHarness(
+			new Map([
+				[
+					18,
+					[
+						{ key: "one", amount: "0.1", categoryId: "food" },
+						{ key: "two", amount: "0.2", categoryId: "grocery" },
+					],
+				],
+			]),
+		);
+		hookMocks.confirm.mockImplementation(() => undefined);
+		const tree = harness.render();
+		formElements<ComponentProps<typeof SegmentedControl>>(
+			tree,
+			SegmentedControl,
+		)[1]?.props.onChange("CREDIT");
+		expect(hookMocks.confirm).toHaveBeenCalledOnce();
+		expect(harness.values.get(2)).toBe("DEBIT");
+		expect(harness.values.get(18)).toHaveLength(2);
+		const confirmation = hookMocks.confirm.mock.calls[0]?.[0] as Pick<
+			AppDialogConfirmOptions,
+			"onConfirm"
+		>;
+		confirmation.onConfirm();
+		expect(harness.values.get(2)).toBe("CREDIT");
+		expect(harness.values.get(5)).toBe("0.3");
+		const incomeTree = harness.render();
+		expect(
+			formElements<ComponentProps<typeof AppButton>>(
+				incomeTree,
+				AppButton,
+			).some((button) => button.props.label === "Add item"),
+		).toBe(false);
+		formElements<ComponentProps<typeof SegmentedControl>>(
+			incomeTree,
+			SegmentedControl,
+		)[1]?.props.onChange("DEBIT");
+		expect(harness.values.get(18)).toMatchObject([
+			{ amount: "0.3", categoryId: "food" },
+		]);
+	});
+
+	it.each([false, true])(
+		"loads all expense items and preserves IDs only when editing (clone=%s)",
+		async (clone) => {
+			const params = clone
+				? { cloneFromTransactionId: "payment" }
+				: { transactionId: "payment" };
+			const harness = createFormHarness(new Map(), params);
+			serviceMocks.getTransaction.mockResolvedValue({
+				classification: "GENERAL",
+				type: "DEBIT",
+				sourceId: "s1",
+				amount: "200",
+				reason: "Supermart",
+				transactionAt: 42,
+				items: [
+					{
+						id: "one",
+						categoryId: "food",
+						categoryName: "Food",
+						amount: "100",
+					},
+					{
+						id: "two",
+						categoryId: "archived",
+						categoryName: "Old category",
+						amount: "100",
+					},
+				],
+			});
+			reactMocks.useEffect.mockImplementation((effect: () => void) =>
+				effect(),
+			);
+			harness.render();
+			await flush();
+			reactMocks.useEffect.mockImplementation(() => undefined);
+			const tree = harness.render();
+			expect(harness.values.get(18)).toMatchObject([
+				{ id: clone ? undefined : "one", amount: "100" },
+				{ id: clone ? undefined : "two", amount: "100" },
+			]);
+			expect(harness.values.get(11)).toBe(clone ? 100 : 42);
+			const categories = formElements<ComponentProps<typeof SelectField>>(
+				tree,
+				SelectField,
+			).filter((field) => field.props.label === "Category");
+			expect(categories[1]?.props.options).toContainEqual({
+				label: "Old category",
+				value: "archived",
+			});
+			formElements<ComponentProps<typeof AppButton>>(tree, AppButton)
+				.find((button) => button.props.label === "Save transaction")
+				?.props.onPress();
+			await flush();
+			expect(serviceMocks.saveTransaction).toHaveBeenCalledWith(
+				{ id: "db" },
+				expect.objectContaining({
+					id: clone ? undefined : "payment",
+					amount: "200",
+				}),
+				undefined,
+			);
+		},
+	);
+
+	it("prevents duplicate saves until the payment commits", async () => {
+		const harness = createFormHarness();
+		let completeSave: (value: string) => void = () => undefined;
+		serviceMocks.saveTransaction.mockReturnValue(
+			new Promise<string>((resolve) => {
+				completeSave = resolve;
+			}),
+		);
+		const tree = harness.render();
+		const button = formElements<ComponentProps<typeof AppButton>>(
+			tree,
+			AppButton,
+		).find((candidate) => candidate.props.label === "Save transaction");
+		button?.props.onPress();
+		button?.props.onPress();
+		expect(serviceMocks.saveTransaction).toHaveBeenCalledOnce();
+		expect(harness.navigation.goBack).not.toHaveBeenCalled();
+		const savingTree = harness.render();
+		expect(
+			findByPredicate(
+				savingTree,
+				(node: unknown) =>
+					isValidElement<
+						ComponentProps<typeof import("react-native").View>
+					>(node) && node.props.pointerEvents === "none",
+			),
+		).toHaveLength(1);
+		completeSave("payment");
+		await flush();
+		expect(harness.navigation.goBack).toHaveBeenCalledOnce();
+		expect(harness.values.get(16)).toBe(false);
+	});
+
+	it.each(["replace", "remove"])(
+		"sends a shared receipt %s through the payment save",
+		async (change) => {
+			const receipt: AttachmentInput = {
+				fileName: "receipt.txt",
+				mimeType: "text/plain",
+				sizeBytes: 1,
+				content: new Uint8Array([1]),
+			};
+			attachmentState.pendingAttachment =
+				change === "replace" ? receipt : null;
+			attachmentState.isRemoved = change === "remove";
+			const harness = createFormHarness(
+				new Map([
+					[2, "CREDIT"],
+					[5, "100"],
+					[7, "food"],
+				]),
+			);
+			const tree = harness.render();
+			formElements<ComponentProps<typeof AppButton>>(tree, AppButton)
+				.find((button) => button.props.label === "Save transaction")
+				?.props.onPress();
+			await flush();
+			expect(serviceMocks.saveTransaction).toHaveBeenCalledWith(
+				{ id: "db" },
+				expect.objectContaining({
+					type: "CREDIT",
+					categoryId: "food",
+					items: undefined,
+					amount: "100",
+				}),
+				change === "replace" ? receipt : null,
+			);
+		},
+	);
+
+	it("keeps incomplete item totals unavailable and can change mode without inventing an amount", () => {
+		const harness = createFormHarness(
+			new Map([
+				[
+					18,
+					[
+						{ key: "one", amount: "", categoryId: "" },
+						{ key: "two", amount: "1", categoryId: "food" },
+					],
+				],
+			]),
+		);
+		const tree = harness.render();
+		formElements<ComponentProps<typeof SegmentedControl>>(
+			tree,
+			SegmentedControl,
+		)[1]?.props.onChange("CREDIT");
+		expect(harness.values.get(5)).toBe("");
+		harness.values.set(1, "GENERAL");
+		harness.values.set(2, "DEBIT");
+		harness.values.set(18, []);
+		formElements<ComponentProps<typeof SegmentedControl>>(
+			harness.render(),
+			SegmentedControl,
+		)[1]?.props.onChange("CREDIT");
+		expect(harness.values.get(7)).toBe("");
+	});
+
+	it("shows a decimal total before selecting a source", () => {
+		const harness = createFormHarness(
+			new Map<number, unknown>([
+				[3, ""],
+				[
+					18,
+					[
+						{ key: "one", amount: "0.1", categoryId: "food" },
+						{ key: "two", amount: "0.2", categoryId: "grocery" },
+					],
+				],
+			]),
+		);
+		const tree = harness.render();
+		expect(
+			findByPredicate(
+				tree,
+				(node: unknown) =>
+					isValidElement<
+						ComponentProps<
+							typeof import("@/components/CustomText").default
+						>
+					>(node) && node.props.children === "0.3",
+			),
+		).toHaveLength(1);
 	});
 
 	it.each([
@@ -266,7 +651,9 @@ describe("TransactionFormScreen", () => {
 
 	it("saves the prefilled source, linked category, and default trip", async () => {
 		serviceMocks.getDefaultSourceId.mockResolvedValue("s1");
-		const stateValues = new Map<number, unknown>([[5, "15"]]);
+		const stateValues = new Map<number, unknown>([
+			[18, [{ key: "first", amount: "15", categoryId: "c1" }]],
+		]);
 		let stateCall = 0;
 		reactMocks.useState.mockImplementation((initial: unknown) => {
 			stateCall += 1;
@@ -318,10 +705,12 @@ describe("TransactionFormScreen", () => {
 			{ id: "db" },
 			expect.objectContaining({
 				sourceId: "s1",
-				categoryId: "c1",
+				categoryId: undefined,
+				items: [{ id: undefined, amount: "15", categoryId: "c1" }],
 				tripId: "tr1",
 				amount: "15",
 			}),
+			undefined,
 		);
 		expect(navigation.goBack).toHaveBeenCalled();
 	});
@@ -386,6 +775,7 @@ describe("TransactionFormScreen", () => {
 				expect.objectContaining({
 					transactionAt: initialTransactionAt,
 				}),
+				undefined,
 			);
 			expect(navigation.goBack).toHaveBeenCalled();
 		},
@@ -478,9 +868,11 @@ describe("TransactionFormScreen", () => {
 				investmentId: undefined,
 				reason: "Move",
 				transactionAt: 123,
+				items: undefined,
 			},
+			undefined,
 		);
-		expect(hookMocks.processAttachment).toHaveBeenCalledWith("txSaved");
+		expect(hookMocks.processAttachment).not.toHaveBeenCalled();
 		expect(serviceMocks.deleteTransaction).toHaveBeenCalledWith(
 			{ id: "db" },
 			"tx1",
@@ -558,9 +950,11 @@ describe("TransactionFormScreen", () => {
 				investmentId: "i1",
 				reason: "Invest",
 				transactionAt: 456,
+				items: undefined,
 			},
+			undefined,
 		);
-		expect(hookMocks.processAttachment).toHaveBeenCalledWith("txSaved");
+		expect(hookMocks.processAttachment).not.toHaveBeenCalled();
 		expect(navigation.goBack).toHaveBeenCalled();
 	});
 
@@ -671,6 +1065,14 @@ describe("TransactionFormScreen", () => {
 			investmentId: null,
 			reason: "Lunch",
 			transactionAt: 12345,
+			items: [
+				{
+					id: "item",
+					amount: "77",
+					categoryId: "c1",
+					categoryName: "Food",
+				},
+			],
 		});
 
 		const setTransactionAt = vi.fn();
@@ -725,6 +1127,14 @@ describe("TransactionFormScreen", () => {
 			investmentId: null,
 			reason: "Lunch",
 			transactionAt: 12345,
+			items: [
+				{
+					id: "item",
+					amount: "77",
+					categoryId: "c1",
+					categoryName: "Food",
+				},
+			],
 		});
 
 		const setTransactionAt = vi.fn();
@@ -846,6 +1256,11 @@ describe("TransactionFormScreen", () => {
 			if (stateCall === 9) return ["", vi.fn()];
 			if (stateCall === 10) return ["Groceries", vi.fn()];
 			if (stateCall === 11) return [789, vi.fn()];
+			if (stateCall === 18)
+				return [
+					[{ key: "first", amount: "300", categoryId: "c1" }],
+					vi.fn(),
+				];
 			if (stateCall === 12)
 				return [
 					[
@@ -893,12 +1308,14 @@ describe("TransactionFormScreen", () => {
 				destinationSourceId: undefined,
 				amount: "300",
 				toAmount: undefined,
-				categoryId: "c1",
+				categoryId: undefined,
+				items: [{ id: undefined, categoryId: "c1", amount: "300" }],
 				tripId: "tr1",
 				investmentId: undefined,
 				reason: "Groceries",
 				transactionAt: 789,
 			},
+			undefined,
 		);
 	});
 
@@ -954,6 +1371,14 @@ describe("TransactionFormScreen", () => {
 			investmentId: null,
 			reason: "R",
 			transactionAt: 200,
+			items: [
+				{
+					id: "item",
+					categoryId: "c1",
+					amount: "11",
+					categoryName: "Food",
+				},
+			],
 		});
 
 		const setCategoryId = vi.fn();

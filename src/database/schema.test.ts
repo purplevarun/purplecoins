@@ -16,6 +16,6 @@ describe("schema", () => {
 		expect(SCHEMA_SQL).toContain(
 			"CHECK (classification IN ('GENERAL', 'INVESTMENT'))",
 		);
-		expect(SCHEMA_SQL).toContain("PRAGMA foreign_keys = ON;");
+		expect(SCHEMA_SQL).not.toContain("PRAGMA");
 	});
 });

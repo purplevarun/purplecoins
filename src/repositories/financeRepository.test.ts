@@ -1,4 +1,5 @@
 import financeRepository from "@/repositories/financeRepository";
+import type TestAsyncFunction from "@/types/testing/TestAsyncFunction";
 
 import type { SQLiteDatabase } from "expo-sqlite";
 import { describe, expect, it, vi } from "vitest";
@@ -51,6 +52,100 @@ const {
 } = financeRepository;
 
 describe("financeRepository", () => {
+	it("loads ordered items in a batch without duplicating payment headers", async () => {
+		const headers = [
+			{
+				id: "expense",
+				classification: "GENERAL",
+				type: "DEBIT",
+				amount: "200",
+			},
+			{
+				id: "income",
+				classification: "GENERAL",
+				type: "CREDIT",
+				amount: "300",
+			},
+		];
+		const items = [
+			{
+				id: "first",
+				transactionId: "expense",
+				categoryId: "food",
+				amount: "100",
+				position: 0,
+			},
+			{
+				id: "second",
+				transactionId: "expense",
+				categoryId: "grocery",
+				amount: "100",
+				position: 1,
+			},
+		];
+		const getAllAsync = vi
+			.fn()
+			.mockResolvedValueOnce(headers)
+			.mockResolvedValueOnce(items);
+		const database = { getAllAsync } as unknown as SQLiteDatabase;
+		expect(await getTransactionPageRows(database, 2)).toEqual([
+			{ ...headers[0], items },
+			{ ...headers[1], items: [] },
+		]);
+		expect(getAllAsync).toHaveBeenLastCalledWith(
+			expect.stringContaining(
+				"ORDER BY item.transaction_id, item.position",
+			),
+			"expense",
+		);
+	});
+
+	it("chunks large item lookups and handles missing payments", async () => {
+		const getAllAsync = vi.fn().mockResolvedValue([]);
+		const getFirstAsync = vi.fn().mockResolvedValue(null);
+		const database = {
+			getAllAsync,
+			getFirstAsync,
+		} as unknown as SQLiteDatabase;
+		await financeRepository.getTransactionItemRows(
+			database,
+			Array.from({ length: 501 }, (_, index) => `payment-${index}`),
+		);
+		expect(getAllAsync).toHaveBeenCalledTimes(2);
+		expect(getAllAsync.mock.calls[0]).toHaveLength(501);
+		expect(getAllAsync.mock.calls[1]).toHaveLength(2);
+		expect(await getTransactionRow(database, "missing")).toBeNull();
+	});
+
+	it("writes and replaces item rows without opening a nested transaction", async () => {
+		const runAsync = vi.fn().mockResolvedValue(undefined);
+		const database = { runAsync } as unknown as SQLiteDatabase;
+		await financeRepository.createTransactionItemRow(database, {
+			id: "item",
+			transactionId: "payment",
+			categoryId: "food",
+			amount: "100",
+			position: 0,
+			createdAt: 1,
+			updatedAt: 2,
+		});
+		expect(runAsync).toHaveBeenCalledWith(
+			expect.stringContaining("INSERT INTO transaction_items"),
+			"item",
+			"payment",
+			"food",
+			"100",
+			0,
+			1,
+			2,
+		);
+		await financeRepository.deleteTransactionItemRows(database, "payment");
+		expect(runAsync).toHaveBeenLastCalledWith(
+			"DELETE FROM transaction_items WHERE transaction_id = ?;",
+			"payment",
+		);
+	});
+
 	it.each([
 		undefined,
 		{ createdAt: 100, id: "00000000-0000-4000-8000-000000000010" },
@@ -169,11 +264,16 @@ describe("financeRepository", () => {
 			minDate: 10,
 			maxDate: 20,
 		});
-		expect(await getTransactionRows(database)).toEqual([{ id: "tx1" }]);
-		expect(await getTransactionRowsInRange(database, 1, 2)).toEqual([
-			{ id: "tx2" },
+		expect(await getTransactionRows(database)).toEqual([
+			{ id: "tx1", items: [] },
 		]);
-		expect(await getTransactionRow(database, "tx1")).toEqual({ id: "tx1" });
+		expect(await getTransactionRowsInRange(database, 1, 2)).toEqual([
+			{ id: "tx2", items: [] },
+		]);
+		expect(await getTransactionRow(database, "tx1")).toEqual({
+			id: "tx1",
+			items: [],
+		});
 		expect(await getBudgetRows(database)).toEqual([{ id: "b1" }]);
 		expect(await getBudgetRow(database, "b1")).toEqual({ id: "b1" });
 		expect(await getExchangeRateRows(database)).toEqual([
@@ -183,7 +283,7 @@ describe("financeRepository", () => {
 
 	it("writes source/category/simple-entity rows and checks names", async () => {
 		const database = {
-			runAsync: vi.fn(async () => {}),
+			runAsync: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
 			getFirstAsync: vi
 				.fn()
 				.mockResolvedValueOnce({ id: "x" })
@@ -325,7 +425,7 @@ describe("financeRepository", () => {
 
 	it("writes and deletes transaction, budget and misc rows", async () => {
 		const database = {
-			runAsync: vi.fn(async () => {}),
+			runAsync: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
 			withTransactionAsync: vi.fn(
 				async (callback: () => Promise<void>) => {
 					await callback();
@@ -336,15 +436,15 @@ describe("financeRepository", () => {
 		await createTransactionRow(
 			database,
 			{
-				classification: "EXPENSE",
+				classification: "GENERAL",
 				type: "TRANSFER",
 				sourceId: "s1",
-				destinationSourceId: null,
+				destinationSourceId: undefined,
 				amount: "10",
-				toAmount: null,
-				categoryId: null,
-				tripId: null,
-				investmentId: null,
+				toAmount: undefined,
+				categoryId: undefined,
+				tripId: undefined,
+				investmentId: undefined,
 				reason: "r",
 				transactionAt: 100,
 			},
@@ -354,7 +454,7 @@ describe("financeRepository", () => {
 		expect(database.runAsync).toHaveBeenCalledWith(
 			expect.stringContaining("INSERT INTO transactions"),
 			"tx1",
-			"EXPENSE",
+			"GENERAL",
 			"TRANSFER",
 			"s1",
 			null,
@@ -372,7 +472,7 @@ describe("financeRepository", () => {
 		await updateTransactionRow(
 			database,
 			{
-				classification: "INCOME",
+				classification: "GENERAL",
 				type: "CREDIT",
 				sourceId: "s2",
 				destinationSourceId: "s3",
@@ -389,7 +489,7 @@ describe("financeRepository", () => {
 		);
 		expect(database.runAsync).toHaveBeenCalledWith(
 			expect.stringContaining("UPDATE transactions SET"),
-			"INCOME",
+			"GENERAL",
 			"CREDIT",
 			"s2",
 			"s3",
@@ -472,7 +572,7 @@ describe("financeRepository", () => {
 		await upsertExchangeRateRow(database, {
 			currencyCode: "USD",
 			rateToInr: "83.5",
-			source: "api",
+			source: "API",
 			fetchedAt: 1,
 			updatedAt: 2,
 		});
@@ -480,7 +580,7 @@ describe("financeRepository", () => {
 			expect.stringContaining("INSERT INTO exchange_rates"),
 			"USD",
 			"83.5",
-			"api",
+			"API",
 			1,
 			2,
 		);
@@ -509,7 +609,7 @@ describe("financeRepository", () => {
 
 	it("writes investment rows and manages investment types", async () => {
 		const database = {
-			runAsync: vi.fn(async () => {}),
+			runAsync: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
 			getAllAsync: vi.fn().mockResolvedValueOnce([{ id: "type1" }]),
 			getFirstAsync: vi
 				.fn()

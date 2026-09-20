@@ -1,18 +1,25 @@
-import AppError from "@/errors/AppError";
+import type TestAsyncFunction from "@/types/testing/TestAsyncFunction";
+import type TestCallback from "@/types/testing/TestCallback";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-	getDocumentAsync: vi.fn(async () => ({ canceled: true })),
+	getDocumentAsync: vi
+		.fn<TestAsyncFunction>()
+		.mockResolvedValue({ canceled: true }),
 	isAvailableAsync: vi.fn(async () => true),
-	shareAsync: vi.fn(async () => {}),
-	backupDatabaseAsync: vi.fn(async () => {}),
+	shareAsync: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
+	backupDatabaseAsync: vi
+		.fn<TestAsyncFunction>()
+		.mockResolvedValue(undefined),
+	migrateDatabase: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
 	openDatabaseAsync: vi.fn(async () => ({
-		closeAsync: vi.fn(async () => {}),
+		closeAsync: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
+		getFirstAsync: vi.fn(async () => ({ count: 4 })),
 	})),
 	fileBytes: vi.fn(async () => new Uint8Array([1, 2, 3])),
-	fileCreate: vi.fn(() => {}),
-	fileWrite: vi.fn(() => {}),
-	fileDelete: vi.fn(() => {}),
+	fileCreate: vi.fn<TestCallback>().mockReturnValue(undefined),
+	fileWrite: vi.fn<TestCallback>().mockReturnValue(undefined),
+	fileDelete: vi.fn<TestCallback>().mockReturnValue(undefined),
 	tempFileStartsExisting: true,
 	tempFileExistsAfterCreate: true,
 }));
@@ -25,8 +32,8 @@ vi.mock("@/constants/appConstants", () => ({
 	},
 }));
 
-vi.mock("@/database/schema", () => ({
-	default: "SCHEMA_SQL",
+vi.mock("@/database/migrations", () => ({
+	default: mocks.migrateDatabase,
 }));
 
 vi.mock("expo-document-picker", () => ({
@@ -94,7 +101,7 @@ import backupService from "@/services/backupService";
 const database = {
 	getFirstAsync: vi.fn(async () => ({ integrity: "ok" })),
 	serializeAsync: vi.fn(async () => new Uint8Array([5, 6])),
-	execAsync: vi.fn(async () => {}),
+	execAsync: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
 } as any;
 
 describe("backupService", () => {
@@ -130,7 +137,7 @@ describe("backupService", () => {
 		database.getFirstAsync.mockResolvedValueOnce({ integrity: "corrupt" });
 		await expect(
 			backupService.exportBackup(database),
-		).rejects.toMatchObject<AppError>({
+		).rejects.toMatchObject({
 			code: "DATABASE_INTEGRITY_FAILED",
 		});
 
@@ -138,7 +145,7 @@ describe("backupService", () => {
 		mocks.isAvailableAsync.mockResolvedValueOnce(false);
 		await expect(
 			backupService.exportBackup(database),
-		).rejects.toMatchObject<AppError>({
+		).rejects.toMatchObject({
 			code: "SHARING_UNAVAILABLE",
 		});
 	});
@@ -155,7 +162,7 @@ describe("backupService", () => {
 		});
 		await expect(
 			backupService.restoreBackup(database),
-		).rejects.toMatchObject<AppError>({
+		).rejects.toMatchObject({
 			code: "BACKUP_NOT_SELECTED",
 		});
 
@@ -165,14 +172,20 @@ describe("backupService", () => {
 		});
 		await expect(
 			backupService.restoreBackup(database),
-		).rejects.toMatchObject<AppError>({
+		).rejects.toMatchObject({
 			code: "INVALID_BACKUP_EXTENSION",
 		});
 	});
 
 	it("restoreBackup copies file, restores DB, and cleans up", async () => {
-		const closeAsync = vi.fn(async () => {});
-		mocks.openDatabaseAsync.mockResolvedValueOnce({ closeAsync });
+		const closeAsync = vi
+			.fn<TestAsyncFunction>()
+			.mockResolvedValue(undefined);
+		const tempDatabase = {
+			closeAsync,
+			getFirstAsync: vi.fn(async () => ({ count: 4 })),
+		};
+		mocks.openDatabaseAsync.mockResolvedValueOnce(tempDatabase);
 		mocks.getDocumentAsync.mockResolvedValueOnce({
 			canceled: false,
 			assets: [{ uri: "file://ok.purplecoins", name: "ok.purplecoins" }],
@@ -182,9 +195,12 @@ describe("backupService", () => {
 		expect(mocks.backupDatabaseAsync).toHaveBeenCalledWith(
 			expect.objectContaining({ destDatabase: database }),
 		);
-		expect(database.execAsync).toHaveBeenNthCalledWith(1, "SCHEMA_SQL");
+		expect(mocks.migrateDatabase).toHaveBeenCalledWith(tempDatabase);
+		expect(mocks.migrateDatabase.mock.invocationCallOrder[0]).toBeLessThan(
+			mocks.backupDatabaseAsync.mock.invocationCallOrder[0] ?? 0,
+		);
 		expect(database.execAsync).toHaveBeenNthCalledWith(
-			2,
+			1,
 			"PRAGMA wal_checkpoint(TRUNCATE);",
 		);
 		expect(closeAsync).toHaveBeenCalled();
@@ -192,8 +208,13 @@ describe("backupService", () => {
 	});
 
 	it("restoreBackup skips temp-file deletes when file does not exist", async () => {
-		const closeAsync = vi.fn(async () => {});
-		mocks.openDatabaseAsync.mockResolvedValueOnce({ closeAsync });
+		const closeAsync = vi
+			.fn<TestAsyncFunction>()
+			.mockResolvedValue(undefined);
+		mocks.openDatabaseAsync.mockResolvedValueOnce({
+			closeAsync,
+			getFirstAsync: vi.fn(async () => ({ count: 4 })),
+		});
 		mocks.tempFileStartsExisting = false;
 		mocks.tempFileExistsAfterCreate = false;
 		mocks.getDocumentAsync.mockResolvedValueOnce({
@@ -204,5 +225,49 @@ describe("backupService", () => {
 		expect(await backupService.restoreBackup(database)).toBe(true);
 		expect(closeAsync).toHaveBeenCalled();
 		expect(mocks.fileDelete).not.toHaveBeenCalled();
+	});
+
+	it("keeps the live database untouched if the backup migration fails", async () => {
+		const closeAsync = vi
+			.fn<TestAsyncFunction>()
+			.mockResolvedValue(undefined);
+		mocks.openDatabaseAsync.mockResolvedValueOnce({
+			closeAsync,
+			getFirstAsync: vi.fn(async () => ({ count: 4 })),
+		});
+		mocks.getDocumentAsync.mockResolvedValueOnce({
+			canceled: false,
+			assets: [
+				{ uri: "file://old.purplecoins", name: "old.purplecoins" },
+			],
+		});
+		mocks.migrateDatabase.mockRejectedValueOnce(
+			new Error("upgrade failed"),
+		);
+		await expect(backupService.restoreBackup(database)).rejects.toThrow(
+			"upgrade failed",
+		);
+		expect(mocks.backupDatabaseAsync).not.toHaveBeenCalled();
+		expect(database.execAsync).not.toHaveBeenCalled();
+		expect(closeAsync).toHaveBeenCalledOnce();
+		expect(mocks.fileDelete).toHaveBeenCalled();
+	});
+
+	it("rejects an unrelated SQLite file before replacing live data", async () => {
+		mocks.openDatabaseAsync.mockResolvedValueOnce({
+			closeAsync: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
+			getFirstAsync: vi.fn(async () => ({ count: 0 })),
+		});
+		mocks.getDocumentAsync.mockResolvedValueOnce({
+			canceled: false,
+			assets: [
+				{ uri: "file://other.purplecoins", name: "other.purplecoins" },
+			],
+		});
+		await expect(
+			backupService.restoreBackup(database),
+		).rejects.toMatchObject({ code: "INVALID_BACKUP_DATABASE" });
+		expect(mocks.migrateDatabase).not.toHaveBeenCalled();
+		expect(mocks.backupDatabaseAsync).not.toHaveBeenCalled();
 	});
 });

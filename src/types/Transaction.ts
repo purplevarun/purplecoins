@@ -1,4 +1,5 @@
 import type TransactionClassification from "@/types/TransactionClassification";
+import type TransactionItem from "@/types/TransactionItem";
 import type TransactionType from "@/types/TransactionType";
 
 type Transaction = Readonly<{
@@ -24,6 +25,7 @@ type Transaction = Readonly<{
 	tripName: string | null;
 	investmentName: string | null;
 	hasAttachment: boolean;
+	items: readonly TransactionItem[];
 }>;
 
 export type { Transaction as default };

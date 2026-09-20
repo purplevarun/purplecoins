@@ -12,7 +12,7 @@ const normalizeMoney = (value: string): string => {
 	}
 
 	const amount = new Decimal(trimmedValue);
-	if (!amount.isPositive()) {
+	if (!amount.greaterThan(0)) {
 		throw new AppError(
 			"INVALID_AMOUNT",
 			"Amount must be greater than zero.",

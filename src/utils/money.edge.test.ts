@@ -6,25 +6,25 @@ describe("money utilities defensive branches", () => {
 		vi.doMock("decimal.js", () => ({
 			default: class DecimalMock {
 				constructor(_value: string) {}
-				isPositive(): boolean {
+				greaterThan(): boolean {
 					return false;
 				}
 				toFixed(): string {
 					return "1";
 				}
-				plus(): DecimalMock {
+				plus(): this {
 					return this;
 				}
-				minus(): DecimalMock {
+				minus(): this {
 					return this;
 				}
-				times(): DecimalMock {
+				times(): this {
 					return this;
 				}
 				comparedTo(): number {
 					return 0;
 				}
-				abs(): DecimalMock {
+				abs(): this {
 					return this;
 				}
 				toNumber(): number {

@@ -12,7 +12,7 @@ import dateUtils from "@/utils/date";
 import moneyUtils from "@/utils/money";
 const { getTransactionDisplayReason } = transactionService;
 const { formatDate } = dateUtils;
-const { formatMoney } = moneyUtils;
+const { formatMoney, sumMoney } = moneyUtils;
 
 const getTransactionColor = (transaction: Transaction): string => {
 	if (transaction.type === "CREDIT") {
@@ -38,10 +38,24 @@ const getTransactionIcon = (
 
 const TransactionCard = ({
 	transaction,
+	categoryId,
 	onPress,
 	onLongPress,
 }: TransactionCardProps): React.JSX.Element => {
 	const color = getTransactionColor(transaction);
+	const isExpense =
+		transaction.classification === "GENERAL" &&
+		transaction.type === "DEBIT";
+	const categories = isExpense
+		? [...new Set(transaction.items.map((item) => item.categoryName))].join(
+				", ",
+			)
+		: (transaction.categoryName ?? "");
+	const matchedItems =
+		categoryId && isExpense
+			? transaction.items.filter((item) => item.categoryId === categoryId)
+			: [];
+	const matchedCategory = matchedItems[0]?.categoryName;
 
 	return (
 		<Pressable onPress={onPress} onLongPress={onLongPress}>
@@ -82,8 +96,13 @@ const TransactionCard = ({
 								? transaction.investmentName
 								: transaction.type === "TRANSFER"
 									? `${transaction.sourceName} -> ${transaction.destinationSourceName ?? ""}`
-									: `${transaction.sourceName} · ${transaction.categoryName ?? ""}`}
+									: `${transaction.sourceName} · ${categories}`}
 						</CustomText>
+						{matchedCategory && transaction.items.length > 1 ? (
+							<CustomText
+								style={styles.meta}
+							>{`${matchedCategory}: ${formatMoney(sumMoney(matchedItems.map((item) => item.amount)), transaction.sourceCurrencyCode)} of ${formatMoney(transaction.amount, transaction.sourceCurrencyCode)}`}</CustomText>
+						) : null}
 						{transaction.tripName ? (
 							<CustomText style={styles.trip}>
 								{transaction.tripName}

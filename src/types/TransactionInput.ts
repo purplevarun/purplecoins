@@ -1,4 +1,5 @@
 import type TransactionClassification from "@/types/TransactionClassification";
+import type TransactionItemInput from "@/types/TransactionItemInput";
 import type TransactionType from "@/types/TransactionType";
 
 type TransactionInput = Readonly<{
@@ -14,6 +15,7 @@ type TransactionInput = Readonly<{
 	investmentId?: string;
 	reason: string;
 	transactionAt: number;
+	items?: readonly TransactionItemInput[];
 }>;
 
 export type { TransactionInput as default };

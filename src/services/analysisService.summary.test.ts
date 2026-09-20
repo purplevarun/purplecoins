@@ -1,10 +1,11 @@
+import type TestAsyncFunction from "@/types/testing/TestAsyncFunction";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-	getCategoryRows: vi.fn(async () => []),
-	getExchangeRateRows: vi.fn(async () => []),
-	getInvestmentRows: vi.fn(async () => []),
-	getTransactionRowsInRange: vi.fn(async () => []),
+	getCategoryRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
+	getExchangeRateRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
+	getInvestmentRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
+	getTransactionRowsInRange: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
 }));
 
 vi.mock("@/constants/appConstants", () => ({
@@ -63,6 +64,7 @@ describe("analysisService summary", () => {
 				type: "DEBIT",
 				amount: "40",
 				categoryId: "rent",
+				items: [{ categoryId: "rent", amount: "40" }],
 				sourceCurrencyCode: "EUR",
 				createdAt: NOW,
 				updatedAt: NOW,
@@ -83,7 +85,7 @@ describe("analysisService summary", () => {
 				sourceId: "s1",
 				reason: "c",
 			},
-		] as any);
+		]);
 
 		const summary = await analysisService.getAnalysisSummary(database, {
 			dateRange: { start: 1, end: 2 },
@@ -109,9 +111,10 @@ describe("analysisService summary", () => {
 				type: "DEBIT",
 				amount: "10",
 				categoryId: "c1",
+				items: [{ categoryId: "c1", amount: "10" }],
 				sourceCurrencyCode: "EUR",
 			},
-		] as any);
+		]);
 
 		const summary = await analysisService.getAnalysisSummary(database, {
 			dateRange: { start: 1, end: 2 },
@@ -140,9 +143,10 @@ describe("analysisService summary", () => {
 				type: "DEBIT",
 				amount: "40",
 				categoryId: "rent",
+				items: [{ categoryId: "rent", amount: "40" }],
 				sourceCurrencyCode: "INR",
 			},
-		] as any);
+		]);
 
 		const summary = await analysisService.getAnalysisSummary(database, {
 			dateRange: { start: 1, end: 2 },

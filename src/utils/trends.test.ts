@@ -27,6 +27,7 @@ const buildTransaction = (
 	tripName: null,
 	investmentName: null,
 	hasAttachment: false,
+	items: [],
 	...overrides,
 });
 

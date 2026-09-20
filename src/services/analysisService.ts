@@ -61,51 +61,62 @@ const buildCategoryAnalysis = (
 	transactions.forEach((transaction) => {
 		if (
 			transaction.classification !== "GENERAL" ||
-			transaction.type === "TRANSFER" ||
-			!transaction.categoryId
+			transaction.type === "TRANSFER"
 		) {
 			return;
 		}
-		const category = categoryMap.get(transaction.categoryId);
-		if (!category) {
-			return;
-		}
-		const amount = convertAmount(
-			transaction.amount,
-			transaction.sourceCurrencyCode,
-			isNativeCurrency,
-			rateMap,
-		);
-		if (!amount) {
-			return;
-		}
-		const currencyCode = isNativeCurrency
-			? transaction.sourceCurrencyCode
-			: DEFAULT_CURRENCY_CODE;
-		const key = `${category.id}:${currencyCode}`;
-		const current = totals.get(key) ?? {
-			categoryId: category.id,
-			categoryName: category.name,
-			isIncome: Boolean(category.isIncome),
-			currencyCode,
-			credits: ZERO_AMOUNT,
-			debits: ZERO_AMOUNT,
-			net: ZERO_AMOUNT,
-		};
-		const credits =
-			transaction.type === "CREDIT"
-				? addMoney(current.credits, amount)
-				: current.credits;
-		const debits =
+		const allocations =
 			transaction.type === "DEBIT"
-				? addMoney(current.debits, amount)
-				: current.debits;
-		totals.set(key, {
-			...current,
-			credits,
-			debits,
-			net: subtractMoney(credits, debits),
-		});
+				? transaction.items
+				: [
+						{
+							categoryId: transaction.categoryId,
+							amount: transaction.amount,
+						},
+					];
+		for (const allocation of allocations) {
+			if (!allocation.categoryId) continue;
+			const category = categoryMap.get(allocation.categoryId);
+			if (!category) {
+				continue;
+			}
+			const amount = convertAmount(
+				allocation.amount,
+				transaction.sourceCurrencyCode,
+				isNativeCurrency,
+				rateMap,
+			);
+			if (!amount) {
+				continue;
+			}
+			const currencyCode = isNativeCurrency
+				? transaction.sourceCurrencyCode
+				: DEFAULT_CURRENCY_CODE;
+			const key = `${category.id}:${currencyCode}`;
+			const current = totals.get(key) ?? {
+				categoryId: category.id,
+				categoryName: category.name,
+				isIncome: Boolean(category.isIncome),
+				currencyCode,
+				credits: ZERO_AMOUNT,
+				debits: ZERO_AMOUNT,
+				net: ZERO_AMOUNT,
+			};
+			const credits =
+				transaction.type === "CREDIT"
+					? addMoney(current.credits, amount)
+					: current.credits;
+			const debits =
+				transaction.type === "DEBIT"
+					? addMoney(current.debits, amount)
+					: current.debits;
+			totals.set(key, {
+				...current,
+				credits,
+				debits,
+				net: subtractMoney(credits, debits),
+			});
+		}
 	});
 
 	return [...totals.values()].sort((left, right) =>

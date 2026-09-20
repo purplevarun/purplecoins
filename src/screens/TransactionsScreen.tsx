@@ -1,3 +1,4 @@
+import type ListItemProps from "@/types/ListItemProps";
 import { Ionicons } from "@expo/vector-icons";
 import {
 	useCallback,
@@ -210,7 +211,16 @@ const TransactionsScreen = ({
 					formatDate(t.transactionAt).toLowerCase().includes(q) ||
 					formatMoney(t.amount, t.sourceCurrencyCode)
 						.replace(/,/g, "")
-						.includes(q)
+						.includes(q) ||
+					t.items.some(
+						(item) =>
+							item.categoryName.toLowerCase().includes(q) ||
+							item.amount.includes(q) ||
+							formatMoney(item.amount, t.sourceCurrencyCode)
+								.replace(/,/g, "")
+								.toLowerCase()
+								.includes(q),
+					)
 				);
 			});
 		}
@@ -218,7 +228,9 @@ const TransactionsScreen = ({
 	}, [filter, transactions, searchDebounced]);
 
 	const renderTransaction = useCallback(
-		({ item: transaction }: { item: Transaction }): React.JSX.Element => (
+		({
+			item: transaction,
+		}: ListItemProps<Transaction>): React.JSX.Element => (
 			<TransactionCard
 				transaction={transaction}
 				onPress={() =>

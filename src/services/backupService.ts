@@ -1,8 +1,10 @@
 import * as DocumentPicker from "expo-document-picker";
 
 import appConstants from "@/constants/appConstants";
-import SCHEMA_SQL from "@/database/schema";
+import migrateDatabase from "@/database/migrations";
 import AppError from "@/errors/AppError";
+import type DatabaseCountRow from "@/types/DatabaseCountRow";
+import type DatabaseIntegrityResult from "@/types/DatabaseIntegrityResult";
 import { File, Paths } from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import {
@@ -19,9 +21,9 @@ const createBackupFileName = (): string => {
 };
 
 const exportBackup = async (database: SQLiteDatabase): Promise<void> => {
-	const integrity = await database.getFirstAsync<
-		Readonly<{ integrity: string }>
-	>("SELECT integrity_check AS integrity FROM pragma_integrity_check;");
+	const integrity = await database.getFirstAsync<DatabaseIntegrityResult>(
+		"SELECT integrity_check AS integrity FROM pragma_integrity_check;",
+	);
 	if (integrity?.integrity !== "ok") {
 		throw new AppError(
 			"DATABASE_INTEGRITY_FAILED",
@@ -71,23 +73,32 @@ const restoreBackup = async (database: SQLiteDatabase): Promise<boolean> => {
 		TEMP_RESTORE_DB_NAME,
 	);
 	if (tempFile.exists) tempFile.delete();
-	tempFile.create({ overwrite: true });
-	tempFile.write(await pickedFile.bytes());
-
-	const tempDatabase = await openDatabaseAsync(TEMP_RESTORE_DB_NAME);
-
+	let tempDatabase: SQLiteDatabase | undefined;
 	try {
+		tempFile.create({ overwrite: true });
+		tempFile.write(await pickedFile.bytes());
+		tempDatabase = await openDatabaseAsync(TEMP_RESTORE_DB_NAME);
+		const tables = await tempDatabase.getFirstAsync<DatabaseCountRow>(
+			`SELECT COUNT(*) AS count FROM sqlite_master WHERE type = 'table'
+			 AND name IN ('transactions', 'sources', 'categories', 'attachments');`,
+		);
+		if (tables?.count !== 4) {
+			throw new AppError(
+				"INVALID_BACKUP_DATABASE",
+				"This file is not a Purplecoins database.",
+			);
+		}
+		await migrateDatabase(tempDatabase);
 		await backupDatabaseAsync({
 			sourceDatabase: tempDatabase,
 			destDatabase: database,
 		});
 
-		await database.execAsync(SCHEMA_SQL);
 		await database.execAsync("PRAGMA wal_checkpoint(TRUNCATE);");
 
 		return true;
 	} finally {
-		await tempDatabase.closeAsync();
+		await tempDatabase?.closeAsync();
 		if (tempFile.exists) tempFile.delete();
 	}
 };

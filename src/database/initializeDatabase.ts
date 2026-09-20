@@ -1,16 +1,19 @@
 import appConstants from "@/constants/appConstants";
 
-import SCHEMA_SQL from "@/database/schema";
+import migrateDatabase from "@/database/migrations";
 import { openDatabaseAsync, type SQLiteDatabase } from "expo-sqlite";
 
 const { DATABASE_NAME } = appConstants;
 
 const initializeDatabase = async (): Promise<SQLiteDatabase> => {
 	const database = await openDatabaseAsync(DATABASE_NAME);
-
-	await database.execAsync(SCHEMA_SQL);
-
-	return database;
+	try {
+		await migrateDatabase(database);
+		return database;
+	} catch (error) {
+		await database.closeAsync();
+		throw error;
+	}
 };
 
 export default initializeDatabase;

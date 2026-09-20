@@ -1,3 +1,4 @@
+import type Transaction from "@/types/Transaction";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const reactMocks = vi.hoisted(() => ({
@@ -9,7 +10,7 @@ const transactionServiceMocks = vi.hoisted(() => ({
 }));
 
 vi.mock("react", async (importOriginal) => {
-	const actual = (await importOriginal()) as typeof import("react");
+	const actual = await importOriginal<typeof import("react")>();
 	return {
 		...actual,
 		useState: reactMocks.useState,
@@ -48,8 +49,9 @@ vi.mock("@/utils/date", () => ({
 	},
 }));
 
-vi.mock("@/utils/money", () => ({
+vi.mock("@/utils/money", async (importOriginal) => ({
 	default: {
+		...(await importOriginal<typeof import("@/utils/money")>()).default,
 		formatMoney: vi.fn(
 			(amount: string, currencyCode: string) =>
 				`${currencyCode}:${amount}`,
@@ -113,7 +115,8 @@ const findAppButtonByLabel = (node: any, label: string): any =>
 		(button) => button?.props?.label === label,
 	);
 
-const baseTransaction = {
+const baseTransaction: Transaction = {
+	items: [],
 	id: "t1",
 	classification: "GENERAL",
 	type: "DEBIT",
@@ -156,7 +159,7 @@ describe("advanced components", () => {
 				{ label: "F", value: 60, color: "#666" },
 				{ label: "G", value: 70, color: "#777" },
 			],
-		} as any);
+		});
 		expect(findAllByType(chartWithData, "Circle")).toHaveLength(8);
 		const legendRows = findAllByType(chartWithData, "View").filter(
 			(view) => view?.props?.style?.gap === 8,
@@ -166,7 +169,7 @@ describe("advanced components", () => {
 		const chartWithoutData = DonutChart({
 			centerLabel: "INR 0",
 			data: [{ label: "A", value: 0, color: "#111" }],
-		} as any);
+		});
 		expect(findAllByType(chartWithoutData, "Circle")).toHaveLength(1);
 	});
 
@@ -258,6 +261,77 @@ describe("advanced components", () => {
 			onPress,
 		} as any);
 		expect(hasTextContaining(debitWithoutCategory, "Cash · ")).toBe(true);
+	});
+
+	it("shows one split payment total and the matching category allocation", () => {
+		expect(
+			hasTextContaining(
+				TransactionCard({
+					transaction: {
+						...baseTransaction,
+						type: "CREDIT",
+						categoryName: null,
+					},
+					onPress: vi.fn(),
+				}),
+				"Cash · ",
+			),
+		).toBe(true);
+		const transaction: Transaction = {
+			...baseTransaction,
+			amount: "200",
+			categoryId: null,
+			items: [
+				{
+					id: "one",
+					transactionId: "t1",
+					categoryId: "food",
+					categoryName: "Food",
+					amount: "50",
+					position: 0,
+					createdAt: 1,
+					updatedAt: 1,
+				},
+				{
+					id: "two",
+					transactionId: "t1",
+					categoryId: "grocery",
+					categoryName: "Grocery",
+					amount: "100",
+					position: 1,
+					createdAt: 1,
+					updatedAt: 1,
+				},
+				{
+					id: "three",
+					transactionId: "t1",
+					categoryId: "food",
+					categoryName: "Food",
+					amount: "50",
+					position: 2,
+					createdAt: 1,
+					updatedAt: 1,
+				},
+			],
+		};
+		const tree = TransactionCard({
+			transaction,
+			categoryId: "food",
+			onPress: vi.fn(),
+		});
+		expect(hasTextContaining(tree, "Cash · Food, Grocery")).toBe(true);
+		expect(hasTextContaining(tree, "-INR:200")).toBe(true);
+		expect(hasTextContaining(tree, "Food: INR:100 of INR:200")).toBe(true);
+		expect(
+			hasTextContaining(
+				TransactionCard({
+					transaction,
+					categoryId: "missing",
+					onPress: vi.fn(),
+				}),
+				" of ",
+			),
+		).toBe(false);
 	});
 
 	it("covers FolderFilterChips selection and action flows", async () => {
@@ -401,7 +475,7 @@ describe("advanced components", () => {
 			folders: [],
 			selectedFolderId: "__ALL_FOLDERS__",
 			onSelectFolder: vi.fn(),
-		} as any);
+		});
 
 		const allChip = findPressableByText(tree, "All");
 		expect(allChip).toBeTruthy();
@@ -425,7 +499,7 @@ describe("advanced components", () => {
 			selectedFolderId: "",
 			onSelectFolder: vi.fn(),
 			onDeleteFolder,
-		} as any);
+		});
 
 		const modal = findAllByType(tree, "Modal")[0];
 		const deletePressable = findPressableByText(modal, "Delete");

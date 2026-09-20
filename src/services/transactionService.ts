@@ -1,17 +1,23 @@
 import AppError from "@/errors/AppError";
 import financeRepository from "@/repositories/financeRepository";
+import attachmentService from "@/services/attachmentService";
+import type AttachmentInput from "@/types/AttachmentInput";
 import type DateRange from "@/types/DateRange";
 import type LinkedTransactionFilter from "@/types/LinkedTransactionFilter";
 import type Transaction from "@/types/Transaction";
 import type TransactionCursor from "@/types/TransactionCursor";
 import type TransactionInput from "@/types/TransactionInput";
+import type TransactionItemInput from "@/types/TransactionItemInput";
+import type TransactionPage from "@/types/TransactionPage";
 import createId from "@/utils/id";
 import moneyUtils from "@/utils/money";
 import type { SQLiteDatabase } from "expo-sqlite";
 
 const {
 	createTransactionRow,
+	createTransactionItemRow,
 	deleteTransactionRow,
+	deleteTransactionItemRows,
 	getCategoryRow,
 	getSourceRow,
 	getTransactionPageRows,
@@ -19,7 +25,8 @@ const {
 	getTransactionRows,
 	updateTransactionRow,
 } = financeRepository;
-const { compareMoney, normalizeMoney } = moneyUtils;
+const { compareMoney, normalizeMoney, sumMoney } = moneyUtils;
+const { saveAttachment, deleteAttachment } = attachmentService;
 const TRANSACTION_PAGE_SIZE = 10;
 
 const mapTransaction = (transaction: Transaction): Transaction => ({
@@ -40,7 +47,7 @@ const getTransactions = async (
 const getTransactionPage = async (
 	database: SQLiteDatabase,
 	cursor?: TransactionCursor,
-): Promise<{ transactions: readonly Transaction[]; hasMore: boolean }> => {
+): Promise<TransactionPage> => {
 	const rows = await getTransactionPageRows(
 		database,
 		TRANSACTION_PAGE_SIZE + 1,
@@ -63,7 +70,12 @@ const isLinkedTransaction = (
 		);
 	}
 	if (filter.kind === "CATEGORY") {
-		return transaction.categoryId === filter.entityId;
+		return (
+			transaction.categoryId === filter.entityId ||
+			transaction.items.some(
+				(item) => item.categoryId === filter.entityId,
+			)
+		);
 	}
 	if (filter.kind === "TRIP") {
 		return transaction.tripId === filter.entityId;
@@ -102,13 +114,14 @@ const validateRequiredInvestmentReason = (reason: string): string => {
 
 const resolveGeneralTransactionReason = async (
 	database: SQLiteDatabase,
-	input: TransactionInput,
+	categoryId: string,
+	reason: string,
 ): Promise<string> => {
-	const normalizedReason = input.reason.trim();
+	const normalizedReason = reason.trim();
 	if (normalizedReason) {
 		return normalizedReason;
 	}
-	const category = await getCategoryRow(database, input.categoryId);
+	const category = await getCategoryRow(database, categoryId);
 	if (!category) {
 		throw new AppError(
 			"CATEGORY_NOT_FOUND",
@@ -118,10 +131,65 @@ const resolveGeneralTransactionReason = async (
 	return category.name.trim();
 };
 
+const prepareExpenseInput = async (
+	database: SQLiteDatabase,
+	input: TransactionInput,
+): Promise<TransactionInput> => {
+	if (!input.items?.length) {
+		throw new AppError(
+			"TRANSACTION_ITEMS_REQUIRED",
+			"Add at least one expense item.",
+		);
+	}
+	const items: TransactionItemInput[] = [];
+	const categoryNames = new Set<string>();
+	for (const [position, item] of input.items.entries()) {
+		try {
+			if (!item.categoryId)
+				throw new AppError("CATEGORY_REQUIRED", "Select a category.");
+			const amount = normalizeMoney(item.amount);
+			const category = await getCategoryRow(database, item.categoryId);
+			if (!category)
+				throw new AppError(
+					"CATEGORY_NOT_FOUND",
+					"The selected category no longer exists.",
+				);
+			items.push({ ...item, amount });
+			categoryNames.add(category.name.trim());
+		} catch (error) {
+			if (error instanceof AppError)
+				throw new AppError(
+					error.code,
+					`Item ${position + 1}: ${error.message}`,
+				);
+			throw error;
+		}
+	}
+	return {
+		...input,
+		items,
+		amount: sumMoney(items.map((item) => item.amount)),
+		reason: input.reason.trim() || [...categoryNames].join(", "),
+		categoryId: undefined,
+		investmentId: undefined,
+		destinationSourceId: undefined,
+		toAmount: undefined,
+	};
+};
+
 const prepareTransactionInput = async (
 	database: SQLiteDatabase,
 	input: TransactionInput,
 ): Promise<TransactionInput> => {
+	if (input.classification === "GENERAL" && input.type === "DEBIT") {
+		return prepareExpenseInput(database, input);
+	}
+	if (input.items !== undefined) {
+		throw new AppError(
+			"TRANSACTION_ITEMS_UNSUPPORTED",
+			"Only expenses can contain items.",
+		);
+	}
 	const amount = normalizeMoney(input.amount);
 	if (input.classification === "INVESTMENT") {
 		if (!input.investmentId) {
@@ -146,7 +214,11 @@ const prepareTransactionInput = async (
 		return {
 			...input,
 			amount,
-			reason: await resolveGeneralTransactionReason(database, input),
+			reason: await resolveGeneralTransactionReason(
+				database,
+				input.categoryId,
+				input.reason,
+			),
 			investmentId: undefined,
 			destinationSourceId: undefined,
 			toAmount: undefined,
@@ -203,18 +275,63 @@ const prepareTransactionInput = async (
 const saveTransaction = async (
 	database: SQLiteDatabase,
 	input: TransactionInput,
+	attachment?: AttachmentInput | null,
 ): Promise<string> => {
 	if (!input.sourceId) {
 		throw new AppError("SOURCE_REQUIRED", "Select a source.");
 	}
-	const preparedInput = await prepareTransactionInput(database, input);
-	const now = Date.now();
 	const id = input.id ?? createId();
-	if (input.id) {
-		await updateTransactionRow(database, preparedInput, id, now);
-		return id;
-	}
-	await createTransactionRow(database, preparedInput, id, now);
+	await database.withTransactionAsync(async () => {
+		const transaction = database;
+		const preparedInput = await prepareTransactionInput(transaction, input);
+		const existing = input.id
+			? await getTransactionRow(transaction, id)
+			: null;
+		if (input.id && !existing)
+			throw new AppError(
+				"TRANSACTION_NOT_FOUND",
+				"This transaction no longer exists.",
+			);
+		const previousItems = new Map(
+			existing?.items.map((item) => [item.id, item]),
+		);
+		const retainedIds = new Set<string>();
+		for (const item of preparedInput.items ?? []) {
+			if (
+				item.id !== undefined &&
+				(!previousItems.has(item.id) || retainedIds.has(item.id))
+			) {
+				throw new AppError(
+					"TRANSACTION_ITEM_INVALID",
+					"An expense item does not belong to this payment or was added twice.",
+				);
+			}
+			if (item.id) retainedIds.add(item.id);
+		}
+		const now = Date.now();
+		if (existing) {
+			await deleteTransactionItemRows(transaction, id);
+			await updateTransactionRow(transaction, preparedInput, id, now);
+		} else {
+			await createTransactionRow(transaction, preparedInput, id, now);
+		}
+		for (const [position, item] of (preparedInput.items ?? []).entries()) {
+			await createTransactionItemRow(transaction, {
+				id: item.id ?? createId(),
+				transactionId: id,
+				categoryId: item.categoryId,
+				amount: item.amount,
+				position,
+				createdAt: previousItems.get(item.id ?? "")?.createdAt ?? now,
+				updatedAt: now,
+			});
+		}
+		if (attachment === null) {
+			await deleteAttachment(transaction, "TRANSACTION", id);
+		} else if (attachment !== undefined) {
+			await saveAttachment(transaction, "TRANSACTION", id, attachment);
+		}
+	});
 	return id;
 };
 

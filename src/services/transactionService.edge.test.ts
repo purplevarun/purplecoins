@@ -1,13 +1,19 @@
-import AppError from "@/errors/AppError";
+import type TestAsyncFunction from "@/types/testing/TestAsyncFunction";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-	createTransactionRow: vi.fn(async () => {}),
-	deleteTransactionRow: vi.fn(async () => {}),
-	getSourceRow: vi.fn(async () => null),
-	getTransactionRow: vi.fn(async () => null),
-	getTransactionRows: vi.fn(async () => []),
-	updateTransactionRow: vi.fn(async () => {}),
+	createTransactionRow: vi
+		.fn<TestAsyncFunction>()
+		.mockResolvedValue(undefined),
+	deleteTransactionRow: vi
+		.fn<TestAsyncFunction>()
+		.mockResolvedValue(undefined),
+	getSourceRow: vi.fn<TestAsyncFunction>().mockResolvedValue(null),
+	getTransactionRow: vi.fn<TestAsyncFunction>().mockResolvedValue(null),
+	getTransactionRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
+	updateTransactionRow: vi
+		.fn<TestAsyncFunction>()
+		.mockResolvedValue(undefined),
 	createId: vi.fn(() => "edge-transaction-id"),
 	compareMoney: vi.fn(() => 1),
 	normalizeMoney: vi.fn((value: string) => value.trim()),
@@ -28,6 +34,8 @@ vi.mock("@/utils/id", () => ({
 	default: mocks.createId,
 }));
 
+vi.mock("@/services/attachmentService", () => ({ default: {} }));
+
 vi.mock("@/utils/money", () => ({
 	default: {
 		compareMoney: mocks.compareMoney,
@@ -37,7 +45,9 @@ vi.mock("@/utils/money", () => ({
 
 import transactionService from "@/services/transactionService";
 
-const database = {} as any;
+const database = {
+	withTransactionAsync: async (callback: () => Promise<void>) => callback(),
+} as any;
 
 describe("transactionService defensive transfer validation", () => {
 	beforeEach(() => {
@@ -60,6 +70,7 @@ describe("transactionService defensive transfer validation", () => {
 
 		await expect(
 			transactionService.saveTransaction(database, {
+				transactionAt: 1,
 				classification: "GENERAL",
 				type: "TRANSFER",
 				sourceId: "s1",
@@ -68,6 +79,6 @@ describe("transactionService defensive transfer validation", () => {
 				toAmount: "10",
 				reason: "move",
 			}),
-		).rejects.toMatchObject<AppError>({ code: "TRANSFER_AMOUNT_MISMATCH" });
+		).rejects.toMatchObject({ code: "TRANSFER_AMOUNT_MISMATCH" });
 	});
 });

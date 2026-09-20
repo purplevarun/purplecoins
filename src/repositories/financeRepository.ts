@@ -9,7 +9,9 @@ import type SimpleEntity from "@/types/SimpleEntity";
 import type Source from "@/types/Source";
 import type Transaction from "@/types/Transaction";
 import type TransactionCursor from "@/types/TransactionCursor";
+import type TransactionDateBounds from "@/types/TransactionDateBounds";
 import type TransactionInput from "@/types/TransactionInput";
+import type TransactionItem from "@/types/TransactionItem";
 import type Trip from "@/types/Trip";
 
 const TRANSACTION_SELECT = `
@@ -188,7 +190,7 @@ const sourceNameExistsRow = async (
 	excludeId?: string,
 ): Promise<boolean> => {
 	const row = excludeId
-		? await database.getFirstAsync<{ id: string }>(
+		? await database.getFirstAsync<Pick<SimpleEntity, "id">>(
 				`
 					SELECT id FROM sources
 					WHERE lower(name) = lower(?)
@@ -199,7 +201,7 @@ const sourceNameExistsRow = async (
 				name,
 				excludeId,
 			)
-		: await database.getFirstAsync<{ id: string }>(
+		: await database.getFirstAsync<Pick<SimpleEntity, "id">>(
 				`
 					SELECT id FROM sources
 					WHERE lower(name) = lower(?)
@@ -232,7 +234,12 @@ const getCategoryRows = async (
 			category.updated_at AS updatedAt,
 			COALESCE(category.archived, 0) AS archived
 		FROM categories category
-		LEFT JOIN transactions txn ON txn.category_id = category.id
+		LEFT JOIN (
+			SELECT id, category_id, created_at FROM transactions WHERE category_id IS NOT NULL
+			UNION
+			SELECT txn.id, item.category_id, txn.created_at
+			FROM transaction_items item JOIN transactions txn ON txn.id = item.transaction_id
+		) txn ON txn.category_id = category.id
 		WHERE COALESCE(category.archived, 0) = 0
 			${isIncome === undefined ? "" : "AND category.is_income = ?"}
 		GROUP BY category.id
@@ -328,7 +335,7 @@ const categoryNameExistsRow = async (
 	excludeId?: string,
 ): Promise<boolean> => {
 	const row = excludeId
-		? await database.getFirstAsync<{ id: string }>(
+		? await database.getFirstAsync<Pick<SimpleEntity, "id">>(
 				`
 					SELECT id FROM categories
 					WHERE lower(name) = lower(?)
@@ -339,7 +346,7 @@ const categoryNameExistsRow = async (
 				name,
 				excludeId,
 			)
-		: await database.getFirstAsync<{ id: string }>(
+		: await database.getFirstAsync<Pick<SimpleEntity, "id">>(
 				`
 					SELECT id FROM categories
 					WHERE lower(name) = lower(?)
@@ -464,14 +471,10 @@ const getInvestmentRow = async (
 
 const upsertInvestmentRow = async (
 	database: SQLiteDatabase,
-	investment: Readonly<{
-		id: string;
-		name: string;
-		label: string | null;
-		investmentTypeId: string | null;
-		createdAt: number;
-		updatedAt: number;
-	}>,
+	investment: Pick<
+		Investment,
+		"id" | "name" | "label" | "investmentTypeId" | "createdAt" | "updatedAt"
+	>,
 ): Promise<void> => {
 	await database.runAsync(
 		`
@@ -525,7 +528,7 @@ const investmentTypeNameExistsRow = async (
 	database: SQLiteDatabase,
 	name: string,
 ): Promise<boolean> => {
-	const row = await database.getFirstAsync<{ id: string }>(
+	const row = await database.getFirstAsync<Pick<SimpleEntity, "id">>(
 		`SELECT id FROM investment_types WHERE lower(name) = lower(?) LIMIT 1;`,
 		name,
 	);
@@ -582,7 +585,7 @@ const simpleEntityNameExistsRow = async (
 	excludeId?: string,
 ): Promise<boolean> => {
 	const row = excludeId
-		? await database.getFirstAsync<{ id: string }>(
+		? await database.getFirstAsync<Pick<SimpleEntity, "id">>(
 				`
 					SELECT id FROM ${tableName}
 					WHERE lower(name) = lower(?)
@@ -593,7 +596,7 @@ const simpleEntityNameExistsRow = async (
 				name,
 				excludeId,
 			)
-		: await database.getFirstAsync<{ id: string }>(
+		: await database.getFirstAsync<Pick<SimpleEntity, "id">>(
 				`
 					SELECT id FROM ${tableName}
 					WHERE lower(name) = lower(?)
@@ -607,8 +610,8 @@ const simpleEntityNameExistsRow = async (
 
 const getTransactionMinMaxDate = async (
 	database: SQLiteDatabase,
-): Promise<{ minDate: number; maxDate: number } | null> =>
-	database.getFirstAsync<{ minDate: number; maxDate: number }>(
+): Promise<TransactionDateBounds | null> =>
+	database.getFirstAsync<TransactionDateBounds>(
 		`SELECT MIN(transaction_at) AS minDate, MAX(transaction_at) AS maxDate FROM transactions;`,
 	);
 
@@ -617,11 +620,14 @@ const getTransactionRows = async (
 	start?: number,
 	end?: number,
 ): Promise<readonly Transaction[]> =>
-	database.getAllAsync<Transaction>(
-		start === undefined || end === undefined
-			? `${TRANSACTION_SELECT} ORDER BY t.transaction_at DESC, t.created_at DESC;`
-			: `${TRANSACTION_SELECT} WHERE t.transaction_at BETWEEN ? AND ? ORDER BY t.transaction_at DESC, t.created_at DESC;`,
-		...(start === undefined || end === undefined ? [] : [start, end]),
+	hydrateTransactionItems(
+		database,
+		await database.getAllAsync<Omit<Transaction, "items">>(
+			start === undefined || end === undefined
+				? `${TRANSACTION_SELECT} ORDER BY t.transaction_at DESC, t.created_at DESC;`
+				: `${TRANSACTION_SELECT} WHERE t.transaction_at BETWEEN ? AND ? ORDER BY t.transaction_at DESC, t.created_at DESC;`,
+			...(start === undefined || end === undefined ? [] : [start, end]),
+		),
 	);
 
 const getTransactionPageRows = async (
@@ -629,11 +635,14 @@ const getTransactionPageRows = async (
 	limit: number,
 	cursor?: TransactionCursor,
 ): Promise<readonly Transaction[]> =>
-	database.getAllAsync<Transaction>(
-		`${TRANSACTION_SELECT}
+	hydrateTransactionItems(
+		database,
+		await database.getAllAsync<Omit<Transaction, "items">>(
+			`${TRANSACTION_SELECT}
 			${cursor ? "WHERE (t.created_at, t.id) < (?, ?)" : ""}
 			ORDER BY t.created_at DESC, t.id DESC LIMIT ?;`,
-		...(cursor ? [cursor.createdAt, cursor.id, limit] : [limit]),
+			...(cursor ? [cursor.createdAt, cursor.id, limit] : [limit]),
+		),
 	);
 
 const getTransactionRowsInRange = async (
@@ -641,24 +650,106 @@ const getTransactionRowsInRange = async (
 	start: number,
 	end: number,
 ): Promise<readonly Transaction[]> =>
-	database.getAllAsync<Transaction>(
-		`
+	hydrateTransactionItems(
+		database,
+		await database.getAllAsync<Omit<Transaction, "items">>(
+			`
 			${TRANSACTION_SELECT}
 			WHERE t.transaction_at BETWEEN ? AND ?
 			ORDER BY t.transaction_at DESC, t.created_at DESC;
 		`,
-		start,
-		end,
+			start,
+			end,
+		),
 	);
 
 const getTransactionRow = async (
 	database: SQLiteDatabase,
 	id: string,
-): Promise<Transaction | null> =>
-	database.getFirstAsync<Transaction>(
+): Promise<Transaction | null> => {
+	const row = await database.getFirstAsync<Omit<Transaction, "items">>(
 		`${TRANSACTION_SELECT} WHERE t.id = ?;`,
 		id,
 	);
+	const [transaction] = await hydrateTransactionItems(
+		database,
+		row ? [row] : [],
+	);
+	return transaction ?? null;
+};
+
+const getTransactionItemRows = async (
+	database: SQLiteDatabase,
+	transactionIds: readonly string[],
+): Promise<readonly TransactionItem[]> => {
+	const items: TransactionItem[] = [];
+	for (let offset = 0; offset < transactionIds.length; offset += 500) {
+		const ids = transactionIds.slice(offset, offset + 500);
+		items.push(
+			...(await database.getAllAsync<TransactionItem>(
+				`SELECT item.id, item.transaction_id AS transactionId, item.category_id AS categoryId,
+			 category.name AS categoryName, item.amount, item.position,
+			 item.created_at AS createdAt, item.updated_at AS updatedAt
+			 FROM transaction_items item JOIN categories category ON category.id = item.category_id
+			 WHERE item.transaction_id IN (${ids.map(() => "?").join(", ")})
+			 ORDER BY item.transaction_id, item.position;`,
+				...ids,
+			)),
+		);
+	}
+	return items;
+};
+
+const hydrateTransactionItems = async (
+	database: SQLiteDatabase,
+	transactions: readonly Omit<Transaction, "items">[],
+): Promise<readonly Transaction[]> => {
+	const expenseIds = transactions
+		.filter(
+			(transaction) =>
+				transaction.classification === "GENERAL" &&
+				transaction.type === "DEBIT",
+		)
+		.map((transaction) => transaction.id);
+	const items = await getTransactionItemRows(database, expenseIds);
+	const itemsByTransaction = new Map<string, TransactionItem[]>();
+	for (const item of items) {
+		const siblings = itemsByTransaction.get(item.transactionId) ?? [];
+		siblings.push(item);
+		itemsByTransaction.set(item.transactionId, siblings);
+	}
+	return transactions.map((transaction) => ({
+		...transaction,
+		items: itemsByTransaction.get(transaction.id) ?? [],
+	}));
+};
+
+const createTransactionItemRow = async (
+	database: SQLiteDatabase,
+	item: Omit<TransactionItem, "categoryName">,
+): Promise<void> => {
+	await database.runAsync(
+		`INSERT INTO transaction_items (id, transaction_id, category_id, amount, position, created_at, updated_at)
+		 VALUES (?, ?, ?, ?, ?, ?, ?);`,
+		item.id,
+		item.transactionId,
+		item.categoryId,
+		item.amount,
+		item.position,
+		item.createdAt,
+		item.updatedAt,
+	);
+};
+
+const deleteTransactionItemRows = async (
+	database: SQLiteDatabase,
+	id: string,
+): Promise<void> => {
+	await database.runAsync(
+		"DELETE FROM transaction_items WHERE transaction_id = ?;",
+		id,
+	);
+};
 
 const createTransactionRow = async (
 	database: SQLiteDatabase,
@@ -853,11 +944,13 @@ const financeRepository = {
 	categoryNameExistsRow,
 	createSourceRow,
 	createTransactionRow,
+	createTransactionItemRow,
 	deleteBudgetRow,
 	deleteCategoryRow,
 	deleteSimpleEntityRow,
 	deleteSourceRow,
 	deleteTransactionRow,
+	deleteTransactionItemRows,
 	getArchivedCategoryRows,
 	getArchivedInvestmentRows,
 	getArchivedSourceRows,
@@ -873,6 +966,7 @@ const financeRepository = {
 	getSourceRow,
 	getSourceRows,
 	getTransactionMinMaxDate,
+	getTransactionItemRows,
 	getTransactionPageRows,
 	getTransactionRow,
 	getTransactionRows,
