@@ -589,13 +589,43 @@ describe("transactionService", () => {
 		expect(mocks.updateTransactionRow).toHaveBeenCalledWith(
 			database,
 			expect.objectContaining({
-				categoryId: undefined,
+				categoryId: "c1",
 				investmentId: undefined,
 			}),
 			"existing",
 			new Date("2026-08-25T12:00:00.000Z").getTime(),
 		);
 		expect(mocks.createTransactionRow).not.toHaveBeenCalled();
+	});
+
+	it("retries a split expense without its primary category for an existing item schema", async () => {
+		mocks.getCategoryRow.mockResolvedValueOnce({ id: "c1", name: "Food" });
+		mocks.createTransactionRow
+			.mockRejectedValueOnce(new Error("CHECK constraint failed"))
+			.mockResolvedValueOnce(undefined);
+		await transactionService.saveTransaction(database, {
+			transactionAt: 1,
+			classification: "GENERAL",
+			type: "DEBIT",
+			sourceId: "s1",
+			amount: "10",
+			reason: "Food",
+			items: [{ categoryId: "c1", amount: "10" }],
+		});
+		expect(mocks.createTransactionRow).toHaveBeenNthCalledWith(
+			1,
+			database,
+			expect.objectContaining({ categoryId: "c1" }),
+			expect.any(String),
+			expect.any(Number),
+		);
+		expect(mocks.createTransactionRow).toHaveBeenNthCalledWith(
+			2,
+			database,
+			expect.objectContaining({ categoryId: undefined }),
+			expect.any(String),
+			expect.any(Number),
+		);
 	});
 
 	it("deletes transaction via repository wrapper", async () => {

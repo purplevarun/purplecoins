@@ -106,7 +106,7 @@ describe("split expense persistence", () => {
 			id,
 			amount: "200",
 			reason: "Supermart shopping",
-			categoryId: null,
+			categoryId: "food",
 			hasAttachment: true,
 		});
 		expect(

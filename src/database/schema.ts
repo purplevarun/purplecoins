@@ -99,6 +99,19 @@ CREATE TABLE IF NOT EXISTS transactions (
 	)
 );
 
+CREATE TABLE IF NOT EXISTS transaction_items (
+	id TEXT PRIMARY KEY NOT NULL,
+	transaction_id TEXT NOT NULL,
+	category_id TEXT NOT NULL,
+	amount TEXT NOT NULL CHECK (CAST(amount AS REAL) > 0),
+	position INTEGER NOT NULL CHECK (position >= 0),
+	created_at INTEGER NOT NULL,
+	updated_at INTEGER NOT NULL,
+	FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE CASCADE,
+	FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE RESTRICT,
+	UNIQUE (transaction_id, position)
+);
+
 CREATE TABLE IF NOT EXISTS budgets (
 	id TEXT PRIMARY KEY NOT NULL,
 	category_id TEXT NOT NULL,
@@ -219,6 +232,8 @@ CREATE INDEX IF NOT EXISTS idx_transactions_investment
 	ON transactions(investment_id);
 CREATE INDEX IF NOT EXISTS idx_investments_type
 	ON investments(investment_type_id);
+CREATE INDEX IF NOT EXISTS idx_transaction_items_category
+	ON transaction_items(category_id);
 CREATE INDEX IF NOT EXISTS idx_attachments_owner
 	ON attachments(owner_type, owner_id);
 `;

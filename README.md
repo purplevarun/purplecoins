@@ -105,17 +105,17 @@ Settings can export the live database as
 including attachment BLOBs. Restore checks the picked file before replacing
 local data.
 
-### Automatic Database Upgrades
+### Automatic Database Migrations
 
-The app applies versioned migrations automatically on startup, for both new and
-existing installations. Existing expenses become single-item payments without
-changing payment IDs, totals, timestamps, or receipts. No reinstall or manual SQL
-is required. Completed upgrades are not repeated on later launches.
+The app creates missing tables automatically, then runs its idempotent migration
+SQL on every startup. This works for new installations and existing databases.
+Existing expenses receive one transaction item without changing payment IDs,
+totals, timestamps, or receipts. No reinstall or manual SQL is required.
 
-Restoring an older backup upgrades and validates a temporary copy before replacing
+Restoring a backup runs the same migrations on a temporary copy before replacing
 the live database. A failed migration leaves the live database and picked backup
-untouched. Databases from a newer, unsupported app version are rejected rather
-than downgraded. Older app versions may not understand upgraded backup files.
+untouched. Older app versions may not understand backups written by newer app
+versions.
 
 **Privacy:** Backups are unencrypted and may include passwords, card details,
 identities, and financial records. Keep them private. Backup files remain ignored
