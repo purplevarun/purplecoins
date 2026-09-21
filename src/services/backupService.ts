@@ -1,7 +1,8 @@
 import * as DocumentPicker from "expo-document-picker";
 
 import appConstants from "@/constants/appConstants";
-import migrateDatabase from "@/database/migrations";
+import SCHEMA_MIGRATIONS from "@/database/migrations";
+import SCHEMA_SQL from "@/database/schema";
 import AppError from "@/errors/AppError";
 import type DatabaseCountRow from "@/types/DatabaseCountRow";
 import type DatabaseIntegrityResult from "@/types/DatabaseIntegrityResult";
@@ -49,7 +50,7 @@ const TEMP_RESTORE_DB_NAME = "restore-temp.db";
 
 const restoreBackup = async (database: SQLiteDatabase): Promise<boolean> => {
 	const result = await DocumentPicker.getDocumentAsync({
-		type: [BACKUP_MIME_TYPE, "application/octet-stream", "*/*"],
+		type: "*/*",
 		copyToCacheDirectory: true,
 		multiple: false,
 	});
@@ -60,7 +61,7 @@ const restoreBackup = async (database: SQLiteDatabase): Promise<boolean> => {
 	if (!asset) {
 		throw new AppError("BACKUP_NOT_SELECTED", "No backup was selected.");
 	}
-	if (!asset.name.toLowerCase().endsWith(BACKUP_EXTENSION)) {
+	if (!asset.name.toLowerCase().endsWith(BACKUP_EXTENSION.toLowerCase())) {
 		throw new AppError(
 			"INVALID_BACKUP_EXTENSION",
 			`Select a ${BACKUP_EXTENSION} file.`,
@@ -80,15 +81,18 @@ const restoreBackup = async (database: SQLiteDatabase): Promise<boolean> => {
 		tempDatabase = await openDatabaseAsync(TEMP_RESTORE_DB_NAME);
 		const tables = await tempDatabase.getFirstAsync<DatabaseCountRow>(
 			`SELECT COUNT(*) AS count FROM sqlite_master WHERE type = 'table'
-			 AND name IN ('transactions', 'sources', 'categories', 'attachments');`,
+			 AND name IN ('transactions', 'sources', 'categories', 'attachments', 'transaction_items');`,
 		);
-		if (tables?.count !== 4) {
+		if (tables?.count !== 5) {
 			throw new AppError(
 				"INVALID_BACKUP_DATABASE",
 				"This file is not a Purplecoins database.",
 			);
 		}
-		await migrateDatabase(tempDatabase);
+		await tempDatabase.execAsync(SCHEMA_SQL);
+		for (const migration of SCHEMA_MIGRATIONS) {
+			await tempDatabase.execAsync(migration);
+		}
 		await backupDatabaseAsync({
 			sourceDatabase: tempDatabase,
 			destDatabase: database,
