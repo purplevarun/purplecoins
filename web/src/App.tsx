@@ -1,7 +1,6 @@
 import {
   ArrowUpRight,
   ChevronDown,
-  Download,
   GitFork,
   RefreshCw,
   ShieldCheck,
@@ -109,21 +108,10 @@ function App() {
           <p className="app-subtitle">Track every penny</p>
 
           <div className="download-actions">
-            <a
-              className="download-button"
-              href={release.downloadUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => {
-                if (installGuide.current) installGuide.current.open = true
-              }}
-            >
-              <Download size={21} aria-hidden="true" />
-              Download APK
+            <a className="download-button" href={release.notesUrl} target="_blank" rel="noreferrer">
+              <ArrowUpRight size={21} aria-hidden="true" />
+              View latest release
               <span className="button-platform">Android</span>
-            </a>
-            <a className="release-link" href={release.notesUrl} target="_blank" rel="noreferrer">
-              Download on GitHub <ArrowUpRight size={15} aria-hidden="true" />
             </a>
           </div>
 

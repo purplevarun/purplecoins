@@ -45,16 +45,17 @@ valid release metadata, rather than publishing a guessed APK link.
 
 ## Download Behavior
 
-The page links directly to the APK's `browser_download_url`, so clicking Download
-starts the file download without visiting the release page. The browser may still
-ask for download confirmation. The current release has one versioned APK; future
-releases with multiple architecture-specific APKs need an explicitly named
-`universal` APK to avoid choosing the wrong build for a visitor's phone.
+The page links to GitHub's `/releases/latest` page, where visitors can choose the
+current APK and review its release notes before downloading. The page still checks
+the release metadata at build time and in the browser to show the current version,
+size, and date. The current release has one versioned APK; future releases with
+multiple architecture-specific APKs need an explicitly named `universal` APK to
+avoid choosing the wrong build for a visitor's phone.
 
 The browser refreshes the latest release metadata on load. If GitHub is unreachable
-or rate-limits the request, the page retains the build-time download and labels it
-as the last fetched release, with a retry button. No API tokens, analytics, external
-font requests, or application data are used in the client.
+or rate-limits the request, the page retains the build-time release details and
+labels them as the last fetched release, with a retry button. No API tokens,
+analytics, external font requests, or application data are used in the client.
 
 ## GitHub Pages
 

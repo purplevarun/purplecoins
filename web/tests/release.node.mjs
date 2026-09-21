@@ -18,16 +18,13 @@ const release = (overrides = {}) => ({
   ...overrides,
 })
 
-test('resolves the versioned APK to a direct download, not a release page', () => {
+test('resolves the latest release page and APK metadata', () => {
   const result = parseRelease(release())
   assert.equal(result.version, '2026.8.29')
   assert.equal(result.downloadUrl, asset().browser_download_url)
   assert.equal(result.name, asset().name)
   assert.equal(result.size, asset().size)
-  assert.equal(
-    result.notesUrl,
-    'https://github.com/purplevarun/purplecoins/releases/tag/v2026.8.29',
-  )
+  assert.equal(result.notesUrl, 'https://github.com/purplevarun/purplecoins/releases/latest')
 })
 
 test('selects the APK alongside non-APK release assets', () => {

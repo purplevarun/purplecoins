@@ -70,7 +70,7 @@ export function parseRelease(value: unknown): Release {
     name: asset.name,
     size: asset.size,
     downloadUrl: asset.browser_download_url,
-    notesUrl: `${REPOSITORY_URL}/releases/tag/${encodeURIComponent(value.tag_name)}`,
+    notesUrl: `${REPOSITORY_URL}/releases/latest`,
   }
 }
 
