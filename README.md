@@ -105,17 +105,21 @@ Settings can export the live database as
 including attachment BLOBs. Restore checks the picked file before replacing
 local data.
 
-### Automatic Database Migrations
+### Database Setup
 
-The app creates missing tables automatically, then runs its idempotent migration
-SQL on every startup. This works for new installations and existing databases.
-Existing expenses receive one transaction item without changing payment IDs,
-totals, timestamps, or receipts. No reinstall or manual SQL is required.
+The app creates any missing current-schema tables automatically. The empty
+`SCHEMA_MIGRATIONS` array is reserved for future SQL migrations and runs after
+schema creation for both fresh databases and restored backups.
 
-Restoring a backup runs the same migrations on a temporary copy before replacing
-the live database. A failed migration leaves the live database and picked backup
-untouched. Older app versions may not understand backups written by newer app
-versions.
+Backups must already contain the current schema, including transaction items.
+Restore validates this before replacing live data. Older app versions may not
+understand backups written by newer app versions.
+
+### App Updates
+
+Settings can check the latest GitHub release. When its release name differs from
+the installed version, the app downloads the release APK and opens Android's
+installer. Android may ask you to allow installs from Purplecoins first.
 
 **Privacy:** Backups are unencrypted and may include passwords, card details,
 identities, and financial records. Keep them private. Backup files remain ignored
