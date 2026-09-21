@@ -67,8 +67,8 @@ CREATE TABLE IF NOT EXISTS transactions (
 	CHECK (
 		(
 			classification = 'GENERAL'
-			AND type IN ('DEBIT', 'CREDIT')
-			AND category_id IS NOT NULL
+			AND ((type = 'DEBIT' AND category_id IS NULL)
+				OR (type = 'CREDIT' AND category_id IS NOT NULL))
 			AND investment_id IS NULL
 			AND destination_source_id IS NULL
 			AND to_amount IS NULL

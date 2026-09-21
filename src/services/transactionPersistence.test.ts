@@ -8,7 +8,8 @@ vi.mock("expo-document-picker", () => ({}));
 vi.mock("expo-file-system", () => ({}));
 vi.mock("expo-sharing", () => ({}));
 
-import migrateDatabase from "@/database/migrations";
+import SCHEMA_MIGRATIONS from "@/database/migrations";
+import SCHEMA_SQL from "@/database/schema";
 import financeRepository from "@/repositories/financeRepository";
 import analysisService from "@/services/analysisService";
 import sourceService from "@/services/sourceService";
@@ -18,7 +19,10 @@ const createFixture = async (): Promise<
 	ReturnType<typeof createTestDatabase>
 > => {
 	const result = createTestDatabase();
-	await migrateDatabase(result.database);
+	await result.database.execAsync(SCHEMA_SQL);
+	for (const migration of SCHEMA_MIGRATIONS) {
+		await result.database.execAsync(migration);
+	}
 	result.sqlite.exec(`
 		INSERT INTO sources VALUES ('bank', 'Bank', 'INR', NULL, NULL, 1, 2);
 		INSERT INTO categories VALUES ('food', 'Food', 0, NULL, 1, 2);
@@ -106,7 +110,7 @@ describe("split expense persistence", () => {
 			id,
 			amount: "200",
 			reason: "Supermart shopping",
-			categoryId: "food",
+			categoryId: null,
 			hasAttachment: true,
 		});
 		expect(

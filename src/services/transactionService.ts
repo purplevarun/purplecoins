@@ -171,7 +171,7 @@ const prepareExpenseInput = async (
 		items,
 		amount: sumMoney(items.map((item) => item.amount)),
 		reason: input.reason.trim() || [...categoryNames].join(", "),
-		categoryId: items[0]?.categoryId,
+		categoryId: undefined,
 		investmentId: undefined,
 		destinationSourceId: undefined,
 		toAmount: undefined,
@@ -273,34 +273,6 @@ const prepareTransactionInput = async (
 	};
 };
 
-const isCategoryConstraintError = (error: unknown): boolean =>
-	error instanceof Error && /CHECK constraint failed/i.test(error.message);
-
-const saveTransactionRow = async (
-	database: SQLiteDatabase,
-	input: TransactionInput,
-	id: string,
-	now: number,
-	existing: Transaction | null,
-): Promise<TransactionInput> => {
-	const save = async (transaction: TransactionInput): Promise<void> => {
-		if (existing) {
-			await updateTransactionRow(database, transaction, id, now);
-			return;
-		}
-		await createTransactionRow(database, transaction, id, now);
-	};
-	try {
-		await save(input);
-		return input;
-	} catch (error) {
-		if (!input.categoryId || !isCategoryConstraintError(error)) throw error;
-		const fallbackInput = { ...input, categoryId: undefined };
-		await save(fallbackInput);
-		return fallbackInput;
-	}
-};
-
 const saveTransaction = async (
 	database: SQLiteDatabase,
 	input: TransactionInput,
@@ -341,14 +313,12 @@ const saveTransaction = async (
 		if (existing) {
 			await deleteTransactionItemRows(transaction, id);
 		}
-		const savedInput = await saveTransactionRow(
-			transaction,
-			preparedInput,
-			id,
-			now,
-			existing,
-		);
-		for (const [position, item] of (savedInput.items ?? []).entries()) {
+		if (existing) {
+			await updateTransactionRow(transaction, preparedInput, id, now);
+		} else {
+			await createTransactionRow(transaction, preparedInput, id, now);
+		}
+		for (const [position, item] of (preparedInput.items ?? []).entries()) {
 			await createTransactionItemRow(transaction, {
 				id: item.id ?? createId(),
 				transactionId: id,
