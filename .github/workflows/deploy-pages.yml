@@ -6,8 +6,6 @@ on:
         paths:
             - "web/**"
             - ".github/workflows/deploy-pages.yml"
-    release:
-        types: [published, edited]
     schedule:
         - cron: "17 6 * * *"
     workflow_dispatch:
