@@ -9,6 +9,8 @@ const reactMocks = vi.hoisted(() => ({
 }));
 
 const serviceMocks = vi.hoisted(() => ({
+	checkForUpdate: vi.fn(),
+	downloadAndInstallUpdate: vi.fn(),
 	exportBackup: vi.fn(),
 	restoreBackup: vi.fn(),
 	getDefaultSourceId: vi.fn(),
@@ -98,6 +100,12 @@ vi.mock("@/services/tripService", () => ({
 		getTrips: serviceMocks.getTrips,
 	},
 }));
+vi.mock("@/services/updateService", () => ({
+	default: {
+		checkForUpdate: serviceMocks.checkForUpdate,
+		downloadAndInstallUpdate: serviceMocks.downloadAndInstallUpdate,
+	},
+}));
 
 vi.mock("@/utils/error", () => ({
 	default: (caughtError: unknown) =>
@@ -162,6 +170,8 @@ describe("SettingsScreen", () => {
 		serviceMocks.updateDefaultTripId.mockResolvedValue(undefined);
 		serviceMocks.exportBackup.mockResolvedValue(undefined);
 		serviceMocks.restoreBackup.mockResolvedValue(true);
+		serviceMocks.checkForUpdate.mockResolvedValue(null);
+		serviceMocks.downloadAndInstallUpdate.mockResolvedValue(undefined);
 		hookMocks.confirm.mockImplementation(({ onConfirm }: any) =>
 			onConfirm(),
 		);
@@ -402,6 +412,112 @@ describe("SettingsScreen", () => {
 
 		expect(serviceMocks.restoreBackup).toHaveBeenCalledWith({ id: "db" });
 	});
+
+	it("shows a current-version message when GitHub has no update", async () => {
+		const setMessage = vi.fn();
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: unknown) => {
+			stateCall += 1;
+			if (stateCall === 4) return ["", setMessage];
+			return [
+				typeof initial === "function"
+					? (initial as () => unknown)()
+					: initial,
+				vi.fn(),
+			];
+		});
+		const tree = SettingsScreen({
+			navigation: { navigate: vi.fn() },
+		} as any);
+		await flush();
+		findByPredicate(
+			tree,
+			(node) =>
+				node?.props?.label === "Check for update" &&
+				typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
+		await flush();
+		expect(serviceMocks.checkForUpdate).toHaveBeenCalledWith("2026.9.21");
+		expect(setMessage).toHaveBeenCalledWith(
+			"You are already on the latest version (2026.9.21).",
+		);
+	});
+
+	it("downloads an available update after confirmation", async () => {
+		const release = {
+			version: "2026.9.22",
+			name: "com.purple.coins_2026.9.22.apk",
+			downloadUrl:
+				"https://github.com/purplevarun/purplecoins/releases/download/v2026.9.22/com.purple.coins_2026.9.22.apk",
+			size: 123,
+		};
+		serviceMocks.checkForUpdate.mockResolvedValueOnce(release);
+		const tree = SettingsScreen({
+			navigation: { navigate: vi.fn() },
+		} as any);
+		await flush();
+		findByPredicate(
+			tree,
+			(node) => node?.props?.label === "Check for update",
+		)[0]?.props?.onPress();
+		await flush();
+		expect(hookMocks.confirm).toHaveBeenCalledWith(
+			expect.objectContaining({
+				title: "Update available",
+				confirmLabel: "Update",
+			}),
+		);
+		expect(serviceMocks.downloadAndInstallUpdate).toHaveBeenCalledWith(
+			release,
+		);
+	});
+
+	it.each(["check", "install"])(
+		"reports update %s errors",
+		async (operation) => {
+			const release = {
+				version: "2026.9.22",
+				name: "update.apk",
+				downloadUrl:
+					"https://github.com/purplevarun/purplecoins/releases/download/v2026.9.22/update.apk",
+				size: 123,
+			};
+			if (operation === "check") {
+				serviceMocks.checkForUpdate.mockRejectedValueOnce(
+					new Error("check failed"),
+				);
+			} else {
+				serviceMocks.checkForUpdate.mockResolvedValueOnce(release);
+				serviceMocks.downloadAndInstallUpdate.mockRejectedValueOnce(
+					new Error("install failed"),
+				);
+			}
+			const setError = vi.fn();
+			let stateCall = 0;
+			reactMocks.useState.mockImplementation((initial: unknown) => {
+				stateCall += 1;
+				if (stateCall === 3) return ["", setError];
+				return [
+					typeof initial === "function"
+						? (initial as () => unknown)()
+						: initial,
+					vi.fn(),
+				];
+			});
+			const tree = SettingsScreen({
+				navigation: { navigate: vi.fn() },
+			} as any);
+			await flush();
+			findByPredicate(
+				tree,
+				(node) => node?.props?.label === "Check for update",
+			)[0]?.props?.onPress();
+			await flush();
+			expect(setError).toHaveBeenCalledWith(
+				operation === "check" ? "check failed" : "install failed",
+			);
+		},
+	);
 
 	it("covers export and restore error branches", async () => {
 		serviceMocks.exportBackup.mockRejectedValueOnce(

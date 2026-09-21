@@ -18,6 +18,7 @@ import backupService from "@/services/backupService";
 import settingsService from "@/services/settingsService";
 import sourceService from "@/services/sourceService";
 import tripService from "@/services/tripService";
+import updateService from "@/services/updateService";
 import type SelectOption from "@/types/SelectOption";
 import type SettingsScreenProps from "@/types/SettingsScreenProps";
 import type Source from "@/types/Source";
@@ -38,6 +39,7 @@ const {
 } = settingsService;
 const { getSources } = sourceService;
 const { getTrips } = tripService;
+const { checkForUpdate, downloadAndInstallUpdate } = updateService;
 
 const { DEFAULT_FY_START_MONTH, MONTH_OPTIONS } = dateConstants;
 
@@ -60,6 +62,7 @@ const SettingsScreen = ({
 	const [trips, setTrips] = useState<readonly Trip[]>([]);
 	const [defaultSourceId, setDefaultSourceId] = useState("");
 	const [sources, setSources] = useState<readonly Source[]>([]);
+	const [isUpdating, setIsUpdating] = useState(false);
 
 	useEffect(() => {
 		const getSettings = async (): Promise<void> => {
@@ -157,6 +160,46 @@ const SettingsScreen = ({
 		});
 	};
 
+	const handleCheckForUpdate = async (): Promise<void> => {
+		setIsUpdating(true);
+		setError("");
+		setMessage("");
+		try {
+			const release = await checkForUpdate(version);
+			if (!release) {
+				setMessage(
+					`You are already on the latest version (${version}).`,
+				);
+				return;
+			}
+			setIsUpdating(false);
+			dialog.confirm({
+				title: "Update available",
+				message: `Version ${release.version} is ready to download and install.`,
+				confirmLabel: "Update",
+				onConfirm: () => {
+					const processUpdate = async (): Promise<void> => {
+						setIsUpdating(true);
+						try {
+							await downloadAndInstallUpdate(release);
+							setMessage(
+								"The Android installer has been opened.",
+							);
+						} catch (caughtError: unknown) {
+							setError(getErrorMessage(caughtError));
+						} finally {
+							setIsUpdating(false);
+						}
+					};
+					void processUpdate();
+				},
+			});
+		} catch (caughtError: unknown) {
+			setError(getErrorMessage(caughtError));
+			setIsUpdating(false);
+		}
+	};
+
 	const tripOptions: readonly SelectOption[] = [
 		{ label: "None", value: "" },
 		...trips.map((t) => ({ label: t.name, value: t.id })),
@@ -182,6 +225,20 @@ const SettingsScreen = ({
 					<CustomText style={styles.description}>
 						Track every penny
 					</CustomText>
+				</View>
+			</GlassCard>
+			<GlassCard>
+				<View style={styles.section}>
+					<CustomText style={styles.heading}>App update</CustomText>
+					<CustomText style={styles.description}>
+						Check GitHub for the latest Purplecoins APK.
+					</CustomText>
+					<AppButton
+						icon="cloud-download-outline"
+						isLoading={isUpdating}
+						label="Check for update"
+						onPress={() => void handleCheckForUpdate()}
+					/>
 				</View>
 			</GlassCard>
 			<GlassCard>
