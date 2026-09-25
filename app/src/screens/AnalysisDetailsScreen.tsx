@@ -1,7 +1,7 @@
 import CustomText from "@/components/CustomText";
 import EmptyState from "@/components/EmptyState";
 import GlassCard from "@/components/GlassCard";
-import ScreenList from "@/components/ScreenList";
+import PagedScreenList from "@/components/PagedScreenList";
 import COLORS from "@/constants/colors";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import analysisService from "@/services/analysisService";
@@ -272,7 +272,7 @@ const AnalysisDetailsScreen = ({
 				</CustomText>
 			) : null}
 			{view.type === "list" ? (
-				<ScreenList
+				<PagedScreenList
 					data={items}
 					keyExtractor={(
 						item: CategoryAnalysis | InvestmentAnalysis,

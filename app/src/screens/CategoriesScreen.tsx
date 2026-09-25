@@ -19,7 +19,7 @@ import GlassCard from "@/components/GlassCard";
 import HeaderIconButton from "@/components/HeaderIconButton";
 import ListHeader from "@/components/ListHeader";
 import Notice from "@/components/Notice";
-import ScreenList from "@/components/ScreenList";
+import PagedScreenList from "@/components/PagedScreenList";
 import SearchBar from "@/components/SearchBar";
 import SegmentedControl from "@/components/SegmentedControl";
 import COLORS from "@/constants/colors";
@@ -354,7 +354,7 @@ const CategoriesScreen = ({
 
 	return (
 		<View style={styles.screen}>
-			<ScreenList
+			<PagedScreenList
 				ListEmptyComponent={listEmpty}
 				ListHeaderComponent={listHeader}
 				data={filteredListData}

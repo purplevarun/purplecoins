@@ -19,6 +19,7 @@ import GlassCard from "@/components/GlassCard";
 import HeaderIconButton from "@/components/HeaderIconButton";
 import ListHeader from "@/components/ListHeader";
 import Notice from "@/components/Notice";
+import PagedScreenList from "@/components/PagedScreenList";
 import ScreenList from "@/components/ScreenList";
 import SearchBar from "@/components/SearchBar";
 import SegmentedControl from "@/components/SegmentedControl";
@@ -390,7 +391,7 @@ const TripsScreen = ({ navigation }: TripsScreenProps): React.JSX.Element => {
 					renderItem={renderTripTypeItem}
 				/>
 			) : (
-				<ScreenList<Trip>
+				<PagedScreenList<Trip>
 					key="TRIPS"
 					ListEmptyComponent={listEmpty}
 					ListHeaderComponent={listHeader}

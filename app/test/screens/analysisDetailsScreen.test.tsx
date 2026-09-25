@@ -43,8 +43,8 @@ vi.mock("@/components/EmptyState", () => ({
 vi.mock("@/components/GlassCard", () => ({
 	default: (props: any) => ({ type: "GlassCard", props }),
 }));
-vi.mock("@/components/ScreenList", () => ({
-	default: (props: any) => ({ type: "ScreenList", props }),
+vi.mock("@/components/PagedScreenList", () => ({
+	default: (props: any) => ({ type: "PagedScreenList", props }),
 }));
 vi.mock("@/hooks/useDatabaseContext", () => ({
 	default: () => ({ database: { id: "db" }, dataVersion: 1 }),

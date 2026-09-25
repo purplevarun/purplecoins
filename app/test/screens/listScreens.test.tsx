@@ -148,6 +148,9 @@ vi.mock("@/components/ListHeader", () => ({
 vi.mock("@/components/Notice", () => ({
 	default: (props: any) => ({ type: "Notice", props }),
 }));
+vi.mock("@/components/PagedScreenList", () => ({
+	default: (props: any) => ({ type: "PagedScreenList", props }),
+}));
 vi.mock("@/components/ScreenList", () => ({
 	default: (props: any) => ({ type: "ScreenList", props }),
 }));
