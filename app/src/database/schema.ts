@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS transactions (
 	category_id TEXT,
 	trip_id TEXT,
 	investment_id TEXT,
-	reason TEXT DEFAULT '',
+	reason TEXT,
 	transaction_at INTEGER,
 	created_at INTEGER,
 	updated_at INTEGER
@@ -122,7 +122,7 @@ CREATE TABLE IF NOT EXISTS todos (
 	id TEXT,
 	folder_id TEXT,
 	title TEXT,
-	description TEXT DEFAULT '',
+	description TEXT,
 	is_done INTEGER,
 	due_at INTEGER,
 	created_at INTEGER,
@@ -132,10 +132,10 @@ CREATE TABLE IF NOT EXISTS todos (
 CREATE TABLE IF NOT EXISTS passwords (
 	id TEXT,
 	title TEXT,
-	username TEXT DEFAULT '',
+	username TEXT,
 	password TEXT,
-	website TEXT DEFAULT '',
-	notes TEXT DEFAULT '',
+	website TEXT,
+	notes TEXT,
 	created_at INTEGER,
 	updated_at INTEGER
 );
@@ -144,12 +144,12 @@ CREATE TABLE IF NOT EXISTS cards (
 	id TEXT,
 	name TEXT,
 	card_number TEXT,
-	card_type TEXT DEFAULT 'CREDIT_CARD',
-	expiry TEXT DEFAULT '',
-	cvv TEXT DEFAULT '',
-	pin TEXT DEFAULT '',
-	network TEXT DEFAULT '',
-	notes TEXT DEFAULT '',
+	card_type TEXT,
+	expiry TEXT,
+	cvv TEXT,
+	pin TEXT,
+	network TEXT,
+	notes TEXT,
 	created_at INTEGER,
 	updated_at INTEGER
 );
@@ -157,8 +157,8 @@ CREATE TABLE IF NOT EXISTS cards (
 CREATE TABLE IF NOT EXISTS identities (
 	id TEXT,
 	title TEXT,
-	id_number TEXT DEFAULT '',
-	notes TEXT DEFAULT '',
+	id_number TEXT,
+	notes TEXT,
 	created_at INTEGER,
 	updated_at INTEGER
 );

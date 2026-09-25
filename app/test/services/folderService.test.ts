@@ -66,20 +66,9 @@ describe("folderService", () => {
 		);
 	});
 
-	it("maps foreign-key delete errors and rethrows others", async () => {
-		mocks.deleteFolderRow.mockRejectedValueOnce(
-			new Error("FOREIGN KEY constraint failed"),
-		);
-		await expect(
-			folderService.deleteFolder(database, "f1"),
-		).rejects.toMatchObject({
-			code: "FOLDER_IN_USE",
-		});
-
-		mocks.deleteFolderRow.mockRejectedValueOnce(new Error("disk issue"));
-		await expect(
-			folderService.deleteFolder(database, "f1"),
-		).rejects.toThrow("disk issue");
+	it("deletes folder", async () => {
+		await folderService.deleteFolder(database, "f1");
+		expect(mocks.deleteFolderRow).toHaveBeenCalledWith(database, "f1");
 	});
 
 	it("renames folder with lookup across NOTE and TODO", async () => {

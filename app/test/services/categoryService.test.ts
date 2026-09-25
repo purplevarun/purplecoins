@@ -146,7 +146,7 @@ describe("categoryService", () => {
 		);
 	});
 
-	it("archives category and handles delete errors", async () => {
+	it("archives and deletes category", async () => {
 		await categoryService.setCategoryArchived(database, "c1", true);
 		expect(mocks.setCategoryArchivedRow).toHaveBeenCalledWith(
 			database,
@@ -155,18 +155,7 @@ describe("categoryService", () => {
 			new Date("2026-08-25T12:00:00.000Z").getTime(),
 		);
 
-		mocks.deleteCategoryRow.mockRejectedValueOnce(
-			new Error("FOREIGN KEY failed"),
-		);
-		await expect(
-			categoryService.deleteCategory(database, "c1"),
-		).rejects.toMatchObject({
-			code: "CATEGORY_IN_USE",
-		});
-
-		mocks.deleteCategoryRow.mockRejectedValueOnce(new Error("other"));
-		await expect(
-			categoryService.deleteCategory(database, "c1"),
-		).rejects.toThrow("other");
+		await categoryService.deleteCategory(database, "c1");
+		expect(mocks.deleteCategoryRow).toHaveBeenCalledWith(database, "c1");
 	});
 });

@@ -94,19 +94,7 @@ const setInvestmentArchived = async (
 const deleteInvestment = async (
 	database: SQLiteDatabase,
 	id: string,
-): Promise<void> => {
-	try {
-		await deleteSimpleEntityRow(database, "investments", id);
-	} catch (error: unknown) {
-		if (error instanceof Error && error.message.includes("FOREIGN KEY")) {
-			throw new AppError(
-				"INVESTMENT_IN_USE",
-				"Investments linked to transactions cannot be deleted.",
-			);
-		}
-		throw error;
-	}
-};
+): Promise<void> => deleteSimpleEntityRow(database, "investments", id);
 
 const investmentService = {
 	deleteInvestment,

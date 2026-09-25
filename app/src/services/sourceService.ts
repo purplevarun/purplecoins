@@ -161,19 +161,7 @@ const setSourceArchived = async (
 const deleteSource = async (
 	database: SQLiteDatabase,
 	id: string,
-): Promise<void> => {
-	try {
-		await deleteSourceRow(database, id);
-	} catch (error: unknown) {
-		if (error instanceof Error && error.message.includes("FOREIGN KEY")) {
-			throw new AppError(
-				"SOURCE_IN_USE",
-				"Sources linked to transactions cannot be deleted.",
-			);
-		}
-		throw error;
-	}
-};
+): Promise<void> => deleteSourceRow(database, id);
 
 const sourceService = {
 	createSource,

@@ -85,19 +85,7 @@ const setCategoryArchived = async (
 const deleteCategory = async (
 	database: SQLiteDatabase,
 	id: string,
-): Promise<void> => {
-	try {
-		await deleteCategoryRow(database, id);
-	} catch (error: unknown) {
-		if (error instanceof Error && error.message.includes("FOREIGN KEY")) {
-			throw new AppError(
-				"CATEGORY_IN_USE",
-				"Categories linked to transactions or budgets cannot be deleted.",
-			);
-		}
-		throw error;
-	}
-};
+): Promise<void> => deleteCategoryRow(database, id);
 
 const categoryService = {
 	deleteCategory,

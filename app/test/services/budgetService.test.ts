@@ -100,33 +100,7 @@ describe("budgetService", () => {
 		);
 	});
 
-	it("maps duplicate constraint errors", async () => {
-		mocks.upsertBudgetRow.mockRejectedValueOnce(
-			new Error("UNIQUE constraint failed"),
-		);
-		await expect(
-			budgetService.saveBudget(
-				database,
-				undefined,
-				"cat1",
-				"100",
-				"MONTHLY",
-			),
-		).rejects.toMatchObject({ code: "DUPLICATE_BUDGET" });
-	});
-
-	it("rethrows unknown upsert errors and deletes budget", async () => {
-		mocks.upsertBudgetRow.mockRejectedValueOnce(new Error("disk"));
-		await expect(
-			budgetService.saveBudget(
-				database,
-				undefined,
-				"cat1",
-				"100",
-				"MONTHLY",
-			),
-		).rejects.toThrow("disk");
-
+	it("deletes budget", async () => {
 		await budgetService.deleteBudget(database, "b1");
 		expect(mocks.deleteBudgetRow).toHaveBeenCalledWith(database, "b1");
 	});

@@ -132,7 +132,7 @@ describe("investmentService", () => {
 		);
 	});
 
-	it("archives and deletes investment with fk error mapping", async () => {
+	it("archives and deletes investment", async () => {
 		await investmentService.setInvestmentArchived(database, "i1", true);
 		expect(mocks.setSimpleEntityArchivedRow).toHaveBeenCalledWith(
 			database,
@@ -142,18 +142,11 @@ describe("investmentService", () => {
 			new Date("2026-08-25T12:00:00.000Z").getTime(),
 		);
 
-		mocks.deleteSimpleEntityRow.mockRejectedValueOnce(
-			new Error("FOREIGN KEY failed"),
+		await investmentService.deleteInvestment(database, "i1");
+		expect(mocks.deleteSimpleEntityRow).toHaveBeenCalledWith(
+			database,
+			"investments",
+			"i1",
 		);
-		await expect(
-			investmentService.deleteInvestment(database, "i1"),
-		).rejects.toMatchObject({
-			code: "INVESTMENT_IN_USE",
-		});
-
-		mocks.deleteSimpleEntityRow.mockRejectedValueOnce(new Error("disk"));
-		await expect(
-			investmentService.deleteInvestment(database, "i1"),
-		).rejects.toThrow("disk");
 	});
 });

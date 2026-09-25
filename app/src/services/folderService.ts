@@ -35,19 +35,7 @@ const createFolder = async (
 const deleteFolder = async (
 	database: SQLiteDatabase,
 	id: string,
-): Promise<void> => {
-	try {
-		await deleteFolderRow(database, id);
-	} catch (error: unknown) {
-		if (error instanceof Error && error.message.includes("FOREIGN KEY")) {
-			throw new AppError(
-				"FOLDER_IN_USE",
-				"Folders containing items cannot be deleted.",
-			);
-		}
-		throw error;
-	}
-};
+): Promise<void> => deleteFolderRow(database, id);
 
 const renameFolder = async (
 	database: SQLiteDatabase,

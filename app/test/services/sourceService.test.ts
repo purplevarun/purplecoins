@@ -215,21 +215,8 @@ describe("sourceService", () => {
 		);
 	});
 
-	it("maps foreign-key delete errors", async () => {
-		mocks.deleteSourceRow.mockRejectedValueOnce(
-			new Error("FOREIGN KEY constraint failed"),
-		);
-		await expect(
-			sourceService.deleteSource(database, "s1"),
-		).rejects.toMatchObject({
-			code: "SOURCE_IN_USE",
-		});
-	});
-
-	it("rethrows non-foreign-key delete errors", async () => {
-		mocks.deleteSourceRow.mockRejectedValueOnce(new Error("disk issue"));
-		await expect(
-			sourceService.deleteSource(database, "s1"),
-		).rejects.toThrow("disk issue");
+	it("deletes source", async () => {
+		await sourceService.deleteSource(database, "s1");
+		expect(mocks.deleteSourceRow).toHaveBeenCalledWith(database, "s1");
 	});
 });

@@ -76,19 +76,7 @@ const setTripArchived = async (
 const deleteTrip = async (
 	database: SQLiteDatabase,
 	id: string,
-): Promise<void> => {
-	try {
-		await deleteSimpleEntityRow(database, "trips", id);
-	} catch (error: unknown) {
-		if (error instanceof Error && error.message.includes("FOREIGN KEY")) {
-			throw new AppError(
-				"TRIP_IN_USE",
-				"Trips linked to transactions cannot be deleted.",
-			);
-		}
-		throw error;
-	}
-};
+): Promise<void> => deleteSimpleEntityRow(database, "trips", id);
 
 const tripService = {
 	deleteTrip,

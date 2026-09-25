@@ -32,26 +32,16 @@ const saveBudget = async (
 	const now = Date.now();
 	const existingBudget = id ? await getBudgetRow(database, id) : null;
 	const budgetId = id ?? createId();
-	try {
-		await upsertBudgetRow(database, {
-			id: budgetId,
-			categoryId,
-			categoryName: existingBudget?.categoryName ?? "",
-			amount: normalizeMoney(amount),
-			period,
-			createdAt: existingBudget?.createdAt ?? now,
-			updatedAt: now,
-		});
-		return budgetId;
-	} catch (error: unknown) {
-		if (error instanceof Error && error.message.includes("UNIQUE")) {
-			throw new AppError(
-				"DUPLICATE_BUDGET",
-				"A budget already exists for this category and period.",
-			);
-		}
-		throw error;
-	}
+	await upsertBudgetRow(database, {
+		id: budgetId,
+		categoryId,
+		categoryName: existingBudget?.categoryName ?? "",
+		amount: normalizeMoney(amount),
+		period,
+		createdAt: existingBudget?.createdAt ?? now,
+		updatedAt: now,
+	});
+	return budgetId;
 };
 
 const deleteBudget = async (

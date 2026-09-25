@@ -14,7 +14,7 @@ describe("schema", () => {
 		expect(SCHEMA_SQL).toContain("CREATE TABLE IF NOT EXISTS transactions");
 		expect(SCHEMA_SQL).toContain("CREATE TABLE IF NOT EXISTS attachments");
 		expect(SCHEMA_SQL).not.toMatch(
-			/\b(CHECK|FOREIGN KEY|REFERENCES|PRIMARY KEY|UNIQUE|NOT NULL)\b/,
+			/\b(CHECK|FOREIGN KEY|REFERENCES|PRIMARY KEY|UNIQUE|NOT NULL|DEFAULT|ON CONFLICT)\b/,
 		);
 		expect(SCHEMA_SQL).not.toContain("PRAGMA");
 	});

@@ -123,7 +123,7 @@ describe("tripService", () => {
 		);
 	});
 
-	it("archives and deletes trip with fk error mapping", async () => {
+	it("archives and deletes trip", async () => {
 		await tripService.setTripArchived(database, "t1", true);
 		expect(mocks.setSimpleEntityArchivedRow).toHaveBeenCalledWith(
 			database,
@@ -133,18 +133,11 @@ describe("tripService", () => {
 			new Date("2026-08-25T12:00:00.000Z").getTime(),
 		);
 
-		mocks.deleteSimpleEntityRow.mockRejectedValueOnce(
-			new Error("FOREIGN KEY failed"),
-		);
-		await expect(
-			tripService.deleteTrip(database, "t1"),
-		).rejects.toMatchObject({
-			code: "TRIP_IN_USE",
-		});
-
-		mocks.deleteSimpleEntityRow.mockRejectedValueOnce(new Error("disk"));
-		await expect(tripService.deleteTrip(database, "t1")).rejects.toThrow(
-			"disk",
+		await tripService.deleteTrip(database, "t1");
+		expect(mocks.deleteSimpleEntityRow).toHaveBeenCalledWith(
+			database,
+			"trips",
+			"t1",
 		);
 	});
 });
