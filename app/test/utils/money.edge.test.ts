@@ -1,46 +1,24 @@
+import Decimal from "decimal.js";
 import { describe, expect, it, vi } from "vitest";
 
-describe("money utilities defensive branches", () => {
-	it("throws when Decimal reports a non-positive normalized amount", async () => {
-		vi.resetModules();
-		vi.doMock("decimal.js", () => ({
-			default: class DecimalMock {
-				constructor(_value: string) {}
-				greaterThan(): boolean {
-					return false;
-				}
-				toFixed(): string {
-					return "1";
-				}
-				plus(): this {
-					return this;
-				}
-				minus(): this {
-					return this;
-				}
-				times(): this {
-					return this;
-				}
-				comparedTo(): number {
-					return 0;
-				}
-				abs(): this {
-					return this;
-				}
-				toNumber(): number {
-					return 1;
-				}
-			},
-		}));
+import moneyUtils from "@/utils/money";
 
-		const module = await import("@/utils/money");
-		expect(() => module.default.normalizeMoney("1")).toThrow(
-			"Amount must be greater than zero.",
-		);
+describe("money utilities defensive branches", () => {
+	it("throws when Decimal reports a non-positive normalized amount", () => {
+		const greaterThanSpy = vi
+			.spyOn(Decimal.prototype, "greaterThan")
+			.mockReturnValue(false);
+
+		try {
+			expect(() => moneyUtils.normalizeMoney("1")).toThrow(
+				"Amount must be greater than zero.",
+			);
+		} finally {
+			greaterThanSpy.mockRestore();
+		}
 	});
 
-	it("rethrows non-RangeError failures from Intl formatter", async () => {
-		vi.resetModules();
+	it("rethrows non-RangeError failures from Intl formatter", () => {
 		const OriginalNumberFormat = Intl.NumberFormat;
 
 		Object.defineProperty(Intl, "NumberFormat", {
@@ -57,8 +35,7 @@ describe("money utilities defensive branches", () => {
 		});
 
 		try {
-			const module = await import("@/utils/money");
-			expect(() => module.default.formatMoney("10", "INR")).toThrow(
+			expect(() => moneyUtils.formatMoney("10", "INR")).toThrow(
 				"formatter failed",
 			);
 		} finally {
@@ -69,9 +46,7 @@ describe("money utilities defensive branches", () => {
 		}
 	});
 
-	it("falls back to currency code + fixed amount on RangeError formatter failures", async () => {
-		vi.resetModules();
-		vi.doUnmock("decimal.js");
+	it("falls back to currency code + fixed amount on RangeError formatter failures", () => {
 		const OriginalNumberFormat = Intl.NumberFormat;
 
 		Object.defineProperty(Intl, "NumberFormat", {
@@ -88,8 +63,7 @@ describe("money utilities defensive branches", () => {
 		});
 
 		try {
-			const module = await import("@/utils/money");
-			expect(module.default.formatMoney("10", "ZZZ")).toBe("ZZZ 10.00");
+			expect(moneyUtils.formatMoney("10", "ZZZ")).toBe("ZZZ 10.00");
 		} finally {
 			Object.defineProperty(Intl, "NumberFormat", {
 				configurable: true,
