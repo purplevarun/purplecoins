@@ -2,6 +2,7 @@ import { isValidElement, type ComponentProps, type ReactElement } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import SelectField from "@/components/SelectField";
+import packageJson from "../../package.json";
 
 const reactMocks = vi.hoisted(() => ({
 	useEffect: vi.fn(),
@@ -437,9 +438,11 @@ describe("SettingsScreen", () => {
 				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
-		expect(serviceMocks.checkForUpdate).toHaveBeenCalledWith("2026.9.21");
+		expect(serviceMocks.checkForUpdate).toHaveBeenCalledWith(
+			packageJson.version,
+		);
 		expect(setMessage).toHaveBeenCalledWith(
-			"You are already on the latest version (2026.9.21).",
+			`You are already on the latest version (${packageJson.version}).`,
 		);
 	});
 
