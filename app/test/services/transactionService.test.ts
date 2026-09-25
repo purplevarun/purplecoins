@@ -1,6 +1,6 @@
-import type TestAsyncFunction from "@test/types/TestAsyncFunction";
 import type Transaction from "@/types/Transaction";
 import type TransactionCursor from "@/types/TransactionCursor";
+import type TestAsyncFunction from "@test/types/TestAsyncFunction";
 import type { SQLiteDatabase } from "expo-sqlite";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 

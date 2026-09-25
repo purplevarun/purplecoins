@@ -9,13 +9,13 @@ import type InvestmentListItem from "@/types/InvestmentListItem";
 import type NoticeProps from "@/types/NoticeProps";
 import type SegmentedControlProps from "@/types/SegmentedControlProps";
 import type Source from "@/types/Source";
+import type Trip from "@/types/Trip";
+import type TripType from "@/types/TripType";
 import type ActionProps from "@test/types/ActionProps";
 import type FinanceListProps from "@test/types/FinanceListProps";
 import type FinanceTestItem from "@test/types/FinanceTestItem";
 import type HeaderOptions from "@test/types/HeaderOptions";
 import type SourceListTestProps from "@test/types/SourceListTestProps";
-import type Trip from "@/types/Trip";
-import type TripType from "@/types/TripType";
 import {
 	isValidElement,
 	type ComponentProps,
