@@ -1,22 +1,23 @@
 import { describe, expect, it, vi } from "vitest";
 
-describe("applyAppFontStyle on iOS", () => {
-	it("keeps fontWeight on non-android platforms", async () => {
-		vi.resetModules();
-		vi.doMock("@/constants/typography", () => ({
-			default: {
-				FONT_FAMILY: "AppFont",
-			},
-		}));
-		vi.doMock("react-native", () => ({
-			Platform: { OS: "ios" },
-			StyleSheet: {
-				flatten: (style: any) => style ?? {},
-			},
-		}));
+vi.mock("@/constants/typography", () => ({
+	default: {
+		FONT_FAMILY: "AppFont",
+	},
+}));
 
-		const module = await import("@/utils/appFontStyle");
-		expect(module.default({ fontSize: 16, fontWeight: "700" })).toEqual({
+vi.mock("react-native", () => ({
+	Platform: { OS: "ios" },
+	StyleSheet: {
+		flatten: (style: any) => style ?? {},
+	},
+}));
+
+import applyAppFontStyle from "@/utils/appFontStyle";
+
+describe("applyAppFontStyle on iOS", () => {
+	it("keeps fontWeight on non-android platforms", () => {
+		expect(applyAppFontStyle({ fontSize: 16, fontWeight: "700" })).toEqual({
 			fontFamily: "AppFont",
 			fontSize: 16,
 			fontWeight: "700",
