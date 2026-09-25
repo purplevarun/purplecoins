@@ -61,8 +61,10 @@ run_format() {
 
 run_test() {
   if command -v bun >/dev/null 2>&1; then
+    bun run typecheck
     bun run test --coverage
   else
+    npm run typecheck
     npm run test -- --coverage
   fi
 }
@@ -158,6 +160,48 @@ run_install() {
   exit 1
 }
 
+run_avd() {
+  require_cmd adb
+  require_cmd emulator
+
+  CLEAN=false
+  if [ "${2:-}" = "--clean" ]; then
+    CLEAN=true
+  elif [ -n "${2:-}" ]; then
+    echo "Unknown avd option: ${2}"
+    echo "Usage: ./run avd [--clean]"
+    exit 1
+  fi
+
+  RUNNING_DEVICE=$(adb devices | awk '$1 ~ /^emulator-/ && $2 == "device" { print $1; exit }')
+  if [ -n "$RUNNING_DEVICE" ]; then
+    if [ "$CLEAN" = true ]; then
+      echo "Stopping AVD: $RUNNING_DEVICE"
+      adb -s "$RUNNING_DEVICE" emu kill >/dev/null
+    else
+      echo "AVD already running: $RUNNING_DEVICE"
+      return
+    fi
+  fi
+
+  AVD=$(emulator -list-avds | sed -n '1p')
+  if [ -z "$AVD" ]; then
+    echo "No Android Virtual Devices found. Create one in Android Studio first."
+    exit 1
+  fi
+
+  if [ "$CLEAN" = true ]; then
+    echo "Starting clean AVD: $AVD"
+    emulator -avd "$AVD" -wipe-data >/tmp/purplecoins-avd.log 2>&1 &
+  else
+    echo "Starting AVD: $AVD"
+    emulator -avd "$AVD" >/tmp/purplecoins-avd.log 2>&1 &
+  fi
+
+  adb wait-for-device
+  echo "AVD ready: $AVD"
+}
+
 run_release() {
   require_cmd gh
   validate_state
@@ -198,9 +242,10 @@ Usage: ./run <command>
 
 Commands:
   format   Run prettier
-  test     Run unit tests with coverage
+  test     Run typecheck, then unit tests with coverage
   apply    Apply .version to app.json and package.json, and compute versionCode
   build    Clean prebuild Android and assemble release APK with Gradle
+  avd      Start the first configured Android Virtual Device
   install  Install existing APK on local AVD/device
   release  Create tag v{version} and publish GitHub release v{version} with existing APK
 HELP
@@ -218,6 +263,9 @@ case "${1:-}" in
     ;;
   build)
     run_build
+    ;;
+  avd)
+    run_avd "$@"
     ;;
   install)
     run_install
