@@ -37,6 +37,8 @@ const TRANSACTION_SELECT = `
 		category.name AS categoryName,
 		trip.name AS tripName,
 		investment.name AS investmentName,
+		platform.name AS platformName,
+		trip_type.name AS tripTypeName,
 		EXISTS(
 			SELECT 1 FROM attachments attachment
 			WHERE attachment.owner_type = 'TRANSACTION'
@@ -48,7 +50,9 @@ const TRANSACTION_SELECT = `
 	LEFT JOIN categories category ON category.id = t.category_id
 	LEFT JOIN trips trip ON trip.id = t.trip_id
 	LEFT JOIN investments investment ON investment.id = t.investment_id
-`;
+	LEFT JOIN investment_platforms platform ON platform.id = investment.platform_id
+	LEFT JOIN trip_types trip_type ON trip_type.id = trip.trip_type_id
+	`;
 
 const getSourceRows = async (
 	database: SQLiteDatabase,
@@ -365,10 +369,13 @@ const getTripRows = async (
 		SELECT
 			trip.id,
 			trip.name,
+			trip.trip_type_id AS tripTypeId,
+			trip_type.name AS tripTypeName,
 			trip.created_at AS createdAt,
 			trip.updated_at AS updatedAt,
 			COALESCE(trip.archived, 0) AS archived
 		FROM trips trip
+		LEFT JOIN trip_types trip_type ON trip_type.id = trip.trip_type_id
 		LEFT JOIN transactions txn ON txn.trip_id = trip.id
 		WHERE COALESCE(trip.archived, 0) = 0
 		GROUP BY trip.id
@@ -385,10 +392,13 @@ const getArchivedTripRows = async (
 		SELECT
 			id,
 			name,
+			trip_type_id AS tripTypeId,
+			trip_type.name AS tripTypeName,
 			created_at AS createdAt,
 			updated_at AS updatedAt,
 			COALESCE(archived, 0) AS archived
 		FROM trips
+		LEFT JOIN trip_types trip_type ON trip_type.id = trips.trip_type_id
 		WHERE COALESCE(archived, 0) = 1
 		ORDER BY lower(name) ASC;
 	`);
@@ -400,10 +410,13 @@ const getTripRow = async (
 	database.getFirstAsync<Trip>(
 		`
 			SELECT
-				id, name, created_at AS createdAt, updated_at AS updatedAt,
+				trips.id, trips.name, trips.trip_type_id AS tripTypeId,
+				trip_type.name AS tripTypeName,
+				trips.created_at AS createdAt, trips.updated_at AS updatedAt,
 				COALESCE(archived, 0) AS archived
 			FROM trips
-			WHERE id = ?;
+			LEFT JOIN trip_types trip_type ON trip_type.id = trips.trip_type_id
+			WHERE trips.id = ?;
 		`,
 		id,
 	);
@@ -415,9 +428,10 @@ const getInvestmentRows = async (
 		SELECT
 			investment.id,
 			investment.name,
-			investment.label,
 			investment.investment_type_id AS investmentTypeId,
 			investment_type.name AS investmentTypeName,
+			investment.platform_id AS platformId,
+			platform.name AS platformName,
 			investment.created_at AS createdAt,
 			investment.updated_at AS updatedAt,
 			COALESCE(investment.archived, 0) AS archived
@@ -425,6 +439,7 @@ const getInvestmentRows = async (
 		LEFT JOIN transactions txn ON txn.investment_id = investment.id
 		LEFT JOIN investment_types investment_type
 			ON investment_type.id = investment.investment_type_id
+		LEFT JOIN investment_platforms platform ON platform.id = investment.platform_id
 		WHERE COALESCE(investment.archived, 0) = 0
 		GROUP BY investment.id
 		ORDER BY
@@ -440,9 +455,9 @@ const getArchivedInvestmentRows = async (
 		SELECT
 			investment.id,
 			investment.name,
-			investment.label,
 			investment.investment_type_id AS investmentTypeId,
 			investment_type.name AS investmentTypeName,
+			investment.platform_id AS platformId,
 			investment.created_at AS createdAt,
 			investment.updated_at AS updatedAt,
 			COALESCE(investment.archived, 0) AS archived
@@ -460,7 +475,7 @@ const getInvestmentRow = async (
 	database.getFirstAsync<Investment>(
 		`
 			SELECT
-				id, name, label, investment_type_id AS investmentTypeId,
+				id, name, investment_type_id AS investmentTypeId, platform_id AS platformId,
 				created_at AS createdAt, updated_at AS updatedAt,
 				COALESCE(archived, 0) AS archived
 			FROM investments
@@ -473,24 +488,33 @@ const upsertInvestmentRow = async (
 	database: SQLiteDatabase,
 	investment: Pick<
 		Investment,
-		"id" | "name" | "label" | "investmentTypeId" | "createdAt" | "updatedAt"
+		| "id"
+		| "name"
+		| "investmentTypeId"
+		| "platformId"
+		| "createdAt"
+		| "updatedAt"
 	>,
 ): Promise<void> => {
+	const result = await database.runAsync(
+		`UPDATE investments SET name = ?, investment_type_id = ?, platform_id = ?, updated_at = ? WHERE id = ?;`,
+		investment.name,
+		investment.investmentTypeId,
+		investment.platformId ?? null,
+		investment.updatedAt,
+		investment.id,
+	);
+	if (result.changes > 0) return;
 	await database.runAsync(
 		`
 			INSERT INTO investments
-				(id, name, label, investment_type_id, created_at, updated_at)
-			VALUES (?, ?, ?, ?, ?, ?)
-			ON CONFLICT(id) DO UPDATE SET
-				name = excluded.name,
-				label = excluded.label,
-				investment_type_id = excluded.investment_type_id,
-				updated_at = excluded.updated_at;
+				(id, name, investment_type_id, platform_id, created_at, updated_at)
+			VALUES (?, ?, ?, ?, ?, ?);
 		`,
 		investment.id,
 		investment.name,
-		investment.label,
 		investment.investmentTypeId,
+		investment.platformId ?? null,
 		investment.createdAt,
 		investment.updatedAt,
 	);
@@ -509,13 +533,17 @@ const upsertInvestmentTypeRow = async (
 	database: SQLiteDatabase,
 	entity: SimpleEntity,
 ): Promise<void> => {
+	const result = await database.runAsync(
+		`UPDATE investment_types SET name = ?, updated_at = ? WHERE id = ?;`,
+		entity.name,
+		entity.updatedAt,
+		entity.id,
+	);
+	if (result.changes > 0) return;
 	await database.runAsync(
 		`
 			INSERT INTO investment_types (id, name, created_at, updated_at)
-			VALUES (?, ?, ?, ?)
-			ON CONFLICT(id) DO UPDATE SET
-				name = excluded.name,
-				updated_at = excluded.updated_at;
+			VALUES (?, ?, ?, ?);
 		`,
 		entity.id,
 		entity.name,
@@ -538,18 +566,28 @@ const investmentTypeNameExistsRow = async (
 const upsertSimpleEntityRow = async (
 	database: SQLiteDatabase,
 	tableName: "trips" | "investments",
-	entity: SimpleEntity,
+	entity: SimpleEntity & { tripTypeId?: string | null },
 ): Promise<void> => {
-	await database.runAsync(
+	const updateResult = await database.runAsync(
 		`
-			INSERT INTO ${tableName} (id, name, created_at, updated_at)
-			VALUES (?, ?, ?, ?)
-			ON CONFLICT(id) DO UPDATE SET
-				name = excluded.name,
-				updated_at = excluded.updated_at;
+			UPDATE ${tableName}
+			SET name = ?,
+				${tableName === "trips" ? "trip_type_id = ?," : ""}
+				updated_at = ?
+			WHERE id = ?;
 		`,
+		entity.name,
+		...(tableName === "trips" ? [entity.tripTypeId ?? null] : []),
+		entity.updatedAt,
+		entity.id,
+	);
+	if ((updateResult as { changes?: number } | undefined)?.changes) return;
+	await database.runAsync(
+		`INSERT INTO ${tableName} (${tableName === "trips" ? "id, name, trip_type_id, created_at, updated_at" : "id, name, created_at, updated_at"})
+		 VALUES (${tableName === "trips" ? "?, ?, ?, ?, ?" : "?, ?, ?, ?"});`,
 		entity.id,
 		entity.name,
+		...(tableName === "trips" ? [entity.tripTypeId ?? null] : []),
 		entity.createdAt,
 		entity.updatedAt,
 	);
@@ -828,6 +866,10 @@ const deleteTransactionRow = async (
 	await database.withTransactionAsync(async (): Promise<void> => {
 		await database.runAsync(
 			"DELETE FROM attachments WHERE owner_type = 'TRANSACTION' AND owner_id = ?;",
+			id,
+		);
+		await database.runAsync(
+			"DELETE FROM transaction_items WHERE transaction_id = ?;",
 			id,
 		);
 		await database.runAsync("DELETE FROM transactions WHERE id = ?;", id);

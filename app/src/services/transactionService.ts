@@ -285,6 +285,15 @@ const saveTransaction = async (
 	await database.withTransactionAsync(async () => {
 		const transaction = database;
 		const preparedInput = await prepareTransactionInput(transaction, input);
+		if (
+			preparedInput.type !== "TRANSFER" &&
+			!(await getSourceRow(transaction, preparedInput.sourceId))
+		) {
+			throw new AppError(
+				"SOURCE_NOT_FOUND",
+				"The selected source no longer exists.",
+			);
+		}
 		const existing = input.id
 			? await getTransactionRow(transaction, id)
 			: null;

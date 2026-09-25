@@ -81,14 +81,14 @@ describe("split expense persistence", () => {
 		).rejects.toMatchObject({ code: "CATEGORY_REQUIRED" });
 	});
 
-	it("propagates unexpected item lookup failures and preserves foreign-key checks", async () => {
+	it("propagates lookup failures and rejects missing sources without foreign keys", async () => {
 		const { database, sqlite } = await createFixture();
 		await expect(
 			transactionService.saveTransaction(database, {
 				...expense,
 				sourceId: "missing",
 			}),
-		).rejects.toThrow("FOREIGN KEY");
+		).rejects.toMatchObject({ code: "SOURCE_NOT_FOUND" });
 		const lookup = vi
 			.spyOn(database, "getFirstAsync")
 			.mockRejectedValueOnce(new Error("lookup failed"));
@@ -232,7 +232,7 @@ describe("split expense persistence", () => {
 		);
 		const original = await transactionService.getTransaction(database, id);
 		sqlite.exec(
-			"CREATE TRIGGER fail_receipt BEFORE INSERT ON attachments BEGIN SELECT RAISE(ABORT, 'receipt failure'); END;",
+			"CREATE TRIGGER fail_receipt BEFORE UPDATE ON attachments BEGIN SELECT RAISE(ABORT, 'receipt failure'); END;",
 		);
 		await expect(
 			transactionService.saveTransaction(

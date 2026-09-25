@@ -1,9 +1,10 @@
 type Investment = Readonly<{
 	id: string;
 	name: string;
-	label: string | null;
 	investmentTypeId: string | null;
 	investmentTypeName?: string | null;
+	platformId?: string | null;
+	platformName?: string | null;
 	createdAt: number;
 	updatedAt: number;
 	archived: boolean;

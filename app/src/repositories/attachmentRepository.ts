@@ -52,18 +52,27 @@ const upsertAttachmentRow = async (
 	attachment: AttachmentInput,
 	now: number,
 ): Promise<void> => {
+	const updateResult = await database.runAsync(
+		`
+			UPDATE attachments
+			SET file_name = ?, mime_type = ?, size_bytes = ?, content = ?, updated_at = ?
+			WHERE owner_type = ? AND owner_id = ?;
+		`,
+		attachment.fileName,
+		attachment.mimeType,
+		attachment.sizeBytes,
+		attachment.content,
+		now,
+		ownerType,
+		ownerId,
+	);
+	if ((updateResult as { changes?: number } | undefined)?.changes) return;
 	await database.runAsync(
 		`
 			INSERT INTO attachments (
 				id, owner_type, owner_id, file_name, mime_type,
 				size_bytes, content, created_at, updated_at
-			) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-			ON CONFLICT(owner_type, owner_id) DO UPDATE SET
-				file_name = excluded.file_name,
-				mime_type = excluded.mime_type,
-				size_bytes = excluded.size_bytes,
-				content = excluded.content,
-				updated_at = excluded.updated_at;
+			) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
 		`,
 		id,
 		ownerType,

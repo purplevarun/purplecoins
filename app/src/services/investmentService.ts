@@ -41,8 +41,8 @@ const saveInvestment = async (
 	database: SQLiteDatabase,
 	id: string | undefined,
 	name: string,
-	label?: string | null,
 	investmentTypeId?: string | null,
+	platformId?: string | null,
 ): Promise<string> => {
 	const normalizedName = name.trim();
 	if (!normalizedName) {
@@ -70,8 +70,8 @@ const saveInvestment = async (
 	await upsertInvestmentRow(database, {
 		id: investmentId,
 		name: normalizedName,
-		label: label?.trim() ? label.trim() : null,
 		investmentTypeId: investmentTypeId ?? null,
+		platformId: platformId ?? null,
 		createdAt: existingInvestment?.createdAt ?? now,
 		updatedAt: now,
 	});

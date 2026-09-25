@@ -111,6 +111,33 @@ const selectBackup = (name = "ok.purplecoins"): void => {
 };
 
 describe("backupService", () => {
+	it.each([
+		new Error("disk failure"),
+		"native failure",
+		new Error("duplicate column name: platform_id"),
+	])("handles restore migration errors: %s", async (error) => {
+		selectBackup();
+		const temp = validTempDatabase();
+		temp.execAsync
+			.mockResolvedValueOnce(undefined)
+			.mockRejectedValueOnce(error);
+		mocks.openDatabaseAsync.mockResolvedValueOnce(temp);
+		if (
+			error instanceof Error &&
+			error.message.includes("duplicate column name")
+		) {
+			await expect(backupService.restoreBackup(database)).resolves.toBe(
+				true,
+			);
+			expect(mocks.backupDatabaseAsync).toHaveBeenCalled();
+		} else {
+			await expect(backupService.restoreBackup(database)).rejects.toBe(
+				error,
+			);
+			expect(mocks.backupDatabaseAsync).not.toHaveBeenCalled();
+		}
+		expect(temp.closeAsync).toHaveBeenCalledOnce();
+	});
 	beforeEach(() => {
 		Object.values(mocks).forEach((mockFn) => {
 			if (typeof mockFn === "function" && "mockReset" in mockFn) {

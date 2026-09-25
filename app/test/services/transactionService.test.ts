@@ -76,6 +76,10 @@ const database = {
 
 describe("transactionService", () => {
 	beforeEach(() => {
+		mocks.getSourceRow.mockResolvedValue({
+			id: "source",
+			currencyCode: "INR",
+		});
 		vi.useFakeTimers();
 		vi.setSystemTime(new Date("2026-08-25T12:00:00.000Z"));
 		Object.values(mocks).forEach((mockFn) => {

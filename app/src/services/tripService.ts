@@ -39,6 +39,7 @@ const saveTrip = async (
 	database: SQLiteDatabase,
 	id: string | undefined,
 	name: string,
+	tripTypeId: string | null = null,
 ): Promise<string> => {
 	const normalizedName = name.trim();
 	if (!normalizedName) {
@@ -60,6 +61,7 @@ const saveTrip = async (
 		name: normalizedName,
 		createdAt: existingTrip?.createdAt ?? now,
 		updatedAt: now,
+		tripTypeId,
 	});
 	return tripId;
 };

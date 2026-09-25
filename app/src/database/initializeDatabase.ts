@@ -10,8 +10,18 @@ const initializeDatabase = async (): Promise<SQLiteDatabase> => {
 	const database = await openDatabaseAsync(DATABASE_NAME);
 	try {
 		await database.execAsync(SCHEMA_SQL);
+
 		for (const migration of SCHEMA_MIGRATIONS) {
-			await database.execAsync(migration);
+			try {
+				await database.execAsync(migration);
+			} catch (error) {
+				if (
+					!(error instanceof Error) ||
+					!error.message.includes("duplicate column name")
+				) {
+					throw error;
+				}
+			}
 		}
 		return database;
 	} catch (error) {

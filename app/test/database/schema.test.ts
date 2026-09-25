@@ -9,12 +9,12 @@ describe("schema", () => {
 		);
 	});
 
-	it("contains core tables and constraints", () => {
+	it("contains core tables without database constraints", () => {
 		expect(SCHEMA_SQL).toContain("CREATE TABLE IF NOT EXISTS sources");
 		expect(SCHEMA_SQL).toContain("CREATE TABLE IF NOT EXISTS transactions");
 		expect(SCHEMA_SQL).toContain("CREATE TABLE IF NOT EXISTS attachments");
-		expect(SCHEMA_SQL).toContain(
-			"CHECK (classification IN ('GENERAL', 'INVESTMENT'))",
+		expect(SCHEMA_SQL).not.toMatch(
+			/\b(CHECK|FOREIGN KEY|REFERENCES|PRIMARY KEY|UNIQUE|NOT NULL)\b/,
 		);
 		expect(SCHEMA_SQL).not.toContain("PRAGMA");
 	});

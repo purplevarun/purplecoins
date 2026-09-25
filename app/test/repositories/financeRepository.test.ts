@@ -397,6 +397,7 @@ describe("financeRepository", () => {
 			expect.stringContaining("INSERT INTO trips"),
 			"tr1",
 			"Goa",
+			null,
 			1,
 			2,
 		);
@@ -609,7 +610,9 @@ describe("financeRepository", () => {
 
 	it("writes investment rows and manages investment types", async () => {
 		const database = {
-			runAsync: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
+			runAsync: vi
+				.fn<TestAsyncFunction>()
+				.mockResolvedValue({ changes: 0 }),
 			getAllAsync: vi.fn().mockResolvedValueOnce([{ id: "type1" }]),
 			getFirstAsync: vi
 				.fn()
@@ -620,7 +623,7 @@ describe("financeRepository", () => {
 		await upsertInvestmentRow(database, {
 			id: "i1",
 			name: "Fund A",
-			label: "Growth",
+			platformId: "platform1",
 			investmentTypeId: "type1",
 			createdAt: 1,
 			updatedAt: 2,
@@ -629,8 +632,8 @@ describe("financeRepository", () => {
 			expect.stringContaining("INSERT INTO investments"),
 			"i1",
 			"Fund A",
-			"Growth",
 			"type1",
+			"platform1",
 			1,
 			2,
 		);

@@ -91,7 +91,16 @@ const restoreBackup = async (database: SQLiteDatabase): Promise<boolean> => {
 		}
 		await tempDatabase.execAsync(SCHEMA_SQL);
 		for (const migration of SCHEMA_MIGRATIONS) {
-			await tempDatabase.execAsync(migration);
+			try {
+				await tempDatabase.execAsync(migration);
+			} catch (error) {
+				if (
+					!(error instanceof Error) ||
+					!error.message.includes("duplicate column name")
+				) {
+					throw error;
+				}
+			}
 		}
 		await backupDatabaseAsync({
 			sourceDatabase: tempDatabase,

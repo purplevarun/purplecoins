@@ -100,7 +100,7 @@ describe("investmentService", () => {
 			expect.objectContaining({
 				id: "investment-id",
 				name: "Fund A",
-				label: null,
+				platformId: null,
 				investmentTypeId: null,
 				createdAt: new Date("2026-08-25T12:00:00.000Z").getTime(),
 			}),
@@ -116,8 +116,8 @@ describe("investmentService", () => {
 			database,
 			"i1",
 			"  Fund B ",
-			"  Growth  ",
 			"type-1",
+			"platform-1",
 		);
 		expect(updatedId).toBe("i1");
 		expect(mocks.upsertInvestmentRow).toHaveBeenCalledWith(
@@ -125,7 +125,7 @@ describe("investmentService", () => {
 			expect.objectContaining({
 				id: "i1",
 				name: "Fund B",
-				label: "Growth",
+				platformId: "platform-1",
 				investmentTypeId: "type-1",
 				createdAt: 10,
 			}),

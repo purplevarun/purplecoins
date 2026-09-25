@@ -322,7 +322,7 @@ describe("investment analysis", () => {
 			{
 				id: "mutual-fund",
 				name: "Mutual Fund",
-				label: null,
+				platformId: null,
 				investmentTypeId: null,
 				createdAt: NOW,
 				updatedAt: NOW,
@@ -363,7 +363,7 @@ describe("investment analysis", () => {
 			{
 				id: "inv1",
 				name: "Index Fund",
-				label: null,
+				platformId: null,
 				investmentTypeId: null,
 				createdAt: NOW,
 				updatedAt: NOW,
@@ -372,7 +372,7 @@ describe("investment analysis", () => {
 			{
 				id: "inv2",
 				name: "Bond",
-				label: null,
+				platformId: null,
 				investmentTypeId: null,
 				createdAt: NOW,
 				updatedAt: NOW,

@@ -1,219 +1,184 @@
 const SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS sources (
-	id TEXT PRIMARY KEY NOT NULL,
-	name TEXT NOT NULL CHECK (length(trim(name)) > 0),
-	currency_code TEXT NOT NULL CHECK (length(currency_code) = 3),
+	id TEXT,
+	name TEXT,
+	currency_code TEXT,
 	archived INTEGER,
 	validated_at INTEGER,
-	created_at INTEGER NOT NULL,
-	updated_at INTEGER NOT NULL
+	created_at INTEGER,
+	updated_at INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS categories (
-	id TEXT PRIMARY KEY NOT NULL,
-	name TEXT NOT NULL CHECK (length(trim(name)) > 0),
-	is_income INTEGER NOT NULL CHECK (is_income IN (0, 1)),
+	id TEXT,
+	name TEXT,
+	is_income INTEGER,
 	archived INTEGER,
-	created_at INTEGER NOT NULL,
-	updated_at INTEGER NOT NULL
+	created_at INTEGER,
+	updated_at INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS trips (
-	id TEXT PRIMARY KEY NOT NULL,
-	name TEXT NOT NULL CHECK (length(trim(name)) > 0),
+	id TEXT,
+	name TEXT,
 	archived INTEGER,
-	created_at INTEGER NOT NULL,
-	updated_at INTEGER NOT NULL
+	created_at INTEGER,
+	updated_at INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS investment_types (
-	id TEXT PRIMARY KEY NOT NULL,
-	name TEXT NOT NULL CHECK (length(trim(name)) > 0),
-	created_at INTEGER NOT NULL,
-	updated_at INTEGER NOT NULL
+	id TEXT,
+	name TEXT,
+	created_at INTEGER,
+	updated_at INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS investments (
-	id TEXT PRIMARY KEY NOT NULL,
-	name TEXT NOT NULL CHECK (length(trim(name)) > 0),
-	label TEXT,
+	id TEXT,
+	name TEXT,
 	investment_type_id TEXT,
 	archived INTEGER,
-	created_at INTEGER NOT NULL,
-	updated_at INTEGER NOT NULL,
-	FOREIGN KEY (investment_type_id) REFERENCES investment_types(id) ON DELETE SET NULL
+	created_at INTEGER,
+	updated_at INTEGER
+);
+
+CREATE TABLE IF NOT EXISTS investment_platforms (
+	id TEXT,
+	name TEXT,
+	archived INTEGER,
+	created_at INTEGER,
+	updated_at INTEGER
+);
+
+CREATE TABLE IF NOT EXISTS trip_types (
+	id TEXT,
+	name TEXT,
+	created_at INTEGER,
+	updated_at INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS transactions (
-	id TEXT PRIMARY KEY NOT NULL,
-	classification TEXT NOT NULL CHECK (classification IN ('GENERAL', 'INVESTMENT')),
-	type TEXT NOT NULL CHECK (type IN ('DEBIT', 'CREDIT', 'TRANSFER')),
-	source_id TEXT NOT NULL,
+	id TEXT,
+	classification TEXT,
+	type TEXT,
+	source_id TEXT,
 	destination_source_id TEXT,
-	amount TEXT NOT NULL CHECK (CAST(amount AS REAL) > 0),
-	to_amount TEXT CHECK (to_amount IS NULL OR CAST(to_amount AS REAL) > 0),
+	amount TEXT,
+	to_amount TEXT,
 	category_id TEXT,
 	trip_id TEXT,
 	investment_id TEXT,
-	reason TEXT NOT NULL DEFAULT '',
-	transaction_at INTEGER NOT NULL,
-	created_at INTEGER NOT NULL,
-	updated_at INTEGER NOT NULL,
-	FOREIGN KEY (source_id) REFERENCES sources(id) ON DELETE RESTRICT,
-	FOREIGN KEY (destination_source_id) REFERENCES sources(id) ON DELETE RESTRICT,
-	FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE RESTRICT,
-	FOREIGN KEY (trip_id) REFERENCES trips(id) ON DELETE RESTRICT,
-	FOREIGN KEY (investment_id) REFERENCES investments(id) ON DELETE RESTRICT,
-	CHECK (
-		(
-			classification = 'GENERAL'
-			AND ((type = 'DEBIT' AND category_id IS NULL)
-				OR (type = 'CREDIT' AND category_id IS NOT NULL))
-			AND investment_id IS NULL
-			AND destination_source_id IS NULL
-			AND to_amount IS NULL
-			AND length(trim(reason)) > 0
-		)
-		OR
-		(
-			classification = 'GENERAL'
-			AND type = 'TRANSFER'
-			AND destination_source_id IS NOT NULL
-			AND destination_source_id <> source_id
-			AND to_amount IS NOT NULL
-			AND category_id IS NULL
-			AND trip_id IS NULL
-			AND investment_id IS NULL
-		)
-		OR
-		(
-			classification = 'INVESTMENT'
-			AND type IN ('DEBIT', 'CREDIT')
-			AND investment_id IS NOT NULL
-			AND category_id IS NULL
-			AND trip_id IS NULL
-			AND destination_source_id IS NULL
-			AND to_amount IS NULL
-			AND length(trim(reason)) > 0
-		)
-	)
+	reason TEXT DEFAULT '',
+	transaction_at INTEGER,
+	created_at INTEGER,
+	updated_at INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS transaction_items (
-	id TEXT PRIMARY KEY NOT NULL,
-	transaction_id TEXT NOT NULL,
-	category_id TEXT NOT NULL,
-	amount TEXT NOT NULL CHECK (CAST(amount AS REAL) > 0),
-	position INTEGER NOT NULL CHECK (position >= 0),
-	created_at INTEGER NOT NULL,
-	updated_at INTEGER NOT NULL,
-	FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE CASCADE,
-	FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE RESTRICT,
-	UNIQUE (transaction_id, position)
+	id TEXT,
+	transaction_id TEXT,
+	category_id TEXT,
+	amount TEXT,
+	position INTEGER,
+	created_at INTEGER,
+	updated_at INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS budgets (
-	id TEXT PRIMARY KEY NOT NULL,
-	category_id TEXT NOT NULL,
-	amount TEXT NOT NULL CHECK (CAST(amount AS REAL) > 0),
-	period TEXT NOT NULL CHECK (period IN ('MONTHLY', 'YEARLY')),
-	created_at INTEGER NOT NULL,
-	updated_at INTEGER NOT NULL,
-	FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE RESTRICT,
-	UNIQUE (category_id, period)
+	id TEXT,
+	category_id TEXT,
+	amount TEXT,
+	period TEXT,
+	created_at INTEGER,
+	updated_at INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS exchange_rates (
-	currency_code TEXT PRIMARY KEY NOT NULL CHECK (length(currency_code) = 3),
-	rate_to_inr TEXT NOT NULL CHECK (CAST(rate_to_inr AS REAL) > 0),
-	source TEXT NOT NULL CHECK (source IN ('API', 'MANUAL')),
+	currency_code TEXT,
+	rate_to_inr TEXT,
+	source TEXT,
 	fetched_at INTEGER,
-	updated_at INTEGER NOT NULL
+	updated_at INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS folders (
-	id TEXT PRIMARY KEY NOT NULL,
-	name TEXT NOT NULL CHECK (length(trim(name)) > 0),
-	type TEXT NOT NULL CHECK (type IN ('NOTE', 'TODO')),
-	created_at INTEGER NOT NULL,
-	updated_at INTEGER NOT NULL
+	id TEXT,
+	name TEXT,
+	type TEXT,
+	created_at INTEGER,
+	updated_at INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS notes (
-	id TEXT PRIMARY KEY NOT NULL,
+	id TEXT,
 	folder_id TEXT,
-	title TEXT NOT NULL CHECK (length(trim(title)) > 0),
-	content TEXT NOT NULL,
-	created_at INTEGER NOT NULL,
-	updated_at INTEGER NOT NULL,
-	FOREIGN KEY (folder_id) REFERENCES folders(id) ON DELETE RESTRICT
+	title TEXT,
+	content TEXT,
+	created_at INTEGER,
+	updated_at INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS todos (
-	id TEXT PRIMARY KEY NOT NULL,
+	id TEXT,
 	folder_id TEXT,
-	title TEXT NOT NULL CHECK (length(trim(title)) > 0),
-	description TEXT NOT NULL DEFAULT '',
-	is_done INTEGER NOT NULL CHECK (is_done IN (0, 1)),
+	title TEXT,
+	description TEXT DEFAULT '',
+	is_done INTEGER,
 	due_at INTEGER,
-	created_at INTEGER NOT NULL,
-	updated_at INTEGER NOT NULL,
-	FOREIGN KEY (folder_id) REFERENCES folders(id) ON DELETE RESTRICT
+	created_at INTEGER,
+	updated_at INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS passwords (
-	id TEXT PRIMARY KEY NOT NULL,
-	title TEXT NOT NULL CHECK (length(trim(title)) > 0),
-	username TEXT NOT NULL DEFAULT '',
-	password TEXT NOT NULL,
-	website TEXT NOT NULL DEFAULT '',
-	notes TEXT NOT NULL DEFAULT '',
-	created_at INTEGER NOT NULL,
-	updated_at INTEGER NOT NULL
+	id TEXT,
+	title TEXT,
+	username TEXT DEFAULT '',
+	password TEXT,
+	website TEXT DEFAULT '',
+	notes TEXT DEFAULT '',
+	created_at INTEGER,
+	updated_at INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS cards (
-	id TEXT PRIMARY KEY NOT NULL,
-	name TEXT NOT NULL CHECK (length(trim(name)) > 0),
-	card_number TEXT NOT NULL,
-	card_type TEXT NOT NULL DEFAULT 'CREDIT_CARD',
-	expiry TEXT NOT NULL DEFAULT '',
-	cvv TEXT NOT NULL DEFAULT '',
-	pin TEXT NOT NULL DEFAULT '',
-	network TEXT NOT NULL DEFAULT '',
-	notes TEXT NOT NULL DEFAULT '',
-	created_at INTEGER NOT NULL,
-	updated_at INTEGER NOT NULL
+	id TEXT,
+	name TEXT,
+	card_number TEXT,
+	card_type TEXT DEFAULT 'CREDIT_CARD',
+	expiry TEXT DEFAULT '',
+	cvv TEXT DEFAULT '',
+	pin TEXT DEFAULT '',
+	network TEXT DEFAULT '',
+	notes TEXT DEFAULT '',
+	created_at INTEGER,
+	updated_at INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS identities (
-	id TEXT PRIMARY KEY NOT NULL,
-	title TEXT NOT NULL CHECK (length(trim(title)) > 0),
-	id_number TEXT NOT NULL DEFAULT '',
-	notes TEXT NOT NULL DEFAULT '',
-	created_at INTEGER NOT NULL,
-	updated_at INTEGER NOT NULL
+	id TEXT,
+	title TEXT,
+	id_number TEXT DEFAULT '',
+	notes TEXT DEFAULT '',
+	created_at INTEGER,
+	updated_at INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS attachments (
-	id TEXT PRIMARY KEY NOT NULL,
-	owner_type TEXT NOT NULL CHECK (
-		owner_type IN ('TRANSACTION', 'NOTE', 'TODO', 'CARD', 'IDENTITY')
-	),
-	owner_id TEXT NOT NULL,
-	file_name TEXT NOT NULL,
-	mime_type TEXT NOT NULL,
-	size_bytes INTEGER NOT NULL CHECK (size_bytes > 0 AND size_bytes <= 2097152),
-	content BLOB NOT NULL,
-	created_at INTEGER NOT NULL,
-	updated_at INTEGER NOT NULL,
-	UNIQUE (owner_type, owner_id)
+	id TEXT,
+	owner_type TEXT,
+	owner_id TEXT,
+	file_name TEXT,
+	mime_type TEXT,
+	size_bytes INTEGER,
+	content BLOB,
+	created_at INTEGER,
+	updated_at INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS settings (
-	key TEXT PRIMARY KEY NOT NULL,
-	value TEXT NOT NULL,
-	updated_at INTEGER NOT NULL
+	key TEXT,
+	value TEXT,
+	updated_at INTEGER
 );
 
 CREATE INDEX IF NOT EXISTS idx_transactions_date

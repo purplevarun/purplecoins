@@ -42,9 +42,27 @@ const saveInvestmentType = async (
 	return id;
 };
 
+const deleteInvestmentType = async (
+	database: SQLiteDatabase,
+	id: string,
+): Promise<void> => {
+	const row = await database.getFirstAsync<{ id: string }>(
+		`SELECT id FROM investments WHERE investment_type_id = ? LIMIT 1;`,
+		id,
+	);
+	if (row) {
+		throw new AppError(
+			"INVESTMENT_TYPE_IN_USE",
+			"Investment type is referenced by investments and cannot be deleted.",
+		);
+	}
+	await database.runAsync(`DELETE FROM investment_types WHERE id = ?;`, id);
+};
+
 const investmentTypeService = {
 	getInvestmentTypes,
 	saveInvestmentType,
+	deleteInvestmentType,
 };
 
 export default investmentTypeService;
