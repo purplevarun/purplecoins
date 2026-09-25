@@ -61,7 +61,9 @@ describe("contentRepository", () => {
 
 	it("upserts all content entities", async () => {
 		const database = {
-			runAsync: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
+			runAsync: vi
+				.fn<TestAsyncFunction>()
+				.mockResolvedValue({ changes: 0 }),
 		} as any;
 
 		await upsertFolderRow(database, {
@@ -195,9 +197,144 @@ describe("contentRepository", () => {
 		);
 	});
 
+	it("updates existing content entities without inserting", async () => {
+		const database = {
+			runAsync: vi
+				.fn<TestAsyncFunction>()
+				.mockResolvedValue({ changes: 1 }),
+		} as any;
+
+		await upsertFolderRow(database, {
+			id: "f1",
+			name: "Work",
+			type: "NOTE",
+			createdAt: 1,
+			updatedAt: 2,
+		});
+		expect(database.runAsync).toHaveBeenCalledWith(
+			expect.stringContaining("UPDATE folders"),
+			"Work",
+			2,
+			"f1",
+		);
+
+		await upsertNoteRow(database, {
+			id: "n1",
+			folderId: "f1",
+			folderName: null,
+			title: "T",
+			content: "C",
+			createdAt: 1,
+			updatedAt: 2,
+			hasAttachment: false,
+		});
+		expect(database.runAsync).toHaveBeenCalledWith(
+			expect.stringContaining("UPDATE notes"),
+			"f1",
+			"T",
+			"C",
+			2,
+			"n1",
+		);
+
+		await upsertTodoRow(database, {
+			id: "t1",
+			folderId: "f1",
+			folderName: null,
+			title: "Todo",
+			description: "D",
+			isDone: true,
+			dueAt: 10,
+			createdAt: 1,
+			updatedAt: 2,
+			hasAttachment: false,
+		});
+		expect(database.runAsync).toHaveBeenCalledWith(
+			expect.stringContaining("UPDATE todos"),
+			"f1",
+			"Todo",
+			"D",
+			1,
+			10,
+			2,
+			"t1",
+		);
+
+		await upsertPasswordRow(database, {
+			id: "p1",
+			title: "Site",
+			username: "u",
+			password: "pw",
+			website: "w",
+			notes: "n",
+			createdAt: 1,
+			updatedAt: 2,
+		});
+		expect(database.runAsync).toHaveBeenCalledWith(
+			expect.stringContaining("UPDATE passwords"),
+			"Site",
+			"u",
+			"pw",
+			"w",
+			"n",
+			2,
+			"p1",
+		);
+
+		await upsertCardRow(database, {
+			id: "c1",
+			name: "Card",
+			cardNumber: "1111",
+			cardType: "CREDIT_CARD",
+			expiry: "12/30",
+			cvv: "111",
+			pin: "0000",
+			network: "VISA",
+			notes: "note",
+			createdAt: 1,
+			updatedAt: 2,
+			hasAttachment: false,
+		});
+		expect(database.runAsync).toHaveBeenCalledWith(
+			expect.stringContaining("UPDATE cards"),
+			"Card",
+			"1111",
+			"CREDIT_CARD",
+			"12/30",
+			"111",
+			"0000",
+			"VISA",
+			"note",
+			2,
+			"c1",
+		);
+
+		await upsertIdentityRow(database, {
+			id: "i1",
+			title: "Passport",
+			idNumber: "P1",
+			notes: "n",
+			createdAt: 1,
+			updatedAt: 2,
+			hasAttachment: false,
+		});
+		expect(database.runAsync).toHaveBeenCalledWith(
+			expect.stringContaining("UPDATE identities"),
+			"Passport",
+			"P1",
+			"n",
+			2,
+			"i1",
+		);
+
+		expect(database.runAsync).toHaveBeenCalledTimes(6);
+	});
+
 	it("maps todo isDone false to 0 in upsertTodoRow", async () => {
 		const database = {
-			runAsync: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
+			runAsync: vi
+				.fn<TestAsyncFunction>()
+				.mockResolvedValue({ changes: 0 }),
 		} as any;
 
 		await upsertTodoRow(database, {

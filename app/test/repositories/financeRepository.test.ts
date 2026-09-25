@@ -283,7 +283,9 @@ describe("financeRepository", () => {
 
 	it("writes source/category/simple-entity rows and checks names", async () => {
 		const database = {
-			runAsync: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
+			runAsync: vi
+				.fn<TestAsyncFunction>()
+				.mockResolvedValue({ changes: 0 }),
 			getFirstAsync: vi
 				.fn()
 				.mockResolvedValueOnce({ id: "x" })
@@ -426,7 +428,9 @@ describe("financeRepository", () => {
 
 	it("writes and deletes transaction, budget and misc rows", async () => {
 		const database = {
-			runAsync: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
+			runAsync: vi
+				.fn<TestAsyncFunction>()
+				.mockResolvedValue({ changes: 0 }),
 			withTransactionAsync: vi.fn(
 				async (callback: () => Promise<void>) => {
 					await callback();
@@ -660,5 +664,65 @@ describe("financeRepository", () => {
 			true,
 		);
 		expect(await investmentTypeNameExistsRow(database, "Nope")).toBe(false);
+	});
+
+	it("updates existing category, budget and exchange-rate rows without inserting", async () => {
+		const database = {
+			runAsync: vi
+				.fn<TestAsyncFunction>()
+				.mockResolvedValue({ changes: 1 }),
+		} as any;
+
+		await upsertCategoryRow(database, {
+			id: "c1",
+			name: "Food",
+			isIncome: false,
+			createdAt: 1,
+			updatedAt: 2,
+			archived: false,
+		});
+		expect(database.runAsync).toHaveBeenCalledWith(
+			expect.stringContaining("UPDATE categories"),
+			"Food",
+			0,
+			2,
+			"c1",
+		);
+
+		await upsertBudgetRow(database, {
+			id: "b1",
+			categoryId: "c1",
+			categoryName: "Food",
+			amount: "100",
+			period: "MONTHLY",
+			createdAt: 1,
+			updatedAt: 2,
+		});
+		expect(database.runAsync).toHaveBeenCalledWith(
+			expect.stringContaining("UPDATE budgets"),
+			"c1",
+			"100",
+			"MONTHLY",
+			2,
+			"b1",
+		);
+
+		await upsertExchangeRateRow(database, {
+			currencyCode: "USD",
+			rateToInr: "83.5",
+			source: "API",
+			fetchedAt: 1,
+			updatedAt: 2,
+		});
+		expect(database.runAsync).toHaveBeenCalledWith(
+			expect.stringContaining("UPDATE exchange_rates"),
+			"83.5",
+			"API",
+			1,
+			2,
+			"USD",
+		);
+
+		expect(database.runAsync).toHaveBeenCalledTimes(3);
 	});
 });

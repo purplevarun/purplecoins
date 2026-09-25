@@ -294,15 +294,19 @@ const upsertCategoryRow = async (
 	database: SQLiteDatabase,
 	category: Category,
 ): Promise<void> => {
+	const result = await database.runAsync(
+		`UPDATE categories SET name = ?, is_income = ?, updated_at = ? WHERE id = ?;`,
+		category.name,
+		category.isIncome ? 1 : 0,
+		category.updatedAt,
+		category.id,
+	);
+	if (result.changes > 0) return;
 	await database.runAsync(
 		`
 			INSERT INTO categories (
 				id, name, is_income, created_at, updated_at
-			) VALUES (?, ?, ?, ?, ?)
-			ON CONFLICT(id) DO UPDATE SET
-				name = excluded.name,
-				is_income = excluded.is_income,
-				updated_at = excluded.updated_at;
+			) VALUES (?, ?, ?, ?, ?);
 		`,
 		category.id,
 		category.name,
@@ -918,16 +922,20 @@ const upsertBudgetRow = async (
 	database: SQLiteDatabase,
 	budget: Budget,
 ): Promise<void> => {
+	const result = await database.runAsync(
+		`UPDATE budgets SET category_id = ?, amount = ?, period = ?, updated_at = ? WHERE id = ?;`,
+		budget.categoryId,
+		budget.amount,
+		budget.period,
+		budget.updatedAt,
+		budget.id,
+	);
+	if (result.changes > 0) return;
 	await database.runAsync(
 		`
 			INSERT INTO budgets (
 				id, category_id, amount, period, created_at, updated_at
-			) VALUES (?, ?, ?, ?, ?, ?)
-			ON CONFLICT(id) DO UPDATE SET
-				category_id = excluded.category_id,
-				amount = excluded.amount,
-				period = excluded.period,
-				updated_at = excluded.updated_at;
+			) VALUES (?, ?, ?, ?, ?, ?);
 		`,
 		budget.id,
 		budget.categoryId,
@@ -963,16 +971,20 @@ const upsertExchangeRateRow = async (
 	database: SQLiteDatabase,
 	rate: ExchangeRate,
 ): Promise<void> => {
+	const result = await database.runAsync(
+		`UPDATE exchange_rates SET rate_to_inr = ?, source = ?, fetched_at = ?, updated_at = ? WHERE currency_code = ?;`,
+		rate.rateToInr,
+		rate.source,
+		rate.fetchedAt,
+		rate.updatedAt,
+		rate.currencyCode,
+	);
+	if (result.changes > 0) return;
 	await database.runAsync(
 		`
 			INSERT INTO exchange_rates (
 				currency_code, rate_to_inr, source, fetched_at, updated_at
-			) VALUES (?, ?, ?, ?, ?)
-			ON CONFLICT(currency_code) DO UPDATE SET
-				rate_to_inr = excluded.rate_to_inr,
-				source = excluded.source,
-				fetched_at = excluded.fetched_at,
-				updated_at = excluded.updated_at;
+			) VALUES (?, ?, ?, ?, ?);
 		`,
 		rate.currencyCode,
 		rate.rateToInr,

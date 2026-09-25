@@ -25,13 +25,17 @@ const upsertFolderRow = async (
 	database: SQLiteDatabase,
 	folder: Folder,
 ): Promise<void> => {
+	const result = await database.runAsync(
+		`UPDATE folders SET name = ?, updated_at = ? WHERE id = ?;`,
+		folder.name,
+		folder.updatedAt,
+		folder.id,
+	);
+	if (result.changes > 0) return;
 	await database.runAsync(
 		`
 			INSERT INTO folders (id, name, type, created_at, updated_at)
-			VALUES (?, ?, ?, ?, ?)
-			ON CONFLICT(id) DO UPDATE SET
-				name = excluded.name,
-				updated_at = excluded.updated_at;
+			VALUES (?, ?, ?, ?, ?);
 		`,
 		folder.id,
 		folder.name,
@@ -100,16 +104,20 @@ const upsertNoteRow = async (
 	database: SQLiteDatabase,
 	note: Note,
 ): Promise<void> => {
+	const result = await database.runAsync(
+		`UPDATE notes SET folder_id = ?, title = ?, content = ?, updated_at = ? WHERE id = ?;`,
+		note.folderId,
+		note.title,
+		note.content,
+		note.updatedAt,
+		note.id,
+	);
+	if (result.changes > 0) return;
 	await database.runAsync(
 		`
 			INSERT INTO notes (
 				id, folder_id, title, content, created_at, updated_at
-			) VALUES (?, ?, ?, ?, ?, ?)
-			ON CONFLICT(id) DO UPDATE SET
-				folder_id = excluded.folder_id,
-				title = excluded.title,
-				content = excluded.content,
-				updated_at = excluded.updated_at;
+			) VALUES (?, ?, ?, ?, ?, ?);
 		`,
 		note.id,
 		note.folderId,
@@ -176,19 +184,28 @@ const upsertTodoRow = async (
 	database: SQLiteDatabase,
 	todo: Todo,
 ): Promise<void> => {
+	const result = await database.runAsync(
+		`
+			UPDATE todos
+			SET folder_id = ?, title = ?, description = ?, is_done = ?,
+				due_at = ?, updated_at = ?
+			WHERE id = ?;
+		`,
+		todo.folderId,
+		todo.title,
+		todo.description,
+		todo.isDone ? 1 : 0,
+		todo.dueAt,
+		todo.updatedAt,
+		todo.id,
+	);
+	if (result.changes > 0) return;
 	await database.runAsync(
 		`
 			INSERT INTO todos (
 				id, folder_id, title, description, is_done, due_at,
 				created_at, updated_at
-			) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-			ON CONFLICT(id) DO UPDATE SET
-				folder_id = excluded.folder_id,
-				title = excluded.title,
-				description = excluded.description,
-				is_done = excluded.is_done,
-				due_at = excluded.due_at,
-				updated_at = excluded.updated_at;
+			) VALUES (?, ?, ?, ?, ?, ?, ?, ?);
 		`,
 		todo.id,
 		todo.folderId,
@@ -237,19 +254,28 @@ const upsertPasswordRow = async (
 	database: SQLiteDatabase,
 	entry: PasswordEntry,
 ): Promise<void> => {
+	const result = await database.runAsync(
+		`
+			UPDATE passwords
+			SET title = ?, username = ?, password = ?, website = ?,
+				notes = ?, updated_at = ?
+			WHERE id = ?;
+		`,
+		entry.title,
+		entry.username,
+		entry.password,
+		entry.website,
+		entry.notes,
+		entry.updatedAt,
+		entry.id,
+	);
+	if (result.changes > 0) return;
 	await database.runAsync(
 		`
 			INSERT INTO passwords (
 				id, title, username, password, website, notes,
 				created_at, updated_at
-			) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-			ON CONFLICT(id) DO UPDATE SET
-				title = excluded.title,
-				username = excluded.username,
-				password = excluded.password,
-				website = excluded.website,
-				notes = excluded.notes,
-				updated_at = excluded.updated_at;
+			) VALUES (?, ?, ?, ?, ?, ?, ?, ?);
 		`,
 		entry.id,
 		entry.title,
@@ -320,22 +346,31 @@ const upsertCardRow = async (
 	database: SQLiteDatabase,
 	entry: CardEntry,
 ): Promise<void> => {
+	const result = await database.runAsync(
+		`
+			UPDATE cards
+			SET name = ?, card_number = ?, card_type = ?, expiry = ?, cvv = ?,
+				pin = ?, network = ?, notes = ?, updated_at = ?
+			WHERE id = ?;
+		`,
+		entry.name,
+		entry.cardNumber,
+		entry.cardType,
+		entry.expiry,
+		entry.cvv,
+		entry.pin,
+		entry.network,
+		entry.notes,
+		entry.updatedAt,
+		entry.id,
+	);
+	if (result.changes > 0) return;
 	await database.runAsync(
 		`
 			INSERT INTO cards (
 				id, name, card_number, card_type, expiry, cvv, pin, network, notes,
 				created_at, updated_at
-			) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-			ON CONFLICT(id) DO UPDATE SET
-				name = excluded.name,
-				card_number = excluded.card_number,
-				card_type = excluded.card_type,
-				expiry = excluded.expiry,
-				cvv = excluded.cvv,
-				pin = excluded.pin,
-				network = excluded.network,
-				notes = excluded.notes,
-				updated_at = excluded.updated_at;
+			) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 		`,
 		entry.id,
 		entry.name,
@@ -399,16 +434,20 @@ const upsertIdentityRow = async (
 	database: SQLiteDatabase,
 	entry: IdentityEntry,
 ): Promise<void> => {
+	const result = await database.runAsync(
+		`UPDATE identities SET title = ?, id_number = ?, notes = ?, updated_at = ? WHERE id = ?;`,
+		entry.title,
+		entry.idNumber,
+		entry.notes,
+		entry.updatedAt,
+		entry.id,
+	);
+	if (result.changes > 0) return;
 	await database.runAsync(
 		`
 			INSERT INTO identities (
 				id, title, id_number, notes, created_at, updated_at
-			) VALUES (?, ?, ?, ?, ?, ?)
-			ON CONFLICT(id) DO UPDATE SET
-				title = excluded.title,
-				id_number = excluded.id_number,
-				notes = excluded.notes,
-				updated_at = excluded.updated_at;
+			) VALUES (?, ?, ?, ?, ?, ?);
 		`,
 		entry.id,
 		entry.title,

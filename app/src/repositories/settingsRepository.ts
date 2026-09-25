@@ -18,13 +18,17 @@ const upsertSettingRow = async (
 	value: string,
 	updatedAt: number,
 ): Promise<void> => {
+	const result = await database.runAsync(
+		"UPDATE settings SET value = ?, updated_at = ? WHERE key = ?;",
+		value,
+		updatedAt,
+		key,
+	);
+	if (result.changes > 0) return;
 	await database.runAsync(
 		`
 			INSERT INTO settings (key, value, updated_at)
-			VALUES (?, ?, ?)
-			ON CONFLICT(key) DO UPDATE SET
-				value = excluded.value,
-				updated_at = excluded.updated_at;
+			VALUES (?, ?, ?);
 		`,
 		key,
 		value,
