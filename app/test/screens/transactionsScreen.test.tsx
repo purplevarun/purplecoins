@@ -439,7 +439,11 @@ describe("TransactionsScreen", () => {
 			expect(serviceMocks.getTransactions).not.toHaveBeenCalled();
 			expect(
 				serviceMocks.getTransactionPage,
-			).toHaveBeenCalledExactlyOnceWith({ id: "db" }, undefined);
+			).toHaveBeenCalledExactlyOnceWith(
+				{ id: "db" },
+				undefined,
+				undefined,
+			);
 			expect(dayButton(first, "Previous day")).toBeUndefined();
 			const button = footerButton(first);
 			expect(button.label).toBe("Load more");
@@ -459,9 +463,9 @@ describe("TransactionsScreen", () => {
 			const last = harness.render();
 			expect(listProps(last).data).toEqual(history);
 			expect(serviceMocks.getTransactionPage.mock.calls).toEqual([
-				[{ id: "db" }, undefined],
-				[{ id: "db" }, firstPage.at(-1)],
-				[{ id: "db" }, secondPage.at(-1)],
+				[{ id: "db" }, undefined, undefined],
+				[{ id: "db" }, firstPage.at(-1), undefined],
+				[{ id: "db" }, secondPage.at(-1), undefined],
 			]);
 			expect(elements(last, AppButton)).toHaveLength(0);
 			const headerTexts = elements<ComponentProps<typeof CustomText>>(
@@ -497,11 +501,90 @@ describe("TransactionsScreen", () => {
 				expect(listProps(tree).data).toEqual(transactions);
 				expect(listProps(tree).ListEmptyComponent).not.toBeNull();
 				expect(elements(tree, AppButton)).toHaveLength(0);
+				if (count === 0) {
+					expect(listProps(tree).ListFooterComponent).toBeNull();
+				} else {
+					expect(
+						elements<ComponentProps<typeof CustomText>>(
+							listProps(tree).ListFooterComponent,
+							CustomText,
+						)[0]?.props.children,
+					).toBe("No older transactions");
+				}
 				expect(
 					serviceMocks.getTransactionPage,
-				).toHaveBeenCalledExactlyOnceWith({ id: "db" }, undefined);
+				).toHaveBeenCalledExactlyOnceWith(
+					{ id: "db" },
+					undefined,
+					undefined,
+				);
 			},
 		);
+
+		it("pages only the selected classification through the query", async () => {
+			const investmentRecent: Transaction = {
+				...recent,
+				id: "00000000-0000-4000-8000-000000000201",
+				classification: "INVESTMENT",
+			};
+			const investmentOlder: Transaction = {
+				...investmentRecent,
+				id: "00000000-0000-4000-8000-000000000202",
+				createdAt: investmentRecent.createdAt - 1,
+			};
+			serviceMocks.getTransactionPage
+				.mockResolvedValueOnce({
+					transactions: [investmentRecent],
+					hasMore: true,
+				})
+				.mockResolvedValueOnce({
+					transactions: [investmentOlder],
+					hasMore: false,
+				});
+			const harness = createHarness();
+			harness.setState(1, "INVESTMENT");
+			harness.render();
+			harness.reload();
+			await flush();
+			const first = harness.render();
+			expect(listProps(first).data).toEqual([investmentRecent]);
+			expect(
+				serviceMocks.getTransactionPage,
+			).toHaveBeenCalledExactlyOnceWith(
+				{ id: "db" },
+				undefined,
+				"INVESTMENT",
+			);
+			footerButton(first).onPress();
+			await flush();
+			const second = harness.render();
+			expect(listProps(second).data).toEqual([
+				investmentRecent,
+				investmentOlder,
+			]);
+			expect(serviceMocks.getTransactionPage).toHaveBeenLastCalledWith(
+				{ id: "db" },
+				investmentRecent,
+				"INVESTMENT",
+			);
+			expect(serviceMocks.getTransactions).not.toHaveBeenCalled();
+		});
+
+		it("hides Load more while no loaded transactions are visible", async () => {
+			serviceMocks.getTransactionPage.mockResolvedValueOnce({
+				transactions: [recent],
+				hasMore: true,
+			});
+			const harness = createHarness();
+			harness.setState(5, "zzz");
+			harness.render();
+			harness.reload();
+			await flush();
+			const tree = harness.render();
+			expect(listProps(tree).data).toEqual([]);
+			expect(listProps(tree).ListFooterComponent).toBeNull();
+			expect(elements(tree, AppButton)).toHaveLength(0);
+		});
 
 		it.each(["DAY", "SCROLL"] as const)(
 			"retries the same initial %s query after failure",
@@ -557,6 +640,7 @@ describe("TransactionsScreen", () => {
 			expect(serviceMocks.getTransactionPage.mock.calls[1]).toEqual([
 				{ id: "db" },
 				recent,
+				undefined,
 			]);
 			expect(serviceMocks.getTransactionPage.mock.calls[2]).toEqual(
 				serviceMocks.getTransactionPage.mock.calls[1],
@@ -609,6 +693,7 @@ describe("TransactionsScreen", () => {
 			expect(serviceMocks.getTransactionPage).toHaveBeenLastCalledWith(
 				{ id: "db" },
 				undefined,
+				"GENERAL",
 			);
 			expect(listProps(harness.render()).data).toEqual([recent]);
 		});
@@ -633,6 +718,7 @@ describe("TransactionsScreen", () => {
 			await flush();
 			expect(serviceMocks.getTransactionPage).toHaveBeenLastCalledWith(
 				{ id: "db" },
+				undefined,
 				undefined,
 			);
 			expect(listProps(harness.render()).data).toEqual([]);
@@ -824,6 +910,7 @@ describe("TransactionsScreen", () => {
 
 		expect(serviceMocks.getTransactionPage).toHaveBeenCalledWith(
 			{ id: "db" },
+			undefined,
 			undefined,
 		);
 		expect(setOptions).toHaveBeenCalled();
@@ -1034,23 +1121,25 @@ describe("TransactionsScreen", () => {
 				mode === "DAY"
 					? serviceMocks.getTransactionPage
 					: serviceMocks.getTransactions;
-			expect(query).toHaveBeenCalledExactlyOnceWith(
-				{ id: "db" },
+			expect(query.mock.calls).toEqual([
 				mode === "DAY"
-					? {
-							start: new Date(2026, 8, 15).getTime(),
-							end: new Date(
-								2026,
-								8,
-								15,
-								23,
-								59,
-								59,
-								999,
-							).getTime(),
-						}
-					: undefined,
-			);
+					? [
+							{ id: "db" },
+							{
+								start: new Date(2026, 8, 15).getTime(),
+								end: new Date(
+									2026,
+									8,
+									15,
+									23,
+									59,
+									59,
+									999,
+								).getTime(),
+							},
+						]
+					: [{ id: "db" }, undefined, undefined],
+			]);
 			expect(otherQuery).not.toHaveBeenCalled();
 		},
 	);
@@ -1154,6 +1243,7 @@ describe("TransactionsScreen", () => {
 
 		expect(serviceMocks.getTransactionPage).toHaveBeenCalledWith(
 			{ id: "db" },
+			undefined,
 			undefined,
 		);
 		expect(clearSpy).toHaveBeenCalled();

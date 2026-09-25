@@ -27,6 +27,7 @@ import financeConstants from "@/constants/financeConstants";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import transactionService from "@/services/transactionService";
 import type Transaction from "@/types/Transaction";
+import type TransactionClassification from "@/types/TransactionClassification";
 import type TransactionCursor from "@/types/TransactionCursor";
 import type TransactionsScreenProps from "@/types/TransactionsScreenProps";
 import dateUtils from "@/utils/date";
@@ -70,6 +71,10 @@ const TransactionsScreen = ({
 		loading: false,
 		cursor: undefined as TransactionCursor | undefined,
 	});
+	const pageClassification =
+		viewMode === "SCROLL" && filter !== "ALL"
+			? (filter as TransactionClassification)
+			: undefined;
 
 	const getScreenData = useCallback(
 		async (append = false): Promise<void> => {
@@ -89,6 +94,7 @@ const TransactionsScreen = ({
 					const page = await getTransactionPage(
 						database,
 						append ? pagination.current.cursor : undefined,
+						pageClassification,
 					);
 					loadedTransactions = page.transactions;
 					hasMore = page.hasMore;
@@ -119,7 +125,7 @@ const TransactionsScreen = ({
 				}
 			}
 		},
-		[activeDate, database, viewMode],
+		[activeDate, database, pageClassification, viewMode],
 	);
 
 	useEffect(() => {
@@ -336,7 +342,9 @@ const TransactionsScreen = ({
 				/>
 			);
 		}
-		if (viewMode === "DAY") return null;
+		if (viewMode === "DAY" || filteredTransactions.length === 0) {
+			return null;
+		}
 		return paging.hasMore ? (
 			<AppButton
 				icon="chevron-down-outline"
@@ -352,7 +360,14 @@ const TransactionsScreen = ({
 				No older transactions
 			</CustomText>
 		);
-	}, [error, getScreenData, paging.hasMore, paging.isLoading, viewMode]);
+	}, [
+		error,
+		filteredTransactions.length,
+		getScreenData,
+		paging.hasMore,
+		paging.isLoading,
+		viewMode,
+	]);
 
 	const listEmpty = useMemo(
 		() => (

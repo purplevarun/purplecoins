@@ -8,6 +8,7 @@ import type InvestmentType from "@/types/InvestmentType";
 import type SimpleEntity from "@/types/SimpleEntity";
 import type Source from "@/types/Source";
 import type Transaction from "@/types/Transaction";
+import type TransactionClassification from "@/types/TransactionClassification";
 import type TransactionCursor from "@/types/TransactionCursor";
 import type TransactionDateBounds from "@/types/TransactionDateBounds";
 import type TransactionInput from "@/types/TransactionInput";
@@ -676,16 +677,27 @@ const getTransactionPageRows = async (
 	database: SQLiteDatabase,
 	limit: number,
 	cursor?: TransactionCursor,
-): Promise<readonly Transaction[]> =>
-	hydrateTransactionItems(
+	classification?: TransactionClassification,
+): Promise<readonly Transaction[]> => {
+	const conditions = [
+		...(cursor ? ["(t.created_at, t.id) < (?, ?)"] : []),
+		...(classification ? ["t.classification = ?"] : []),
+	];
+	const parameters = [
+		...(cursor ? [cursor.createdAt, cursor.id] : []),
+		...(classification ? [classification] : []),
+	];
+	return hydrateTransactionItems(
 		database,
 		await database.getAllAsync<Omit<Transaction, "items">>(
 			`${TRANSACTION_SELECT}
-			${cursor ? "WHERE (t.created_at, t.id) < (?, ?)" : ""}
+			${conditions.length ? `WHERE ${conditions.join(" AND ")}` : ""}
 			ORDER BY t.created_at DESC, t.id DESC LIMIT ?;`,
-			...(cursor ? [cursor.createdAt, cursor.id, limit] : [limit]),
+			...parameters,
+			limit,
 		),
 	);
+};
 
 const getTransactionRowsInRange = async (
 	database: SQLiteDatabase,

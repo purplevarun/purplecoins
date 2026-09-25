@@ -147,11 +147,25 @@ describe("financeRepository", () => {
 	});
 
 	it.each([
-		undefined,
-		{ createdAt: 100, id: "00000000-0000-4000-8000-000000000010" },
+		{ cursor: undefined, classification: undefined },
+		{
+			cursor: {
+				createdAt: 100,
+				id: "00000000-0000-4000-8000-000000000010",
+			},
+			classification: undefined,
+		},
+		{ cursor: undefined, classification: "INVESTMENT" as const },
+		{
+			cursor: {
+				createdAt: 100,
+				id: "00000000-0000-4000-8000-000000000010",
+			},
+			classification: "GENERAL" as const,
+		},
 	])(
-		"queries a count-limited creation-ordered page with cursor %j",
-		async (cursor) => {
+		"queries a count-limited creation-ordered page with cursor $cursor and classification $classification",
+		async ({ cursor, classification }) => {
 			const getAllAsync = vi
 				.fn<
 					(
@@ -162,21 +176,37 @@ describe("financeRepository", () => {
 				.mockResolvedValue([]);
 			const database = { getAllAsync } as unknown as SQLiteDatabase;
 
-			expect(await getTransactionPageRows(database, 11, cursor)).toEqual(
-				[],
-			);
+			expect(
+				await getTransactionPageRows(
+					database,
+					11,
+					cursor,
+					classification,
+				),
+			).toEqual([]);
 			expect(getAllAsync).toHaveBeenCalledExactlyOnceWith(
 				expect.stringContaining(
 					"ORDER BY t.created_at DESC, t.id DESC LIMIT ?;",
 				),
-				...(cursor ? [cursor.createdAt, cursor.id, 11] : [11]),
+				...(cursor ? [cursor.createdAt, cursor.id] : []),
+				...(classification ? [classification] : []),
+				11,
 			);
 			const sql = getAllAsync.mock.calls[0]?.[0];
 			expect(sql).not.toContain("transaction_at BETWEEN");
 			expect(sql).not.toContain("OFFSET");
+			if (cursor && classification) {
+				expect(sql).toContain(
+					"WHERE (t.created_at, t.id) < (?, ?) AND t.classification = ?",
+				);
+			}
 			if (cursor)
 				expect(sql).toContain("WHERE (t.created_at, t.id) < (?, ?)");
-			else expect(sql).not.toContain("WHERE (t.created_at, t.id)");
+			else expect(sql).not.toContain("(t.created_at, t.id)");
+			if (classification && !cursor)
+				expect(sql).toContain("WHERE t.classification = ?");
+			if (!classification)
+				expect(sql).not.toContain("t.classification = ?");
 		},
 	);
 

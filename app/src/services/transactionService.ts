@@ -6,6 +6,7 @@ import type AttachmentInput from "@/types/AttachmentInput";
 import type DateRange from "@/types/DateRange";
 import type LinkedTransactionFilter from "@/types/LinkedTransactionFilter";
 import type Transaction from "@/types/Transaction";
+import type TransactionClassification from "@/types/TransactionClassification";
 import type TransactionCursor from "@/types/TransactionCursor";
 import type TransactionInput from "@/types/TransactionInput";
 import type TransactionItemInput from "@/types/TransactionItemInput";
@@ -48,11 +49,13 @@ const getTransactions = async (
 const getTransactionPage = async (
 	database: SQLiteDatabase,
 	cursor?: TransactionCursor,
+	classification?: TransactionClassification,
 ): Promise<TransactionPage> => {
 	const rows = await getTransactionPageRows(
 		database,
 		TRANSACTION_PAGE_SIZE + 1,
 		cursor,
+		classification,
 	);
 	return {
 		transactions: rows.slice(0, TRANSACTION_PAGE_SIZE).map(mapTransaction),

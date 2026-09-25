@@ -144,12 +144,17 @@ describe("transactionService", () => {
 			).toEqual({ transactions: rows.slice(0, 10), hasMore: count > 10 });
 			expect(
 				mocks.getTransactionPageRows,
-			).toHaveBeenCalledExactlyOnceWith(database, 11, undefined);
+			).toHaveBeenCalledExactlyOnceWith(
+				database,
+				11,
+				undefined,
+				undefined,
+			);
 			expect(mocks.getTransactionRows).not.toHaveBeenCalled();
 		},
 	);
 
-	it("forwards both creation timestamp and ID when fetching the next ten", async () => {
+	it("forwards the cursor and classification when fetching the next ten", async () => {
 		const cursor = {
 			createdAt: 0,
 			id: "00000000-0000-4000-8000-000000000010",
@@ -157,12 +162,17 @@ describe("transactionService", () => {
 		mocks.getTransactionPageRows.mockResolvedValueOnce([]);
 
 		expect(
-			await transactionService.getTransactionPage(database, cursor),
+			await transactionService.getTransactionPage(
+				database,
+				cursor,
+				"INVESTMENT",
+			),
 		).toEqual({ transactions: [], hasMore: false });
 		expect(mocks.getTransactionPageRows).toHaveBeenCalledExactlyOnceWith(
 			database,
 			11,
 			cursor,
+			"INVESTMENT",
 		);
 	});
 
