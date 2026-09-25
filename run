@@ -3,6 +3,18 @@ set -eu
 
 cd "$(dirname "$0")/app"
 
+if [ -z "${ANDROID_HOME:-}" ]; then
+  for CANDIDATE_SDK_DIR in \
+    "$HOME/Library/Android/sdk" \
+    "$HOME/Android/Sdk" \
+    "${LOCALAPPDATA:-}/Android/Sdk"; do
+    if [ -d "$CANDIDATE_SDK_DIR" ]; then
+      export ANDROID_HOME="$CANDIDATE_SDK_DIR"
+      break
+    fi
+  done
+fi
+
 version_code_from_version() {
   VERSION_INPUT="$1"
   node -e 'const raw=process.argv[1].trim(); const v=raw.startsWith("v") ? raw.slice(1) : raw; const parts=v.split("."); const invalid=()=>{ console.error("Invalid .version format. Use MAJOR.MINOR, MAJOR.MINOR.PATCH, or date style YYYY.MM.DD (YY.MM.DD also supported)."); process.exit(1); }; if (parts.length !== 2 && parts.length !== 3) invalid(); const nums=parts.map(Number); if (nums.some(Number.isNaN) || nums.some(p => p < 0)) invalid(); let code=0; if (parts.length === 2) { const [major, minor]=nums; if (major > 9999 || minor > 99) invalid(); code=(major*100)+(minor); } else { const [first, second, third]=nums; if (first > 9999 || second > 99 || third > 99) invalid(); const isYearStyle = first >= 1000; if (isYearStyle) { if (second < 1 || second > 12 || third < 1 || third > 31) invalid(); code=(first*10000)+(second*100)+third; } else { code=(first*10000)+(second*100)+third; } } if (!Number.isInteger(code) || code < 1 || code > 2147483647) { console.error(`Computed versionCode out of Android range: ${code}`); process.exit(1); } process.stdout.write(String(code));' "$VERSION_INPUT"
@@ -51,6 +63,41 @@ validate_state() {
   node -e 'const fs=require("fs"); const expectedVersion=process.argv[1]; const expectedCode=Number(process.argv[2]); const app=JSON.parse(fs.readFileSync("app.json", "utf8")); const pkg=JSON.parse(fs.readFileSync("package.json", "utf8")); if (app.expo.version !== expectedVersion) { console.error(`Version mismatch: .version=${expectedVersion} but app.json expo.version=${app.expo.version}`); process.exit(1); } if (pkg.version !== expectedVersion) { console.error(`Version mismatch: .version=${expectedVersion} but package.json version=${pkg.version}`); process.exit(1); } if (Number(app.expo.android.versionCode) !== expectedCode) { console.error(`VersionCode mismatch: app.json expo.android.versionCode=${app.expo.android.versionCode} but expected ${expectedCode}`); process.exit(1); }' "$FILE_VERSION" "$EXPECTED_CODE"
 }
 
+ensure_gradle_dist() {
+  DIST_INFO=$(node -e 'const fs=require("fs"); const crypto=require("crypto"); const txt=fs.readFileSync("android/gradle/wrapper/gradle-wrapper.properties","utf8"); const m=txt.match(/^distributionUrl=(.*)$/m); if (!m) { console.error("distributionUrl not found in gradle-wrapper.properties"); process.exit(1); } const url=m[1].trim().replace(/\\:/g,":"); const base=url.split("/").pop(); if (!base || !base.endsWith(".zip")) { console.error(`Unexpected distributionUrl: ${url}`); process.exit(1); } const name=base.slice(0,-4); const hash=BigInt("0x"+crypto.createHash("md5").update(url).digest("hex")).toString(36); process.stdout.write(`${name} ${hash} ${url}`);')
+  set -- $DIST_INFO
+  DIST_NAME="$1"
+  DIST_HASH="$2"
+  DIST_URL="$3"
+  DIST_DIR="${GRADLE_USER_HOME:-$HOME/.gradle}/wrapper/dists/$DIST_NAME/$DIST_HASH"
+
+  if [ -f "$DIST_DIR/$DIST_NAME.zip.ok" ]; then
+    echo "Gradle distribution already installed: $DIST_NAME"
+    return
+  fi
+
+  echo "Downloading Gradle distribution with curl: $DIST_URL"
+  TMP_ZIP=$(mktemp "${TMPDIR:-/tmp}/gradle-dist.XXXXXX")
+  curl -fsSL --connect-timeout 15 -o "$TMP_ZIP" "$DIST_URL"
+
+  EXPECTED_SHA=$(curl -fsSL --connect-timeout 15 "$DIST_URL.sha256" | tr -d '[:space:]')
+  ACTUAL_SHA=$(shasum -a 256 "$TMP_ZIP" | awk '{print $1}')
+  if [ "$EXPECTED_SHA" != "$ACTUAL_SHA" ]; then
+    rm -f "$TMP_ZIP"
+    echo "Gradle distribution checksum mismatch for $DIST_URL"
+    echo "Expected: $EXPECTED_SHA"
+    echo "Actual:   $ACTUAL_SHA"
+    exit 1
+  fi
+
+  rm -rf "$DIST_DIR"
+  mkdir -p "$DIST_DIR"
+  unzip -q "$TMP_ZIP" -d "$DIST_DIR"
+  touch "$DIST_DIR/$DIST_NAME.zip.ok"
+  rm -f "$TMP_ZIP"
+  echo "Gradle distribution installed: $DIST_NAME"
+}
+
 run_format() {
   if command -v bun >/dev/null 2>&1; then
     bun run format
@@ -91,6 +138,8 @@ run_build() {
   echo "Recreating native Android project (clean prebuild)..."
   rm -rf android
   npx expo prebuild --clean --platform android >> "$LOG" 2>&1
+
+  ensure_gradle_dist
 
   if [ ! -f android/app/debug.keystore ]; then
     keytool -genkeypair -v \
