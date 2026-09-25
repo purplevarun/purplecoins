@@ -242,7 +242,7 @@ describe("attachmentService", () => {
 		);
 	});
 
-	it("openAttachment handles missing content and unavailable sharing", async () => {
+	it("openAttachment handles missing content and does not require sharing", async () => {
 		const metadata = {
 			id: "a1",
 			ownerType: "NOTE",
@@ -264,12 +264,10 @@ describe("attachmentService", () => {
 		mocks.isAvailableAsync.mockResolvedValueOnce(false);
 		await expect(
 			attachmentService.openAttachment(database, metadata as any),
-		).rejects.toMatchObject({
-			code: "SHARING_UNAVAILABLE",
-		});
+		).resolves.toBe("cache-dir/a1-doc.pdf");
 	});
 
-	it("openAttachment writes file and shares when available", async () => {
+	it("openAttachment writes the preview file and returns its URI", async () => {
 		const metadata = {
 			id: "a1",
 			ownerType: "NOTE",
@@ -282,16 +280,12 @@ describe("attachmentService", () => {
 		);
 		mocks.isAvailableAsync.mockResolvedValueOnce(true);
 
-		await attachmentService.openAttachment(database, metadata as any);
+		await expect(
+			attachmentService.openAttachment(database, metadata as any),
+		).resolves.toBe("cache-dir/a1-doc.pdf");
 
 		expect(mocks.fileCreate).toHaveBeenCalledTimes(1);
 		expect(mocks.fileWrite).toHaveBeenCalledWith(new Uint8Array([7, 8]));
-		expect(mocks.shareAsync).toHaveBeenCalledWith(
-			"cache-dir/a1-doc.pdf",
-			expect.objectContaining({
-				mimeType: "application/pdf",
-				dialogTitle: "doc.pdf",
-			}),
-		);
+		expect(mocks.shareAsync).not.toHaveBeenCalled();
 	});
 });

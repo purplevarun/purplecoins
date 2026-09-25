@@ -2,7 +2,9 @@ import typographyConstants from "@/constants/typography";
 
 import { DarkTheme, NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { View } from "react-native";
 
+import HeaderIconButton from "@/components/HeaderIconButton";
 import COLORS from "@/constants/colors";
 import AnalysisDetailsScreen from "@/screens/AnalysisDetailsScreen";
 import AnalysisScreen from "@/screens/AnalysisScreen";
@@ -16,9 +18,12 @@ import GlobalSearchScreen from "@/screens/GlobalSearchScreen";
 import HomeScreen from "@/screens/HomeScreen";
 import InvestmentFormScreen from "@/screens/InvestmentFormScreen";
 import InvestmentsScreen from "@/screens/InvestmentsScreen";
+import InvestmentTypesScreen from "@/screens/InvestmentTypesScreen";
 import LinkedTransactionsScreen from "@/screens/LinkedTransactionsScreen";
 import NoteFormScreen from "@/screens/NoteFormScreen";
 import NotesScreen from "@/screens/NotesScreen";
+import PlatformsScreen from "@/screens/PlatformsScreen";
+import RelationDetailsScreen from "@/screens/RelationDetailsScreen";
 import SettingsScreen from "@/screens/SettingsScreen";
 import SourceFormScreen from "@/screens/SourceFormScreen";
 import SourcesScreen from "@/screens/SourcesScreen";
@@ -28,6 +33,7 @@ import TransactionFormScreen from "@/screens/TransactionFormScreen";
 import TransactionsScreen from "@/screens/TransactionsScreen";
 import TripFormScreen from "@/screens/TripFormScreen";
 import TripsScreen from "@/screens/TripsScreen";
+import TripTypesScreen from "@/screens/TripTypesScreen";
 import VaultFormScreen from "@/screens/VaultFormScreen";
 import VaultScreen from "@/screens/VaultScreen";
 import type RootStackParamList from "@/types/RootStackParamList";
@@ -51,7 +57,7 @@ const AppNavigator = (): React.JSX.Element => (
 	<NavigationContainer theme={navigationTheme}>
 		<Stack.Navigator
 			initialRouteName="Home"
-			screenOptions={{
+			screenOptions={({ navigation }) => ({
 				contentStyle: { backgroundColor: COLORS.background },
 				headerStyle: { backgroundColor: COLORS.backgroundElevated },
 				headerTintColor: COLORS.text,
@@ -61,7 +67,18 @@ const AppNavigator = (): React.JSX.Element => (
 					fontWeight: "800",
 				},
 				animation: "slide_from_right",
-			}}
+				headerBackVisible: false,
+				headerLeft: () =>
+					navigation.canGoBack() ? (
+						<View style={{ marginRight: 15 }}>
+							<HeaderIconButton
+								icon="chevron-back"
+								onPress={() => navigation.goBack()}
+								accessibilityLabel="Back"
+							/>
+						</View>
+					) : null,
+			})}
 		>
 			<Stack.Screen
 				component={HomeScreen}
@@ -104,6 +121,11 @@ const AppNavigator = (): React.JSX.Element => (
 				options={{ title: "Trips" }}
 			/>
 			<Stack.Screen
+				component={TripTypesScreen}
+				name="TripTypes"
+				options={{ title: "New trip type" }}
+			/>
+			<Stack.Screen
 				component={TripFormScreen}
 				name="TripForm"
 				options={{ title: "Trip" }}
@@ -112,6 +134,21 @@ const AppNavigator = (): React.JSX.Element => (
 				component={InvestmentsScreen}
 				name="Investments"
 				options={{ title: "Investments" }}
+			/>
+			<Stack.Screen
+				component={InvestmentTypesScreen}
+				name="InvestmentTypes"
+				options={{ title: "New investment type" }}
+			/>
+			<Stack.Screen
+				component={PlatformsScreen}
+				name="Platforms"
+				options={{ title: "New investment platform" }}
+			/>
+			<Stack.Screen
+				component={RelationDetailsScreen}
+				name="RelationDetails"
+				options={({ route }) => ({ title: route.params.entityName })}
 			/>
 			<Stack.Screen
 				component={InvestmentFormScreen}

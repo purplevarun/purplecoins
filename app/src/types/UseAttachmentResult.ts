@@ -6,7 +6,7 @@ type UseAttachmentResult = Readonly<{
 	pendingAttachment: AttachmentInput | null;
 	isRemoved: boolean;
 	handlePick: () => Promise<void>;
-	handleOpen: () => Promise<void>;
+	handleOpen: () => Promise<string | null>;
 	handleRemove: () => void;
 	processAttachment: (ownerId: string) => Promise<void>;
 }>;

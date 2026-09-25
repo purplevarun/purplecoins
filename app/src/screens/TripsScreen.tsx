@@ -21,6 +21,7 @@ import ListHeader from "@/components/ListHeader";
 import Notice from "@/components/Notice";
 import ScreenList from "@/components/ScreenList";
 import SearchBar from "@/components/SearchBar";
+import SegmentedControl from "@/components/SegmentedControl";
 import COLORS from "@/constants/colors";
 import useAppDialog from "@/hooks/useAppDialog";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
@@ -28,16 +29,19 @@ import exchangeRateService from "@/services/exchangeRateService";
 import settingsService from "@/services/settingsService";
 import tripService from "@/services/tripService";
 import tripTotalService from "@/services/tripTotalService";
+import tripTypeService from "@/services/tripTypeService";
 import type ExchangeRate from "@/types/ExchangeRate";
 import type Trip from "@/types/Trip";
 import type TripsScreenProps from "@/types/TripsScreenProps";
 import type TripTotal from "@/types/TripTotal";
+import type TripType from "@/types/TripType";
 import getErrorMessage from "@/utils/error";
 import moneyUtils from "@/utils/money";
 const { getExchangeRates } = exchangeRateService;
 const { getNativeCurrencyDisplay } = settingsService;
 const { getTrips, setTripArchived } = tripService;
 const { getTripTotals } = tripTotalService;
+const { getTripTypes } = tripTypeService;
 const { compareMoney, formatMoney, ZERO_AMOUNT } = moneyUtils;
 
 const TripsScreen = ({ navigation }: TripsScreenProps): React.JSX.Element => {
@@ -53,21 +57,30 @@ const TripsScreen = ({ navigation }: TripsScreenProps): React.JSX.Element => {
 	const [searchVisible, setSearchVisible] = useState(false);
 	const [searchQuery, setSearchQuery] = useState("");
 	const [searchDebounced, setSearchDebounced] = useState("");
+	const [tab, setTab] = useState<"TRIPS" | "TYPES">("TRIPS");
+	const [tripTypes, setTripTypes] = useState<readonly TripType[]>([]);
 
 	const getScreenData = useCallback(async (): Promise<void> => {
 		try {
 			setError("");
-			const [nativeCurrency, loadedRates, loadedTrips, loadedTripTotals] =
-				await Promise.all([
-					getNativeCurrencyDisplay(database),
-					getExchangeRates(database),
-					getTrips(database),
-					getTripTotals(database),
-				]);
+			const [
+				nativeCurrency,
+				loadedRates,
+				loadedTrips,
+				loadedTripTotals,
+				loadedTripTypes,
+			] = await Promise.all([
+				getNativeCurrencyDisplay(database),
+				getExchangeRates(database),
+				getTrips(database),
+				getTripTotals(database),
+				getTripTypes(database),
+			]);
 			setIsNativeCurrency(nativeCurrency);
 			setExchangeRates(loadedRates);
 			setTrips(loadedTrips);
 			setTripTotals(loadedTripTotals);
+			setTripTypes(loadedTripTypes);
 		} catch (caughtError: unknown) {
 			setError(getErrorMessage(caughtError));
 		}
@@ -302,6 +315,26 @@ const TripsScreen = ({ navigation }: TripsScreenProps): React.JSX.Element => {
 		[handleArchivePress, isNativeCurrency, navigation, toInr, tripTotals],
 	);
 
+	const renderTripTypeItem = useCallback(
+		({ item }: ListItemProps<TripType>): React.JSX.Element => (
+			<Pressable
+				accessibilityRole="button"
+				onPress={() =>
+					navigation.navigate("RelationDetails", {
+						kind: "TRIP_TYPE",
+						entityId: item.id,
+						entityName: item.name,
+					})
+				}
+			>
+				<GlassCard>
+					<CustomText style={styles.title}>{item.name}</CustomText>
+				</GlassCard>
+			</Pressable>
+		),
+		[navigation],
+	);
+
 	const listHeader = useMemo(
 		() => (
 			<ListHeader>
@@ -312,35 +345,67 @@ const TripsScreen = ({ navigation }: TripsScreenProps): React.JSX.Element => {
 						value={searchQuery}
 					/>
 				) : null}
+				<SegmentedControl
+					onChange={(value) => setTab(value as "TRIPS" | "TYPES")}
+					options={[
+						{ label: "Trips", value: "TRIPS" },
+						{ label: "Types", value: "TYPES" },
+					]}
+					value={tab}
+				/>
 				{error ? <Notice message={error} tone="danger" /> : null}
 			</ListHeader>
 		),
-		[error, searchQuery, searchVisible],
+		[error, searchQuery, searchVisible, tab],
 	);
 
 	const listEmpty = useMemo(
 		() => (
 			<EmptyState
 				icon="add-circle-outline"
-				message="Add your first trip to get started."
-				title="No trips yet"
+				message={
+					tab === "TYPES"
+						? "Add your first trip type to get started."
+						: "Add your first trip to get started."
+				}
+				title={tab === "TYPES" ? "No Trip Types yet" : "No trips yet"}
 			/>
 		),
-		[],
+		[tab],
 	);
 
 	return (
 		<View style={styles.screen}>
-			<ScreenList
-				ListEmptyComponent={listEmpty}
-				ListHeaderComponent={listHeader}
-				data={filteredListData}
-				extraData={[isNativeCurrency, searchDebounced]}
-				keyExtractor={(trip) => trip.id}
-				renderItem={renderTripItem}
-			/>
+			{tab === "TYPES" ? (
+				<ScreenList<TripType>
+					key="TYPES"
+					ListEmptyComponent={listEmpty}
+					ListHeaderComponent={listHeader}
+					data={tripTypes.filter((item) =>
+						item.name
+							.toLowerCase()
+							.includes(searchDebounced.trim().toLowerCase()),
+					)}
+					keyExtractor={(item) => item.id}
+					renderItem={renderTripTypeItem}
+				/>
+			) : (
+				<ScreenList<Trip>
+					key="TRIPS"
+					ListEmptyComponent={listEmpty}
+					ListHeaderComponent={listHeader}
+					data={filteredListData}
+					extraData={[isNativeCurrency, searchDebounced]}
+					keyExtractor={(item) => item.id}
+					renderItem={renderTripItem}
+				/>
+			)}
 			<FloatingAddButton
-				onPress={() => navigation.navigate("TripForm")}
+				onPress={() =>
+					navigation.navigate(
+						tab === "TRIPS" ? "TripForm" : "TripTypes",
+					)
+				}
 			/>
 		</View>
 	);

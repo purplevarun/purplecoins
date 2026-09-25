@@ -42,6 +42,11 @@ const attachmentState = vi.hoisted((): AttachmentTestState => ({
 	pendingAttachment: null,
 	isRemoved: false,
 }));
+const sharingMocks = vi.hoisted(() => ({
+	isAvailableAsync: vi.fn(),
+	shareAsync: vi.fn(),
+}));
+vi.mock("expo-sharing", () => sharingMocks);
 
 vi.mock("react", async (importOriginal) => {
 	const actual = await importOriginal<typeof import("react")>();
@@ -246,6 +251,26 @@ const createFormHarness = (
 };
 
 describe("TransactionFormScreen", () => {
+	it.each([true, false])(
+		"shares a returned attachment URI when available=%s",
+		async (available) => {
+			hookMocks.handleOpen.mockResolvedValue("file://preview");
+			sharingMocks.isAvailableAsync.mockResolvedValue(available);
+			sharingMocks.shareAsync.mockClear();
+			const tree = TransactionFormScreen({
+				navigation: { goBack: vi.fn() },
+				route: { params: undefined },
+			} as any);
+			const field = findByPredicate(
+				tree,
+				(node) => typeof node?.props?.onOpen === "function",
+			)[0];
+			await field.props.onOpen();
+			expect(sharingMocks.shareAsync).toHaveBeenCalledTimes(
+				available ? 1 : 0,
+			);
+		},
+	);
 	beforeEach(() => {
 		attachmentState.pendingAttachment = null;
 		attachmentState.isRemoved = false;

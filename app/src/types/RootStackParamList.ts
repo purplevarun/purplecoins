@@ -19,9 +19,19 @@ type RootStackParamList = {
 	Categories: undefined;
 	CategoryForm: { entityId?: string } | undefined;
 	Trips: undefined;
-	TripForm: { entityId?: string } | undefined;
+	TripForm: { entityId?: string; tripTypeId?: string } | undefined;
 	Investments: undefined;
-	InvestmentForm: { entityId?: string } | undefined;
+	InvestmentForm:
+		| { entityId?: string; platformId?: string; investmentTypeId?: string }
+		| undefined;
+	Platforms: undefined;
+	InvestmentTypes: undefined;
+	TripTypes: undefined;
+	RelationDetails: {
+		kind: "TRIP_TYPE" | "INVESTMENT_TYPE" | "PLATFORM";
+		entityId: string;
+		entityName: string;
+	};
 	ArchivedRelations: undefined;
 	LinkedTransactions: {
 		kind: RelationKind;

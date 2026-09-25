@@ -8,7 +8,6 @@ import type AttachmentMetadata from "@/types/AttachmentMetadata";
 import type AttachmentOwnerType from "@/types/AttachmentOwnerType";
 import createId from "@/utils/id";
 import { File, Paths } from "expo-file-system";
-import * as Sharing from "expo-sharing";
 import type { SQLiteDatabase } from "expo-sqlite";
 
 const { ATTACHMENT_MAX_BYTES, BACKUP_MIME_TYPE } = appConstants;
@@ -88,7 +87,7 @@ const deleteAttachment = async (
 const openAttachment = async (
 	database: SQLiteDatabase,
 	metadata: AttachmentMetadata,
-): Promise<void> => {
+): Promise<string> => {
 	const content = await getAttachmentContentRow(
 		database,
 		metadata.ownerType,
@@ -103,16 +102,10 @@ const openAttachment = async (
 	const output = new File(Paths.cache, `${metadata.id}-${metadata.fileName}`);
 	output.create({ overwrite: true, intermediates: true });
 	output.write(content);
-	if (!(await Sharing.isAvailableAsync())) {
-		throw new AppError(
-			"SHARING_UNAVAILABLE",
-			"Opening attachments is unavailable on this device.",
-		);
-	}
-	await Sharing.shareAsync(output.uri, {
-		mimeType: metadata.mimeType,
-		dialogTitle: metadata.fileName,
-	});
+
+	// Return the cache file URI so callers can preview in-app where supported.
+	// For non-previewable flows, callers may still call `Sharing.shareAsync` themselves.
+	return output.uri;
 };
 
 const attachmentService = {

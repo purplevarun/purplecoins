@@ -48,10 +48,11 @@ const useAttachment = (
 		setIsRemoved(false);
 	};
 
-	const handleOpen = async (): Promise<void> => {
+	const handleOpen = async (): Promise<string | null> => {
 		if (existingAttachment) {
-			await openAttachment(database, existingAttachment);
+			return await openAttachment(database, existingAttachment);
 		}
+		return null;
 	};
 
 	const handleRemove = (): void => {

@@ -1,4 +1,7 @@
-import type { ReactElement } from "react";
+import type AppButtonProps from "@/types/AppButtonProps";
+import type NoticeProps from "@/types/NoticeProps";
+import type SelectFieldProps from "@/types/SelectFieldProps";
+import { isValidElement, type ReactElement } from "react";
 import type { TextProps } from "react-native";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -40,9 +43,32 @@ vi.mock("@/components/CustomTextInput", () => ({
 }));
 
 import AppButton from "@/components/AppButton";
+import PlatformPicker from "@/components/PlatformPicker";
 import SegmentedControl from "@/components/SegmentedControl";
 import SelectField from "@/components/SelectField";
+import SimpleEntityForm from "@/components/SimpleEntityForm";
 import TextField from "@/components/TextField";
+
+const findElement = <Props,>(
+	tree: unknown,
+	predicate: (props: Props) => boolean,
+): ReactElement<Props> => {
+	const visit = (node: unknown): ReactElement<Props> | undefined => {
+		if (Array.isArray(node)) {
+			for (const child of node) {
+				const found = visit(child);
+				if (found) return found;
+			}
+		} else if (isValidElement<Props>(node)) {
+			if (predicate(node.props)) return node;
+			return visit(Object.values(node.props as object));
+		}
+		return undefined;
+	};
+	const found = visit(tree);
+	if (!found) throw new Error("Expected form element");
+	return found;
+};
 
 const findAllByType = (node: any, type: string, acc: any[] = []): any[] => {
 	if (!node) return acc;
@@ -82,6 +108,89 @@ const findPressableByText = (node: any, text: string): any => {
 };
 
 describe("form components", () => {
+	it.each([true, false])(
+		"does not submit a relation twice while saving=%s",
+		async (saving) => {
+			reactMocks.useState
+				.mockReturnValueOnce(["Name", vi.fn()])
+				.mockReturnValueOnce([saving, vi.fn()])
+				.mockReturnValueOnce(["", vi.fn()]);
+			const onSave = vi.fn().mockResolvedValue(undefined);
+			await findElement<AppButtonProps>(
+				SimpleEntityForm({ onSave }),
+				(props) => props.label === "Save",
+			).props.onPress();
+			expect(onSave).toHaveBeenCalledTimes(saving ? 0 : 1);
+		},
+	);
+
+	it("keeps the selected archived platform while hiding other archived platforms", () => {
+		const platform = {
+			id: "selected",
+			name: "Broker",
+			archived: 1,
+			createdAt: 1,
+			updatedAt: 1,
+		};
+		const tree = PlatformPicker({
+			platforms: [platform, { ...platform, id: "hidden" }],
+			value: "selected",
+			placeholder: "Choose",
+			onValueChange: vi.fn(),
+		});
+		expect(
+			findElement<SelectFieldProps>(
+				tree,
+				(props) => props.label === "Platform",
+			).props.options,
+		).toEqual([{ label: "Broker", value: "selected" }]);
+	});
+	it("shows relation save failures without clearing the entered name", async () => {
+		const setName = vi.fn();
+		const setSaving = vi.fn();
+		const setError = vi.fn();
+		reactMocks.useState
+			.mockReturnValueOnce(["Broker", setName])
+			.mockReturnValueOnce([false, setSaving])
+			.mockReturnValueOnce(["Save failed", setError]);
+		const onSave = vi.fn().mockRejectedValue(new Error("Save failed"));
+		const tree = SimpleEntityForm({ onSave });
+		expect(
+			findElement<NoticeProps>(
+				tree,
+				(props) => props.message === "Save failed",
+			).props.tone,
+		).toBe("danger");
+		await findElement<AppButtonProps>(
+			tree,
+			(props) => props.label === "Save",
+		).props.onPress();
+		expect(onSave).toHaveBeenCalledWith("Broker");
+		expect(setError).toHaveBeenLastCalledWith("Save failed");
+		expect(setSaving).toHaveBeenLastCalledWith(false);
+		expect(setName).not.toHaveBeenCalled();
+	});
+
+	it("connects the platform selector to the SelectField change callback", () => {
+		const onValueChange = vi.fn();
+		const tree = PlatformPicker({
+			platforms: [
+				{ id: "platform", name: "Broker", createdAt: 1, updatedAt: 1 },
+			],
+			onValueChange,
+		});
+		const field = findElement<SelectFieldProps>(
+			tree,
+			(props) => props.label === "Platform",
+		).props;
+		expect(field.value).toBe("");
+		expect(field.options).toEqual([{ label: "Broker", value: "platform" }]);
+		field.onChange("platform");
+		expect(onValueChange).toHaveBeenLastCalledWith("platform");
+		field.onChange("");
+		expect(onValueChange).toHaveBeenLastCalledWith(null);
+	});
+
 	beforeEach(() => {
 		reactMocks.useState.mockReset();
 		reactMocks.useMemo.mockClear();

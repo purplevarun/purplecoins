@@ -1,8 +1,10 @@
 import type AppButtonProps from "@/types/AppButtonProps";
 import type AppDialogConfirmOptions from "@/types/AppDialogConfirmOptions";
 import type Category from "@/types/Category";
+import type EmptyStateProps from "@/types/EmptyStateProps";
 import type GlassCardProps from "@/types/GlassCardProps";
 import type HeaderIconButtonProps from "@/types/HeaderIconButtonProps";
+import type Investment from "@/types/Investment";
 import type InvestmentListItem from "@/types/InvestmentListItem";
 import type NoticeProps from "@/types/NoticeProps";
 import type SegmentedControlProps from "@/types/SegmentedControlProps";
@@ -12,8 +14,11 @@ import type FinanceListProps from "@test/types/FinanceListProps";
 import type FinanceTestItem from "@test/types/FinanceTestItem";
 import type HeaderOptions from "@test/types/HeaderOptions";
 import type SourceListTestProps from "@test/types/SourceListTestProps";
+import type Trip from "@/types/Trip";
+import type TripType from "@/types/TripType";
 import {
 	isValidElement,
+	type ComponentProps,
 	type PropsWithChildren,
 	type ReactElement,
 } from "react";
@@ -46,6 +51,12 @@ const serviceMocks = vi.hoisted(() => ({
 	getCategories: vi.fn(),
 	getInvestments: vi.fn(),
 	getTrips: vi.fn(),
+	getTripTypes: vi.fn(),
+	getPlatforms: vi.fn(),
+	getInvestmentTypes: vi.fn(),
+	deleteTripType: vi.fn(),
+	deletePlatform: vi.fn(),
+	deleteInvestmentType: vi.fn(),
 	getTripTotals: vi.fn(),
 	getNativeCurrencyDisplay: vi.fn(),
 	updateNativeCurrencyDisplay: vi.fn(),
@@ -236,6 +247,24 @@ vi.mock("@/services/settingsService", () => ({
 vi.mock("@/services/tripTotalService", () => ({
 	default: { getTripTotals: serviceMocks.getTripTotals },
 }));
+vi.mock("@/services/tripTypeService", () => ({
+	default: {
+		getTripTypes: serviceMocks.getTripTypes,
+		deleteTripType: serviceMocks.deleteTripType,
+	},
+}));
+vi.mock("@/services/platformService", () => ({
+	default: {
+		getPlatforms: serviceMocks.getPlatforms,
+		deletePlatform: serviceMocks.deletePlatform,
+	},
+}));
+vi.mock("@/services/investmentTypeService", () => ({
+	default: {
+		getInvestmentTypes: serviceMocks.getInvestmentTypes,
+		deleteInvestmentType: serviceMocks.deleteInvestmentType,
+	},
+}));
 vi.mock("@/services/transactionService", () => ({
 	default: {
 		getLinkedTransactions: serviceMocks.getLinkedTransactions,
@@ -288,6 +317,7 @@ import ExchangeRatesScreen from "@/screens/ExchangeRatesScreen";
 import InvestmentsScreen from "@/screens/InvestmentsScreen";
 import LinkedTransactionsScreen from "@/screens/LinkedTransactionsScreen";
 import NotesScreen from "@/screens/NotesScreen";
+import RelationDetailsScreen from "@/screens/RelationDetailsScreen";
 import SourcesScreen from "@/screens/SourcesScreen";
 import TodosScreen from "@/screens/TodosScreen";
 import TripsScreen from "@/screens/TripsScreen";
@@ -351,6 +381,315 @@ const mockStateValues = (
 };
 
 describe("list screens", () => {
+	it("changes the Trips tab through the segmented control", () => {
+		const setters = mockStateValues({});
+		const tree = TripsScreen({
+			navigation: { setOptions: vi.fn() },
+		} as unknown as ComponentProps<typeof TripsScreen>);
+		findElement<SegmentedControlProps>(
+			tree,
+			(props) => props.value === "TRIPS",
+		).props.onChange("TYPES");
+		expect(setters.get(9)).toHaveBeenCalledWith("TYPES");
+	});
+
+	it("handles named and missing platform groups", () => {
+		mockStateValues({
+			1: [
+				{ id: "named", name: "Fund", platformName: "Broker" },
+				{ id: "blank", name: "Other", platformName: " " },
+				{ id: "missing", name: "Third" },
+			],
+			9: "PLATFORM",
+		});
+		const tree = InvestmentsScreen({
+			navigation: { setOptions: vi.fn() },
+		} as unknown as ComponentProps<typeof InvestmentsScreen>);
+		const list = findElement<FinanceListProps<InvestmentListItem>>(
+			tree,
+			(props) => Array.isArray(props.data),
+		).props;
+		expect(
+			list.data
+				.filter((item) => item.kind === "GROUP_HEADER")
+				.map((item) => item.title),
+		).toEqual(["Broker", "No platform"]);
+		mockStateValues({ 1: [{ id: "fund", name: "Fund" }], 9: "TYPES" });
+		const typesTree = InvestmentsScreen({
+			navigation: { setOptions: vi.fn() },
+		} as unknown as ComponentProps<typeof InvestmentsScreen>);
+		expect(
+			findElement<FinanceListProps<TripType>>(typesTree, (props) =>
+				Array.isArray(props.data),
+			).props.data,
+		).toEqual([]);
+	});
+	it.each([true, false])(
+		"ignores completed relation loads after blur, failure=%s",
+		async (failure) => {
+			if (failure)
+				serviceMocks.getTrips.mockRejectedValueOnce(
+					new Error("load failed"),
+				);
+			else serviceMocks.getTrips.mockResolvedValueOnce([]);
+			const setters = mockStateValues({ 2: "visible error" });
+			navigationMocks.useFocusEffect.mockImplementationOnce(
+				(callback) => {
+					const cleanup = callback() as unknown as () => void;
+					cleanup();
+				},
+			);
+			RelationDetailsScreen({
+				navigation: { setOptions: vi.fn() },
+				route: {
+					params: {
+						kind: "TRIP_TYPE",
+						entityId: "type",
+						entityName: "Type",
+					},
+				},
+			} as unknown as ComponentProps<typeof RelationDetailsScreen>);
+			await flush();
+			expect(setters.get(1)).not.toHaveBeenCalled();
+			expect(setters.get(2)).not.toHaveBeenCalledWith("load failed");
+		},
+	);
+
+	it("displays active relation load failures", async () => {
+		serviceMocks.getTrips.mockRejectedValueOnce(new Error("load failed"));
+		const setters = mockStateValues({});
+		RelationDetailsScreen({
+			navigation: { setOptions: vi.fn() },
+			route: {
+				params: {
+					kind: "TRIP_TYPE",
+					entityId: "type",
+					entityName: "Type",
+				},
+			},
+		} as unknown as ComponentProps<typeof RelationDetailsScreen>);
+		await flush();
+		expect(setters.get(2)).toHaveBeenCalledWith("load failed");
+	});
+
+	it.each(["PLATFORM", "INVESTMENT_TYPE"] as const)(
+		"deletes an unused %s through its own service",
+		async (kind) => {
+			const navigation = { setOptions: vi.fn(), goBack: vi.fn() };
+			RelationDetailsScreen({
+				navigation,
+				route: {
+					params: { kind, entityId: "type", entityName: "Type" },
+				},
+			} as unknown as ComponentProps<typeof RelationDetailsScreen>);
+			for (const [effect] of reactMocks.useLayoutEffect.mock.calls)
+				effect();
+			const options = navigation.setOptions.mock
+				.calls[0]?.[0] as HeaderOptions<HeaderIconButtonProps>;
+			options.headerRight().props.onPress();
+			const confirmation = hookMocks.confirm.mock
+				.calls[0]?.[0] as AppDialogConfirmOptions;
+			confirmation.onConfirm();
+			await flush();
+			expect(
+				kind === "PLATFORM"
+					? serviceMocks.deletePlatform
+					: serviceMocks.deleteInvestmentType,
+			).toHaveBeenCalledWith({ id: "db" }, "type");
+			expect(navigation.goBack).toHaveBeenCalled();
+		},
+	);
+	it.each([
+		{ tab: "TYPES", kind: "TRIP_TYPE", screen: "Trips" },
+		{ tab: "TYPES", kind: "INVESTMENT_TYPE", screen: "Investments" },
+		{ tab: "PLATFORMS", kind: "PLATFORM", screen: "Investments" },
+	])(
+		"opens $kind tiles without treating them as investment rows",
+		({ tab, kind, screen }) => {
+			const relation = {
+				id: "relation-id",
+				name: "Holiday",
+				createdAt: 1,
+				updatedAt: 1,
+			};
+			mockStateValues({ 9: tab, 10: [relation], 11: [relation] });
+			const navigation = { navigate: vi.fn(), setOptions: vi.fn() };
+			const tree =
+				screen === "Trips"
+					? TripsScreen({ navigation } as unknown as ComponentProps<
+							typeof TripsScreen
+						>)
+					: InvestmentsScreen({
+							navigation,
+						} as unknown as ComponentProps<
+							typeof InvestmentsScreen
+						>);
+			const list = findElement<FinanceListProps<TripType>>(
+				tree,
+				(props) => Array.isArray(props.data),
+			).props;
+			expect(list.data).toEqual([relation]);
+			expect(list.keyExtractor(relation)).toBe(relation.id);
+			const row = list.renderItem({ item: relation }) as ReactElement<
+				Pick<ActionProps, "onPress">
+			>;
+			row.props.onPress();
+			expect(navigation.navigate).toHaveBeenCalledWith(
+				"RelationDetails",
+				{ kind, entityId: relation.id, entityName: relation.name },
+			);
+			findElement<Pick<AppButtonProps, "onPress">>(
+				tree,
+				(props) => typeof props.onPress === "function",
+			).props.onPress();
+			expect(navigation.navigate).toHaveBeenLastCalledWith(
+				screen === "Trips"
+					? "TripTypes"
+					: tab === "TYPES"
+						? "InvestmentTypes"
+						: "Platforms",
+			);
+			if (screen === "Trips") {
+				expect(
+					findElement<EmptyStateProps>(
+						tree,
+						(props) => props.title === "No Trip Types yet",
+					),
+				).toBeDefined();
+			}
+		},
+	);
+
+	it.each(["TRIP_TYPE", "INVESTMENT_TYPE", "PLATFORM"] as const)(
+		"filters %s records and opens their transactions",
+		async (kind) => {
+			const trip = {
+				id: "trip",
+				name: "Trip",
+				tripTypeId: "relation",
+				archived: false,
+				createdAt: 1,
+				updatedAt: 1,
+			};
+			const investment = {
+				id: "investment",
+				name: "Fund",
+				investmentTypeId: "relation",
+				platformId: "relation",
+				archived: false,
+				createdAt: 1,
+				updatedAt: 1,
+			};
+			serviceMocks.getTrips.mockResolvedValue([
+				trip,
+				{ ...trip, id: "other-trip", tripTypeId: "other" },
+			]);
+			serviceMocks.getInvestments.mockResolvedValue([
+				investment,
+				{
+					...investment,
+					id: "other-investment",
+					investmentTypeId: "other",
+					platformId: "other",
+				},
+			]);
+			const item = kind === "TRIP_TYPE" ? trip : investment;
+			const setters = mockStateValues({ 1: [item] });
+			const navigation = {
+				navigate: vi.fn(),
+				setOptions: vi.fn(),
+				goBack: vi.fn(),
+			};
+			const tree = RelationDetailsScreen({
+				navigation,
+				route: {
+					params: {
+						kind,
+						entityId: "relation",
+						entityName: "Selected relation",
+					},
+				},
+			} as unknown as ComponentProps<typeof RelationDetailsScreen>);
+			await flush();
+			expect(setters.get(1)).toHaveBeenCalledWith([item]);
+			const list = findElement<FinanceListProps<Trip | Investment>>(
+				tree,
+				(props) => Array.isArray(props.data),
+			).props;
+			expect(list.keyExtractor(item)).toBe(item.id);
+			const row = list.renderItem({ item }) as ReactElement<
+				Pick<ActionProps, "onPress">
+			>;
+			row.props.onPress();
+			expect(navigation.navigate).toHaveBeenCalledWith(
+				"LinkedTransactions",
+				{
+					kind: kind === "TRIP_TYPE" ? "TRIP" : "INVESTMENT",
+					entityId: item.id,
+					entityName: item.name,
+				},
+			);
+			findElement<Pick<AppButtonProps, "onPress">>(
+				tree,
+				(props) => typeof props.onPress === "function",
+			).props.onPress();
+			expect(navigation.navigate).toHaveBeenLastCalledWith(
+				kind === "TRIP_TYPE" ? "TripForm" : "InvestmentForm",
+				kind === "TRIP_TYPE"
+					? { tripTypeId: "relation" }
+					: kind === "PLATFORM"
+						? { platformId: "relation" }
+						: { investmentTypeId: "relation" },
+			);
+		},
+	);
+
+	it("uses the app dialog for relation deletion and reports failures", async () => {
+		const navigation = {
+			navigate: vi.fn(),
+			setOptions: vi.fn(),
+			goBack: vi.fn(),
+		};
+		RelationDetailsScreen({
+			navigation,
+			route: {
+				params: {
+					kind: "TRIP_TYPE",
+					entityId: "type",
+					entityName: "Holiday",
+				},
+			},
+		} as unknown as ComponentProps<typeof RelationDetailsScreen>);
+		for (const [effect] of reactMocks.useLayoutEffect.mock.calls) effect();
+		const options = navigation.setOptions.mock
+			.calls[0]?.[0] as HeaderOptions<HeaderIconButtonProps>;
+		options.headerRight().props.onPress();
+		expect(serviceMocks.deleteTripType).not.toHaveBeenCalled();
+		const confirmation = hookMocks.confirm.mock
+			.calls[0]?.[0] as AppDialogConfirmOptions;
+		expect(confirmation.confirmLabel).toBe("Delete");
+		serviceMocks.deleteTripType.mockRejectedValueOnce(
+			new Error("Trip type is in use"),
+		);
+		confirmation.onConfirm();
+		await flush();
+		expect(hookMocks.showMessage).toHaveBeenCalledWith({
+			title: "Unable to delete",
+			message: "Trip type is in use",
+			variant: "danger",
+		});
+		expect(navigation.goBack).not.toHaveBeenCalled();
+		serviceMocks.deleteTripType.mockResolvedValueOnce(undefined);
+		confirmation.onConfirm();
+		await flush();
+		expect(serviceMocks.deleteTripType).toHaveBeenCalledWith(
+			{ id: "db" },
+			"type",
+		);
+		expect(hookMocks.refreshData).toHaveBeenCalled();
+		expect(navigation.goBack).toHaveBeenCalled();
+	});
+
 	beforeEach(() => {
 		reactMocks.useEffect.mockReset();
 		reactMocks.useLayoutEffect.mockReset();
@@ -371,6 +710,9 @@ describe("list screens", () => {
 		serviceMocks.getCategories.mockResolvedValue([]);
 		serviceMocks.getInvestments.mockResolvedValue([]);
 		serviceMocks.getTrips.mockResolvedValue([]);
+		serviceMocks.getTripTypes.mockResolvedValue([]);
+		serviceMocks.getPlatforms.mockResolvedValue([]);
+		serviceMocks.getInvestmentTypes.mockResolvedValue([]);
 		serviceMocks.getTripTotals.mockResolvedValue([]);
 		serviceMocks.getNativeCurrencyDisplay.mockResolvedValue(true);
 		serviceMocks.getInvestmentNetAmount.mockImplementation((net: string) =>
@@ -684,7 +1026,7 @@ describe("list screens", () => {
 		it.each([
 			{ groupBy: "NONE", nativeCurrency: true },
 			{ groupBy: "NONE", nativeCurrency: false },
-			{ groupBy: "LABEL", nativeCurrency: true },
+			{ groupBy: "INVESTMENTS", nativeCurrency: true },
 			{ groupBy: "TYPE", nativeCurrency: false },
 		])(
 			"renders investment totals grouped by $groupBy, native=$nativeCurrency",
@@ -742,11 +1084,9 @@ describe("list screens", () => {
 					.filter((item) => item.kind === "GROUP_HEADER")
 					.map((item) => item.title);
 				expect(headers).toEqual(
-					groupBy === "NONE"
+					groupBy === "NONE" || groupBy === "INVESTMENTS"
 						? []
-						: groupBy === "LABEL"
-							? ["Long term", "No label"]
-							: ["Debt", "Equity", "No type"],
+						: ["Debt", "Equity", "No type"],
 				);
 				if (groupBy === "NONE")
 					expect(

@@ -1,4 +1,16 @@
 import { describe, expect, it, vi } from "vitest";
+vi.mock("react-native", () => ({ View: "View" }));
+vi.mock("@/components/HeaderIconButton", () => ({
+	default: "HeaderIconButton",
+}));
+vi.mock("@/screens/PlatformsScreen", () => ({ default: "PlatformsScreen" }));
+vi.mock("@/screens/TripTypesScreen", () => ({ default: "TripTypesScreen" }));
+vi.mock("@/screens/InvestmentTypesScreen", () => ({
+	default: "InvestmentTypesScreen",
+}));
+vi.mock("@/screens/RelationDetailsScreen", () => ({
+	default: "RelationDetailsScreen",
+}));
 
 vi.mock("@/constants/typography", () => ({
 	default: {
@@ -102,15 +114,24 @@ describe("AppNavigator", () => {
 		const navigators = findAllByType(tree, "Navigator");
 		expect(navigators).toHaveLength(1);
 		expect(navigators[0]?.props?.initialRouteName).toBe("Home");
-		expect(
-			navigators[0]?.props?.screenOptions?.headerTitleStyle?.fontFamily,
-		).toBe("Rubik-SemiBold");
+		const navigation = { canGoBack: vi.fn(() => true), goBack: vi.fn() };
+		const options = navigators[0]?.props?.screenOptions({ navigation });
+		expect(options.headerTitleStyle.fontFamily).toBe("Rubik-SemiBold");
+		options.headerLeft().props.children.props.onPress();
+		expect(navigation.goBack).toHaveBeenCalledOnce();
+		navigation.canGoBack.mockReturnValue(false);
+		expect(options.headerLeft()).toBeNull();
 
 		const screens = findAllByType(tree, "Screen");
-		expect(screens).toHaveLength(26);
+		expect(screens).toHaveLength(30);
 
 		const byName = (name: string) =>
 			screens.find((screen) => screen?.props?.name === name);
+		expect(
+			byName("RelationDetails")?.props?.options({
+				route: { params: { entityName: "Holiday" } },
+			}).title,
+		).toBe("Holiday");
 
 		expect(byName("AnalysisDetails")).toBeTruthy();
 		expect(

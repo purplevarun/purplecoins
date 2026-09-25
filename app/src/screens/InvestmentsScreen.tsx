@@ -29,6 +29,8 @@ import useDatabaseContext from "@/hooks/useDatabaseContext";
 import analysisService from "@/services/analysisService";
 import exchangeRateService from "@/services/exchangeRateService";
 import investmentService from "@/services/investmentService";
+import investmentTypeService from "@/services/investmentTypeService";
+import platformService from "@/services/platformService";
 import settingsService from "@/services/settingsService";
 import type AnalysisSummary from "@/types/AnalysisSummary";
 import type ExchangeRate from "@/types/ExchangeRate";
@@ -36,6 +38,8 @@ import type Investment from "@/types/Investment";
 import type InvestmentGroupBy from "@/types/InvestmentGroupBy";
 import type InvestmentListItem from "@/types/InvestmentListItem";
 import type InvestmentsScreenProps from "@/types/InvestmentsScreenProps";
+import type InvestmentType from "@/types/InvestmentType";
+import type Platform from "@/types/Platform";
 import type SelectOption from "@/types/SelectOption";
 import getErrorMessage from "@/utils/error";
 import moneyUtils from "@/utils/money";
@@ -49,22 +53,22 @@ const { compareMoney, formatMoney, ZERO_AMOUNT } = moneyUtils;
 const { ALL_TIME_END, ALL_TIME_START } = dateConstants;
 
 const GROUP_BY_OPTIONS: readonly SelectOption[] = [
-	{ label: "None", value: "NONE" },
-	{ label: "Label", value: "LABEL" },
-	{ label: "Type", value: "TYPE" },
+	{ label: "Investments", value: "INVESTMENTS" },
+	{ label: "Platforms", value: "PLATFORMS" },
+	{ label: "Types", value: "TYPES" },
 ];
 
 const getInvestmentGroupKey = (
 	investment: Investment,
-	groupBy: "LABEL" | "TYPE",
+	groupBy: "PLATFORM" | "TYPE",
 ): string => {
-	const label =
-		(groupBy === "LABEL"
-			? investment.label
+	const key =
+		(groupBy === "PLATFORM"
+			? investment.platformName
 			: investment.investmentTypeName
 		)?.trim() ?? "";
-	if (label.length > 0) return label;
-	return groupBy === "LABEL" ? "No label" : "No type";
+	if (key.length > 0) return key;
+	return groupBy === "PLATFORM" ? "No platform" : "No type";
 };
 
 const InvestmentsScreen = ({
@@ -82,7 +86,13 @@ const InvestmentsScreen = ({
 	const [searchVisible, setSearchVisible] = useState(false);
 	const [searchQuery, setSearchQuery] = useState("");
 	const [searchDebounced, setSearchDebounced] = useState("");
-	const [groupBy, setGroupBy] = useState<InvestmentGroupBy>("NONE");
+	const [groupBy, setGroupBy] = useState<
+		InvestmentGroupBy | "INVESTMENTS" | "PLATFORMS" | "TYPES"
+	>("INVESTMENTS");
+	const [platforms, setPlatforms] = useState<readonly Platform[]>([]);
+	const [investmentTypes, setInvestmentTypes] = useState<
+		readonly InvestmentType[]
+	>([]);
 
 	const getScreenData = useCallback(async (): Promise<void> => {
 		try {
@@ -100,8 +110,14 @@ const InvestmentsScreen = ({
 					isNativeCurrency: nativeCurrency,
 				}),
 			]);
+			const [loadedPlatforms, loadedTypes] = await Promise.all([
+				platformService.getPlatforms(database),
+				investmentTypeService.getInvestmentTypes(database),
+			]);
 			setInvestments(loadedInvestments);
 			setAnalysis(loadedAnalysis);
+			setPlatforms(loadedPlatforms);
+			setInvestmentTypes(loadedTypes);
 		} catch (caughtError: unknown) {
 			setError(getErrorMessage(caughtError));
 		}
@@ -221,12 +237,17 @@ const InvestmentsScreen = ({
 		const items: readonly InvestmentListItem[] = filteredListData.map(
 			(entity) => ({ kind: "INVESTMENT" as const, entity }),
 		);
-		if (groupBy === "NONE") {
+		if (groupBy === "NONE" || groupBy === "INVESTMENTS") {
 			return items;
 		}
 		const groups = new Map<string, InvestmentListItem[]>();
 		filteredListData.forEach((investment) => {
-			const key = getInvestmentGroupKey(investment, groupBy);
+			const key = getInvestmentGroupKey(
+				investment,
+				groupBy === "PLATFORM" || groupBy === "TYPE"
+					? groupBy
+					: "PLATFORM",
+			);
 			groups.set(key, [
 				...(groups.get(key) ?? []),
 				{ kind: "INVESTMENT" as const, entity: investment },
@@ -279,11 +300,11 @@ const InvestmentsScreen = ({
 								<CustomText style={styles.title}>
 									{investment.name}
 								</CustomText>
-								{investment.label ||
+								{investment.platformName ||
 								investment.investmentTypeName ? (
 									<CustomText style={styles.meta}>
 										{[
-											investment.label,
+											investment.platformName,
 											investment.investmentTypeName,
 										]
 											.filter(Boolean)
@@ -373,6 +394,31 @@ const InvestmentsScreen = ({
 		[analysis, handleArchivePress, isNativeCurrency, navigation],
 	);
 
+	const renderRelationItem = useCallback(
+		({
+			item,
+		}: ListItemProps<Platform | InvestmentType>): React.JSX.Element => (
+			<Pressable
+				accessibilityRole="button"
+				onPress={() =>
+					navigation.navigate("RelationDetails", {
+						kind:
+							groupBy === "PLATFORMS"
+								? "PLATFORM"
+								: "INVESTMENT_TYPE",
+						entityId: item.id,
+						entityName: item.name,
+					})
+				}
+			>
+				<GlassCard>
+					<CustomText style={styles.title}>{item.name}</CustomText>
+				</GlassCard>
+			</Pressable>
+		),
+		[groupBy, navigation],
+	);
+
 	const listHeader = useMemo(
 		() => (
 			<ListHeader>
@@ -404,34 +450,73 @@ const InvestmentsScreen = ({
 		() => (
 			<EmptyState
 				icon="add-circle-outline"
-				message="Add your first investment to get started."
-				title="No investments yet"
+				message={
+					groupBy === "PLATFORMS"
+						? "Add your first platform to get started."
+						: groupBy === "TYPES"
+							? "Add your first investment type to get started."
+							: "Add your first investment to get started."
+				}
+				title={
+					groupBy === "PLATFORMS"
+						? "No Investment Platforms yet"
+						: groupBy === "TYPES"
+							? "No Investment Types yet"
+							: "No investments yet"
+				}
 			/>
 		),
-		[],
+		[groupBy],
 	);
 
 	return (
 		<View style={styles.screen}>
-			<ScreenList
-				ListEmptyComponent={listEmpty}
-				ListHeaderComponent={listHeader}
-				data={groupedListData}
-				extraData={[
-					analysis,
-					groupBy,
-					isNativeCurrency,
-					searchDebounced,
-				]}
-				keyExtractor={(item) =>
-					item.kind === "GROUP_HEADER"
-						? `group:${item.title}`
-						: item.entity.id
-				}
-				renderItem={renderInvestmentItem}
-			/>
+			{groupBy === "PLATFORMS" || groupBy === "TYPES" ? (
+				<ScreenList<Platform | InvestmentType>
+					key={groupBy}
+					ListEmptyComponent={listEmpty}
+					ListHeaderComponent={listHeader}
+					data={(groupBy === "PLATFORMS"
+						? platforms
+						: investmentTypes
+					).filter((item) =>
+						item.name
+							.toLowerCase()
+							.includes(searchDebounced.trim().toLowerCase()),
+					)}
+					keyExtractor={(item) => item.id}
+					renderItem={renderRelationItem}
+				/>
+			) : (
+				<ScreenList<InvestmentListItem>
+					key="INVESTMENTS"
+					ListEmptyComponent={listEmpty}
+					ListHeaderComponent={listHeader}
+					data={groupedListData}
+					extraData={[
+						analysis,
+						groupBy,
+						isNativeCurrency,
+						searchDebounced,
+					]}
+					keyExtractor={(item) =>
+						item.kind === "GROUP_HEADER"
+							? `group:${item.title}`
+							: item.entity.id
+					}
+					renderItem={renderInvestmentItem}
+				/>
+			)}
 			<FloatingAddButton
-				onPress={() => navigation.navigate("InvestmentForm")}
+				onPress={() =>
+					navigation.navigate(
+						groupBy === "PLATFORMS"
+							? "Platforms"
+							: groupBy === "TYPES"
+								? "InvestmentTypes"
+								: "InvestmentForm",
+					)
+				}
 			/>
 		</View>
 	);

@@ -1,7 +1,8 @@
 import type AppButtonProps from "@/types/AppButtonProps";
 import type AppDialogConfirmOptions from "@/types/AppDialogConfirmOptions";
-import type InvestmentTypePickerProps from "@/types/InvestmentTypePickerProps";
 import type NoticeProps from "@/types/NoticeProps";
+import type SelectFieldProps from "@/types/SelectFieldProps";
+import type SimpleEntityFormProps from "@/types/SimpleEntityFormProps";
 import type TextFieldProps from "@/types/TextFieldProps";
 import { isValidElement, type ReactElement } from "react";
 import type { SwitchProps } from "react-native";
@@ -30,6 +31,10 @@ const serviceMocks = vi.hoisted(() => ({
 	createSource: vi.fn(),
 	updateSourceName: vi.fn(),
 	getTrip: vi.fn(),
+	getTripTypes: vi.fn(),
+	saveTripType: vi.fn(),
+	getPlatforms: vi.fn(),
+	savePlatform: vi.fn(),
 	saveTrip: vi.fn(),
 	getInvestment: vi.fn(),
 	saveInvestment: vi.fn(),
@@ -61,6 +66,11 @@ const hookMocks = vi.hoisted(() => ({
 	handleRemove: vi.fn(),
 	handleCreateFolder: vi.fn(),
 }));
+const sharingMocks = vi.hoisted(() => ({
+	isAvailableAsync: vi.fn(),
+	shareAsync: vi.fn(),
+}));
+vi.mock("expo-sharing", () => sharingMocks);
 
 vi.mock("react", async (importOriginal) => {
 	const actual = await importOriginal<typeof import("react")>();
@@ -97,6 +107,9 @@ vi.mock("@/components/GlassCard", () => ({
 }));
 vi.mock("@/components/InvestmentTypePicker", () => ({
 	default: (props: unknown) => ({ type: "InvestmentTypePicker", props }),
+}));
+vi.mock("@/components/SimpleEntityForm", () => ({
+	default: (props: unknown) => ({ type: "SimpleEntityForm", props }),
 }));
 vi.mock("@/components/Notice", () => ({
 	default: (props: any) => ({ type: "Notice", props }),
@@ -164,6 +177,18 @@ vi.mock("@/services/sourceService", () => ({
 vi.mock("@/services/tripService", () => ({
 	default: { getTrip: serviceMocks.getTrip, saveTrip: serviceMocks.saveTrip },
 }));
+vi.mock("@/services/tripTypeService", () => ({
+	default: {
+		getTripTypes: serviceMocks.getTripTypes,
+		saveTripType: serviceMocks.saveTripType,
+	},
+}));
+vi.mock("@/services/platformService", () => ({
+	default: {
+		getPlatforms: serviceMocks.getPlatforms,
+		savePlatform: serviceMocks.savePlatform,
+	},
+}));
 vi.mock("@/services/investmentService", () => ({
 	default: {
 		getInvestment: serviceMocks.getInvestment,
@@ -220,10 +245,13 @@ vi.mock("@/utils/error", () => ({
 import BudgetFormScreen from "@/screens/BudgetFormScreen";
 import CategoryFormScreen from "@/screens/CategoryFormScreen";
 import InvestmentFormScreen from "@/screens/InvestmentFormScreen";
+import InvestmentTypesScreen from "@/screens/InvestmentTypesScreen";
 import NoteFormScreen from "@/screens/NoteFormScreen";
+import PlatformsScreen from "@/screens/PlatformsScreen";
 import SourceFormScreen from "@/screens/SourceFormScreen";
 import TodoFormScreen from "@/screens/TodoFormScreen";
 import TripFormScreen from "@/screens/TripFormScreen";
+import TripTypesScreen from "@/screens/TripTypesScreen";
 import VaultFormScreen from "@/screens/VaultFormScreen";
 
 const flush = async (): Promise<void> => {
@@ -266,6 +294,32 @@ const findByPredicate = (
 };
 
 describe("form screens", () => {
+	it.each([true, false])(
+		"opens attachment URIs when sharing is available=%s",
+		async (available) => {
+			hookMocks.handleOpen.mockResolvedValue("file://preview");
+			sharingMocks.isAvailableAsync.mockResolvedValue(available);
+			sharingMocks.shareAsync.mockClear();
+			for (const Screen of [
+				NoteFormScreen,
+				TodoFormScreen,
+				VaultFormScreen,
+			]) {
+				const tree = (Screen as (props: unknown) => ReactElement)({
+					navigation: { goBack: vi.fn() },
+					route: { params: { kind: "CARD" } },
+				});
+				const field = findByPredicate(
+					tree,
+					(node) => typeof node?.props?.onOpen === "function",
+				)[0];
+				await field.props.onOpen();
+			}
+			expect(sharingMocks.shareAsync).toHaveBeenCalledTimes(
+				available ? 3 : 0,
+			);
+		},
+	);
 	beforeEach(() => {
 		reactMocks.useEffect.mockReset();
 		reactMocks.useState.mockReset();
@@ -290,6 +344,8 @@ describe("form screens", () => {
 			period: "YEARLY",
 		});
 		serviceMocks.saveBudget.mockResolvedValue(undefined);
+		serviceMocks.getPlatforms.mockResolvedValue([]);
+		serviceMocks.getTripTypes.mockResolvedValue([]);
 
 		serviceMocks.getNote.mockResolvedValue({
 			title: "Existing",
@@ -342,6 +398,85 @@ describe("form screens", () => {
 	});
 
 	describe("finance forms", () => {
+		it("loads relation options, changes selectors, and saves an untyped trip", async () => {
+			const type = {
+				id: "type",
+				name: "Holiday",
+				createdAt: 1,
+				updatedAt: 1,
+			};
+			const setters = setStateValues({ 3: [type] });
+			const tree = TripFormScreen({
+				navigation: { goBack: vi.fn() },
+				route: { params: undefined },
+			} as any);
+			const selector = findElement<SelectFieldProps>(
+				tree,
+				(props) => props.label === "Type",
+			).props;
+			expect(selector.options).toEqual([
+				{ label: "Holiday", value: "type" },
+			]);
+			selector.onChange("type");
+			expect(setters.get(2)).toHaveBeenCalledWith("type");
+			findElement<AppButtonProps>(
+				tree,
+				(props) => props.label === "Save",
+			).props.onPress();
+			await vi.runAllTimersAsync();
+			expect(serviceMocks.saveTrip).toHaveBeenCalledWith(
+				{ id: "db" },
+				undefined,
+				"",
+				null,
+			);
+			setStateValues({ 5: [type] });
+			const investment = InvestmentFormScreen({
+				navigation: { goBack: vi.fn() },
+				route: { params: undefined },
+			} as any);
+			const platform = findElement<
+				import("@/types/PlatformPickerProps").default
+			>(
+				investment,
+				(props) => typeof props.onValueChange === "function",
+			).props;
+			platform.onValueChange("platform");
+			platform.onValueChange(null);
+			expect(
+				findElement<SelectFieldProps>(
+					investment,
+					(props) => props.label === "Investment type",
+				).props.options,
+			).toEqual([{ label: "Holiday", value: "type" }]);
+		});
+
+		it("reports trip-type and platform load failures", async () => {
+			serviceMocks.getTripTypes.mockRejectedValueOnce(
+				new Error("types unavailable"),
+			);
+			const tripSetters = setStateValues({});
+			TripFormScreen({
+				navigation: { goBack: vi.fn() },
+				route: { params: undefined },
+			} as any);
+			await flush();
+			expect(tripSetters.get(5)).toHaveBeenCalledWith(
+				"types unavailable",
+			);
+			serviceMocks.getPlatforms.mockRejectedValueOnce(
+				new Error("platforms unavailable"),
+			);
+			const investmentSetters = setStateValues({});
+			InvestmentFormScreen({
+				navigation: { goBack: vi.fn() },
+				route: { params: undefined },
+			} as any);
+			await flush();
+			expect(investmentSetters.get(7)).toHaveBeenCalledWith(
+				"platforms unavailable",
+			);
+		});
 		const forms = [
 			{
 				name: "source",
@@ -366,18 +501,18 @@ describe("form screens", () => {
 				Screen: TripFormScreen,
 				load: "getTrip",
 				save: "saveTrip",
-				savingIndex: 2,
-				errorIndex: 3,
-				values: {},
+				savingIndex: 4,
+				errorIndex: 5,
+				values: { 2: "trip-type" },
 			},
 			{
 				name: "investment",
 				Screen: InvestmentFormScreen,
 				load: "getInvestment",
 				save: "saveInvestment",
-				savingIndex: 5,
-				errorIndex: 6,
-				values: { 2: "Long term", 3: "type" },
+				savingIndex: 6,
+				errorIndex: 7,
+				values: { 2: "platform", 4: "type" },
 			},
 		] as const;
 		const entity = {
@@ -496,8 +631,8 @@ describe("form screens", () => {
 						? [entityId, "Entered"]
 						: ["Entered", "USD"],
 					category: [entityId, "Entered", true],
-					trip: [entityId, "Entered"],
-					investment: [entityId, "Entered", "Long term", "type"],
+					trip: [entityId, "Entered", "trip-type"],
+					investment: [entityId, "Entered", "type", "platform"],
 				};
 				expect(saveMock).toHaveBeenCalledWith(
 					{ id: "db" },
@@ -620,11 +755,11 @@ describe("form screens", () => {
 			},
 		);
 
-		it("loads optional investment fields, creates types, and saves with no type", async () => {
-			const setters = setStateValues({ 1: "Fund", 2: "", 3: "" });
+		it("uses selection-only investment relations and saves with no type", async () => {
+			const setters = setStateValues({ 1: "Fund", 2: "", 4: "" });
 			serviceMocks.getInvestment.mockResolvedValueOnce({
 				name: "Fund",
-				label: null,
+				platformId: null,
 				investmentTypeId: null,
 			});
 			const tree = (
@@ -635,22 +770,15 @@ describe("form screens", () => {
 			});
 			await flush();
 			expect(setters.get(2)).toHaveBeenCalledWith("");
-			expect(setters.get(3)).toHaveBeenCalledWith("");
-			expect(setters.get(4)).toHaveBeenCalledWith(types);
-			const picker = findElement<
-				Pick<InvestmentTypePickerProps, "onCreateInvestmentType">
-			>(
+			expect(setters.get(4)).toHaveBeenCalledWith("");
+			expect(setters.get(5)).toHaveBeenCalledWith(types);
+			const picker = findElement<SelectFieldProps>(
 				tree,
-				(props) => typeof props.onCreateInvestmentType === "function",
+				(props) => props.label === "Investment type",
 			);
-			await expect(
-				picker.props.onCreateInvestmentType("New type"),
-			).resolves.toBe("new-type");
-			expect(serviceMocks.saveInvestmentType).toHaveBeenCalledWith(
-				{ id: "db" },
-				"New type",
-			);
-			expect(serviceMocks.getInvestmentTypes).toHaveBeenCalledTimes(2);
+			picker.props.onChange("type");
+			expect(setters.get(4)).toHaveBeenCalledWith("type");
+			expect(serviceMocks.saveInvestmentType).not.toHaveBeenCalled();
 			findElement<AppButtonProps>(
 				tree,
 				(props) => props.label === "Save",
@@ -660,10 +788,44 @@ describe("form screens", () => {
 				{ id: "db" },
 				"fund",
 				"Fund",
-				"",
+				null,
 				null,
 			);
 		});
+
+		it.each([
+			{ Screen: TripTypesScreen, save: "saveTripType" },
+			{ Screen: PlatformsScreen, save: "savePlatform" },
+			{ Screen: InvestmentTypesScreen, save: "saveInvestmentType" },
+		] as const)(
+			"returns after $save succeeds, but stays on failure",
+			async ({ Screen, save }) => {
+				const navigation = { goBack: vi.fn() };
+				const tree = (Screen as (props: unknown) => ReactElement)({
+					navigation,
+				});
+				const form = findElement<SimpleEntityFormProps>(
+					tree,
+					(props) => typeof props.onSave === "function",
+				);
+				serviceMocks[save].mockRejectedValueOnce(
+					new Error("Save failed"),
+				);
+				await expect(form.props.onSave("Entered")).rejects.toThrow(
+					"Save failed",
+				);
+				expect(navigation.goBack).not.toHaveBeenCalled();
+				expect(hookMocks.refreshData).not.toHaveBeenCalled();
+				serviceMocks[save].mockResolvedValueOnce("created-id");
+				await form.props.onSave("Entered");
+				expect(serviceMocks[save]).toHaveBeenLastCalledWith(
+					{ id: "db" },
+					"Entered",
+				);
+				expect(hookMocks.refreshData).toHaveBeenCalledOnce();
+				expect(navigation.goBack).toHaveBeenCalledOnce();
+			},
+		);
 	});
 
 	it("executes VaultFormScreen branches for password card and identity", async () => {
