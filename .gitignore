@@ -40,8 +40,8 @@ yarn-error.*
 *.tsbuildinfo
 
 # generated native folders
-/ios
-/android
+/app/ios
+/app/android
 
 .npmrc
 data/
