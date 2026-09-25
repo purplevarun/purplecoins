@@ -2,177 +2,42 @@ import analysisService from "@/services/analysisService";
 
 import { describe, expect, it } from "vitest";
 
-import type Category from "@/types/Category";
-import type Investment from "@/types/Investment";
-import type Transaction from "@/types/Transaction";
+import type CategoryAnalysisRow from "@/types/CategoryAnalysisRow";
+import type InvestmentAnalysisRow from "@/types/InvestmentAnalysisRow";
 
 const {
 	buildCategoryAnalysis,
 	buildCategoryCurrencySummaries,
 	buildInvestmentAnalysis,
 } = analysisService;
-const NOW = 1_780_754_481_000;
 
-const createTransaction = (overrides: Partial<Transaction>): Transaction => ({
-	id: "transaction",
-	classification: "GENERAL",
-	type: "DEBIT",
-	sourceId: "source",
-	destinationSourceId: null,
-	amount: "0",
-	toAmount: null,
-	categoryId: null,
-	tripId: null,
-	investmentId: null,
-	reason: "Test",
-	transactionAt: NOW,
-	createdAt: NOW,
-	updatedAt: NOW,
-	sourceName: "Bank",
-	sourceCurrencyCode: "INR",
-	destinationSourceName: null,
-	destinationCurrencyCode: null,
-	categoryName: null,
-	tripName: null,
-	investmentName: null,
-	hasAttachment: false,
-	items:
-		overrides.categoryId &&
-		(overrides.classification ?? "GENERAL") === "GENERAL" &&
-		(overrides.type ?? "DEBIT") === "DEBIT"
-			? [
-					{
-						id: "item",
-						transactionId: overrides.id ?? "transaction",
-						categoryId: overrides.categoryId,
-						categoryName: "Category",
-						amount: overrides.amount ?? "0",
-						position: 0,
-						createdAt: NOW,
-						updatedAt: NOW,
-					},
-				]
-			: [],
+const createCategoryRow = (
+	overrides: Partial<CategoryAnalysisRow>,
+): CategoryAnalysisRow => ({
+	categoryId: "rent",
+	categoryName: "Domo Living Rent",
+	isIncome: 0,
+	currencyCode: "INR",
+	credits: 0,
+	debits: 0,
 	...overrides,
 });
 
-const CATEGORIES: readonly Category[] = [
-	{
-		id: "rent",
-		name: "Domo Living Rent",
-		isIncome: false,
-		createdAt: NOW,
-		updatedAt: NOW,
-		archived: false,
-	},
-	{
-		id: "company-trip",
-		name: "Company Trip",
-		isIncome: false,
-		createdAt: NOW,
-		updatedAt: NOW,
-		archived: false,
-	},
-	{
-		id: "salary",
-		name: "Salary",
-		isIncome: true,
-		createdAt: NOW,
-		updatedAt: NOW,
-		archived: false,
-	},
-];
+const createInvestmentRow = (
+	overrides: Partial<InvestmentAnalysisRow>,
+): InvestmentAnalysisRow => ({
+	investmentId: "mutual-fund",
+	investmentName: "Mutual Fund",
+	currencyCode: "INR",
+	totalInvested: 0,
+	totalRedeemed: 0,
+	...overrides,
+});
 
 describe("category-driven analysis", () => {
-	it("ignores a credit with no category allocation", () => {
-		expect(
-			buildCategoryAnalysis(
-				[
-					createTransaction({
-						type: "CREDIT",
-						categoryId: null,
-						amount: "10",
-					}),
-				],
-				CATEGORIES,
-				true,
-				new Map(),
-			),
-		).toEqual([]);
-	});
-	it("allocates a split payment by item and combines repeated categories", () => {
-		const transaction = createTransaction({
-			amount: "200",
-			categoryId: null,
-			items: [
-				{
-					id: "one",
-					transactionId: "transaction",
-					categoryId: "rent",
-					categoryName: "Rent",
-					amount: "50",
-					position: 0,
-					createdAt: NOW,
-					updatedAt: NOW,
-				},
-				{
-					id: "two",
-					transactionId: "transaction",
-					categoryId: "company-trip",
-					categoryName: "Trip",
-					amount: "100",
-					position: 1,
-					createdAt: NOW,
-					updatedAt: NOW,
-				},
-				{
-					id: "three",
-					transactionId: "transaction",
-					categoryId: "rent",
-					categoryName: "Rent",
-					amount: "50",
-					position: 2,
-					createdAt: NOW,
-					updatedAt: NOW,
-				},
-			],
-		});
-		const result = buildCategoryAnalysis(
-			[transaction],
-			CATEGORIES,
-			true,
-			new Map(),
-		);
-		expect(
-			result.map((category) => [category.categoryId, category.debits]),
-		).toEqual([
-			["rent", "100"],
-			["company-trip", "100"],
-		]);
-		expect(buildCategoryCurrencySummaries(result)).toMatchObject([
-			{ totalExpense: "200" },
-		]);
-	});
-
 	it("nets reimbursements against the category debit", () => {
-		const transactions: readonly Transaction[] = [
-			createTransaction({
-				id: "rent-paid",
-				categoryId: "rent",
-				amount: "27000",
-				type: "DEBIT",
-			}),
-			createTransaction({
-				id: "wife-contribution",
-				categoryId: "rent",
-				amount: "13000",
-				type: "CREDIT",
-			}),
-		];
-
 		const result = buildCategoryAnalysis(
-			transactions,
-			CATEGORIES,
+			[createCategoryRow({ credits: 13000, debits: 27000 })],
 			true,
 			new Map(),
 		);
@@ -183,24 +48,15 @@ describe("category-driven analysis", () => {
 	});
 
 	it("keeps a positive expense-category net out of the income bucket", () => {
-		const transactions: readonly Transaction[] = [
-			createTransaction({
-				id: "trip-spend",
-				categoryId: "company-trip",
-				amount: "400",
-				type: "DEBIT",
-			}),
-			createTransaction({
-				id: "trip-reimbursement",
-				categoryId: "company-trip",
-				amount: "800",
-				type: "CREDIT",
-			}),
-		];
-
 		const result = buildCategoryAnalysis(
-			transactions,
-			CATEGORIES,
+			[
+				createCategoryRow({
+					categoryId: "company-trip",
+					categoryName: "Company Trip",
+					credits: 800,
+					debits: 400,
+				}),
+			],
 			true,
 			new Map(),
 		);
@@ -209,31 +65,31 @@ describe("category-driven analysis", () => {
 		expect(result[0]?.isIncome).toBe(false);
 	});
 
-	it("sorts the most expense-heavy category first", () => {
-		const transactions: readonly Transaction[] = [
-			createTransaction({
-				id: "rent",
-				categoryId: "rent",
-				amount: "14000",
-				type: "DEBIT",
-			}),
-			createTransaction({
-				id: "trip",
-				categoryId: "company-trip",
-				amount: "400",
-				type: "CREDIT",
-			}),
-			createTransaction({
-				id: "salary",
-				categoryId: "salary",
-				amount: "100000",
-				type: "CREDIT",
-			}),
-		];
-
+	it("cleans float noise from SQL sums", () => {
 		const result = buildCategoryAnalysis(
-			transactions,
-			CATEGORIES,
+			[createCategoryRow({ credits: 0.1 + 0.2, debits: 0.1 })],
+			true,
+			new Map(),
+		);
+
+		expect(result[0]?.credits).toBe("0.3");
+		expect(result[0]?.net).toBe("0.2");
+	});
+
+	it("sorts the most expense-heavy category first", () => {
+		const result = buildCategoryAnalysis(
+			[
+				createCategoryRow({ categoryId: "rent", debits: 14000 }),
+				createCategoryRow({
+					categoryId: "company-trip",
+					credits: 400,
+				}),
+				createCategoryRow({
+					categoryId: "salary",
+					isIncome: 1,
+					credits: 100000,
+				}),
+			],
 			true,
 			new Map(),
 		);
@@ -242,6 +98,38 @@ describe("category-driven analysis", () => {
 			"rent",
 			"company-trip",
 			"salary",
+		]);
+	});
+
+	it("merges converted currencies into one base bucket and skips missing rates", () => {
+		const result = buildCategoryAnalysis(
+			[
+				createCategoryRow({ credits: 100, debits: 500 }),
+				createCategoryRow({
+					currencyCode: "USD",
+					credits: 0,
+					debits: 10,
+				}),
+				createCategoryRow({
+					currencyCode: "EUR",
+					credits: 0,
+					debits: 999,
+				}),
+			],
+			false,
+			new Map([["USD", "80"]]),
+		);
+
+		expect(result).toEqual([
+			{
+				categoryId: "rent",
+				categoryName: "Domo Living Rent",
+				isIncome: false,
+				currencyCode: "INR",
+				credits: "100",
+				debits: "1300",
+				net: "-1200",
+			},
 		]);
 	});
 });
@@ -318,37 +206,13 @@ describe("native currency summaries", () => {
 
 describe("investment analysis", () => {
 	it("reports invested, redeemed, and net invested", () => {
-		const investments: readonly Investment[] = [
-			{
-				id: "mutual-fund",
-				name: "Mutual Fund",
-				platformId: null,
-				investmentTypeId: null,
-				createdAt: NOW,
-				updatedAt: NOW,
-				archived: false,
-			},
-		];
-		const transactions: readonly Transaction[] = [
-			createTransaction({
-				id: "invested",
-				classification: "INVESTMENT",
-				investmentId: "mutual-fund",
-				amount: "10000",
-				type: "DEBIT",
-			}),
-			createTransaction({
-				id: "redeemed",
-				classification: "INVESTMENT",
-				investmentId: "mutual-fund",
-				amount: "2500",
-				type: "CREDIT",
-			}),
-		];
-
 		const result = buildInvestmentAnalysis(
-			transactions,
-			investments,
+			[
+				createInvestmentRow({
+					totalInvested: 10000,
+					totalRedeemed: 2500,
+				}),
+			],
 			true,
 			new Map(),
 		);
@@ -358,71 +222,43 @@ describe("investment analysis", () => {
 		expect(result[0]?.net).toBe("7500");
 	});
 
-	it("skips unknown or unconvertible investments and sorts by net descending", () => {
-		const investments: readonly Investment[] = [
-			{
-				id: "inv1",
-				name: "Index Fund",
-				platformId: null,
-				investmentTypeId: null,
-				createdAt: NOW,
-				updatedAt: NOW,
-				archived: false,
-			},
-			{
-				id: "inv2",
-				name: "Bond",
-				platformId: null,
-				investmentTypeId: null,
-				createdAt: NOW,
-				updatedAt: NOW,
-				archived: false,
-			},
-		];
-		const transactions: readonly Transaction[] = [
-			createTransaction({
-				id: "known-1",
-				classification: "INVESTMENT",
-				investmentId: "inv1",
-				amount: "100",
-				type: "DEBIT",
-				sourceCurrencyCode: "INR",
-			}),
-			createTransaction({
-				id: "known-2",
-				classification: "INVESTMENT",
-				investmentId: "inv2",
-				amount: "50",
-				type: "DEBIT",
-				sourceCurrencyCode: "INR",
-			}),
-			createTransaction({
-				id: "unknown-investment",
-				classification: "INVESTMENT",
-				investmentId: "missing",
-				amount: "999",
-				type: "DEBIT",
-				sourceCurrencyCode: "INR",
-			}),
-			createTransaction({
-				id: "missing-rate",
-				classification: "INVESTMENT",
-				investmentId: "inv1",
-				amount: "20",
-				type: "CREDIT",
-				sourceCurrencyCode: "EUR",
-			}),
-		];
-
+	it("merges converted currencies, skips missing rates, and sorts by net descending", () => {
 		const result = buildInvestmentAnalysis(
-			transactions,
-			investments,
+			[
+				createInvestmentRow({
+					investmentId: "inv1",
+					investmentName: "Index Fund",
+					totalInvested: 100,
+				}),
+				createInvestmentRow({
+					investmentId: "inv1",
+					investmentName: "Index Fund",
+					currencyCode: "USD",
+					totalRedeemed: 20,
+				}),
+				createInvestmentRow({
+					investmentId: "inv2",
+					investmentName: "Bond",
+					totalInvested: 50,
+				}),
+				createInvestmentRow({
+					investmentId: "inv3",
+					investmentName: "Unpriced",
+					currencyCode: "EUR",
+					totalInvested: 999,
+				}),
+			],
 			false,
-			new Map(),
+			new Map([["USD", "2"]]),
 		);
 
 		expect(result).toEqual([
-			expect.objectContaining({ investmentId: "inv1", net: "100" }),
+			expect.objectContaining({
+				investmentId: "inv1",
+				totalInvested: "100",
+				totalRedeemed: "40",
+				net: "60",
+			}),
 			expect.objectContaining({ investmentId: "inv2", net: "50" }),
 		]);
 	});

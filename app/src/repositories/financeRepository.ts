@@ -2,8 +2,10 @@ import type { SQLiteDatabase } from "expo-sqlite";
 
 import type Budget from "@/types/Budget";
 import type Category from "@/types/Category";
+import type CategoryAnalysisRow from "@/types/CategoryAnalysisRow";
 import type ExchangeRate from "@/types/ExchangeRate";
 import type Investment from "@/types/Investment";
+import type InvestmentAnalysisRow from "@/types/InvestmentAnalysisRow";
 import type InvestmentType from "@/types/InvestmentType";
 import type SimpleEntity from "@/types/SimpleEntity";
 import type Source from "@/types/Source";
@@ -14,6 +16,7 @@ import type TransactionDateBounds from "@/types/TransactionDateBounds";
 import type TransactionInput from "@/types/TransactionInput";
 import type TransactionItem from "@/types/TransactionItem";
 import type Trip from "@/types/Trip";
+import type TripTotalRow from "@/types/TripTotalRow";
 
 const TRANSACTION_SELECT = `
 	SELECT
@@ -699,22 +702,107 @@ const getTransactionPageRows = async (
 	);
 };
 
-const getTransactionRowsInRange = async (
+const getCategoryAnalysisRows = async (
 	database: SQLiteDatabase,
 	start: number,
 	end: number,
-): Promise<readonly Transaction[]> =>
-	hydrateTransactionItems(
-		database,
-		await database.getAllAsync<Omit<Transaction, "items">>(
-			`
-			${TRANSACTION_SELECT}
-			WHERE t.transaction_at BETWEEN ? AND ?
-			ORDER BY t.transaction_at DESC, t.created_at DESC;
-		`,
-			start,
-			end,
-		),
+): Promise<readonly CategoryAnalysisRow[]> =>
+	database.getAllAsync<CategoryAnalysisRow>(
+		`
+		SELECT
+			category.id AS categoryId,
+			category.name AS categoryName,
+			category.is_income AS isIncome,
+			allocation.currencyCode AS currencyCode,
+			SUM(CASE WHEN allocation.type = 'CREDIT' THEN CAST(allocation.amount AS REAL) ELSE 0 END) AS credits,
+			SUM(CASE WHEN allocation.type = 'DEBIT' THEN CAST(allocation.amount AS REAL) ELSE 0 END) AS debits
+		FROM (
+			SELECT item.category_id AS categoryId, item.amount AS amount,
+				t.type AS type, source.currency_code AS currencyCode
+			FROM transaction_items item
+			INNER JOIN transactions t ON t.id = item.transaction_id
+			INNER JOIN sources source ON source.id = t.source_id
+			WHERE t.classification = 'GENERAL' AND t.type = 'DEBIT'
+				AND t.transaction_at BETWEEN ? AND ?
+			UNION ALL
+			SELECT t.category_id, t.amount, t.type, source.currency_code
+			FROM transactions t
+			INNER JOIN sources source ON source.id = t.source_id
+			WHERE t.classification = 'GENERAL' AND t.type = 'CREDIT'
+				AND t.category_id IS NOT NULL
+				AND t.transaction_at BETWEEN ? AND ?
+		) allocation
+		INNER JOIN categories category ON category.id = allocation.categoryId
+		WHERE COALESCE(category.archived, 0) = 0
+		GROUP BY category.id, allocation.currencyCode
+		ORDER BY category.id, allocation.currencyCode;
+	`,
+		start,
+		end,
+		start,
+		end,
+	);
+
+const getInvestmentAnalysisRows = async (
+	database: SQLiteDatabase,
+	start: number,
+	end: number,
+): Promise<readonly InvestmentAnalysisRow[]> =>
+	database.getAllAsync<InvestmentAnalysisRow>(
+		`
+		SELECT
+			investment.id AS investmentId,
+			investment.name AS investmentName,
+			source.currency_code AS currencyCode,
+			SUM(CASE WHEN t.type = 'DEBIT' THEN CAST(t.amount AS REAL) ELSE 0 END) AS totalInvested,
+			SUM(CASE WHEN t.type = 'CREDIT' THEN CAST(t.amount AS REAL) ELSE 0 END) AS totalRedeemed
+		FROM transactions t
+		INNER JOIN investments investment ON investment.id = t.investment_id
+		INNER JOIN sources source ON source.id = t.source_id
+		WHERE t.classification = 'INVESTMENT'
+			AND COALESCE(investment.archived, 0) = 0
+			AND t.transaction_at BETWEEN ? AND ?
+		GROUP BY investment.id, source.currency_code
+		ORDER BY investment.id, source.currency_code;
+	`,
+		start,
+		end,
+	);
+
+const getTripTotalRows = async (
+	database: SQLiteDatabase,
+): Promise<readonly TripTotalRow[]> =>
+	database.getAllAsync<TripTotalRow>(`
+		SELECT
+			t.trip_id AS tripId,
+			source.currency_code AS currencyCode,
+			SUM(CASE WHEN t.type = 'CREDIT' THEN CAST(t.amount AS REAL) ELSE 0 END) AS credits,
+			SUM(CASE WHEN t.type = 'DEBIT' THEN CAST(t.amount AS REAL) ELSE 0 END) AS debits
+		FROM transactions t
+		INNER JOIN sources source ON source.id = t.source_id
+		WHERE t.classification = 'GENERAL'
+			AND t.type != 'TRANSFER'
+			AND t.trip_id IS NOT NULL
+		GROUP BY t.trip_id, source.currency_code
+		ORDER BY source.currency_code, t.trip_id;
+	`);
+
+const getTransactionCurrencyRows = async (
+	database: SQLiteDatabase,
+	start: number,
+	end: number,
+): Promise<readonly Pick<Source, "currencyCode">[]> =>
+	database.getAllAsync<Pick<Source, "currencyCode">>(
+		`
+		SELECT DISTINCT source.currency_code AS currencyCode
+		FROM transactions t
+		INNER JOIN sources source ON source.id = t.source_id
+		WHERE t.type != 'TRANSFER'
+			AND t.transaction_at BETWEEN ? AND ?
+		ORDER BY currencyCode;
+	`,
+		start,
+		end,
 	);
 
 const getTransactionRow = async (
@@ -1023,22 +1111,25 @@ const financeRepository = {
 	getArchivedTripRows,
 	getBudgetRow,
 	getBudgetRows,
+	getCategoryAnalysisRows,
 	getCategoryRow,
 	getCategoryRows,
 	getExchangeRateRows,
+	getInvestmentAnalysisRows,
 	getInvestmentRow,
 	getInvestmentRows,
 	getInvestmentTypeRows,
 	getSourceRow,
 	getSourceRows,
+	getTransactionCurrencyRows,
 	getTransactionMinMaxDate,
 	getTransactionItemRows,
 	getTransactionPageRows,
 	getTransactionRow,
 	getTransactionRows,
-	getTransactionRowsInRange,
 	getTripRow,
 	getTripRows,
+	getTripTotalRows,
 	investmentTypeNameExistsRow,
 	setCategoryArchivedRow,
 	setSimpleEntityArchivedRow,

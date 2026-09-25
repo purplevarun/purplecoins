@@ -2,10 +2,12 @@ import type TestAsyncFunction from "@test/types/TestAsyncFunction";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-	getCategoryRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
+	getCategoryAnalysisRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
 	getExchangeRateRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
-	getInvestmentRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
-	getTransactionRowsInRange: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
+	getInvestmentAnalysisRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
+	getTransactionCurrencyRows: vi
+		.fn<TestAsyncFunction>()
+		.mockResolvedValue([]),
 }));
 
 vi.mock("@/constants/appConstants", () => ({
@@ -16,17 +18,16 @@ vi.mock("@/constants/appConstants", () => ({
 
 vi.mock("@/repositories/financeRepository", () => ({
 	default: {
-		getCategoryRows: mocks.getCategoryRows,
+		getCategoryAnalysisRows: mocks.getCategoryAnalysisRows,
 		getExchangeRateRows: mocks.getExchangeRateRows,
-		getInvestmentRows: mocks.getInvestmentRows,
-		getTransactionRowsInRange: mocks.getTransactionRowsInRange,
+		getInvestmentAnalysisRows: mocks.getInvestmentAnalysisRows,
+		getTransactionCurrencyRows: mocks.getTransactionCurrencyRows,
 	},
 }));
 
 import analysisService from "@/services/analysisService";
 
 const database = {} as any;
-const NOW = 1_780_754_481_000;
 
 describe("analysisService summary", () => {
 	beforeEach(() => {
@@ -34,57 +35,40 @@ describe("analysisService summary", () => {
 	});
 
 	it("returns summary and missing currencies in base-currency mode", async () => {
-		mocks.getCategoryRows.mockResolvedValueOnce([
-			{ id: "salary", name: "Salary", isIncome: true },
-			{ id: "rent", name: "Rent", isIncome: false },
+		mocks.getCategoryAnalysisRows.mockResolvedValueOnce([
+			{
+				categoryId: "salary",
+				categoryName: "Salary",
+				isIncome: 1,
+				currencyCode: "USD",
+				credits: 100,
+				debits: 0,
+			},
+			{
+				categoryId: "rent",
+				categoryName: "Rent",
+				isIncome: 0,
+				currencyCode: "EUR",
+				credits: 0,
+				debits: 40,
+			},
 		]);
-		mocks.getInvestmentRows.mockResolvedValueOnce([
-			{ id: "mf", name: "Fund" },
+		mocks.getInvestmentAnalysisRows.mockResolvedValueOnce([
+			{
+				investmentId: "mf",
+				investmentName: "Fund",
+				currencyCode: "USD",
+				totalInvested: 25,
+				totalRedeemed: 0,
+			},
 		]);
 		mocks.getExchangeRateRows.mockResolvedValueOnce([
 			{ currencyCode: "USD", rateToInr: "80" },
 		]);
-		mocks.getTransactionRowsInRange.mockResolvedValueOnce([
-			{
-				id: "t1",
-				classification: "GENERAL",
-				type: "CREDIT",
-				amount: "100",
-				categoryId: "salary",
-				sourceCurrencyCode: "USD",
-				createdAt: NOW,
-				updatedAt: NOW,
-				transactionAt: NOW,
-				sourceId: "s1",
-				reason: "a",
-			},
-			{
-				id: "t2",
-				classification: "GENERAL",
-				type: "DEBIT",
-				amount: "40",
-				categoryId: "rent",
-				items: [{ categoryId: "rent", amount: "40" }],
-				sourceCurrencyCode: "EUR",
-				createdAt: NOW,
-				updatedAt: NOW,
-				transactionAt: NOW,
-				sourceId: "s1",
-				reason: "b",
-			},
-			{
-				id: "t3",
-				classification: "INVESTMENT",
-				type: "DEBIT",
-				amount: "25",
-				investmentId: "mf",
-				sourceCurrencyCode: "USD",
-				createdAt: NOW,
-				updatedAt: NOW,
-				transactionAt: NOW,
-				sourceId: "s1",
-				reason: "c",
-			},
+		mocks.getTransactionCurrencyRows.mockResolvedValueOnce([
+			{ currencyCode: "EUR" },
+			{ currencyCode: "INR" },
+			{ currencyCode: "USD" },
 		]);
 
 		const summary = await analysisService.getAnalysisSummary(database, {
@@ -99,20 +83,30 @@ describe("analysisService summary", () => {
 		expect(summary.investments[0]).toEqual(
 			expect.objectContaining({ net: "2000" }),
 		);
+		expect(mocks.getCategoryAnalysisRows).toHaveBeenCalledExactlyOnceWith(
+			database,
+			1,
+			2,
+		);
+		expect(mocks.getInvestmentAnalysisRows).toHaveBeenCalledExactlyOnceWith(
+			database,
+			1,
+			2,
+		);
+		expect(
+			mocks.getTransactionCurrencyRows,
+		).toHaveBeenCalledExactlyOnceWith(database, 1, 2);
 	});
 
-	it("suppresses missing currencies in native mode", async () => {
-		mocks.getCategoryRows.mockResolvedValueOnce([]);
-		mocks.getInvestmentRows.mockResolvedValueOnce([]);
-		mocks.getExchangeRateRows.mockResolvedValueOnce([]);
-		mocks.getTransactionRowsInRange.mockResolvedValueOnce([
+	it("skips the currency query and missing currencies in native mode", async () => {
+		mocks.getCategoryAnalysisRows.mockResolvedValueOnce([
 			{
-				classification: "GENERAL",
-				type: "DEBIT",
-				amount: "10",
 				categoryId: "c1",
-				items: [{ categoryId: "c1", amount: "10" }],
-				sourceCurrencyCode: "EUR",
+				categoryName: "Groceries",
+				isIncome: 0,
+				currencyCode: "EUR",
+				credits: 0,
+				debits: 10,
 			},
 		]);
 
@@ -120,31 +114,29 @@ describe("analysisService summary", () => {
 			dateRange: { start: 1, end: 2 },
 			isNativeCurrency: true,
 		});
+
 		expect(summary.missingCurrencies).toEqual([]);
+		expect(summary.totalExpense).toBe("10");
+		expect(mocks.getTransactionCurrencyRows).not.toHaveBeenCalled();
 	});
 
 	it("includes expense categories in total expense aggregation", async () => {
-		mocks.getCategoryRows.mockResolvedValueOnce([
-			{ id: "salary", name: "Salary", isIncome: true },
-			{ id: "rent", name: "Rent", isIncome: false },
-		]);
-		mocks.getInvestmentRows.mockResolvedValueOnce([]);
-		mocks.getExchangeRateRows.mockResolvedValueOnce([]);
-		mocks.getTransactionRowsInRange.mockResolvedValueOnce([
+		mocks.getCategoryAnalysisRows.mockResolvedValueOnce([
 			{
-				classification: "GENERAL",
-				type: "CREDIT",
-				amount: "100",
 				categoryId: "salary",
-				sourceCurrencyCode: "INR",
+				categoryName: "Salary",
+				isIncome: 1,
+				currencyCode: "INR",
+				credits: 100,
+				debits: 0,
 			},
 			{
-				classification: "GENERAL",
-				type: "DEBIT",
-				amount: "40",
 				categoryId: "rent",
-				items: [{ categoryId: "rent", amount: "40" }],
-				sourceCurrencyCode: "INR",
+				categoryName: "Rent",
+				isIncome: 0,
+				currencyCode: "INR",
+				credits: 0,
+				debits: 40,
 			},
 		]);
 

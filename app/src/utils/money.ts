@@ -39,6 +39,13 @@ const absoluteMoney = (amount: string): string =>
 const sumMoney = (amounts: readonly string[]): string =>
 	amounts.reduce(addMoney, ZERO_AMOUNT);
 
+// SQL SUM aggregates return floats; 13 significant digits keeps paise-level
+// precision up to eleven-digit totals while discarding float noise.
+const SUM_SIGNIFICANT_DIGITS = 13;
+
+const sumToMoney = (value: number): string =>
+	new Decimal(value).toSignificantDigits(SUM_SIGNIFICANT_DIGITS).toFixed();
+
 const formatMoney = (amount: string, currencyCode: string): string => {
 	const numericAmount = new Decimal(amount).toNumber();
 	try {
@@ -64,6 +71,7 @@ const moneyUtils = {
 	normalizeMoney,
 	subtractMoney,
 	sumMoney,
+	sumToMoney,
 	ZERO_AMOUNT,
 };
 

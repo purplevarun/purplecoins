@@ -1,65 +1,29 @@
 import financeRepository from "@/repositories/financeRepository";
-import type Transaction from "@/types/Transaction";
 import type TripTotal from "@/types/TripTotal";
+import type TripTotalRow from "@/types/TripTotalRow";
 import moneyUtils from "@/utils/money";
 import type { SQLiteDatabase } from "expo-sqlite";
 
-const { getTransactionRows } = financeRepository;
-const { addMoney, subtractMoney, ZERO_AMOUNT } = moneyUtils;
+const { getTripTotalRows } = financeRepository;
+const { subtractMoney, sumToMoney } = moneyUtils;
 
-const getTripTotalKey = (tripId: string, currencyCode: string): string =>
-	`${tripId}:${currencyCode}`;
-
-const shouldIncludeTransaction = (transaction: Transaction): boolean =>
-	transaction.classification === "GENERAL" &&
-	transaction.type !== "TRANSFER" &&
-	Boolean(transaction.tripId);
-
-const buildTripTotals = (
-	transactions: readonly Transaction[],
-): readonly TripTotal[] => {
-	const totals = new Map<string, TripTotal>();
-
-	transactions.filter(shouldIncludeTransaction).forEach((transaction) => {
-		const tripId = transaction.tripId;
-		if (!tripId) {
-			return;
-		}
-		const key = getTripTotalKey(tripId, transaction.sourceCurrencyCode);
-		const current = totals.get(key) ?? {
-			tripId,
-			currencyCode: transaction.sourceCurrencyCode,
-			credits: ZERO_AMOUNT,
-			debits: ZERO_AMOUNT,
-			total: ZERO_AMOUNT,
-		};
-		const credits =
-			transaction.type === "CREDIT"
-				? addMoney(current.credits, transaction.amount)
-				: current.credits;
-		const debits =
-			transaction.type === "DEBIT"
-				? addMoney(current.debits, transaction.amount)
-				: current.debits;
-		totals.set(key, {
-			...current,
+const buildTripTotals = (rows: readonly TripTotalRow[]): readonly TripTotal[] =>
+	rows.map((row) => {
+		const credits = sumToMoney(row.credits);
+		const debits = sumToMoney(row.debits);
+		return {
+			tripId: row.tripId,
+			currencyCode: row.currencyCode,
 			credits,
 			debits,
 			total: subtractMoney(debits, credits),
-		});
+		};
 	});
-
-	return [...totals.values()].sort((left, right) =>
-		left.currencyCode.localeCompare(right.currencyCode),
-	);
-};
 
 const getTripTotals = async (
 	database: SQLiteDatabase,
-): Promise<readonly TripTotal[]> => {
-	const transactions = await getTransactionRows(database);
-	return buildTripTotals(transactions);
-};
+): Promise<readonly TripTotal[]> =>
+	buildTripTotals(await getTripTotalRows(database));
 
 const tripTotalService = {
 	buildTripTotals,

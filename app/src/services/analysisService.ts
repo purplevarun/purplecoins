@@ -2,22 +2,21 @@ import appConstants from "@/constants/appConstants";
 import financeRepository from "@/repositories/financeRepository";
 import type AnalysisOptions from "@/types/AnalysisOptions";
 import type AnalysisSummary from "@/types/AnalysisSummary";
-import type Category from "@/types/Category";
 import type CategoryAnalysis from "@/types/CategoryAnalysis";
+import type CategoryAnalysisRow from "@/types/CategoryAnalysisRow";
 import type CategoryCurrencySummary from "@/types/CategoryCurrencySummary";
 import type ExchangeRate from "@/types/ExchangeRate";
-import type Investment from "@/types/Investment";
 import type InvestmentAnalysis from "@/types/InvestmentAnalysis";
-import type Transaction from "@/types/Transaction";
+import type InvestmentAnalysisRow from "@/types/InvestmentAnalysisRow";
 import moneyUtils from "@/utils/money";
 import type { SQLiteDatabase } from "expo-sqlite";
 
 const { DEFAULT_CURRENCY_CODE } = appConstants;
 const {
-	getCategoryRows,
+	getCategoryAnalysisRows,
 	getExchangeRateRows,
-	getInvestmentRows,
-	getTransactionRowsInRange,
+	getInvestmentAnalysisRows,
+	getTransactionCurrencyRows,
 } = financeRepository;
 const {
 	absoluteMoney,
@@ -26,6 +25,7 @@ const {
 	multiplyMoney,
 	subtractMoney,
 	sumMoney,
+	sumToMoney,
 	ZERO_AMOUNT,
 } = moneyUtils;
 
@@ -34,89 +34,60 @@ const getRateMap = (
 ): ReadonlyMap<string, string> =>
 	new Map(rates.map((rate) => [rate.currencyCode, rate.rateToInr]));
 
-const convertAmount = (
-	amount: string,
+const getConversionRate = (
 	currencyCode: string,
 	isNativeCurrency: boolean,
 	rateMap: ReadonlyMap<string, string>,
 ): string | null => {
 	if (isNativeCurrency || currencyCode === DEFAULT_CURRENCY_CODE) {
-		return amount;
+		return "1";
 	}
-	const rate = rateMap.get(currencyCode);
-	return rate ? multiplyMoney(amount, rate) : null;
+	return rateMap.get(currencyCode) || null;
 };
 
 const buildCategoryAnalysis = (
-	transactions: readonly Transaction[],
-	categories: readonly Category[],
+	rows: readonly CategoryAnalysisRow[],
 	isNativeCurrency: boolean,
 	rateMap: ReadonlyMap<string, string>,
 ): readonly CategoryAnalysis[] => {
-	const categoryMap = new Map(
-		categories.map((category) => [category.id, category]),
-	);
 	const totals = new Map<string, CategoryAnalysis>();
 
-	transactions.forEach((transaction) => {
-		if (
-			transaction.classification !== "GENERAL" ||
-			transaction.type === "TRANSFER"
-		) {
+	rows.forEach((row) => {
+		const rate = getConversionRate(
+			row.currencyCode,
+			isNativeCurrency,
+			rateMap,
+		);
+		if (rate === null) {
 			return;
 		}
-		const allocations =
-			transaction.type === "DEBIT"
-				? transaction.items
-				: [
-						{
-							categoryId: transaction.categoryId,
-							amount: transaction.amount,
-						},
-					];
-		for (const allocation of allocations) {
-			if (!allocation.categoryId) continue;
-			const category = categoryMap.get(allocation.categoryId);
-			if (!category) {
-				continue;
-			}
-			const amount = convertAmount(
-				allocation.amount,
-				transaction.sourceCurrencyCode,
-				isNativeCurrency,
-				rateMap,
-			);
-			if (!amount) {
-				continue;
-			}
-			const currencyCode = isNativeCurrency
-				? transaction.sourceCurrencyCode
-				: DEFAULT_CURRENCY_CODE;
-			const key = `${category.id}:${currencyCode}`;
-			const current = totals.get(key) ?? {
-				categoryId: category.id,
-				categoryName: category.name,
-				isIncome: Boolean(category.isIncome),
-				currencyCode,
-				credits: ZERO_AMOUNT,
-				debits: ZERO_AMOUNT,
-				net: ZERO_AMOUNT,
-			};
-			const credits =
-				transaction.type === "CREDIT"
-					? addMoney(current.credits, amount)
-					: current.credits;
-			const debits =
-				transaction.type === "DEBIT"
-					? addMoney(current.debits, amount)
-					: current.debits;
-			totals.set(key, {
-				...current,
-				credits,
-				debits,
-				net: subtractMoney(credits, debits),
-			});
-		}
+		const currencyCode = isNativeCurrency
+			? row.currencyCode
+			: DEFAULT_CURRENCY_CODE;
+		const key = `${row.categoryId}:${currencyCode}`;
+		const current = totals.get(key) ?? {
+			categoryId: row.categoryId,
+			categoryName: row.categoryName,
+			isIncome: Boolean(row.isIncome),
+			currencyCode,
+			credits: ZERO_AMOUNT,
+			debits: ZERO_AMOUNT,
+			net: ZERO_AMOUNT,
+		};
+		const credits = addMoney(
+			current.credits,
+			multiplyMoney(sumToMoney(row.credits), rate),
+		);
+		const debits = addMoney(
+			current.debits,
+			multiplyMoney(sumToMoney(row.debits), rate),
+		);
+		totals.set(key, {
+			...current,
+			credits,
+			debits,
+			net: subtractMoney(credits, debits),
+		});
 	});
 
 	return [...totals.values()].sort((left, right) =>
@@ -125,56 +96,41 @@ const buildCategoryAnalysis = (
 };
 
 const buildInvestmentAnalysis = (
-	transactions: readonly Transaction[],
-	investments: readonly Investment[],
+	rows: readonly InvestmentAnalysisRow[],
 	isNativeCurrency: boolean,
 	rateMap: ReadonlyMap<string, string>,
 ): readonly InvestmentAnalysis[] => {
-	const investmentMap = new Map(
-		investments.map((investment) => [investment.id, investment]),
-	);
 	const totals = new Map<string, InvestmentAnalysis>();
 
-	transactions.forEach((transaction) => {
-		if (
-			transaction.classification !== "INVESTMENT" ||
-			!transaction.investmentId
-		) {
-			return;
-		}
-		const investment = investmentMap.get(transaction.investmentId);
-		if (!investment) {
-			return;
-		}
-		const amount = convertAmount(
-			transaction.amount,
-			transaction.sourceCurrencyCode,
+	rows.forEach((row) => {
+		const rate = getConversionRate(
+			row.currencyCode,
 			isNativeCurrency,
 			rateMap,
 		);
-		if (!amount) {
+		if (rate === null) {
 			return;
 		}
 		const currencyCode = isNativeCurrency
-			? transaction.sourceCurrencyCode
+			? row.currencyCode
 			: DEFAULT_CURRENCY_CODE;
-		const key = `${investment.id}:${currencyCode}`;
+		const key = `${row.investmentId}:${currencyCode}`;
 		const current = totals.get(key) ?? {
-			investmentId: investment.id,
-			investmentName: investment.name,
+			investmentId: row.investmentId,
+			investmentName: row.investmentName,
 			currencyCode,
 			totalInvested: ZERO_AMOUNT,
 			totalRedeemed: ZERO_AMOUNT,
 			net: ZERO_AMOUNT,
 		};
-		const totalInvested =
-			transaction.type === "DEBIT"
-				? addMoney(current.totalInvested, amount)
-				: current.totalInvested;
-		const totalRedeemed =
-			transaction.type === "CREDIT"
-				? addMoney(current.totalRedeemed, amount)
-				: current.totalRedeemed;
+		const totalInvested = addMoney(
+			current.totalInvested,
+			multiplyMoney(sumToMoney(row.totalInvested), rate),
+		);
+		const totalRedeemed = addMoney(
+			current.totalRedeemed,
+			multiplyMoney(sumToMoney(row.totalRedeemed), rate),
+		);
 		totals.set(key, {
 			...current,
 			totalInvested,
@@ -182,6 +138,7 @@ const buildInvestmentAnalysis = (
 			net: subtractMoney(totalInvested, totalRedeemed),
 		});
 	});
+
 	return [...totals.values()].sort((left, right) =>
 		compareMoney(right.net, left.net),
 	);
@@ -219,46 +176,37 @@ const buildCategoryCurrencySummaries = (
 };
 
 const getMissingCurrencies = (
-	transactions: readonly Transaction[],
+	currencyCodes: readonly string[],
 	rateMap: ReadonlyMap<string, string>,
 ): readonly string[] =>
-	[
-		...new Set(
-			transactions
-				.filter((transaction) => transaction.type !== "TRANSFER")
-				.map((transaction) => transaction.sourceCurrencyCode)
-				.filter(
-					(currencyCode) =>
-						currencyCode !== DEFAULT_CURRENCY_CODE &&
-						!rateMap.has(currencyCode),
-				),
-		),
-	].sort();
+	currencyCodes.filter(
+		(currencyCode) =>
+			currencyCode !== DEFAULT_CURRENCY_CODE &&
+			!rateMap.has(currencyCode),
+	);
 
 const getAnalysisSummary = async (
 	database: SQLiteDatabase,
 	options: AnalysisOptions,
 ): Promise<AnalysisSummary> => {
-	const [transactions, categories, investments, rates] = await Promise.all([
-		getTransactionRowsInRange(
-			database,
-			options.dateRange.start,
-			options.dateRange.end,
-		),
-		getCategoryRows(database),
-		getInvestmentRows(database),
-		getExchangeRateRows(database),
-	]);
+	const { start, end } = options.dateRange;
+	const [categoryRows, investmentRows, rates, currencyRows] =
+		await Promise.all([
+			getCategoryAnalysisRows(database, start, end),
+			getInvestmentAnalysisRows(database, start, end),
+			getExchangeRateRows(database),
+			options.isNativeCurrency
+				? []
+				: getTransactionCurrencyRows(database, start, end),
+		]);
 	const rateMap = getRateMap(rates);
 	const categoryAnalysis = buildCategoryAnalysis(
-		transactions,
-		categories,
+		categoryRows,
 		options.isNativeCurrency,
 		rateMap,
 	);
 	const investmentAnalysis = buildInvestmentAnalysis(
-		transactions,
-		investments,
+		investmentRows,
 		options.isNativeCurrency,
 		rateMap,
 	);
@@ -279,9 +227,10 @@ const getAnalysisSummary = async (
 		totalIncome,
 		totalExpense,
 		netProfit: subtractMoney(totalIncome, totalExpense),
-		missingCurrencies: options.isNativeCurrency
-			? []
-			: getMissingCurrencies(transactions, rateMap),
+		missingCurrencies: getMissingCurrencies(
+			currencyRows.map((row) => row.currencyCode),
+			rateMap,
+		),
 	};
 };
 

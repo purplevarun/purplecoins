@@ -2,12 +2,12 @@ import type TestAsyncFunction from "@test/types/TestAsyncFunction";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-	getTransactionRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
+	getTripTotalRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
 }));
 
 vi.mock("@/repositories/financeRepository", () => ({
 	default: {
-		getTransactionRows: mocks.getTransactionRows,
+		getTripTotalRows: mocks.getTripTotalRows,
 	},
 }));
 
@@ -17,54 +17,15 @@ const database = {} as any;
 
 describe("tripTotalService", () => {
 	beforeEach(() => {
-		mocks.getTransactionRows.mockClear();
+		mocks.getTripTotalRows.mockClear();
 	});
 
-	it("builds totals only for general non-transfer transactions with trip", () => {
+	it("maps aggregated rows into spent-positive totals", () => {
 		const totals = tripTotalService.buildTripTotals([
-			{
-				classification: "GENERAL",
-				type: "DEBIT",
-				tripId: "trip1",
-				sourceCurrencyCode: "INR",
-				amount: "100",
-			},
-			{
-				classification: "GENERAL",
-				type: "CREDIT",
-				tripId: "trip1",
-				sourceCurrencyCode: "INR",
-				amount: "40",
-			},
-			{
-				classification: "GENERAL",
-				type: "TRANSFER",
-				tripId: "trip1",
-				sourceCurrencyCode: "INR",
-				amount: "999",
-			},
-			{
-				classification: "INVESTMENT",
-				type: "DEBIT",
-				tripId: "trip1",
-				sourceCurrencyCode: "INR",
-				amount: "999",
-			},
-			{
-				classification: "GENERAL",
-				type: "DEBIT",
-				tripId: null,
-				sourceCurrencyCode: "USD",
-				amount: "10",
-			},
-			{
-				classification: "GENERAL",
-				type: "DEBIT",
-				tripId: "trip1",
-				sourceCurrencyCode: "USD",
-				amount: "10",
-			},
-		] as any);
+			{ tripId: "trip1", currencyCode: "INR", credits: 40, debits: 100 },
+			{ tripId: "trip1", currencyCode: "USD", credits: 0, debits: 10 },
+			{ tripId: "tripA", currencyCode: "EUR", credits: 20, debits: 0 },
+		]);
 
 		expect(totals).toEqual([
 			{
@@ -81,59 +42,6 @@ describe("tripTotalService", () => {
 				debits: "10",
 				total: "10",
 			},
-		]);
-	});
-
-	it("loads transactions from repository in getTripTotals", async () => {
-		mocks.getTransactionRows.mockResolvedValueOnce([
-			{
-				classification: "GENERAL",
-				type: "DEBIT",
-				tripId: "trip2",
-				sourceCurrencyCode: "EUR",
-				amount: "5",
-			},
-		]);
-
-		const totals = await tripTotalService.getTripTotals(database);
-		expect(mocks.getTransactionRows).toHaveBeenCalledWith(database);
-		expect(totals).toEqual([
-			{
-				tripId: "trip2",
-				currencyCode: "EUR",
-				credits: "0",
-				debits: "5",
-				total: "5",
-			},
-		]);
-	});
-
-	it("handles credit-only totals and sorts currencies alphabetically", () => {
-		const totals = tripTotalService.buildTripTotals([
-			{
-				classification: "GENERAL",
-				type: "CREDIT",
-				tripId: "tripA",
-				sourceCurrencyCode: "USD",
-				amount: "50",
-			},
-			{
-				classification: "GENERAL",
-				type: "CREDIT",
-				tripId: "tripA",
-				sourceCurrencyCode: "EUR",
-				amount: "20",
-			},
-			{
-				classification: "GENERAL",
-				type: "CREDIT",
-				tripId: "tripA",
-				sourceCurrencyCode: "USD",
-				amount: "10",
-			},
-		] as any);
-
-		expect(totals).toEqual([
 			{
 				tripId: "tripA",
 				currencyCode: "EUR",
@@ -141,12 +49,39 @@ describe("tripTotalService", () => {
 				debits: "0",
 				total: "-20",
 			},
+		]);
+	});
+
+	it("cleans float noise from SQL sums", () => {
+		const totals = tripTotalService.buildTripTotals([
 			{
-				tripId: "tripA",
-				currencyCode: "USD",
-				credits: "60",
-				debits: "0",
-				total: "-60",
+				tripId: "trip1",
+				currencyCode: "INR",
+				credits: 0.1 + 0.2,
+				debits: 1,
+			},
+		]);
+
+		expect(totals[0]?.credits).toBe("0.3");
+		expect(totals[0]?.total).toBe("0.7");
+	});
+
+	it("loads aggregated rows from the repository in getTripTotals", async () => {
+		mocks.getTripTotalRows.mockResolvedValueOnce([
+			{ tripId: "trip2", currencyCode: "EUR", credits: 0, debits: 5 },
+		]);
+
+		const totals = await tripTotalService.getTripTotals(database);
+		expect(mocks.getTripTotalRows).toHaveBeenCalledExactlyOnceWith(
+			database,
+		);
+		expect(totals).toEqual([
+			{
+				tripId: "trip2",
+				currencyCode: "EUR",
+				credits: "0",
+				debits: "5",
+				total: "5",
 			},
 		]);
 	});

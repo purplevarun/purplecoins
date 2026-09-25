@@ -27,13 +27,16 @@ const {
 	getInvestmentTypeRows,
 	getSourceRow,
 	getSourceRows,
+	getCategoryAnalysisRows,
+	getInvestmentAnalysisRows,
+	getTransactionCurrencyRows,
 	getTransactionMinMaxDate,
 	getTransactionPageRows,
 	getTransactionRow,
 	getTransactionRows,
-	getTransactionRowsInRange,
 	getTripRow,
 	getTripRows,
+	getTripTotalRows,
 	investmentTypeNameExistsRow,
 	setCategoryArchivedRow,
 	setSimpleEntityArchivedRow,
@@ -210,6 +213,118 @@ describe("financeRepository", () => {
 		},
 	);
 
+	it("aggregates category credits and debits per currency in SQL", async () => {
+		const rows = [
+			{
+				categoryId: "rent",
+				categoryName: "Rent",
+				isIncome: 0,
+				currencyCode: "INR",
+				credits: 0,
+				debits: 27000,
+			},
+		];
+		const getAllAsync = vi.fn().mockResolvedValue(rows);
+		const database = { getAllAsync } as unknown as SQLiteDatabase;
+
+		expect(await getCategoryAnalysisRows(database, 1, 2)).toEqual(rows);
+		expect(getAllAsync).toHaveBeenCalledExactlyOnceWith(
+			expect.stringContaining("GROUP BY category.id"),
+			1,
+			2,
+			1,
+			2,
+		);
+		const sql = getAllAsync.mock.calls[0]?.[0] as string;
+		expect(sql).toContain("UNION ALL");
+		expect(sql).toContain(
+			"t.classification = 'GENERAL' AND t.type = 'DEBIT'",
+		);
+		expect(sql).toContain(
+			"t.classification = 'GENERAL' AND t.type = 'CREDIT'",
+		);
+		expect(sql).toContain("t.category_id IS NOT NULL");
+		expect(sql).toContain(
+			"INNER JOIN transactions t ON t.id = item.transaction_id",
+		);
+		expect(sql).toContain("WHERE COALESCE(category.archived, 0) = 0");
+		expect(sql.match(/t\.transaction_at BETWEEN \? AND \?/g)).toHaveLength(
+			2,
+		);
+	});
+
+	it("aggregates invested and redeemed totals per investment currency in SQL", async () => {
+		const rows = [
+			{
+				investmentId: "mf",
+				investmentName: "Fund",
+				currencyCode: "INR",
+				totalInvested: 10000,
+				totalRedeemed: 2500,
+			},
+		];
+		const getAllAsync = vi.fn().mockResolvedValue(rows);
+		const database = { getAllAsync } as unknown as SQLiteDatabase;
+
+		expect(await getInvestmentAnalysisRows(database, 3, 4)).toEqual(rows);
+		expect(getAllAsync).toHaveBeenCalledExactlyOnceWith(
+			expect.stringContaining(
+				"GROUP BY investment.id, source.currency_code",
+			),
+			3,
+			4,
+		);
+		const sql = getAllAsync.mock.calls[0]?.[0] as string;
+		expect(sql).toContain("t.classification = 'INVESTMENT'");
+		expect(sql).toContain("COALESCE(investment.archived, 0) = 0");
+		expect(sql).toContain("t.transaction_at BETWEEN ? AND ?");
+	});
+
+	it("aggregates trip credits and debits per currency in SQL", async () => {
+		const rows = [
+			{
+				tripId: "goa",
+				currencyCode: "INR",
+				credits: 40,
+				debits: 100,
+			},
+		];
+		const getAllAsync = vi.fn().mockResolvedValue(rows);
+		const database = { getAllAsync } as unknown as SQLiteDatabase;
+
+		expect(await getTripTotalRows(database)).toEqual(rows);
+		expect(getAllAsync).toHaveBeenCalledExactlyOnceWith(
+			expect.stringContaining("GROUP BY t.trip_id, source.currency_code"),
+		);
+		const sql = getAllAsync.mock.calls[0]?.[0] as string;
+		expect(sql).toContain("t.classification = 'GENERAL'");
+		expect(sql).toContain("t.type != 'TRANSFER'");
+		expect(sql).toContain("t.trip_id IS NOT NULL");
+		expect(sql).toContain("ORDER BY source.currency_code, t.trip_id");
+	});
+
+	it("lists distinct non-transfer transaction currencies in SQL", async () => {
+		const getAllAsync = vi
+			.fn()
+			.mockResolvedValue([{ currencyCode: "EUR" }]);
+		const database = { getAllAsync } as unknown as SQLiteDatabase;
+
+		expect(await getTransactionCurrencyRows(database, 5, 6)).toEqual([
+			{ currencyCode: "EUR" },
+		]);
+		expect(getAllAsync).toHaveBeenCalledExactlyOnceWith(
+			expect.stringContaining(
+				"SELECT DISTINCT source.currency_code AS currencyCode",
+			),
+			5,
+			6,
+		);
+		const sql = getAllAsync.mock.calls[0]?.[0] as string;
+		expect(sql).toContain("t.type != 'TRANSFER'");
+		expect(sql).toContain("t.transaction_at BETWEEN ? AND ?");
+		expect(sql).toContain("ORDER BY currencyCode");
+	});
+
 	it.each([true, false])(
 		"filters active categories by isIncome=%s in SQL",
 		async (isIncome) => {
@@ -280,7 +395,6 @@ describe("financeRepository", () => {
 			getAllAsync: vi
 				.fn()
 				.mockResolvedValueOnce([{ id: "tx1" }])
-				.mockResolvedValueOnce([{ id: "tx2" }])
 				.mockResolvedValueOnce([{ id: "b1" }])
 				.mockResolvedValueOnce([{ currencyCode: "USD" }]),
 			getFirstAsync: vi
@@ -296,9 +410,6 @@ describe("financeRepository", () => {
 		});
 		expect(await getTransactionRows(database)).toEqual([
 			{ id: "tx1", items: [] },
-		]);
-		expect(await getTransactionRowsInRange(database, 1, 2)).toEqual([
-			{ id: "tx2", items: [] },
 		]);
 		expect(await getTransactionRow(database, "tx1")).toEqual({
 			id: "tx1",
