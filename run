@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-cd "$(dirname "$0")/app"
+ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 if [ -z "${ANDROID_HOME:-}" ]; then
   for CANDIDATE_SDK_DIR in \
@@ -99,11 +99,31 @@ ensure_gradle_dist() {
 }
 
 run_format() {
-  if command -v bun >/dev/null 2>&1; then
-    bun run format
-  else
-    npm run format
-  fi
+  for PROJECT_DIR in "$ROOT_DIR/app" "$ROOT_DIR/web"; do
+    echo "Formatting $PROJECT_DIR..."
+    (
+      cd "$PROJECT_DIR"
+      if command -v bun >/dev/null 2>&1; then
+        bun run format
+      else
+        npm run format
+      fi
+    )
+  done
+}
+
+run_setup() {
+  for PROJECT_DIR in "$ROOT_DIR/app" "$ROOT_DIR/web"; do
+    echo "Installing dependencies in $PROJECT_DIR..."
+    (
+      cd "$PROJECT_DIR"
+      if command -v bun >/dev/null 2>&1; then
+        bun install
+      else
+        npm install
+      fi
+    )
+  done
 }
 
 run_test() {
@@ -290,8 +310,9 @@ show_help() {
 Usage: ./run <command>
 
 Commands:
-  format   Run prettier
-  test     Run typecheck, then unit tests with coverage
+  format   Run prettier in app and web
+  setup    Install dependencies in app and web
+  test     Run typecheck, then unit tests with coverage (app)
   apply    Apply .version to app.json and package.json, and compute versionCode
   build    Clean prebuild Android and assemble release APK with Gradle
   avd      Start the first configured Android Virtual Device
@@ -304,22 +325,31 @@ case "${1:-}" in
   format)
     run_format
     ;;
+  setup)
+    run_setup
+    ;;
   test)
+    cd "$ROOT_DIR/app"
     run_test
     ;;
   apply)
+    cd "$ROOT_DIR/app"
     run_apply
     ;;
   build)
+    cd "$ROOT_DIR/app"
     run_build
     ;;
   avd)
+    cd "$ROOT_DIR/app"
     run_avd "$@"
     ;;
   install)
+    cd "$ROOT_DIR/app"
     run_install
     ;;
   release)
+    cd "$ROOT_DIR/app"
     run_release
     ;;
   *)
