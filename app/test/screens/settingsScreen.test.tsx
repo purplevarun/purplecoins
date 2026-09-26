@@ -12,6 +12,7 @@ const reactMocks = vi.hoisted(() => ({
 const serviceMocks = vi.hoisted(() => ({
 	checkForUpdate: vi.fn(),
 	downloadAndInstallUpdate: vi.fn(),
+	isUpdateDownloaded: vi.fn(),
 	exportBackup: vi.fn(),
 	restoreBackup: vi.fn(),
 	getDefaultSourceId: vi.fn(),
@@ -105,6 +106,7 @@ vi.mock("@/services/updateService", () => ({
 	default: {
 		checkForUpdate: serviceMocks.checkForUpdate,
 		downloadAndInstallUpdate: serviceMocks.downloadAndInstallUpdate,
+		isUpdateDownloaded: serviceMocks.isUpdateDownloaded,
 	},
 }));
 
@@ -173,6 +175,7 @@ describe("SettingsScreen", () => {
 		serviceMocks.restoreBackup.mockResolvedValue(true);
 		serviceMocks.checkForUpdate.mockResolvedValue(null);
 		serviceMocks.downloadAndInstallUpdate.mockResolvedValue(undefined);
+		serviceMocks.isUpdateDownloaded.mockReturnValue(false);
 		hookMocks.confirm.mockImplementation(({ onConfirm }: any) =>
 			onConfirm(),
 		);
@@ -416,10 +419,12 @@ describe("SettingsScreen", () => {
 
 	it("shows a current-version message when GitHub has no update", async () => {
 		const setMessage = vi.fn();
+		const setIsUpdating = vi.fn();
 		let stateCall = 0;
 		reactMocks.useState.mockImplementation((initial: unknown) => {
 			stateCall += 1;
 			if (stateCall === 4) return ["", setMessage];
+			if (stateCall === 10) return [false, setIsUpdating];
 			return [
 				typeof initial === "function"
 					? (initial as () => unknown)()
@@ -444,62 +449,31 @@ describe("SettingsScreen", () => {
 		expect(setMessage).toHaveBeenCalledWith(
 			`You are already on the latest version (${packageJson.version}).`,
 		);
+		expect(setIsUpdating).toHaveBeenLastCalledWith(false);
+		expect(serviceMocks.downloadAndInstallUpdate).not.toHaveBeenCalled();
+		expect(hookMocks.confirm).not.toHaveBeenCalled();
 	});
 
-	it("downloads an available update after confirmation", async () => {
-		const release = {
-			version: "2026.9.22",
-			name: "com.purple.coins_2026.9.22.apk",
-			downloadUrl:
-				"https://github.com/purplevarun/purplecoins/releases/download/v2026.9.22/com.purple.coins_2026.9.22.apk",
-			size: 123,
-		};
-		serviceMocks.checkForUpdate.mockResolvedValueOnce(release);
-		const tree = SettingsScreen({
-			navigation: { navigate: vi.fn() },
-		} as any);
-		await flush();
-		findByPredicate(
-			tree,
-			(node) => node?.props?.label === "Check for update",
-		)[0]?.props?.onPress();
-		await flush();
-		expect(hookMocks.confirm).toHaveBeenCalledWith(
-			expect.objectContaining({
-				title: "Update available",
-				confirmLabel: "Update",
-			}),
-		);
-		expect(serviceMocks.downloadAndInstallUpdate).toHaveBeenCalledWith(
-			release,
-		);
-	});
-
-	it.each(["check", "install"])(
-		"reports update %s errors",
-		async (operation) => {
+	it.each([false, true])(
+		"confirms an available update when isDownloaded is %s",
+		async (isDownloaded) => {
 			const release = {
 				version: "2026.9.22",
-				name: "update.apk",
+				name: "com.purple.coins_2026.9.22.apk",
 				downloadUrl:
-					"https://github.com/purplevarun/purplecoins/releases/download/v2026.9.22/update.apk",
+					"https://github.com/purplevarun/purplecoins/releases/download/v2026.9.22/com.purple.coins_2026.9.22.apk",
 				size: 123,
 			};
-			if (operation === "check") {
-				serviceMocks.checkForUpdate.mockRejectedValueOnce(
-					new Error("check failed"),
-				);
-			} else {
-				serviceMocks.checkForUpdate.mockResolvedValueOnce(release);
-				serviceMocks.downloadAndInstallUpdate.mockRejectedValueOnce(
-					new Error("install failed"),
-				);
-			}
-			const setError = vi.fn();
+			serviceMocks.checkForUpdate.mockResolvedValueOnce(release);
+			serviceMocks.isUpdateDownloaded.mockReturnValue(isDownloaded);
+			hookMocks.confirm.mockImplementationOnce(vi.fn());
+			const setIsUpdating = vi.fn();
+			const setMessage = vi.fn();
 			let stateCall = 0;
 			reactMocks.useState.mockImplementation((initial: unknown) => {
 				stateCall += 1;
-				if (stateCall === 3) return ["", setError];
+				if (stateCall === 4) return ["", setMessage];
+				if (stateCall === 10) return [false, setIsUpdating];
 				return [
 					typeof initial === "function"
 						? (initial as () => unknown)()
@@ -516,9 +490,90 @@ describe("SettingsScreen", () => {
 				(node) => node?.props?.label === "Check for update",
 			)[0]?.props?.onPress();
 			await flush();
-			expect(setError).toHaveBeenCalledWith(
-				operation === "check" ? "check failed" : "install failed",
+			expect(
+				serviceMocks.isUpdateDownloaded,
+			).toHaveBeenCalledExactlyOnceWith(release);
+			expect(hookMocks.confirm).toHaveBeenCalledWith(
+				expect.objectContaining({
+					title: isDownloaded
+						? "Update ready to install"
+						: "Update available",
+					message: isDownloaded
+						? `Version ${release.version} is already downloaded and ready to install.`
+						: `Version ${release.version} is ready to download and install.`,
+					confirmLabel: isDownloaded ? "Install" : "Update",
+				}),
 			);
+			expect(
+				serviceMocks.downloadAndInstallUpdate,
+			).not.toHaveBeenCalled();
+			expect(setIsUpdating).toHaveBeenLastCalledWith(false);
+			expect(String(JSON.stringify(tree))).toContain("private cache");
+			hookMocks.confirm.mock.calls[0]?.[0].onConfirm();
+			await flush();
+			expect(
+				serviceMocks.downloadAndInstallUpdate,
+			).toHaveBeenCalledExactlyOnceWith(release);
+			expect(setIsUpdating).toHaveBeenLastCalledWith(false);
+			expect(setMessage).toHaveBeenCalledWith(
+				"The Android installer has been opened.",
+			);
+		},
+	);
+
+	it.each(["check", "install", "cache"])(
+		"reports update %s errors",
+		async (operation) => {
+			const release = {
+				version: "2026.9.22",
+				name: "update.apk",
+				downloadUrl:
+					"https://github.com/purplevarun/purplecoins/releases/download/v2026.9.22/update.apk",
+				size: 123,
+			};
+			if (operation === "check") {
+				serviceMocks.checkForUpdate.mockRejectedValueOnce(
+					new Error("check failed"),
+				);
+			} else {
+				serviceMocks.checkForUpdate.mockResolvedValueOnce(release);
+				if (operation === "install") {
+					serviceMocks.downloadAndInstallUpdate.mockRejectedValueOnce(
+						new Error("install failed"),
+					);
+				} else {
+					serviceMocks.isUpdateDownloaded.mockImplementationOnce(
+						() => {
+							throw new Error("cache failed");
+						},
+					);
+				}
+			}
+			const setError = vi.fn();
+			const setIsUpdating = vi.fn();
+			let stateCall = 0;
+			reactMocks.useState.mockImplementation((initial: unknown) => {
+				stateCall += 1;
+				if (stateCall === 3) return ["", setError];
+				if (stateCall === 10) return [false, setIsUpdating];
+				return [
+					typeof initial === "function"
+						? (initial as () => unknown)()
+						: initial,
+					vi.fn(),
+				];
+			});
+			const tree = SettingsScreen({
+				navigation: { navigate: vi.fn() },
+			} as any);
+			await flush();
+			findByPredicate(
+				tree,
+				(node) => node?.props?.label === "Check for update",
+			)[0]?.props?.onPress();
+			await flush();
+			expect(setError).toHaveBeenCalledWith(`${operation} failed`);
+			expect(setIsUpdating).toHaveBeenLastCalledWith(false);
 		},
 	);
 

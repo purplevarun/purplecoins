@@ -39,7 +39,8 @@ const {
 } = settingsService;
 const { getSources } = sourceService;
 const { getTrips } = tripService;
-const { checkForUpdate, downloadAndInstallUpdate } = updateService;
+const { checkForUpdate, downloadAndInstallUpdate, isUpdateDownloaded } =
+	updateService;
 
 const { DEFAULT_FY_START_MONTH, MONTH_OPTIONS } = dateConstants;
 
@@ -172,13 +173,19 @@ const SettingsScreen = ({
 				);
 				return;
 			}
-			setIsUpdating(false);
+			const isDownloaded = isUpdateDownloaded(release);
 			dialog.confirm({
-				title: "Update available",
-				message: `Version ${release.version} is ready to download and install.`,
-				confirmLabel: "Update",
+				title: isDownloaded
+					? "Update ready to install"
+					: "Update available",
+				message: isDownloaded
+					? `Version ${release.version} is already downloaded and ready to install.`
+					: `Version ${release.version} is ready to download and install.`,
+				confirmLabel: isDownloaded ? "Install" : "Update",
 				onConfirm: () => {
 					const processUpdate = async (): Promise<void> => {
+						setError("");
+						setMessage("");
 						setIsUpdating(true);
 						try {
 							await downloadAndInstallUpdate(release);
@@ -196,6 +203,7 @@ const SettingsScreen = ({
 			});
 		} catch (caughtError: unknown) {
 			setError(getErrorMessage(caughtError));
+		} finally {
 			setIsUpdating(false);
 		}
 	};
@@ -231,7 +239,9 @@ const SettingsScreen = ({
 				<View style={styles.section}>
 					<CustomText style={styles.heading}>App update</CustomText>
 					<CustomText style={styles.description}>
-						Check GitHub for the latest Purplecoins APK.
+						Check GitHub for the latest Purplecoins APK. APKs are
+						saved in this app&apos;s private cache, not Downloads.
+						Android may ask you to allow installs from Purplecoins.
 					</CustomText>
 					<AppButton
 						icon="cloud-download-outline"

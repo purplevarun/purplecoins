@@ -118,16 +118,23 @@ const checkForUpdate = async (
 	return release.version === current ? null : release;
 };
 
+const getUpdateFile = (release: AppRelease): File =>
+	new File(Paths.cache, release.name);
+
+const isCompleteUpdate = (file: File, release: AppRelease): boolean =>
+	file.exists && file.size === release.size;
+
+const isUpdateDownloaded = (release: AppRelease): boolean =>
+	isCompleteUpdate(getUpdateFile(release), release);
+
 const downloadAndInstallUpdate = async (release: AppRelease): Promise<void> => {
-	const destination = new File(Paths.cache, release.name);
-	const downloaded = await File.downloadFileAsync(
-		release.downloadUrl,
-		destination,
-		{
-			idempotent: true,
-		},
-	);
-	if (!downloaded.exists || downloaded.size !== release.size) {
+	const destination = getUpdateFile(release);
+	const downloaded = isCompleteUpdate(destination, release)
+		? destination
+		: await File.downloadFileAsync(release.downloadUrl, destination, {
+				idempotent: true,
+			});
+	if (!isCompleteUpdate(downloaded, release)) {
 		throw new AppError(
 			"UPDATE_DOWNLOAD_FAILED",
 			"The APK download was incomplete.",
@@ -144,6 +151,7 @@ const downloadAndInstallUpdate = async (release: AppRelease): Promise<void> => {
 const updateService = {
 	checkForUpdate,
 	downloadAndInstallUpdate,
+	isUpdateDownloaded,
 };
 
 export default updateService;
