@@ -60,6 +60,10 @@ store/
 
 .claude/
 
-bun.lock
-package-lock.json
-yarn.lock
+app/bun.lock
+app/package-lock.json
+app/yarn.lock
+
+web/bun.lock
+web/package-lock.json
+web/yarn.lock
