@@ -42,6 +42,7 @@ vi.mock("@shopify/flash-list", () => ({
 	FlashList: "FlashList",
 }));
 
+import BottomNavBar from "@/components/BottomNavBar";
 import CustomText from "@/components/CustomText";
 import CustomTextInput from "@/components/CustomTextInput";
 import EmptyState from "@/components/EmptyState";
@@ -57,6 +58,24 @@ import SearchBar from "@/components/SearchBar";
 import SectionHeading from "@/components/SectionHeading";
 
 import { Platform } from "react-native";
+
+const findAllByPredicate = (
+	node: any,
+	predicate: (candidate: any) => boolean,
+	acc: any[] = [],
+): any[] => {
+	if (!node) return acc;
+	if (Array.isArray(node)) {
+		node.forEach((child) => findAllByPredicate(child, predicate, acc));
+		return acc;
+	}
+	if (predicate(node)) acc.push(node);
+	if (!node.props) return acc;
+	for (const value of Object.values(node.props)) {
+		findAllByPredicate(value, predicate, acc);
+	}
+	return acc;
+};
 
 const findFirstByType = (node: any, type: string): any => {
 	if (!node) return null;
@@ -191,6 +210,49 @@ describe("presentational components", () => {
 			accessibilityLabel: "Search",
 		} as any);
 		expect(active.props.style({ pressed: false })[1]).toBeTruthy();
+	});
+
+	it("covers BottomNavBar active, inactive and pressed branches", () => {
+		const onSelectMode = vi.fn();
+		const nav = BottomNavBar({
+			options: [
+				{ mode: "TOOLS", label: "Tools", icon: "construct-outline" },
+				{ mode: "FINANCE", label: "Finance", icon: "wallet-outline" },
+				{
+					mode: "VAULT",
+					label: "Vault",
+					icon: "lock-closed-outline",
+				},
+			],
+			activeMode: "FINANCE",
+			onSelectMode,
+		} as any) as any;
+
+		expect(findFirstByType(nav, "BlurView")).toBeTruthy();
+
+		const items = findAllByPredicate(
+			nav,
+			(node) => node?.type === "Pressable",
+		);
+		expect(items).toHaveLength(3);
+		items.forEach((item) => {
+			expect(item.props.style({ pressed: false })[1]).toBe(false);
+			expect(item.props.style({ pressed: true })[1]).toBeTruthy();
+			item.props.onPress();
+		});
+		expect(onSelectMode).toHaveBeenCalledWith("TOOLS");
+		expect(onSelectMode).toHaveBeenCalledWith("FINANCE");
+		expect(onSelectMode).toHaveBeenCalledWith("VAULT");
+
+		const icons = findAllByPredicate(
+			nav,
+			(node) => node?.type === "Ionicons",
+		);
+		expect(icons.map((icon) => icon.props.name)).toEqual([
+			"construct-outline",
+			"wallet",
+			"lock-closed-outline",
+		]);
 	});
 
 	it("covers GlassCard accent variants", () => {
