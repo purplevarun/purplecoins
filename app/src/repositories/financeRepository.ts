@@ -683,11 +683,13 @@ const getTransactionPageRows = async (
 	classification?: TransactionClassification,
 ): Promise<readonly Transaction[]> => {
 	const conditions = [
-		...(cursor ? ["(t.created_at, t.id) < (?, ?)"] : []),
+		...(cursor
+			? ["(t.transaction_at, t.created_at, t.id) < (?, ?, ?)"]
+			: []),
 		...(classification ? ["t.classification = ?"] : []),
 	];
 	const parameters = [
-		...(cursor ? [cursor.createdAt, cursor.id] : []),
+		...(cursor ? [cursor.transactionAt, cursor.createdAt, cursor.id] : []),
 		...(classification ? [classification] : []),
 	];
 	return hydrateTransactionItems(
@@ -695,7 +697,7 @@ const getTransactionPageRows = async (
 		await database.getAllAsync<Omit<Transaction, "items">>(
 			`${TRANSACTION_SELECT}
 			${conditions.length ? `WHERE ${conditions.join(" AND ")}` : ""}
-			ORDER BY t.created_at DESC, t.id DESC LIMIT ?;`,
+			ORDER BY t.transaction_at DESC, t.created_at DESC, t.id DESC LIMIT ?;`,
 			...parameters,
 			limit,
 		),

@@ -156,6 +156,7 @@ describe("transactionService", () => {
 
 	it("forwards the cursor and classification when fetching the next ten", async () => {
 		const cursor = {
+			transactionAt: 0,
 			createdAt: 0,
 			id: "00000000-0000-4000-8000-000000000010",
 		};

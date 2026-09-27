@@ -153,6 +153,7 @@ describe("financeRepository", () => {
 		{ cursor: undefined, classification: undefined },
 		{
 			cursor: {
+				transactionAt: 50,
 				createdAt: 100,
 				id: "00000000-0000-4000-8000-000000000010",
 			},
@@ -161,13 +162,14 @@ describe("financeRepository", () => {
 		{ cursor: undefined, classification: "INVESTMENT" as const },
 		{
 			cursor: {
+				transactionAt: 50,
 				createdAt: 100,
 				id: "00000000-0000-4000-8000-000000000010",
 			},
 			classification: "GENERAL" as const,
 		},
 	])(
-		"queries a count-limited creation-ordered page with cursor $cursor and classification $classification",
+		"queries a count-limited date-ordered page with cursor $cursor and classification $classification",
 		async ({ cursor, classification }) => {
 			const getAllAsync = vi
 				.fn<
@@ -189,9 +191,11 @@ describe("financeRepository", () => {
 			).toEqual([]);
 			expect(getAllAsync).toHaveBeenCalledExactlyOnceWith(
 				expect.stringContaining(
-					"ORDER BY t.created_at DESC, t.id DESC LIMIT ?;",
+					"ORDER BY t.transaction_at DESC, t.created_at DESC, t.id DESC LIMIT ?;",
 				),
-				...(cursor ? [cursor.createdAt, cursor.id] : []),
+				...(cursor
+					? [cursor.transactionAt, cursor.createdAt, cursor.id]
+					: []),
 				...(classification ? [classification] : []),
 				11,
 			);
@@ -200,12 +204,17 @@ describe("financeRepository", () => {
 			expect(sql).not.toContain("OFFSET");
 			if (cursor && classification) {
 				expect(sql).toContain(
-					"WHERE (t.created_at, t.id) < (?, ?) AND t.classification = ?",
+					"WHERE (t.transaction_at, t.created_at, t.id) < (?, ?, ?) AND t.classification = ?",
 				);
 			}
 			if (cursor)
-				expect(sql).toContain("WHERE (t.created_at, t.id) < (?, ?)");
-			else expect(sql).not.toContain("(t.created_at, t.id)");
+				expect(sql).toContain(
+					"WHERE (t.transaction_at, t.created_at, t.id) < (?, ?, ?)",
+				);
+			else
+				expect(sql).not.toContain(
+					"(t.transaction_at, t.created_at, t.id)",
+				);
 			if (classification && !cursor)
 				expect(sql).toContain("WHERE t.classification = ?");
 			if (!classification)
