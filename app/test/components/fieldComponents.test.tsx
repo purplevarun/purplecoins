@@ -27,6 +27,9 @@ vi.mock("@react-native-community/datetimepicker", () => ({
 	default: "DateTimePicker",
 }));
 
+vi.mock("@/components/AttachmentViewer", () => ({
+	default: "AttachmentViewer",
+}));
 vi.mock("@/components/CustomText", () => ({
 	default: "CustomText",
 }));
@@ -73,10 +76,15 @@ describe("field components", () => {
 		reactMocks.useState.mockReset();
 	});
 
-	it("covers AttachmentField choose/open/remove branches", () => {
+	it("covers AttachmentField choose/view/send/delete branches", async () => {
+		reactMocks.useState.mockImplementation((initial: any) => [
+			typeof initial === "function" ? initial() : initial,
+			vi.fn(),
+		]);
 		const handlers = {
 			onPick: vi.fn(),
-			onOpen: vi.fn(),
+			onView: vi.fn(async (): Promise<string | null> => "cache/doc.pdf"),
+			onSend: vi.fn(),
 			onRemove: vi.fn(),
 		};
 
@@ -109,13 +117,21 @@ describe("field components", () => {
 		} as any);
 		const existingButtons = findAllByType(existing, "AppButton");
 		expect(existingButtons.map((button) => button.props.label)).toEqual([
-			"Open",
-			"Remove",
+			"View",
+			"Send",
+			"Delete",
 		]);
-		existingButtons[0]?.props.onPress();
+		handlers.onView.mockResolvedValueOnce(null);
+		await existingButtons[0]?.props.onPress();
+		await existingButtons[0]?.props.onPress();
 		existingButtons[1]?.props.onPress();
-		expect(handlers.onOpen).toHaveBeenCalledTimes(1);
+		existingButtons[2]?.props.onPress();
+		expect(handlers.onView).toHaveBeenCalledTimes(2);
+		expect(handlers.onSend).toHaveBeenCalledTimes(1);
 		expect(handlers.onRemove).toHaveBeenCalledTimes(1);
+
+		const viewer = findAllByType(existing, "AttachmentViewer")[0];
+		viewer?.props.onClose();
 
 		const pending = AttachmentField({
 			existingAttachment: {
@@ -139,7 +155,7 @@ describe("field components", () => {
 		} as any);
 		const pendingButtons = findAllByType(pending, "AppButton");
 		expect(pendingButtons.map((button) => button.props.label)).toEqual([
-			"Remove",
+			"Delete",
 		]);
 
 		const removedExisting = AttachmentField({

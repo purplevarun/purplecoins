@@ -202,11 +202,7 @@ const AppNavigator = (): React.JSX.Element => (
 			<Stack.Screen
 				component={GlobalSearchScreen}
 				name="GlobalSearch"
-				options={({ route }) => ({
-					title: `Search ${route.params.mode.charAt(0)}${route.params.mode
-						.slice(1)
-						.toLowerCase()}`,
-				})}
+				options={{ title: "Search" }}
 			/>
 			<Stack.Screen
 				component={DocumentsScreen}

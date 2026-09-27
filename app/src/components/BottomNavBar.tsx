@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
 	dock: {
 		overflow: OVERFLOW.HIDDEN,
 		borderRadius: RADIUS.S30,
-		borderWidth: BORDER.THIN,
+		borderWidth: BORDER.THICK,
 		borderColor: COLORS.borderStrong,
 		backgroundColor: COLORS.glass,
 		shadowColor: COLORS.black,
@@ -114,12 +114,13 @@ const styles = StyleSheet.create({
 	},
 	itemContent: {
 		alignItems: ALIGN.CENTER,
+		alignSelf: FLEX.STRETCH,
 		justifyContent: ALIGN.CENTER,
 		gap: SPACING.S3,
-		paddingHorizontal: SPACING.S18,
+		paddingHorizontal: SPACING.S8,
 		paddingVertical: SPACING.S8,
 		borderRadius: RADIUS.S22,
-		borderWidth: BORDER.THIN,
+		borderWidth: BORDER.THICK,
 		borderColor: COLORS.transparent,
 	},
 	itemContentActive: {

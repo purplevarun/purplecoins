@@ -17,6 +17,7 @@ const FLEX = {
 	NONE: 0,
 	ROW: "row",
 	SHRINK: 1,
+	STRETCH: "stretch",
 	WRAP: "wrap",
 } as const;
 

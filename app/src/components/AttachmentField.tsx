@@ -1,8 +1,10 @@
 import CustomText from "@/components/CustomText";
 import { Ionicons } from "@expo/vector-icons";
+import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 
 import AppButton from "@/components/AppButton";
+import AttachmentViewer from "@/components/AttachmentViewer";
 import COLORS from "@/constants/colors";
 import styleConstants from "@/constants/styleConstants";
 import type AttachmentFieldProps from "@/types/AttachmentFieldProps";
@@ -13,53 +15,85 @@ const AttachmentField = ({
 	pendingAttachment,
 	isRemoved,
 	onPick,
-	onOpen,
+	onView,
+	onSend,
 	onRemove,
 }: AttachmentFieldProps): React.JSX.Element => {
+	const [viewUri, setViewUri] = useState<string | null>(null);
 	const fileName =
 		pendingAttachment?.fileName ??
 		(!isRemoved ? existingAttachment?.fileName : null);
 	const sizeBytes =
 		pendingAttachment?.sizeBytes ??
 		(!isRemoved ? existingAttachment?.sizeBytes : null);
+	const mimeType = existingAttachment?.mimeType;
+
+	const handleView = async (): Promise<void> => {
+		const uri = await onView();
+		if (uri) {
+			setViewUri(uri);
+		}
+	};
 
 	return (
 		<View style={styles.container}>
 			<CustomText style={styles.label}>Attachment</CustomText>
 			{fileName && sizeBytes ? (
-				<View style={styles.fileRow}>
-					<View style={styles.fileIcon}>
-						<Ionicons
-							color={COLORS.primaryBright}
-							name="document-attach"
-							size={22}
-						/>
+				<>
+					<View style={styles.fileRow}>
+						<View style={styles.fileIcon}>
+							<Ionicons
+								color={COLORS.primaryBright}
+								name="document-attach"
+								size={22}
+							/>
+						</View>
+						<View style={styles.fileDetails}>
+							<CustomText
+								numberOfLines={1}
+								style={styles.fileName}
+							>
+								{fileName}
+							</CustomText>
+							<CustomText style={styles.fileSize}>
+								{formatFileSize(sizeBytes)}
+							</CustomText>
+						</View>
 					</View>
-					<View style={styles.fileDetails}>
-						<CustomText numberOfLines={1} style={styles.fileName}>
-							{fileName}
-						</CustomText>
-						<CustomText style={styles.fileSize}>
-							{formatFileSize(sizeBytes)}
-						</CustomText>
-					</View>
-					{existingAttachment && !pendingAttachment ? (
+					<View style={styles.fileActions}>
+						{existingAttachment && !pendingAttachment ? (
+							<>
+								<AppButton
+									icon="eye-outline"
+									isCompact
+									label="View"
+									onPress={handleView}
+									variant="secondary"
+								/>
+								<AppButton
+									icon="share-outline"
+									isCompact
+									label="Send"
+									onPress={onSend}
+									variant="secondary"
+								/>
+							</>
+						) : null}
 						<AppButton
-							icon="open-outline"
+							icon="trash-outline"
 							isCompact
-							label="Open"
-							onPress={onOpen}
-							variant="secondary"
+							label="Delete"
+							onPress={onRemove}
+							variant="danger"
 						/>
-					) : null}
-					<AppButton
-						icon="trash-outline"
-						isCompact
-						label="Remove"
-						onPress={onRemove}
-						variant="danger"
+					</View>
+					<AttachmentViewer
+						fileName={fileName}
+						mimeType={mimeType}
+						onClose={() => setViewUri(null)}
+						uri={viewUri}
 					/>
-				</View>
+				</>
 			) : (
 				<AppButton
 					icon="attach"
@@ -127,6 +161,10 @@ const styles = StyleSheet.create({
 	fileSize: {
 		color: COLORS.textMuted,
 		fontSize: FONT_SIZE.S11,
+	},
+	fileActions: {
+		flexDirection: FLEX.ROW,
+		gap: SPACING.S8,
 	},
 	hint: {
 		color: COLORS.textDim,

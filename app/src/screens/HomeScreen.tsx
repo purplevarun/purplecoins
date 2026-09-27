@@ -204,28 +204,19 @@ const HomeScreen = ({ navigation }: HomeScreenProps): React.JSX.Element => {
 						<CustomText numberOfLines={1} style={styles.appName}>
 							{APP_NAME}
 						</CustomText>
-						<View style={styles.modeRow}>
-							<CustomText style={styles.modeName}>
-								{getModeLabel(mode)}
-							</CustomText>
-							<View style={styles.headerActions}>
-								<HeaderIconButton
-									accessibilityLabel={`Search ${getModeLabel(mode)}`}
-									icon="search-outline"
-									onPress={() =>
-										navigation.navigate("GlobalSearch", {
-											mode,
-										})
-									}
-								/>
-								<HeaderIconButton
-									accessibilityLabel="Settings"
-									icon="settings-outline"
-									onPress={() =>
-										navigation.navigate("Settings")
-									}
-								/>
-							</View>
+						<View style={styles.headerActions}>
+							<HeaderIconButton
+								accessibilityLabel="Search"
+								icon="search-outline"
+								onPress={() =>
+									navigation.navigate("GlobalSearch")
+								}
+							/>
+							<HeaderIconButton
+								accessibilityLabel="Settings"
+								icon="settings-outline"
+								onPress={() => navigation.navigate("Settings")}
+							/>
 						</View>
 					</View>
 					{mode === "HEALTH" ? (
@@ -260,26 +251,16 @@ const styles = StyleSheet.create({
 	header: {
 		marginTop: SPACING.N6,
 		marginBottom: SPACING.S8,
-		gap: SPACING.S8,
+		flexDirection: FLEX.ROW,
+		alignItems: ALIGN.CENTER,
+		justifyContent: ALIGN.SPACE_BETWEEN,
+		gap: SPACING.S12,
 	},
 	appName: {
 		color: COLORS.text,
 		fontSize: FONT_SIZE.S36,
 		fontWeight: FONT_WEIGHT.BLACK,
 		letterSpacing: LETTER_SPACING.NONE,
-	},
-	modeRow: {
-		flexDirection: FLEX.ROW,
-		alignItems: ALIGN.CENTER,
-		justifyContent: ALIGN.SPACE_BETWEEN,
-		gap: SPACING.S12,
-	},
-	modeName: {
-		color: COLORS.primaryBright,
-		flex: FLEX.FILL,
-		fontSize: FONT_SIZE.S30,
-		fontWeight: FONT_WEIGHT.BLACK,
-		lineHeight: LINE_HEIGHT.S36,
 	},
 	headerActions: {
 		flexDirection: FLEX.ROW,

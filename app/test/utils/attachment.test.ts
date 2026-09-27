@@ -1,4 +1,8 @@
-import { formatFileSize, getAttachmentOwnerLabel } from "@/utils/attachment";
+import {
+	formatFileSize,
+	getAttachmentOwnerLabel,
+	getAttachmentPreviewKind,
+} from "@/utils/attachment";
 
 import { describe, expect, it } from "vitest";
 
@@ -17,5 +21,13 @@ describe("attachment utilities", () => {
 		expect(getAttachmentOwnerLabel("TODO")).toBe("Todo");
 		expect(getAttachmentOwnerLabel("CARD")).toBe("Card");
 		expect(getAttachmentOwnerLabel("IDENTITY")).toBe("Identity");
+	});
+
+	it("detects previewable attachment kinds", () => {
+		expect(getAttachmentPreviewKind("image/jpeg")).toBe("IMAGE");
+		expect(getAttachmentPreviewKind("image/png")).toBe("IMAGE");
+		expect(getAttachmentPreviewKind("application/pdf")).toBe("PDF");
+		expect(getAttachmentPreviewKind("text/plain")).toBe("UNSUPPORTED");
+		expect(getAttachmentPreviewKind(undefined)).toBe("UNSUPPORTED");
 	});
 });

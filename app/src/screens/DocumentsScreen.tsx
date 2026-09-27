@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 
 import AppButton from "@/components/AppButton";
+import AttachmentViewer from "@/components/AttachmentViewer";
 import EmptyState from "@/components/EmptyState";
 import FloatingAddButton from "@/components/FloatingAddButton";
 import GlassCard from "@/components/GlassCard";
@@ -38,6 +39,8 @@ const DocumentsScreen = (): React.JSX.Element => {
 		[],
 	);
 	const [error, setError] = useState("");
+	const [viewing, setViewing] = useState<AttachmentMetadata | null>(null);
+	const [viewUri, setViewUri] = useState<string | null>(null);
 
 	const getScreenData = useCallback(async (): Promise<void> => {
 		try {
@@ -69,7 +72,20 @@ const DocumentsScreen = (): React.JSX.Element => {
 		}
 	}, [database, refreshData]);
 
-	const handleOpen = useCallback(
+	const handleView = useCallback(
+		async (document: AttachmentMetadata): Promise<void> => {
+			try {
+				const uri = await openAttachment(database, document);
+				setViewing(document);
+				setViewUri(uri);
+			} catch (caughtError: unknown) {
+				setError(getErrorMessage(caughtError));
+			}
+		},
+		[database],
+	);
+
+	const handleSend = useCallback(
 		async (document: AttachmentMetadata): Promise<void> => {
 			try {
 				const uri = await openAttachment(database, document);
@@ -136,10 +152,17 @@ const DocumentsScreen = (): React.JSX.Element => {
 				</View>
 				<View style={styles.actions}>
 					<AppButton
-						icon="open-outline"
+						icon="eye-outline"
 						isCompact
-						label="Open"
-						onPress={() => void handleOpen(item)}
+						label="View"
+						onPress={() => void handleView(item)}
+						variant="secondary"
+					/>
+					<AppButton
+						icon="share-outline"
+						isCompact
+						label="Send"
+						onPress={() => void handleSend(item)}
 						variant="secondary"
 					/>
 					<AppButton
@@ -152,7 +175,7 @@ const DocumentsScreen = (): React.JSX.Element => {
 				</View>
 			</GlassCard>
 		),
-		[handleDelete, handleOpen],
+		[handleDelete, handleSend, handleView],
 	);
 
 	const listHeader = error ? (
@@ -182,6 +205,15 @@ const DocumentsScreen = (): React.JSX.Element => {
 				renderItem={renderDocument}
 			/>
 			<FloatingAddButton onPress={() => void handleAdd()} />
+			<AttachmentViewer
+				fileName={viewing?.fileName ?? ""}
+				mimeType={viewing?.mimeType}
+				onClose={() => {
+					setViewing(null);
+					setViewUri(null);
+				}}
+				uri={viewUri}
+			/>
 		</View>
 	);
 };

@@ -116,9 +116,7 @@ describe("HomeScreen", () => {
 			(node) => typeof node?.props?.onPress === "function",
 		).forEach((pressable) => pressable.props.onPress());
 
-		expect(navigation.navigate).toHaveBeenCalledWith("GlobalSearch", {
-			mode: "FINANCE",
-		});
+		expect(navigation.navigate).toHaveBeenCalledWith("GlobalSearch");
 		expect(navigation.navigate).toHaveBeenCalledWith("Settings");
 		expect(navigation.navigate).toHaveBeenCalledWith("Transactions");
 		expect(navigation.navigate).toHaveBeenCalledWith("Sources");
@@ -172,9 +170,7 @@ describe("HomeScreen", () => {
 			tree,
 			(node) => typeof node?.props?.onPress === "function",
 		).forEach((node) => node.props.onPress());
-		expect(navigation.navigate).toHaveBeenCalledWith("GlobalSearch", {
-			mode: "HEALTH",
-		});
+		expect(navigation.navigate).toHaveBeenCalledWith("GlobalSearch");
 		expect(navigation.navigate).toHaveBeenCalledWith("Settings");
 	});
 

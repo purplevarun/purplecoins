@@ -267,7 +267,7 @@ describe("GlobalSearchScreen", () => {
 			route: {
 				key: "k",
 				name: "GlobalSearch",
-				params: { mode: "TOOLS" },
+				params: undefined,
 			},
 		} as any);
 		await flush();
@@ -386,7 +386,7 @@ describe("GlobalSearchScreen", () => {
 			route: {
 				key: "k2",
 				name: "GlobalSearch",
-				params: { mode: "FINANCE" },
+				params: undefined,
 			},
 		} as any);
 		await flush();
@@ -498,7 +498,7 @@ describe("GlobalSearchScreen", () => {
 			route: {
 				key: "k3",
 				name: "GlobalSearch",
-				params: { mode: "TOOLS" },
+				params: undefined,
 			},
 		} as any);
 		await flush();
@@ -533,7 +533,7 @@ describe("GlobalSearchScreen", () => {
 		expect(navigation.navigate).toHaveBeenCalledWith("Documents");
 	});
 
-	it("returns empty results for HEALTH mode", async () => {
+	it("loads results across all dashboards in global search", async () => {
 		const navigation = { navigate: vi.fn() };
 		const setResults = vi.fn();
 
@@ -541,7 +541,7 @@ describe("GlobalSearchScreen", () => {
 		reactMocks.useState.mockImplementation((initial: any) => {
 			stateCall += 1;
 			if (stateCall === 1) return [[], setResults];
-			if (stateCall === 2) return ["he", vi.fn()];
+			if (stateCall === 2) return ["a", vi.fn()];
 			return [
 				typeof initial === "function" ? initial() : initial,
 				vi.fn(),
@@ -553,14 +553,22 @@ describe("GlobalSearchScreen", () => {
 			route: {
 				key: "k3h",
 				name: "GlobalSearch",
-				params: { mode: "HEALTH" },
+				params: undefined,
 			},
 		} as any);
 		await flush();
 
-		expect(setResults).toHaveBeenCalledWith([]);
-		expect(serviceMocks.getNotes).not.toHaveBeenCalled();
-		expect(serviceMocks.getTransactions).not.toHaveBeenCalled();
+		expect(serviceMocks.getNotes).toHaveBeenCalledWith({ id: "db" });
+		expect(serviceMocks.getTransactions).toHaveBeenCalledWith({ id: "db" });
+		expect(serviceMocks.getAttachments).toHaveBeenCalledWith({ id: "db" });
+		expect(setResults).toHaveBeenCalledWith(
+			expect.arrayContaining([
+				expect.objectContaining({ kind: "NOTE" }),
+				expect.objectContaining({ kind: "TRANSACTION" }),
+				expect.objectContaining({ kind: "DOCUMENT" }),
+				expect.objectContaining({ kind: "PASSWORD" }),
+			]),
+		);
 	});
 
 	it("covers short-query empty results and key extraction", async () => {
@@ -596,7 +604,7 @@ describe("GlobalSearchScreen", () => {
 			route: {
 				key: "k4",
 				name: "GlobalSearch",
-				params: { mode: "TOOLS" },
+				params: undefined,
 			},
 		} as any);
 		await flush();
@@ -649,7 +657,7 @@ describe("GlobalSearchScreen", () => {
 			route: {
 				key: "k5",
 				name: "GlobalSearch",
-				params: { mode: "TOOLS" },
+				params: undefined,
 			},
 		} as any);
 		await flush();
@@ -715,7 +723,7 @@ describe("GlobalSearchScreen", () => {
 			route: {
 				key: "k5b",
 				name: "GlobalSearch",
-				params: { mode: "TOOLS" },
+				params: undefined,
 			},
 		} as any);
 		await flush();
@@ -754,7 +762,7 @@ describe("GlobalSearchScreen", () => {
 			route: {
 				key: "k6",
 				name: "GlobalSearch",
-				params: { mode: "TOOLS" },
+				params: undefined,
 			},
 		} as any);
 		await flush();
@@ -821,7 +829,7 @@ describe("GlobalSearchScreen", () => {
 			route: {
 				key: "k7",
 				name: "GlobalSearch",
-				params: { mode: "FINANCE" },
+				params: undefined,
 			},
 		} as any);
 		await flush();
@@ -882,7 +890,7 @@ describe("GlobalSearchScreen", () => {
 			route: {
 				key: "k8",
 				name: "GlobalSearch",
-				params: { mode: "TOOLS" },
+				params: undefined,
 			},
 		} as any);
 		await flush();
@@ -923,7 +931,7 @@ describe("GlobalSearchScreen", () => {
 			route: {
 				key: "k-cleanup",
 				name: "GlobalSearch",
-				params: { mode: "TOOLS" },
+				params: undefined,
 			},
 		} as any);
 		await flush();

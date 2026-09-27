@@ -311,9 +311,9 @@ describe("form screens", () => {
 				});
 				const field = findByPredicate(
 					tree,
-					(node) => typeof node?.props?.onOpen === "function",
+					(node) => typeof node?.props?.onSend === "function",
 				)[0];
-				await field.props.onOpen();
+				await field.props.onSend();
 			}
 			expect(sharingMocks.shareAsync).toHaveBeenCalledTimes(
 				available ? 3 : 0,
@@ -989,11 +989,12 @@ describe("form screens", () => {
 		const attachment = findByPredicate(
 			cardTree,
 			(node) =>
-				typeof node?.props?.onOpen === "function" &&
+				typeof node?.props?.onSend === "function" &&
 				typeof node?.props?.onPick === "function" &&
 				typeof node?.props?.onRemove === "function",
 		)[0];
-		await attachment?.props?.onOpen();
+		await attachment?.props?.onView();
+		await attachment?.props?.onSend();
 		await attachment?.props?.onPick();
 		attachment?.props?.onRemove();
 
@@ -1085,7 +1086,7 @@ describe("form screens", () => {
 			findByPredicate(
 				passwordTree,
 				(node) =>
-					typeof node?.props?.onOpen === "function" &&
+					typeof node?.props?.onSend === "function" &&
 					typeof node?.props?.onPick === "function",
 			),
 		).toHaveLength(0);
@@ -1326,11 +1327,12 @@ describe("form screens", () => {
 		const attachmentNode = findByPredicate(
 			tree,
 			(node) =>
-				typeof node?.props?.onOpen === "function" &&
+				typeof node?.props?.onSend === "function" &&
 				typeof node?.props?.onPick === "function" &&
 				typeof node?.props?.onRemove === "function",
 		)[0];
-		await attachmentNode?.props?.onOpen();
+		await attachmentNode?.props?.onView();
+		await attachmentNode?.props?.onSend();
 		await attachmentNode?.props?.onPick();
 		attachmentNode?.props?.onRemove();
 		expect(hookMocks.handleOpen).toHaveBeenCalled();
@@ -1524,11 +1526,12 @@ describe("form screens", () => {
 		const attachmentNode = findByPredicate(
 			tree,
 			(node) =>
-				typeof node?.props?.onOpen === "function" &&
+				typeof node?.props?.onSend === "function" &&
 				typeof node?.props?.onPick === "function" &&
 				typeof node?.props?.onRemove === "function",
 		)[0];
-		await attachmentNode?.props?.onOpen();
+		await attachmentNode?.props?.onView();
+		await attachmentNode?.props?.onSend();
 		await attachmentNode?.props?.onPick();
 		attachmentNode?.props?.onRemove();
 		expect(hookMocks.handleOpen).toHaveBeenCalled();

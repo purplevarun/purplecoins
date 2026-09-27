@@ -263,9 +263,9 @@ describe("TransactionFormScreen", () => {
 			} as any);
 			const field = findByPredicate(
 				tree,
-				(node) => typeof node?.props?.onOpen === "function",
+				(node) => typeof node?.props?.onSend === "function",
 			)[0];
-			await field.props.onOpen();
+			await field.props.onSend();
 			expect(sharingMocks.shareAsync).toHaveBeenCalledTimes(
 				available ? 1 : 0,
 			);
@@ -1019,11 +1019,12 @@ describe("TransactionFormScreen", () => {
 		const attachment = findByPredicate(
 			tree,
 			(node) =>
-				typeof node?.props?.onOpen === "function" &&
+				typeof node?.props?.onSend === "function" &&
 				typeof node?.props?.onPick === "function" &&
 				typeof node?.props?.onRemove === "function",
 		)[0];
-		await attachment?.props?.onOpen();
+		await attachment?.props?.onView();
+		await attachment?.props?.onSend();
 		await attachment?.props?.onPick();
 		attachment?.props?.onRemove();
 

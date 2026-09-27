@@ -6,7 +6,8 @@ type AttachmentFieldProps = Readonly<{
 	pendingAttachment: AttachmentInput | null;
 	isRemoved: boolean;
 	onPick: () => void;
-	onOpen: () => void;
+	onView: () => Promise<string | null>;
+	onSend: () => void;
 	onRemove: () => void;
 }>;
 

@@ -162,11 +162,7 @@ describe("AppNavigator", () => {
 				route: { params: { entityName: "Rent" } },
 			}).title,
 		).toBe("Rent");
-		expect(
-			byName("GlobalSearch")?.props?.options({
-				route: { params: { mode: "TODO" } },
-			}).title,
-		).toBe("Search Todo");
+		expect(byName("GlobalSearch")?.props?.options?.title).toBe("Search");
 		expect(
 			byName("Vault")?.props?.options({
 				route: { params: { kind: "IDENTITY" } },

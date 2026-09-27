@@ -592,11 +592,9 @@ const TransactionFormScreen = ({
 					<AttachmentField
 						existingAttachment={attachment.existingAttachment}
 						isRemoved={attachment.isRemoved}
-						onOpen={async () => {
+						onSend={async () => {
 							const uri = await attachment.handleOpen();
 							if (uri) {
-								// Try to preview images/PDFs in-app using Linking or a preview component.
-								// For now, fall back to sharing if available.
 								const Sharing = await import("expo-sharing");
 								if (await Sharing.isAvailableAsync()) {
 									await Sharing.shareAsync(uri, {
@@ -607,6 +605,7 @@ const TransactionFormScreen = ({
 								}
 							}
 						}}
+						onView={attachment.handleOpen}
 						onPick={() => void attachment.handlePick()}
 						onRemove={attachment.handleRemove}
 						pendingAttachment={attachment.pendingAttachment}

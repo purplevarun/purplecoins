@@ -43,12 +43,12 @@ vi.mock("@/components/CustomTextInput", () => ({
 }));
 
 import AppButton from "@/components/AppButton";
-import COLORS from "@/constants/colors";
 import PlatformPicker from "@/components/PlatformPicker";
 import SegmentedControl from "@/components/SegmentedControl";
 import SelectField from "@/components/SelectField";
 import SimpleEntityForm from "@/components/SimpleEntityForm";
 import TextField from "@/components/TextField";
+import COLORS from "@/constants/colors";
 
 const findElement = <Props,>(
 	tree: unknown,

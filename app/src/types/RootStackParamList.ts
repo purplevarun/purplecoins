@@ -1,4 +1,3 @@
-import type HomeMode from "@/types/HomeMode";
 import type RelationKind from "@/types/RelationKind";
 import type VaultKind from "@/types/VaultKind";
 
@@ -51,7 +50,7 @@ type RootStackParamList = {
 		dateRangeLabel?: string;
 	};
 	ExchangeRates: undefined;
-	GlobalSearch: { mode: HomeMode };
+	GlobalSearch: undefined;
 	Documents: undefined;
 	Notes: undefined;
 	NoteForm: { noteId?: string } | undefined;

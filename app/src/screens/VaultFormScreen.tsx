@@ -285,7 +285,7 @@ const VaultFormScreen = ({
 						<AttachmentField
 							existingAttachment={attachment.existingAttachment}
 							isRemoved={attachment.isRemoved}
-							onOpen={async () => {
+							onSend={async () => {
 								const uri = await attachment.handleOpen();
 								if (uri) {
 									const Sharing =
@@ -299,6 +299,7 @@ const VaultFormScreen = ({
 									}
 								}
 							}}
+							onView={attachment.handleOpen}
 							onPick={() => void attachment.handlePick()}
 							onRemove={attachment.handleRemove}
 							pendingAttachment={attachment.pendingAttachment}

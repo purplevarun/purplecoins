@@ -156,7 +156,7 @@ const TodoFormScreen = ({
 					<AttachmentField
 						existingAttachment={attachment.existingAttachment}
 						isRemoved={attachment.isRemoved}
-						onOpen={async () => {
+						onSend={async () => {
 							const uri = await attachment.handleOpen();
 							if (uri) {
 								const Sharing = await import("expo-sharing");
@@ -169,6 +169,7 @@ const TodoFormScreen = ({
 								}
 							}
 						}}
+						onView={attachment.handleOpen}
 						onPick={() => void attachment.handlePick()}
 						onRemove={attachment.handleRemove}
 						pendingAttachment={attachment.pendingAttachment}

@@ -54,6 +54,9 @@ vi.mock("react-native", () => ({
 vi.mock("@/components/AppButton", () => ({
 	default: (props: any) => ({ type: "AppButton", props }),
 }));
+vi.mock("@/components/AttachmentViewer", () => ({
+	default: "AttachmentViewer",
+}));
 vi.mock("@/components/CustomText", () => ({
 	default: (props: any) => ({ type: "CustomText", props }),
 }));
@@ -186,12 +189,25 @@ describe("DocumentsScreen", () => {
 		);
 	});
 
-	it("loads documents, opens one via share, and deletes one", async () => {
+	it("loads documents, views one in-app, sends one via share, and deletes one", async () => {
 		const setDocuments = vi.fn();
+		const setViewing = vi.fn();
+		const setViewUri = vi.fn();
 		let call = 0;
 		reactMocks.useState.mockImplementation((initial: any) => {
 			call += 1;
 			if (call === 1) return [[], setDocuments];
+			if (call === 3) {
+				return [
+					{
+						id: "d1",
+						fileName: "report.pdf",
+						mimeType: "application/pdf",
+					},
+					setViewing,
+				];
+			}
+			if (call === 4) return ["cache/dir/file.pdf", setViewUri];
 			return [
 				typeof initial === "function" ? initial() : initial,
 				vi.fn(),
@@ -232,7 +248,7 @@ describe("DocumentsScreen", () => {
 		findByPredicate(
 			documentRow,
 			(node) =>
-				node?.props?.label === "Open" &&
+				node?.props?.label === "View" &&
 				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
@@ -240,6 +256,27 @@ describe("DocumentsScreen", () => {
 			{ id: "db" },
 			expect.objectContaining({ id: "d1" }),
 		);
+		expect(setViewing).toHaveBeenCalledWith(
+			expect.objectContaining({ id: "d1" }),
+		);
+		expect(setViewUri).toHaveBeenCalledWith("cache/dir/file.pdf");
+
+		const viewer = findByPredicate(
+			tree,
+			(node) => node?.type === "AttachmentViewer",
+		)[0];
+		expect(viewer.props.mimeType).toBe("application/pdf");
+		viewer.props.onClose();
+		expect(setViewing).toHaveBeenCalledWith(null);
+		expect(setViewUri).toHaveBeenCalledWith(null);
+
+		findByPredicate(
+			documentRow,
+			(node) =>
+				node?.props?.label === "Send" &&
+				typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
+		await flush();
 		expect(sharingMocks.shareAsync).toHaveBeenCalledWith(
 			"cache/dir/file.pdf",
 			{ dialogTitle: "report.pdf" },
@@ -249,7 +286,7 @@ describe("DocumentsScreen", () => {
 		findByPredicate(
 			documentRow,
 			(node) =>
-				node?.props?.label === "Open" &&
+				node?.props?.label === "Send" &&
 				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
@@ -349,9 +386,7 @@ describe("DocumentsScreen", () => {
 		serviceMocks.getAttachments.mockRejectedValueOnce(
 			new Error("load failed"),
 		);
-		serviceMocks.openAttachment.mockRejectedValueOnce(
-			new Error("open failed"),
-		);
+		serviceMocks.openAttachment.mockRejectedValue(new Error("open failed"));
 		serviceMocks.pickAttachment.mockRejectedValueOnce(
 			new Error("pick failed"),
 		);
@@ -401,7 +436,16 @@ describe("DocumentsScreen", () => {
 		findByPredicate(
 			row,
 			(node) =>
-				node?.props?.label === "Open" &&
+				node?.props?.label === "View" &&
+				typeof node?.props?.onPress === "function",
+		)[0]?.props?.onPress();
+		await flush();
+		expect(setError).toHaveBeenCalledWith("open failed");
+
+		findByPredicate(
+			row,
+			(node) =>
+				node?.props?.label === "Send" &&
 				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
