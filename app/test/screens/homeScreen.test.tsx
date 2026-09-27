@@ -38,6 +38,9 @@ vi.mock("@/components/BottomNavBar", () => ({
 vi.mock("@/components/CustomText", () => ({
 	default: (props: any) => ({ type: "CustomText", props }),
 }));
+vi.mock("@/components/EmptyState", () => ({
+	default: (props: any) => ({ type: "EmptyState", props }),
+}));
 vi.mock("@/components/GlassCard", () => ({
 	default: (props: any) => ({ type: "GlassCard", props }),
 }));
@@ -127,7 +130,7 @@ describe("HomeScreen", () => {
 		expect(JSON.stringify(tree)).not.toContain("Exchange rates");
 	});
 
-	it("renders tools mode tiles", () => {
+	it("renders tools mode tiles including vault and documents entries", () => {
 		const navigation = { navigate: vi.fn() };
 		reactMocks.useState.mockImplementation(() => ["TOOLS", vi.fn()]);
 
@@ -140,18 +143,7 @@ describe("HomeScreen", () => {
 
 		expect(navigation.navigate).toHaveBeenCalledWith("Notes");
 		expect(navigation.navigate).toHaveBeenCalledWith("Todos");
-	});
-
-	it("renders vault mode tiles", () => {
-		const navigation = { navigate: vi.fn() };
-		reactMocks.useState.mockImplementation(() => ["VAULT", vi.fn()]);
-
-		const tree = HomeScreen({ navigation } as any);
-		findByPredicate(
-			tree,
-			(node) => typeof node?.props?.onPress === "function",
-		).forEach((node) => node.props.onPress());
-
+		expect(navigation.navigate).toHaveBeenCalledWith("Documents");
 		expect(navigation.navigate).toHaveBeenCalledWith("Vault", {
 			kind: "PASSWORD",
 		});
@@ -161,6 +153,29 @@ describe("HomeScreen", () => {
 		expect(navigation.navigate).toHaveBeenCalledWith("Vault", {
 			kind: "IDENTITY",
 		});
+	});
+
+	it("renders health mode as a coming soon state", () => {
+		const navigation = { navigate: vi.fn() };
+		reactMocks.useState.mockImplementation(() => ["HEALTH", vi.fn()]);
+
+		const tree = HomeScreen({ navigation } as any);
+
+		const comingSoon = findByPredicate(
+			tree,
+			(node) => node?.props?.title === "Coming soon",
+		);
+		expect(comingSoon).not.toHaveLength(0);
+		expect(comingSoon[0].props.icon).toBe("fitness-outline");
+
+		findByPredicate(
+			tree,
+			(node) => typeof node?.props?.onPress === "function",
+		).forEach((node) => node.props.onPress());
+		expect(navigation.navigate).toHaveBeenCalledWith("GlobalSearch", {
+			mode: "HEALTH",
+		});
+		expect(navigation.navigate).toHaveBeenCalledWith("Settings");
 	});
 
 	it("passes mode state to the bottom nav and applies selection", () => {
@@ -180,8 +195,8 @@ describe("HomeScreen", () => {
 		expect(navBar.props.activeMode).toBe("FINANCE");
 		expect(navBar.props.options).toEqual(MODE_OPTIONS);
 
-		navBar.props.onSelectMode("VAULT");
-		expect(setMode).toHaveBeenCalledWith("VAULT");
+		navBar.props.onSelectMode("HEALTH");
+		expect(setMode).toHaveBeenCalledWith("HEALTH");
 	});
 
 	it("executes tile style callbacks", () => {
@@ -207,7 +222,7 @@ describe("HomeScreen", () => {
 		expect(MODE_OPTIONS).toHaveLength(3);
 		expect(getModeLabel("TOOLS")).toBe("Tools");
 		expect(getModeLabel("FINANCE")).toBe("Finance");
-		expect(getModeLabel("VAULT")).toBe("Vault");
+		expect(getModeLabel("HEALTH")).toBe("Health");
 		expect(getModeLabel("UNKNOWN" as any)).toBe("Tools");
 		expect(getPressableScaleStyle(true)).toEqual([
 			{ transform: [{ scale: 0.98 }] },

@@ -9,6 +9,7 @@ const reactMocks = vi.hoisted(() => ({
 }));
 
 const serviceMocks = vi.hoisted(() => ({
+	getAttachments: vi.fn(),
 	getBudgets: vi.fn(),
 	getCards: vi.fn(),
 	getCategories: vi.fn(),
@@ -71,6 +72,9 @@ vi.mock("@/hooks/useDatabaseContext", () => ({
 	default: () => ({ database: { id: "db" }, dataVersion: 1 }),
 }));
 
+vi.mock("@/services/attachmentService", () => ({
+	default: { getAttachments: serviceMocks.getAttachments },
+}));
 vi.mock("@/services/budgetService", () => ({
 	default: { getBudgets: serviceMocks.getBudgets },
 }));
@@ -111,6 +115,10 @@ vi.mock("@/services/tripService", () => ({
 	default: { getTrips: serviceMocks.getTrips },
 }));
 
+vi.mock("@/utils/attachment", () => ({
+	getAttachmentOwnerLabel: (ownerType: string) =>
+		ownerType.charAt(0) + ownerType.slice(1).toLowerCase(),
+}));
 vi.mock("@/utils/date", () => ({
 	default: {
 		formatDate: (value: number) => `date:${value}`,
@@ -228,6 +236,14 @@ describe("GlobalSearchScreen", () => {
 		serviceMocks.getIdentities.mockResolvedValue([
 			{ id: "id1", title: "Passport", idNumber: "P1" },
 		]);
+		serviceMocks.getAttachments.mockResolvedValue([
+			{
+				id: "d1",
+				fileName: "report.pdf",
+				ownerType: "DOCUMENT",
+				sizeBytes: 10,
+			},
+		]);
 	});
 
 	it("loads TOOLS mode and opens NOTE and TODO results", async () => {
@@ -291,6 +307,7 @@ describe("GlobalSearchScreen", () => {
 
 		expect(serviceMocks.getNotes).toHaveBeenCalledWith({ id: "db" });
 		expect(serviceMocks.getTodos).toHaveBeenCalledWith({ id: "db" });
+		expect(serviceMocks.getAttachments).toHaveBeenCalledWith({ id: "db" });
 		expect(navigation.navigate).toHaveBeenCalledWith("NoteForm", {
 			noteId: "n1",
 		});
@@ -428,9 +445,9 @@ describe("GlobalSearchScreen", () => {
 		expect(navigation.navigate).not.toHaveBeenCalledWith("ExchangeRates");
 	});
 
-	it("loads VAULT mode and opens PASSWORD CARD and IDENTITY results", async () => {
+	it("loads TOOLS vault and document results and opens them", async () => {
 		const navigation = { navigate: vi.fn() };
-		const vaultResults = [
+		const toolsResults = [
 			{
 				id: "p1",
 				kind: "PASSWORD",
@@ -455,6 +472,14 @@ describe("GlobalSearchScreen", () => {
 				icon: "person-circle-outline",
 				color: "#3",
 			},
+			{
+				id: "d1",
+				kind: "DOCUMENT",
+				title: "report.pdf",
+				subtitle: "Document",
+				icon: "document-attach-outline",
+				color: "#4",
+			},
 		];
 
 		let stateCall = 0;
@@ -473,7 +498,7 @@ describe("GlobalSearchScreen", () => {
 			route: {
 				key: "k3",
 				name: "GlobalSearch",
-				params: { mode: "VAULT" },
+				params: { mode: "TOOLS" },
 			},
 		} as any);
 		await flush();
@@ -482,7 +507,7 @@ describe("GlobalSearchScreen", () => {
 			tree,
 			(node) => typeof node?.props?.renderItem === "function",
 		)[0];
-		for (const result of vaultResults) {
+		for (const result of toolsResults) {
 			const row = screenList.props.renderItem({ item: result });
 			findByPredicate(
 				row,
@@ -505,6 +530,37 @@ describe("GlobalSearchScreen", () => {
 			kind: "IDENTITY",
 			entryId: "id1",
 		});
+		expect(navigation.navigate).toHaveBeenCalledWith("Documents");
+	});
+
+	it("returns empty results for HEALTH mode", async () => {
+		const navigation = { navigate: vi.fn() };
+		const setResults = vi.fn();
+
+		let stateCall = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			stateCall += 1;
+			if (stateCall === 1) return [[], setResults];
+			if (stateCall === 2) return ["he", vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		GlobalSearchScreen({
+			navigation,
+			route: {
+				key: "k3h",
+				name: "GlobalSearch",
+				params: { mode: "HEALTH" },
+			},
+		} as any);
+		await flush();
+
+		expect(setResults).toHaveBeenCalledWith([]);
+		expect(serviceMocks.getNotes).not.toHaveBeenCalled();
+		expect(serviceMocks.getTransactions).not.toHaveBeenCalled();
 	});
 
 	it("covers short-query empty results and key extraction", async () => {
@@ -704,18 +760,20 @@ describe("GlobalSearchScreen", () => {
 		await flush();
 		await flush();
 
-		expect(setResults).toHaveBeenCalledWith([
-			expect.objectContaining({
-				id: "n2",
-				kind: "NOTE",
-				subtitle: "Note",
-			}),
-			expect.objectContaining({
-				id: "t2",
-				kind: "TODO",
-				subtitle: "Todo",
-			}),
-		]);
+		expect(setResults).toHaveBeenCalledWith(
+			expect.arrayContaining([
+				expect.objectContaining({
+					id: "n2",
+					kind: "NOTE",
+					subtitle: "Note",
+				}),
+				expect.objectContaining({
+					id: "t2",
+					kind: "TODO",
+					subtitle: "Todo",
+				}),
+			]),
+		);
 	});
 
 	it("covers FINANCE mapped subtitle branches for income, yearly budget and missing extras", async () => {
@@ -790,7 +848,7 @@ describe("GlobalSearchScreen", () => {
 		);
 	});
 
-	it("covers VAULT fallback subtitle branches for password, card and identity", async () => {
+	it("covers TOOLS vault fallback subtitle branches for password, card and identity", async () => {
 		const navigation = { navigate: vi.fn() };
 		serviceMocks.getPasswords.mockResolvedValueOnce([
 			{
@@ -824,7 +882,7 @@ describe("GlobalSearchScreen", () => {
 			route: {
 				key: "k8",
 				name: "GlobalSearch",
-				params: { mode: "VAULT" },
+				params: { mode: "TOOLS" },
 			},
 		} as any);
 		await flush();

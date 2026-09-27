@@ -15,6 +15,7 @@ import appConstants from "@/constants/appConstants";
 import COLORS from "@/constants/colors";
 import styleConstants from "@/constants/styleConstants";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
+import attachmentService from "@/services/attachmentService";
 import budgetService from "@/services/budgetService";
 import cardService from "@/services/cardService";
 import categoryService from "@/services/categoryService";
@@ -30,10 +31,12 @@ import type GlobalSearchResult from "@/types/GlobalSearchResult";
 import type GlobalSearchResultKind from "@/types/GlobalSearchResultKind";
 import type GlobalSearchScreenProps from "@/types/GlobalSearchScreenProps";
 import type HomeMode from "@/types/HomeMode";
+import { getAttachmentOwnerLabel } from "@/utils/attachment";
 import dateUtils from "@/utils/date";
 import getErrorMessage from "@/utils/error";
 import moneyUtils from "@/utils/money";
 const { DEFAULT_CURRENCY_CODE } = appConstants;
+const { getAttachments } = attachmentService;
 const { getBudgets } = budgetService;
 const { getCards } = cardService;
 const { getCategories } = categoryService;
@@ -72,10 +75,15 @@ const GlobalSearchScreen = ({
 	const getScreenData = useCallback(async (): Promise<void> => {
 		try {
 			if (mode === "TOOLS") {
-				const [notes, todos] = await Promise.all([
-					getNotes(database),
-					getTodos(database),
-				]);
+				const [notes, todos, passwords, cards, identities, documents] =
+					await Promise.all([
+						getNotes(database),
+						getTodos(database),
+						getPasswords(database),
+						getCards(database),
+						getIdentities(database),
+						getAttachments(database),
+					]);
 				setResults([
 					...notes.map((note): GlobalSearchResult => ({
 						id: note.id,
@@ -92,6 +100,38 @@ const GlobalSearchScreen = ({
 						subtitle: todo.folderName ?? "Todo",
 						icon: "checkbox-outline",
 						color: COLORS.success,
+					})),
+					...passwords.map((password): GlobalSearchResult => ({
+						id: password.id,
+						kind: "PASSWORD",
+						title: password.title,
+						subtitle: password.username || password.website,
+						icon: "key-outline",
+						color: COLORS.warning,
+					})),
+					...cards.map((card): GlobalSearchResult => ({
+						id: card.id,
+						kind: "CARD",
+						title: card.name,
+						subtitle: card.network || "Card",
+						icon: "card-outline",
+						color: COLORS.danger,
+					})),
+					...identities.map((identity): GlobalSearchResult => ({
+						id: identity.id,
+						kind: "IDENTITY",
+						title: identity.title,
+						subtitle: identity.idNumber || "Identity",
+						icon: "person-circle-outline",
+						color: COLORS.blue,
+					})),
+					...documents.map((document): GlobalSearchResult => ({
+						id: document.id,
+						kind: "DOCUMENT",
+						title: document.fileName,
+						subtitle: getAttachmentOwnerLabel(document.ownerType),
+						icon: "document-attach-outline",
+						color: COLORS.primary,
 					})),
 				]);
 			} else if (mode === "FINANCE") {
@@ -173,37 +213,7 @@ const GlobalSearchScreen = ({
 					})),
 				]);
 			} else {
-				const [passwords, cards, identities] = await Promise.all([
-					getPasswords(database),
-					getCards(database),
-					getIdentities(database),
-				]);
-				setResults([
-					...passwords.map((password): GlobalSearchResult => ({
-						id: password.id,
-						kind: "PASSWORD",
-						title: password.title,
-						subtitle: password.username || password.website,
-						icon: "key-outline",
-						color: COLORS.warning,
-					})),
-					...cards.map((card): GlobalSearchResult => ({
-						id: card.id,
-						kind: "CARD",
-						title: card.name,
-						subtitle: card.network || "Card",
-						icon: "card-outline",
-						color: COLORS.danger,
-					})),
-					...identities.map((identity): GlobalSearchResult => ({
-						id: identity.id,
-						kind: "IDENTITY",
-						title: identity.title,
-						subtitle: identity.idNumber || "Identity",
-						icon: "person-circle-outline",
-						color: COLORS.blue,
-					})),
-				]);
+				setResults([]);
 			}
 			setError("");
 		} catch (caughtError: unknown) {
@@ -261,6 +271,10 @@ const GlobalSearchScreen = ({
 			}
 			if (result.kind === "TODO") {
 				navigation.navigate("TodoForm", { todoId: result.id });
+				return;
+			}
+			if (result.kind === "DOCUMENT") {
+				navigation.navigate("Documents");
 				return;
 			}
 			navigation.navigate("VaultForm", {

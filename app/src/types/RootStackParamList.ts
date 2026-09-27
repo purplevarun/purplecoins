@@ -52,6 +52,7 @@ type RootStackParamList = {
 	};
 	ExchangeRates: undefined;
 	GlobalSearch: { mode: HomeMode };
+	Documents: undefined;
 	Notes: undefined;
 	NoteForm: { noteId?: string } | undefined;
 	Todos: undefined;

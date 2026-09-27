@@ -13,6 +13,7 @@ const mocks = vi.hoisted(() => ({
 	getAttachmentMetadataRow: vi
 		.fn<TestAsyncFunction>()
 		.mockResolvedValue(null),
+	getAttachmentMetadataRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
 	upsertAttachmentRow: vi
 		.fn<TestAsyncFunction>()
 		.mockResolvedValue(undefined),
@@ -40,6 +41,7 @@ vi.mock("@/repositories/attachmentRepository", () => ({
 		deleteAttachmentRow: mocks.deleteAttachmentRow,
 		getAttachmentContentRow: mocks.getAttachmentContentRow,
 		getAttachmentMetadataRow: mocks.getAttachmentMetadataRow,
+		getAttachmentMetadataRows: mocks.getAttachmentMetadataRows,
 		upsertAttachmentRow: mocks.upsertAttachmentRow,
 	},
 }));
@@ -239,6 +241,30 @@ describe("attachmentService", () => {
 			database,
 			"NOTE",
 			"n1",
+		);
+	});
+
+	it("lists attachments and saves standalone documents", async () => {
+		mocks.getAttachmentMetadataRows.mockResolvedValueOnce([
+			{ id: "a1", fileName: "doc.pdf" },
+		]);
+		expect(await attachmentService.getAttachments(database)).toEqual([
+			{ id: "a1", fileName: "doc.pdf" },
+		]);
+
+		await attachmentService.saveDocument(database, {
+			fileName: "doc.pdf",
+			mimeType: "application/pdf",
+			sizeBytes: 100,
+			content: new Uint8Array([1]),
+		});
+		expect(mocks.upsertAttachmentRow).toHaveBeenCalledWith(
+			database,
+			"attachment-id",
+			"DOCUMENT",
+			"attachment-id",
+			expect.objectContaining({ fileName: "doc.pdf" }),
+			new Date("2026-08-25T12:00:00.000Z").getTime(),
 		);
 	});
 

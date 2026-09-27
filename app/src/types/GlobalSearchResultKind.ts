@@ -9,6 +9,7 @@ type GlobalSearchResultKind =
 	| "TODO"
 	| "PASSWORD"
 	| "CARD"
-	| "IDENTITY";
+	| "IDENTITY"
+	| "DOCUMENT";
 
 export type { GlobalSearchResultKind as default };

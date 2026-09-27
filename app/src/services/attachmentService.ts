@@ -15,6 +15,7 @@ const {
 	deleteAttachmentRow,
 	getAttachmentContentRow,
 	getAttachmentMetadataRow,
+	getAttachmentMetadataRows,
 	upsertAttachmentRow,
 } = attachmentRepository;
 
@@ -56,6 +57,11 @@ const getAttachmentMetadata = async (
 ): Promise<AttachmentMetadata | null> =>
 	getAttachmentMetadataRow(database, ownerType, ownerId);
 
+const getAttachments = async (
+	database: SQLiteDatabase,
+): Promise<readonly AttachmentMetadata[]> =>
+	getAttachmentMetadataRows(database);
+
 const saveAttachment = async (
 	database: SQLiteDatabase,
 	ownerType: AttachmentOwnerType,
@@ -77,6 +83,12 @@ const saveAttachment = async (
 		Date.now(),
 	);
 };
+
+const saveDocument = async (
+	database: SQLiteDatabase,
+	attachment: AttachmentInput,
+): Promise<void> =>
+	saveAttachment(database, "DOCUMENT", createId(), attachment);
 
 const deleteAttachment = async (
 	database: SQLiteDatabase,
@@ -111,9 +123,11 @@ const openAttachment = async (
 const attachmentService = {
 	deleteAttachment,
 	getAttachmentMetadata,
+	getAttachments,
 	openAttachment,
 	pickAttachment,
 	saveAttachment,
+	saveDocument,
 };
 
 export default attachmentService;

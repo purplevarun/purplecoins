@@ -14,6 +14,7 @@ import BudgetFormScreen from "@/screens/BudgetFormScreen";
 import BudgetsScreen from "@/screens/BudgetsScreen";
 import CategoriesScreen from "@/screens/CategoriesScreen";
 import CategoryFormScreen from "@/screens/CategoryFormScreen";
+import DocumentsScreen from "@/screens/DocumentsScreen";
 import ExchangeRatesScreen from "@/screens/ExchangeRatesScreen";
 import GlobalSearchScreen from "@/screens/GlobalSearchScreen";
 import HomeScreen from "@/screens/HomeScreen";
@@ -206,6 +207,11 @@ const AppNavigator = (): React.JSX.Element => (
 						.slice(1)
 						.toLowerCase()}`,
 				})}
+			/>
+			<Stack.Screen
+				component={DocumentsScreen}
+				name="Documents"
+				options={{ title: "Documents" }}
 			/>
 			<Stack.Screen
 				component={NotesScreen}

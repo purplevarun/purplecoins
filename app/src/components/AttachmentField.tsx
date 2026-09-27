@@ -6,11 +6,7 @@ import AppButton from "@/components/AppButton";
 import COLORS from "@/constants/colors";
 import styleConstants from "@/constants/styleConstants";
 import type AttachmentFieldProps from "@/types/AttachmentFieldProps";
-
-const formatFileSize = (sizeBytes: number): string =>
-	sizeBytes < 1024 * 1024
-		? `${Math.ceil(sizeBytes / 1024)} KB`
-		: `${(sizeBytes / (1024 * 1024)).toFixed(1)} MB`;
+import { formatFileSize } from "@/utils/attachment";
 
 const AttachmentField = ({
 	existingAttachment,

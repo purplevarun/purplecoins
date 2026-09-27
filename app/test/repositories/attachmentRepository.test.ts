@@ -7,6 +7,7 @@ const {
 	deleteAttachmentRow,
 	getAttachmentContentRow,
 	getAttachmentMetadataRow,
+	getAttachmentMetadataRows,
 	upsertAttachmentRow,
 } = attachmentRepository;
 
@@ -30,6 +31,21 @@ describe("attachmentRepository", () => {
 		expect(
 			await getAttachmentContentRow(database, "NOTE", "n2"),
 		).toBeNull();
+	});
+
+	it("lists all attachment metadata rows", async () => {
+		const database = {
+			getAllAsync: vi
+				.fn<TestAsyncFunction>()
+				.mockResolvedValue([{ id: "a1", fileName: "doc.pdf" }]),
+		} as any;
+
+		expect(await getAttachmentMetadataRows(database)).toEqual([
+			{ id: "a1", fileName: "doc.pdf" },
+		]);
+		expect(database.getAllAsync).toHaveBeenCalledWith(
+			expect.stringContaining("FROM attachments"),
+		);
 	});
 
 	it("upserts and deletes attachment rows", async () => {

@@ -51,6 +51,9 @@ vi.mock("@/screens/CategoriesScreen", () => ({ default: "CategoriesScreen" }));
 vi.mock("@/screens/CategoryFormScreen", () => ({
 	default: "CategoryFormScreen",
 }));
+vi.mock("@/screens/DocumentsScreen", () => ({
+	default: "DocumentsScreen",
+}));
 vi.mock("@/screens/ExchangeRatesScreen", () => ({
 	default: "ExchangeRatesScreen",
 }));
@@ -123,7 +126,7 @@ describe("AppNavigator", () => {
 		expect(options.headerLeft()).toBeNull();
 
 		const screens = findAllByType(tree, "Screen");
-		expect(screens).toHaveLength(30);
+		expect(screens).toHaveLength(31);
 
 		const byName = (name: string) =>
 			screens.find((screen) => screen?.props?.name === name);

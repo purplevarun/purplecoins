@@ -17,6 +17,7 @@ const ATTACHMENT_OWNER_TYPES = [
 	"TODO",
 	"CARD",
 	"IDENTITY",
+	"DOCUMENT",
 ] as const;
 const RATE_SOURCES = ["API", "MANUAL"] as const;
 const DEFAULT_ANALYSIS_PERIOD = "MONTH" as const;

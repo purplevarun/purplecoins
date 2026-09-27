@@ -4,6 +4,25 @@ import type AttachmentInput from "@/types/AttachmentInput";
 import type AttachmentMetadata from "@/types/AttachmentMetadata";
 import type AttachmentOwnerType from "@/types/AttachmentOwnerType";
 
+const getAttachmentMetadataRows = async (
+	database: SQLiteDatabase,
+): Promise<readonly AttachmentMetadata[]> =>
+	database.getAllAsync<AttachmentMetadata>(
+		`
+			SELECT
+				id,
+				owner_type AS ownerType,
+				owner_id AS ownerId,
+				file_name AS fileName,
+				mime_type AS mimeType,
+				size_bytes AS sizeBytes,
+				created_at AS createdAt,
+				updated_at AS updatedAt
+			FROM attachments
+			ORDER BY created_at DESC, id DESC;
+		`,
+	);
+
 const getAttachmentMetadataRow = async (
 	database: SQLiteDatabase,
 	ownerType: AttachmentOwnerType,
@@ -102,6 +121,7 @@ const attachmentRepository = {
 	deleteAttachmentRow,
 	getAttachmentContentRow,
 	getAttachmentMetadataRow,
+	getAttachmentMetadataRows,
 	upsertAttachmentRow,
 };
 

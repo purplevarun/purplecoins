@@ -7,6 +7,7 @@ import { Pressable, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import BottomNavBar from "@/components/BottomNavBar";
+import EmptyState from "@/components/EmptyState";
 import GlassCard from "@/components/GlassCard";
 import HeaderIconButton from "@/components/HeaderIconButton";
 import ScreenContainer from "@/components/ScreenContainer";
@@ -36,7 +37,7 @@ const {
 const MODE_OPTIONS: readonly HomeModeOption[] = [
 	{ mode: "TOOLS", label: "Tools", icon: "construct-outline" },
 	{ mode: "FINANCE", label: "Finance", icon: "wallet-outline" },
-	{ mode: "VAULT", label: "Vault", icon: "lock-closed-outline" },
+	{ mode: "HEALTH", label: "Health", icon: "fitness-outline" },
 ];
 
 const getModeLabel = (mode: HomeMode): string =>
@@ -67,6 +68,37 @@ const HomeScreen = ({ navigation }: HomeScreenProps): React.JSX.Element => {
 					icon: "checkbox-outline",
 					color: COLORS.success,
 					handlePress: () => navigation.navigate("Todos"),
+				},
+				{
+					label: "Documents",
+					subtitle: "Files & attachments",
+					icon: "documents-outline",
+					color: COLORS.primary,
+					handlePress: () => navigation.navigate("Documents"),
+				},
+				{
+					label: "Passwords",
+					subtitle: "Local credentials",
+					icon: "key-outline",
+					color: COLORS.warning,
+					handlePress: () =>
+						navigation.navigate("Vault", { kind: "PASSWORD" }),
+				},
+				{
+					label: "Cards",
+					subtitle: "Payment details",
+					icon: "card-outline",
+					color: "#FF8FA3",
+					handlePress: () =>
+						navigation.navigate("Vault", { kind: "CARD" }),
+				},
+				{
+					label: "Identity",
+					subtitle: "Personal records",
+					icon: "person-circle-outline",
+					color: COLORS.blue,
+					handlePress: () =>
+						navigation.navigate("Vault", { kind: "IDENTITY" }),
 				},
 			],
 			FINANCE: [
@@ -113,32 +145,7 @@ const HomeScreen = ({ navigation }: HomeScreenProps): React.JSX.Element => {
 					handlePress: () => navigation.navigate("Analysis"),
 				},
 			],
-			VAULT: [
-				{
-					label: "Passwords",
-					subtitle: "Local credentials",
-					icon: "key-outline",
-					color: COLORS.warning,
-					handlePress: () =>
-						navigation.navigate("Vault", { kind: "PASSWORD" }),
-				},
-				{
-					label: "Cards",
-					subtitle: "Payment details",
-					icon: "card-outline",
-					color: "#FF8FA3",
-					handlePress: () =>
-						navigation.navigate("Vault", { kind: "CARD" }),
-				},
-				{
-					label: "Identity",
-					subtitle: "Personal records",
-					icon: "person-circle-outline",
-					color: COLORS.blue,
-					handlePress: () =>
-						navigation.navigate("Vault", { kind: "IDENTITY" }),
-				},
-			],
+			HEALTH: [],
 		}),
 		[navigation],
 	);
@@ -221,7 +228,15 @@ const HomeScreen = ({ navigation }: HomeScreenProps): React.JSX.Element => {
 							</View>
 						</View>
 					</View>
-					{renderTiles(tilesByMode[mode])}
+					{mode === "HEALTH" ? (
+						<EmptyState
+							icon="fitness-outline"
+							message="Health tracking is on the way."
+							title="Coming soon"
+						/>
+					) : (
+						renderTiles(tilesByMode[mode])
+					)}
 				</ScreenContainer>
 				<View style={styles.navDock}>
 					<BottomNavBar
