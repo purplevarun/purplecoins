@@ -5,6 +5,7 @@ import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import type ScreenListProps from "@/types/ScreenListProps";
 
 const ListSeparator = (): ReactNode => <View style={styles.separator} />;
@@ -31,19 +32,21 @@ const ScreenList = <T,>({
 	);
 };
 
+const { FLEX, SIZES, SPACING } = styleConstants;
+
 const styles = StyleSheet.create({
 	gradient: {
-		flex: 1,
+		flex: FLEX.FILL,
 	},
 	safeArea: {
-		flex: 1,
+		flex: FLEX.FILL,
 	},
 	listContent: {
-		paddingHorizontal: 16,
-		paddingBottom: 120,
+		paddingHorizontal: SPACING.S16,
+		paddingBottom: SPACING.S120,
 	},
 	separator: {
-		height: 14,
+		height: SIZES.S14,
 	},
 });
 

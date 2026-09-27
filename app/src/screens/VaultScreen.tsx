@@ -17,6 +17,7 @@ import Notice from "@/components/Notice";
 import ScreenList from "@/components/ScreenList";
 import TextField from "@/components/TextField";
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import useAppDialog from "@/hooks/useAppDialog";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import cardService from "@/services/cardService";
@@ -457,68 +458,79 @@ const VaultScreen = ({
 	);
 };
 
+const {
+	ALIGN,
+	FLEX,
+	FONT_SIZE,
+	FONT_VARIANT,
+	FONT_WEIGHT,
+	LETTER_SPACING,
+	SPACING,
+	TEXT_TRANSFORM,
+} = styleConstants;
+
 const styles = StyleSheet.create({
 	screen: {
-		flex: 1,
+		flex: FLEX.FILL,
 		backgroundColor: COLORS.background,
 	},
 	headingRow: {
-		flexDirection: "row",
-		alignItems: "center",
-		gap: 11,
+		flexDirection: FLEX.ROW,
+		alignItems: ALIGN.CENTER,
+		gap: SPACING.S11,
 	},
 	details: {
-		flex: 1,
-		gap: 3,
+		flex: FLEX.FILL,
+		gap: SPACING.S3,
 	},
 	title: {
 		color: COLORS.text,
-		fontSize: 16,
-		fontWeight: "900",
+		fontSize: FONT_SIZE.S16,
+		fontWeight: FONT_WEIGHT.BLACK,
 	},
 	meta: {
 		color: COLORS.textMuted,
-		fontSize: 12,
+		fontSize: FONT_SIZE.S12,
 	},
 	updatedAt: {
 		color: COLORS.textDim,
-		fontSize: 11,
-		marginTop: 2,
+		fontSize: FONT_SIZE.S11,
+		marginTop: SPACING.S2,
 	},
 	actions: {
-		flexDirection: "row",
-		justifyContent: "flex-end",
-		gap: 8,
-		marginTop: 13,
+		flexDirection: FLEX.ROW,
+		justifyContent: ALIGN.END,
+		gap: SPACING.S8,
+		marginTop: SPACING.S13,
 	},
 	cardFields: {
-		marginTop: 12,
-		gap: 8,
+		marginTop: SPACING.S12,
+		gap: SPACING.S8,
 	},
 	copyRow: {
-		flexDirection: "row",
-		alignItems: "center",
-		gap: 8,
+		flexDirection: FLEX.ROW,
+		alignItems: ALIGN.CENTER,
+		gap: SPACING.S8,
 	},
 	copyDetails: {
-		flex: 1,
-		gap: 2,
+		flex: FLEX.FILL,
+		gap: SPACING.S2,
 	},
 	copyLabel: {
 		color: COLORS.textDim,
-		fontSize: 10,
-		fontWeight: "700",
-		textTransform: "uppercase",
-		letterSpacing: 0.6,
+		fontSize: FONT_SIZE.S10,
+		fontWeight: FONT_WEIGHT.BOLD,
+		textTransform: TEXT_TRANSFORM.UPPERCASE,
+		letterSpacing: LETTER_SPACING.WIDE,
 	},
 	copyValue: {
 		color: COLORS.text,
-		fontSize: 14,
-		fontWeight: "700",
-		fontVariant: ["tabular-nums"],
+		fontSize: FONT_SIZE.S14,
+		fontWeight: FONT_WEIGHT.BOLD,
+		fontVariant: [FONT_VARIANT.TABULAR_NUMS],
 	},
 	copyBtn: {
-		padding: 8,
+		padding: SPACING.S8,
 	},
 });
 

@@ -13,6 +13,7 @@ import ScreenList from "@/components/ScreenList";
 import TextField from "@/components/TextField";
 import appConstants from "@/constants/appConstants";
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import exchangeRateService from "@/services/exchangeRateService";
 import sourceService from "@/services/sourceService";
@@ -214,31 +215,33 @@ const ExchangeRatesScreen = (
 	);
 };
 
+const { ALIGN, FLEX, FONT_SIZE, FONT_WEIGHT, SPACING } = styleConstants;
+
 const styles = StyleSheet.create({
 	screen: {
-		flex: 1,
+		flex: FLEX.FILL,
 		backgroundColor: COLORS.background,
 	},
 	rateHeader: {
-		flexDirection: "row",
-		justifyContent: "space-between",
-		alignItems: "center",
-		marginBottom: 14,
+		flexDirection: FLEX.ROW,
+		justifyContent: ALIGN.SPACE_BETWEEN,
+		alignItems: ALIGN.CENTER,
+		marginBottom: SPACING.S14,
 	},
 	currency: {
 		color: COLORS.text,
-		fontSize: 18,
-		fontWeight: "900",
+		fontSize: FONT_SIZE.S18,
+		fontWeight: FONT_WEIGHT.BLACK,
 	},
 	meta: {
 		color: COLORS.textMuted,
-		fontSize: 11,
-		marginTop: 3,
+		fontSize: FONT_SIZE.S11,
+		marginTop: SPACING.S3,
 	},
 	equals: {
 		color: COLORS.primaryBright,
-		fontSize: 14,
-		fontWeight: "800",
+		fontSize: FONT_SIZE.S14,
+		fontWeight: FONT_WEIGHT.HEAVY,
 	},
 });
 

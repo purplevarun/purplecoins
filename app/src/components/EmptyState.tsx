@@ -3,6 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet, View } from "react-native";
 
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import type EmptyStateProps from "@/types/EmptyStateProps";
 
 const EmptyState = ({
@@ -19,34 +20,45 @@ const EmptyState = ({
 	</View>
 );
 
+const {
+	ALIGN,
+	BORDER,
+	FONT_SIZE,
+	FONT_WEIGHT,
+	LINE_HEIGHT,
+	RADIUS,
+	SIZES,
+	SPACING,
+} = styleConstants;
+
 const styles = StyleSheet.create({
 	container: {
-		alignItems: "center",
-		justifyContent: "center",
-		padding: 40,
-		gap: 10,
+		alignItems: ALIGN.CENTER,
+		justifyContent: ALIGN.CENTER,
+		padding: SPACING.S40,
+		gap: SPACING.S10,
 	},
 	icon: {
-		width: 64,
-		height: 64,
-		borderRadius: 22,
-		alignItems: "center",
-		justifyContent: "center",
+		width: SIZES.S64,
+		height: SIZES.S64,
+		borderRadius: RADIUS.S22,
+		alignItems: ALIGN.CENTER,
+		justifyContent: ALIGN.CENTER,
 		backgroundColor: COLORS.primaryMuted,
-		borderWidth: 1,
+		borderWidth: BORDER.THIN,
 		borderColor: COLORS.borderStrong,
 	},
 	title: {
 		color: COLORS.text,
-		fontSize: 18,
-		fontWeight: "800",
-		textAlign: "center",
+		fontSize: FONT_SIZE.S18,
+		fontWeight: FONT_WEIGHT.HEAVY,
+		textAlign: ALIGN.CENTER,
 	},
 	message: {
 		color: COLORS.textMuted,
-		fontSize: 14,
-		textAlign: "center",
-		lineHeight: 20,
+		fontSize: FONT_SIZE.S14,
+		textAlign: ALIGN.CENTER,
+		lineHeight: LINE_HEIGHT.S20,
 	},
 });
 

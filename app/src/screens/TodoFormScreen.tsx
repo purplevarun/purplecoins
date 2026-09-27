@@ -12,6 +12,7 @@ import Notice from "@/components/Notice";
 import ScreenContainer from "@/components/ScreenContainer";
 import TextField from "@/components/TextField";
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import useAppDialog from "@/hooks/useAppDialog";
 import useAttachment from "@/hooks/useAttachment";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
@@ -191,28 +192,31 @@ const TodoFormScreen = ({
 	);
 };
 
+const { ALIGN, BORDER, FLEX, FONT_SIZE, FONT_WEIGHT, RADIUS, SPACING } =
+	styleConstants;
+
 const styles = StyleSheet.create({
 	form: {
-		gap: 16,
+		gap: SPACING.S16,
 	},
 	heading: {
 		color: COLORS.text,
-		fontSize: 24,
-		fontWeight: "900",
+		fontSize: FONT_SIZE.S24,
+		fontWeight: FONT_WEIGHT.BLACK,
 	},
 	switchRow: {
-		flexDirection: "row",
-		alignItems: "center",
-		justifyContent: "space-between",
-		padding: 12,
-		borderRadius: 14,
-		borderWidth: 1,
+		flexDirection: FLEX.ROW,
+		alignItems: ALIGN.CENTER,
+		justifyContent: ALIGN.SPACE_BETWEEN,
+		padding: SPACING.S12,
+		borderRadius: RADIUS.S14,
+		borderWidth: BORDER.THIN,
 		borderColor: COLORS.border,
 	},
 	switchLabel: {
 		color: COLORS.text,
-		fontSize: 14,
-		fontWeight: "800",
+		fontSize: FONT_SIZE.S14,
+		fontWeight: FONT_WEIGHT.HEAVY,
 	},
 });
 

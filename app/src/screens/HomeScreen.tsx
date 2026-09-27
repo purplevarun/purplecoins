@@ -12,12 +12,26 @@ import HeaderIconButton from "@/components/HeaderIconButton";
 import ScreenContainer from "@/components/ScreenContainer";
 import appConstants from "@/constants/appConstants";
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import type HomeMode from "@/types/HomeMode";
 import type HomeModeOption from "@/types/HomeModeOption";
 import type HomeScreenProps from "@/types/HomeScreenProps";
 import type HomeTile from "@/types/HomeTile";
 import type { ViewStyle } from "react-native";
 const { APP_NAME } = appConstants;
+const {
+	ALIGN,
+	FLEX,
+	FONT_SIZE,
+	FONT_WEIGHT,
+	LETTER_SPACING,
+	LINE_HEIGHT,
+	POSITION,
+	RADIUS,
+	SCALE,
+	SIZES,
+	SPACING,
+} = styleConstants;
 
 const MODE_OPTIONS: readonly HomeModeOption[] = [
 	{ mode: "TOOLS", label: "Tools", icon: "construct-outline" },
@@ -223,79 +237,79 @@ const HomeScreen = ({ navigation }: HomeScreenProps): React.JSX.Element => {
 
 const styles = StyleSheet.create({
 	background: {
-		flex: 1,
+		flex: FLEX.FILL,
 	},
 	safeArea: {
-		flex: 1,
+		flex: FLEX.FILL,
 	},
 	header: {
-		marginTop: -6,
-		marginBottom: 8,
-		gap: 8,
+		marginTop: SPACING.N6,
+		marginBottom: SPACING.S8,
+		gap: SPACING.S8,
 	},
 	appName: {
 		color: COLORS.text,
-		fontSize: 36,
-		fontWeight: "900",
-		letterSpacing: 0,
+		fontSize: FONT_SIZE.S36,
+		fontWeight: FONT_WEIGHT.BLACK,
+		letterSpacing: LETTER_SPACING.NONE,
 	},
 	modeRow: {
-		flexDirection: "row",
-		alignItems: "center",
-		justifyContent: "space-between",
-		gap: 12,
+		flexDirection: FLEX.ROW,
+		alignItems: ALIGN.CENTER,
+		justifyContent: ALIGN.SPACE_BETWEEN,
+		gap: SPACING.S12,
 	},
 	modeName: {
 		color: COLORS.primaryBright,
-		flex: 1,
-		fontSize: 30,
-		fontWeight: "900",
-		lineHeight: 36,
+		flex: FLEX.FILL,
+		fontSize: FONT_SIZE.S30,
+		fontWeight: FONT_WEIGHT.BLACK,
+		lineHeight: LINE_HEIGHT.S36,
 	},
 	headerActions: {
-		flexDirection: "row",
-		flexShrink: 0,
-		gap: 8,
+		flexDirection: FLEX.ROW,
+		flexShrink: FLEX.NONE,
+		gap: SPACING.S8,
 	},
 	grid: {
-		flexDirection: "row",
-		justifyContent: "space-between",
-		flexWrap: "wrap",
-		rowGap: 10,
+		flexDirection: FLEX.ROW,
+		justifyContent: ALIGN.SPACE_BETWEEN,
+		flexWrap: FLEX.WRAP,
+		rowGap: SPACING.S10,
 	},
 	navDock: {
-		position: "absolute",
-		left: 16,
-		right: 16,
-		bottom: 10,
+		position: POSITION.ABSOLUTE,
+		left: SPACING.S16,
+		right: SPACING.S16,
+		bottom: SPACING.S10,
 	},
 	tileWrapper: {
-		width: "48.5%",
+		width: SIZES.TILE,
 	},
 	tile: {
-		minHeight: 122,
-		gap: 7,
+		minHeight: SIZES.S122,
+		gap: SPACING.S7,
 	},
 	tileIcon: {
-		width: 42,
-		height: 42,
-		borderRadius: 14,
-		alignItems: "center",
-		justifyContent: "center",
-		marginBottom: 3,
+		width: SIZES.S42,
+		height: SIZES.S42,
+		borderRadius: RADIUS.S14,
+		alignItems: ALIGN.CENTER,
+		justifyContent: ALIGN.CENTER,
+		marginBottom: SPACING.S3,
 	},
 	tileTitle: {
 		color: COLORS.text,
-		fontSize: 15,
-		fontWeight: "900",
+		fontSize: FONT_SIZE.S15,
+		fontWeight: FONT_WEIGHT.BLACK,
 	},
 	tileSubtitle: {
 		color: COLORS.textMuted,
-		fontSize: 11,
-		lineHeight: 15,
+		fontSize: FONT_SIZE.S11,
+		lineHeight: LINE_HEIGHT.S15,
 	},
 	pressed: {
-		transform: [{ scale: 0.98 }],
+		transform: [{ scale: SCALE.GENTLE }],
 	},
 });
 

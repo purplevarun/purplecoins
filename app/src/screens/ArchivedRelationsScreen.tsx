@@ -19,6 +19,7 @@ import Notice from "@/components/Notice";
 import ScreenList from "@/components/ScreenList";
 import SearchBar from "@/components/SearchBar";
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import useAppDialog from "@/hooks/useAppDialog";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import categoryService from "@/services/categoryService";
@@ -269,45 +270,57 @@ const ArchivedRelationsScreen = (
 	);
 };
 
+const {
+	ALIGN,
+	FLEX,
+	FONT_SIZE,
+	FONT_WEIGHT,
+	LETTER_SPACING,
+	RADIUS,
+	SIZES,
+	SPACING,
+	TEXT_TRANSFORM,
+} = styleConstants;
+
 const styles = StyleSheet.create({
 	screen: {
-		flex: 1,
+		flex: FLEX.FILL,
 		backgroundColor: COLORS.background,
 	},
 	sectionHeading: {
 		color: COLORS.textMuted,
-		fontSize: 12,
-		fontWeight: "900",
-		letterSpacing: 0.6,
-		textTransform: "uppercase",
-		marginBottom: 6,
-		marginTop: 4,
+		fontSize: FONT_SIZE.S12,
+		fontWeight: FONT_WEIGHT.BLACK,
+		letterSpacing: LETTER_SPACING.WIDE,
+		textTransform: TEXT_TRANSFORM.UPPERCASE,
+		marginBottom: SPACING.S6,
+		marginTop: SPACING.S4,
 	},
 	row: {
-		flexDirection: "row",
-		alignItems: "center",
-		gap: 12,
+		flexDirection: FLEX.ROW,
+		alignItems: ALIGN.CENTER,
+		gap: SPACING.S12,
 	},
 	iconBox: {
-		width: 40,
-		height: 40,
-		borderRadius: 14,
-		backgroundColor: "rgba(255,255,255,0.055)",
-		alignItems: "center",
-		justifyContent: "center",
+		width: SIZES.S40,
+		height: SIZES.S40,
+		borderRadius: RADIUS.S14,
+		backgroundColor: COLORS.surfaceRaised,
+		alignItems: ALIGN.CENTER,
+		justifyContent: ALIGN.CENTER,
 	},
 	details: {
-		flex: 1,
-		gap: 2,
+		flex: FLEX.FILL,
+		gap: SPACING.S2,
 	},
 	title: {
 		color: COLORS.text,
-		fontSize: 15,
-		fontWeight: "900",
+		fontSize: FONT_SIZE.S15,
+		fontWeight: FONT_WEIGHT.BLACK,
 	},
 	meta: {
 		color: COLORS.textMuted,
-		fontSize: 12,
+		fontSize: FONT_SIZE.S12,
 	},
 });
 

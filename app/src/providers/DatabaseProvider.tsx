@@ -3,6 +3,7 @@ import { ActivityIndicator, Modal, StyleSheet, View } from "react-native";
 
 import CustomText from "@/components/CustomText";
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import DatabaseContext from "@/providers/DatabaseContext";
 import type DatabaseContextValue from "@/types/DatabaseContextValue";
 import type DatabaseProviderProps from "@/types/DatabaseProviderProps";
@@ -84,29 +85,32 @@ const DatabaseProvider = ({
 	);
 };
 
+const { ALIGN, BORDER, FLEX, FONT_SIZE, FONT_WEIGHT, RADIUS, SIZES, SPACING } =
+	styleConstants;
+
 const styles = StyleSheet.create({
 	loaderOverlay: {
-		flex: 1,
-		alignItems: "center",
-		justifyContent: "center",
-		backgroundColor: "rgba(8,11,20,0.58)",
-		padding: 24,
+		flex: FLEX.FILL,
+		alignItems: ALIGN.CENTER,
+		justifyContent: ALIGN.CENTER,
+		backgroundColor: COLORS.overlayTint,
+		padding: SPACING.S24,
 	},
 	loaderCard: {
-		minWidth: 150,
-		paddingHorizontal: 18,
-		paddingVertical: 16,
-		borderRadius: 14,
-		alignItems: "center",
-		gap: 12,
+		minWidth: SIZES.S150,
+		paddingHorizontal: SPACING.S18,
+		paddingVertical: SPACING.S16,
+		borderRadius: RADIUS.S14,
+		alignItems: ALIGN.CENTER,
+		gap: SPACING.S12,
 		backgroundColor: COLORS.backgroundElevated,
-		borderWidth: 1,
+		borderWidth: BORDER.THIN,
 		borderColor: COLORS.borderStrong,
 	},
 	loaderText: {
 		color: COLORS.textMuted,
-		fontSize: 13,
-		fontWeight: "700",
+		fontSize: FONT_SIZE.S13,
+		fontWeight: FONT_WEIGHT.BOLD,
 	},
 });
 

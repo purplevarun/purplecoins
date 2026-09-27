@@ -10,6 +10,7 @@ import ScreenContainer from "@/components/ScreenContainer";
 import TextField from "@/components/TextField";
 import appConstants from "@/constants/appConstants";
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import sourceService from "@/services/sourceService";
 import type SourceFormScreenProps from "@/types/SourceFormScreenProps";
@@ -103,15 +104,17 @@ const SourceFormScreen = ({
 	);
 };
 
+const { FONT_SIZE, FONT_WEIGHT, LETTER_SPACING, SPACING } = styleConstants;
+
 const styles = StyleSheet.create({
 	form: {
-		gap: 16,
+		gap: SPACING.S16,
 	},
 	heading: {
 		color: COLORS.text,
-		fontSize: 24,
-		fontWeight: "900",
-		letterSpacing: -0.5,
+		fontSize: FONT_SIZE.S24,
+		fontWeight: FONT_WEIGHT.BLACK,
+		letterSpacing: LETTER_SPACING.TIGHT,
 	},
 });
 

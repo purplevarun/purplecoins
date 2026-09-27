@@ -2,7 +2,21 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Pressable, StyleSheet, View } from "react-native";
 
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import type FloatingAddButtonProps from "@/types/FloatingAddButtonProps";
+
+const {
+	ALIGN,
+	BORDER,
+	FLEX,
+	OVERFLOW,
+	POSITION,
+	RADIUS,
+	SCALE,
+	SHADOW,
+	SIZES,
+	SPACING,
+} = styleConstants;
 
 const PLUS_BAR_LENGTH = 24;
 const PLUS_BAR_THICKNESS = 4.5;
@@ -32,49 +46,49 @@ const FloatingAddButton = ({
 
 const styles = StyleSheet.create({
 	button: {
-		position: "absolute",
-		right: 20,
-		bottom: 24,
-		width: 64,
-		height: 64,
-		borderRadius: 24,
-		overflow: "hidden",
-		borderWidth: 1,
+		position: POSITION.ABSOLUTE,
+		right: SPACING.S20,
+		bottom: SPACING.S24,
+		width: SIZES.S64,
+		height: SIZES.S64,
+		borderRadius: RADIUS.S24,
+		overflow: OVERFLOW.HIDDEN,
+		borderWidth: BORDER.THIN,
 		borderColor: COLORS.primaryBright,
-		elevation: 10,
+		elevation: SHADOW.ELEVATION_HIGH,
 		shadowColor: COLORS.primary,
-		shadowOpacity: 0.5,
-		shadowRadius: 18,
-		shadowOffset: { width: 0, height: 10 },
+		shadowOpacity: SHADOW.OPACITY_STRONG,
+		shadowRadius: SHADOW.RADIUS_MD,
+		shadowOffset: { width: SHADOW.OFFSET_X, height: SHADOW.OFFSET_Y_MD },
 	},
 	gradient: {
-		flex: 1,
-		alignItems: "center",
-		justifyContent: "center",
+		flex: FLEX.FILL,
+		alignItems: ALIGN.CENTER,
+		justifyContent: ALIGN.CENTER,
 	},
 	plus: {
 		width: PLUS_BAR_LENGTH,
 		height: PLUS_BAR_LENGTH,
 	},
 	plusBar: {
-		position: "absolute",
-		borderRadius: 999,
+		position: POSITION.ABSOLUTE,
+		borderRadius: RADIUS.PILL,
 		backgroundColor: COLORS.background,
 	},
 	plusBarHorizontal: {
 		top: PLUS_BAR_OFFSET,
-		left: 0,
+		left: SPACING.S0,
 		width: PLUS_BAR_LENGTH,
 		height: PLUS_BAR_THICKNESS,
 	},
 	plusBarVertical: {
 		left: PLUS_BAR_OFFSET,
-		top: 0,
+		top: SPACING.S0,
 		width: PLUS_BAR_THICKNESS,
 		height: PLUS_BAR_LENGTH,
 	},
 	pressed: {
-		transform: [{ scale: 0.94 }],
+		transform: [{ scale: SCALE.FIRM }],
 	},
 });
 

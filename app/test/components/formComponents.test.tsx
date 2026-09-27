@@ -43,6 +43,7 @@ vi.mock("@/components/CustomTextInput", () => ({
 }));
 
 import AppButton from "@/components/AppButton";
+import COLORS from "@/constants/colors";
 import PlatformPicker from "@/components/PlatformPicker";
 import SegmentedControl from "@/components/SegmentedControl";
 import SelectField from "@/components/SelectField";
@@ -385,7 +386,7 @@ describe("form components", () => {
 		expect(optionPressables.length).toBeGreaterThan(0);
 		const overlayPressable = optionPressables.find(
 			(node) =>
-				node?.props?.style?.backgroundColor === "rgba(0,0,0,0.72)",
+				node?.props?.style?.backgroundColor === COLORS.overlayStrong,
 		);
 		expect(overlayPressable).toBeTruthy();
 		overlayPressable?.props?.onPress();

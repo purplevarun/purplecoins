@@ -9,6 +9,8 @@ import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 
 import LoadingScreen from "@/components/LoadingScreen";
+import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import initializeDatabase from "@/database/initializeDatabase";
 import AppNavigator from "@/navigation/AppNavigator";
 import AppDialogProvider from "@/providers/AppDialogProvider";
@@ -80,10 +82,12 @@ const App = (): React.JSX.Element => {
 	);
 };
 
+const { FLEX } = styleConstants;
+
 const styles = StyleSheet.create({
 	container: {
-		flex: 1,
-		backgroundColor: "#080B14",
+		flex: FLEX.FILL,
+		backgroundColor: COLORS.background,
 	},
 });
 

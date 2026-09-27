@@ -4,6 +4,7 @@ import { StyleSheet, View } from "react-native";
 
 import AppButton from "@/components/AppButton";
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import type AttachmentFieldProps from "@/types/AttachmentFieldProps";
 
 const formatFileSize = (sizeBytes: number): string =>
@@ -76,51 +77,64 @@ const AttachmentField = ({
 	);
 };
 
+const {
+	ALIGN,
+	BORDER,
+	FLEX,
+	FONT_SIZE,
+	FONT_WEIGHT,
+	LETTER_SPACING,
+	RADIUS,
+	SIZES,
+	SPACING,
+	TEXT_TRANSFORM,
+} = styleConstants;
+
 const styles = StyleSheet.create({
 	container: {
-		gap: 8,
+		gap: SPACING.S8,
 	},
 	label: {
 		color: COLORS.textMuted,
-		fontSize: 12,
-		fontWeight: "700",
-		textTransform: "uppercase",
-		letterSpacing: 0.8,
+		fontSize: FONT_SIZE.S12,
+		fontWeight: FONT_WEIGHT.BOLD,
+		textTransform: TEXT_TRANSFORM.UPPERCASE,
+		letterSpacing: LETTER_SPACING.WIDEST,
 	},
 	fileRow: {
-		flexDirection: "row",
-		alignItems: "center",
-		gap: 9,
-		padding: 10,
-		borderRadius: 15,
-		borderWidth: 1,
+		flexDirection: FLEX.ROW,
+		alignItems: ALIGN.CENTER,
+		gap: SPACING.S9,
+		padding: SPACING.S10,
+		borderRadius: RADIUS.S15,
+		borderWidth: BORDER.THIN,
 		borderColor: COLORS.border,
-		backgroundColor: "rgba(255,255,255,0.035)",
+		backgroundColor: COLORS.surfaceSoft,
 	},
 	fileIcon: {
-		width: 38,
-		height: 38,
-		borderRadius: 12,
-		alignItems: "center",
-		justifyContent: "center",
+		width: SIZES.S38,
+		height: SIZES.S38,
+		borderRadius: RADIUS.S12,
+		alignItems: ALIGN.CENTER,
+		justifyContent: ALIGN.CENTER,
 		backgroundColor: COLORS.primaryMuted,
 	},
 	fileDetails: {
-		flex: 1,
-		gap: 2,
+		flex: FLEX.FILL,
+		gap: SPACING.S2,
 	},
 	fileName: {
 		color: COLORS.text,
-		fontSize: 13,
-		fontWeight: "700",
+		fontSize: FONT_SIZE.S13,
+		fontWeight: FONT_WEIGHT.BOLD,
 	},
 	fileSize: {
 		color: COLORS.textMuted,
-		fontSize: 11,
+		fontSize: FONT_SIZE.S11,
 	},
 	hint: {
 		color: COLORS.textDim,
-		fontSize: 11,
+		fontSize: FONT_SIZE.S11,
 	},
 });
 

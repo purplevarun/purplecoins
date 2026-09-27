@@ -11,6 +11,7 @@ import Notice from "@/components/Notice";
 import ScreenContainer from "@/components/ScreenContainer";
 import TextField from "@/components/TextField";
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import useAppDialog from "@/hooks/useAppDialog";
 import useAttachment from "@/hooks/useAttachment";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
@@ -161,14 +162,16 @@ const NoteFormScreen = ({
 	);
 };
 
+const { FONT_SIZE, FONT_WEIGHT, SPACING } = styleConstants;
+
 const styles = StyleSheet.create({
 	form: {
-		gap: 16,
+		gap: SPACING.S16,
 	},
 	heading: {
 		color: COLORS.text,
-		fontSize: 24,
-		fontWeight: "900",
+		fontSize: FONT_SIZE.S24,
+		fontWeight: FONT_WEIGHT.BLACK,
 	},
 });
 

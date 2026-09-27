@@ -24,6 +24,7 @@ import TransactionCard from "@/components/TransactionCard";
 import appConstants from "@/constants/appConstants";
 import COLORS from "@/constants/colors";
 import financeConstants from "@/constants/financeConstants";
+import styleConstants from "@/constants/styleConstants";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import transactionService from "@/services/transactionService";
 import type Transaction from "@/types/Transaction";
@@ -404,48 +405,60 @@ const TransactionsScreen = ({
 	);
 };
 
+const {
+	ALIGN,
+	BORDER,
+	FLEX,
+	FONT_SIZE,
+	FONT_WEIGHT,
+	OPACITY,
+	RADIUS,
+	SIZES,
+	SPACING,
+} = styleConstants;
+
 const styles = StyleSheet.create({
 	screen: {
-		flex: 1,
+		flex: FLEX.FILL,
 		backgroundColor: COLORS.background,
 	},
 	headerActions: {
-		flexDirection: "row",
-		gap: 8,
+		flexDirection: FLEX.ROW,
+		gap: SPACING.S8,
 	},
 	footer: {
-		marginTop: 16,
-		minHeight: 50,
+		marginTop: SPACING.S16,
+		minHeight: SIZES.S50,
 	},
 	endLabel: {
 		color: COLORS.textDim,
-		fontSize: 13,
-		textAlign: "center",
-		marginTop: 24,
+		fontSize: FONT_SIZE.S13,
+		textAlign: ALIGN.CENTER,
+		marginTop: SPACING.S24,
 	},
 	dayRow: {
-		flexDirection: "row",
-		alignItems: "center",
-		justifyContent: "space-between",
-		marginBottom: 10,
+		flexDirection: FLEX.ROW,
+		alignItems: ALIGN.CENTER,
+		justifyContent: ALIGN.SPACE_BETWEEN,
+		marginBottom: SPACING.S10,
 	},
 	dayButton: {
-		width: 40,
-		height: 40,
-		borderRadius: 14,
-		alignItems: "center",
-		justifyContent: "center",
-		borderWidth: 1,
+		width: SIZES.S40,
+		height: SIZES.S40,
+		borderRadius: RADIUS.S14,
+		alignItems: ALIGN.CENTER,
+		justifyContent: ALIGN.CENTER,
+		borderWidth: BORDER.THIN,
 		borderColor: COLORS.border,
-		backgroundColor: "rgba(255,255,255,0.055)",
+		backgroundColor: COLORS.surfaceRaised,
 	},
 	dayButtonDisabled: {
-		opacity: 0.45,
+		opacity: OPACITY.MEDIUM,
 	},
 	dayLabel: {
 		color: COLORS.text,
-		fontSize: 15,
-		fontWeight: "800",
+		fontSize: FONT_SIZE.S15,
+		fontWeight: FONT_WEIGHT.HEAVY,
 	},
 });
 

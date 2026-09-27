@@ -7,6 +7,7 @@ import ListHeader from "@/components/ListHeader";
 import Notice from "@/components/Notice";
 import ScreenList from "@/components/ScreenList";
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import useAppDialog from "@/hooks/useAppDialog";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import investmentService from "@/services/investmentService";
@@ -208,12 +209,27 @@ const RelationDetailsScreen = ({
 	);
 };
 
+const { ALIGN, FLEX, FONT_SIZE, FONT_WEIGHT, SPACING } = styleConstants;
+
 const styles = StyleSheet.create({
-	screen: { flex: 1, backgroundColor: COLORS.background },
-	row: { flexDirection: "row", alignItems: "center", gap: 12 },
-	title: { flex: 1, color: COLORS.text, fontSize: 16, fontWeight: "900" },
-	heading: { color: COLORS.text, fontSize: 22, fontWeight: "900" },
-	meta: { color: COLORS.textMuted, fontSize: 12 },
+	screen: { flex: FLEX.FILL, backgroundColor: COLORS.background },
+	row: {
+		flexDirection: FLEX.ROW,
+		alignItems: ALIGN.CENTER,
+		gap: SPACING.S12,
+	},
+	title: {
+		flex: FLEX.FILL,
+		color: COLORS.text,
+		fontSize: FONT_SIZE.S16,
+		fontWeight: FONT_WEIGHT.BLACK,
+	},
+	heading: {
+		color: COLORS.text,
+		fontSize: FONT_SIZE.S22,
+		fontWeight: FONT_WEIGHT.BLACK,
+	},
+	meta: { color: COLORS.textMuted, fontSize: FONT_SIZE.S12 },
 });
 
 export default RelationDetailsScreen;

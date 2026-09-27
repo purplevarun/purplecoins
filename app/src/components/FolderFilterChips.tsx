@@ -8,6 +8,7 @@ import AppButton from "@/components/AppButton";
 import CustomTextInput from "@/components/CustomTextInput";
 import COLORS from "@/constants/colors";
 import folderConstants from "@/constants/folderConstants";
+import styleConstants from "@/constants/styleConstants";
 import type Folder from "@/types/Folder";
 import type FolderFilterChipsProps from "@/types/FolderFilterChipsProps";
 const { FOLDER_FILTER_ALL, FOLDER_FILTER_NONE } = folderConstants;
@@ -203,85 +204,88 @@ const FolderFilterChips = ({
 	);
 };
 
+const { ALIGN, BORDER, FLEX, FONT_SIZE, FONT_WEIGHT, RADIUS, SPACING } =
+	styleConstants;
+
 const styles = StyleSheet.create({
 	scroller: {
-		marginHorizontal: -2,
+		marginHorizontal: SPACING.N2,
 	},
 	chip: {
-		marginHorizontal: 2,
-		paddingHorizontal: 12,
-		paddingVertical: 9,
-		borderRadius: 999,
-		borderWidth: 1,
+		marginHorizontal: SPACING.S2,
+		paddingHorizontal: SPACING.S12,
+		paddingVertical: SPACING.S9,
+		borderRadius: RADIUS.PILL,
+		borderWidth: BORDER.THIN,
 		borderColor: COLORS.border,
-		backgroundColor: "rgba(255,255,255,0.045)",
+		backgroundColor: COLORS.surfaceLight,
 	},
 	selectedChip: {
 		borderColor: COLORS.borderStrong,
 		backgroundColor: COLORS.primaryMuted,
 	},
 	chipContent: {
-		flexDirection: "row",
-		alignItems: "center",
-		gap: 4,
+		flexDirection: FLEX.ROW,
+		alignItems: ALIGN.CENTER,
+		gap: SPACING.S4,
 	},
 	label: {
 		color: COLORS.textMuted,
-		fontSize: 12,
-		fontWeight: "800",
+		fontSize: FONT_SIZE.S12,
+		fontWeight: FONT_WEIGHT.HEAVY,
 	},
 	selectedLabel: {
 		color: COLORS.primaryBright,
 	},
 	overlay: {
-		flex: 1,
-		backgroundColor: "rgba(0,0,0,0.72)",
-		justifyContent: "flex-start",
-		padding: 16,
-		paddingTop: 56,
+		flex: FLEX.FILL,
+		backgroundColor: COLORS.overlayStrong,
+		justifyContent: ALIGN.START,
+		padding: SPACING.S16,
+		paddingTop: SPACING.S56,
 	},
 	sheet: {
-		borderRadius: 24,
+		borderRadius: RADIUS.S24,
 		backgroundColor: COLORS.glassStrong,
-		borderWidth: 1,
+		borderWidth: BORDER.THIN,
 		borderColor: COLORS.borderStrong,
-		padding: 18,
-		gap: 4,
+		padding: SPACING.S18,
+		gap: SPACING.S4,
 	},
 	sheetTitle: {
 		color: COLORS.text,
-		fontSize: 18,
-		fontWeight: "800",
-		marginBottom: 10,
+		fontSize: FONT_SIZE.S18,
+		fontWeight: FONT_WEIGHT.HEAVY,
+		marginBottom: SPACING.S10,
 	},
 	actionRow: {
-		flexDirection: "row",
-		alignItems: "center",
-		gap: 14,
-		paddingVertical: 14,
-		paddingHorizontal: 4,
-		borderRadius: 12,
+		flexDirection: FLEX.ROW,
+		alignItems: ALIGN.CENTER,
+		gap: SPACING.S14,
+		paddingVertical: SPACING.S14,
+		paddingHorizontal: SPACING.S4,
+		borderRadius: RADIUS.S12,
 	},
 	actionLabel: {
 		color: COLORS.text,
-		fontSize: 16,
-		fontWeight: "700",
+		fontSize: FONT_SIZE.S16,
+		fontWeight: FONT_WEIGHT.BOLD,
 	},
 	renameInput: {
-		backgroundColor: "rgba(255,255,255,0.06)",
-		borderWidth: 1,
+		backgroundColor: COLORS.surfaceHigh,
+		borderWidth: BORDER.THIN,
 		borderColor: COLORS.border,
-		borderRadius: 12,
-		paddingHorizontal: 12,
-		paddingVertical: 10,
+		borderRadius: RADIUS.S12,
+		paddingHorizontal: SPACING.S12,
+		paddingVertical: SPACING.S10,
 		color: COLORS.text,
-		fontSize: 15,
-		marginBottom: 12,
+		fontSize: FONT_SIZE.S15,
+		marginBottom: SPACING.S12,
 	},
 	renameActions: {
-		flexDirection: "row",
-		gap: 8,
-		justifyContent: "flex-end",
+		flexDirection: FLEX.ROW,
+		gap: SPACING.S8,
+		justifyContent: ALIGN.END,
 	},
 });
 

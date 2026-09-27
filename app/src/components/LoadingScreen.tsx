@@ -2,6 +2,7 @@ import CustomText from "@/components/CustomText";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import type LoadingScreenProps from "@/types/LoadingScreenProps";
 
 const LoadingScreen = ({ error }: LoadingScreenProps): React.JSX.Element => (
@@ -24,29 +25,31 @@ const LoadingScreen = ({ error }: LoadingScreenProps): React.JSX.Element => (
 	</View>
 );
 
+const { ALIGN, FLEX, FONT_SIZE, FONT_WEIGHT, SPACING } = styleConstants;
+
 const styles = StyleSheet.create({
 	container: {
-		flex: 1,
-		alignItems: "center",
-		justifyContent: "center",
+		flex: FLEX.FILL,
+		alignItems: ALIGN.CENTER,
+		justifyContent: ALIGN.CENTER,
 		backgroundColor: COLORS.background,
-		padding: 24,
-		gap: 16,
+		padding: SPACING.S24,
+		gap: SPACING.S16,
 	},
 	title: {
 		color: COLORS.text,
-		fontSize: 20,
-		fontWeight: "800",
-		textAlign: "center",
+		fontSize: FONT_SIZE.S20,
+		fontWeight: FONT_WEIGHT.HEAVY,
+		textAlign: ALIGN.CENTER,
 	},
 	error: {
 		color: COLORS.danger,
-		fontSize: 14,
-		textAlign: "center",
+		fontSize: FONT_SIZE.S14,
+		textAlign: ALIGN.CENTER,
 	},
 	label: {
 		color: COLORS.textMuted,
-		fontSize: 14,
+		fontSize: FONT_SIZE.S14,
 	},
 });
 

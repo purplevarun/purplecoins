@@ -12,6 +12,7 @@ import { Modal, Pressable, StyleSheet, View } from "react-native";
 import AppButton from "@/components/AppButton";
 import GlassCard from "@/components/GlassCard";
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import AppDialogContext from "@/providers/AppDialogContext";
 import type ActiveDialog from "@/types/ActiveDialog";
 import type AppDialogConfirmOptions from "@/types/AppDialogConfirmOptions";
@@ -169,49 +170,60 @@ const AppDialogProvider = ({ children }: PropsWithChildren): ReactNode => {
 	);
 };
 
+const {
+	ALIGN,
+	FLEX,
+	FONT_SIZE,
+	FONT_WEIGHT,
+	LINE_HEIGHT,
+	RADIUS,
+	SIZES,
+	SPACING,
+} = styleConstants;
+
 const styles = StyleSheet.create({
 	overlay: {
-		flex: 1,
-		alignItems: "center",
-		justifyContent: "center",
-		padding: 22,
-		backgroundColor: "rgba(0,0,0,0.62)",
+		flex: FLEX.FILL,
+		alignItems: ALIGN.CENTER,
+		justifyContent: ALIGN.CENTER,
+		padding: SPACING.S22,
+		backgroundColor: COLORS.overlay,
 	},
 	scrim: {
 		...StyleSheet.absoluteFill,
 	},
 	cardHost: {
-		width: "100%",
-		maxWidth: 420,
+		width: SIZES.FULL,
+		maxWidth: SIZES.S420,
 	},
 	content: {
-		gap: 14,
+		gap: SPACING.S14,
 	},
 	iconBox: {
-		width: 50,
-		height: 50,
-		borderRadius: 17,
-		alignItems: "center",
-		justifyContent: "center",
+		width: SIZES.S50,
+		height: SIZES.S50,
+		borderRadius: RADIUS.S17,
+		alignItems: ALIGN.CENTER,
+		justifyContent: ALIGN.CENTER,
 	},
 	copy: {
-		gap: 6,
+		gap: SPACING.S6,
 	},
 	title: {
 		color: COLORS.text,
-		fontSize: 20,
-		fontWeight: "900",
+		fontSize: FONT_SIZE.S20,
+		fontWeight: FONT_WEIGHT.BLACK,
 	},
 	message: {
 		color: COLORS.textMuted,
-		fontSize: 13,
-		lineHeight: 20,
+		fontSize: FONT_SIZE.S13,
+		lineHeight: LINE_HEIGHT.S20,
 	},
 	actions: {
-		flexDirection: "row",
-		justifyContent: "flex-end",
-		gap: 8,
-		marginTop: 2,
+		flexDirection: FLEX.ROW,
+		justifyContent: ALIGN.END,
+		gap: SPACING.S8,
+		marginTop: SPACING.S2,
 	},
 });
 

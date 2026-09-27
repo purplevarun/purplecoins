@@ -2,7 +2,10 @@ import { Ionicons } from "@expo/vector-icons";
 import { Pressable, StyleSheet } from "react-native";
 
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import type HeaderIconButtonProps from "@/types/HeaderIconButtonProps";
+
+const { ALIGN, BORDER, RADIUS, SCALE, SIZES } = styleConstants;
 
 const HeaderIconButton = ({
 	icon,
@@ -30,21 +33,21 @@ const HeaderIconButton = ({
 
 const styles = StyleSheet.create({
 	button: {
-		width: 40,
-		height: 40,
-		borderRadius: 14,
-		alignItems: "center",
-		justifyContent: "center",
-		borderWidth: 1,
+		width: SIZES.S40,
+		height: SIZES.S40,
+		borderRadius: RADIUS.S14,
+		alignItems: ALIGN.CENTER,
+		justifyContent: ALIGN.CENTER,
+		borderWidth: BORDER.THIN,
 		borderColor: COLORS.border,
-		backgroundColor: "rgba(255,255,255,0.055)",
+		backgroundColor: COLORS.surfaceRaised,
 	},
 	active: {
 		borderColor: COLORS.borderStrong,
 		backgroundColor: COLORS.primaryMuted,
 	},
 	pressed: {
-		transform: [{ scale: 0.96 }],
+		transform: [{ scale: SCALE.LIGHT }],
 	},
 });
 

@@ -2,6 +2,7 @@ import CustomText from "@/components/CustomText";
 import { StyleSheet, View } from "react-native";
 
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import type SectionHeadingProps from "@/types/SectionHeadingProps";
 
 const SectionHeading = ({
@@ -16,20 +17,23 @@ const SectionHeading = ({
 	</View>
 );
 
+const { FONT_SIZE, FONT_WEIGHT, LETTER_SPACING, LINE_HEIGHT, SPACING } =
+	styleConstants;
+
 const styles = StyleSheet.create({
 	container: {
-		gap: 3,
+		gap: SPACING.S3,
 	},
 	title: {
 		color: COLORS.text,
-		fontSize: 18,
-		fontWeight: "900",
-		letterSpacing: -0.2,
+		fontSize: FONT_SIZE.S18,
+		fontWeight: FONT_WEIGHT.BLACK,
+		letterSpacing: LETTER_SPACING.SNUG,
 	},
 	subtitle: {
 		color: COLORS.textMuted,
-		fontSize: 13,
-		lineHeight: 18,
+		fontSize: FONT_SIZE.S13,
+		lineHeight: LINE_HEIGHT.S18,
 	},
 });
 

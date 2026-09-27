@@ -5,6 +5,7 @@ import { StyleSheet } from "react-native";
 import AppButton from "@/components/AppButton";
 import ScreenList from "@/components/ScreenList";
 import appConstants from "@/constants/appConstants";
+import styleConstants from "@/constants/styleConstants";
 import type PagedScreenListProps from "@/types/PagedScreenListProps";
 
 const { LIST_PAGE_SIZE } = appConstants;
@@ -41,10 +42,12 @@ const PagedScreenList = <T,>({
 	);
 };
 
+const { SIZES, SPACING } = styleConstants;
+
 const styles = StyleSheet.create({
 	footer: {
-		marginTop: 16,
-		minHeight: 50,
+		marginTop: SPACING.S16,
+		minHeight: SIZES.S50,
 	},
 });
 

@@ -3,6 +3,7 @@ import EmptyState from "@/components/EmptyState";
 import GlassCard from "@/components/GlassCard";
 import PagedScreenList from "@/components/PagedScreenList";
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import analysisService from "@/services/analysisService";
 import type AnalysisDetailsScreenProps from "@/types/AnalysisDetailsScreenProps";
@@ -299,68 +300,71 @@ const AnalysisDetailsScreen = ({
 	);
 };
 
+const { ALIGN, FLEX, FONT_SIZE, FONT_WEIGHT, LINE_HEIGHT, SPACING } =
+	styleConstants;
+
 const styles = StyleSheet.create({
 	screen: {
-		flex: 1,
+		flex: FLEX.FILL,
 		backgroundColor: COLORS.background,
-		padding: 12,
+		padding: SPACING.S12,
 	},
 	row: {
-		flexDirection: "row",
-		alignItems: "center",
-		gap: 10,
+		flexDirection: FLEX.ROW,
+		alignItems: ALIGN.CENTER,
+		gap: SPACING.S10,
 	},
 	details: {
-		flex: 1,
-		gap: 3,
+		flex: FLEX.FILL,
+		gap: SPACING.S3,
 	},
 	right: {
-		flexDirection: "row",
-		alignItems: "center",
-		gap: 4,
+		flexDirection: FLEX.ROW,
+		alignItems: ALIGN.CENTER,
+		gap: SPACING.S4,
 	},
 	name: {
 		color: COLORS.text,
-		fontSize: 15,
-		fontWeight: "900",
+		fontSize: FONT_SIZE.S15,
+		fontWeight: FONT_WEIGHT.BLACK,
 	},
 	meta: {
 		color: COLORS.textMuted,
-		fontSize: 11,
-		lineHeight: 16,
+		fontSize: FONT_SIZE.S11,
+		lineHeight: LINE_HEIGHT.S16,
 	},
 	net: {
-		fontSize: 14,
-		fontWeight: "900",
-		textAlign: "right",
+		fontSize: FONT_SIZE.S14,
+		fontWeight: FONT_WEIGHT.BLACK,
+		textAlign: ALIGN.RIGHT,
 	},
 	chevron: {
 		color: COLORS.textDim,
-		fontSize: 18,
+		fontSize: FONT_SIZE.S18,
 	},
 	investmentCard: {
-		gap: 10,
+		gap: SPACING.S10,
 	},
 	detailsRow: {
-		flexDirection: "row",
-		justifyContent: "space-between",
-		gap: 16,
+		flexDirection: FLEX.ROW,
+		justifyContent: ALIGN.SPACE_BETWEEN,
+		gap: SPACING.S16,
 	},
 	value: {
 		color: COLORS.text,
-		fontSize: 14,
-		fontWeight: "900",
-		marginTop: 4,
+		fontSize: FONT_SIZE.S14,
+		fontWeight: FONT_WEIGHT.BLACK,
+		marginTop: SPACING.S4,
 	},
 	investmentNet: {
-		fontSize: 12,
-		fontWeight: "900",
-		marginTop: 6,
+		fontSize: FONT_SIZE.S12,
+		fontWeight: FONT_WEIGHT.BLACK,
+		marginTop: SPACING.S6,
 	},
 	error: {
 		color: COLORS.danger,
-		fontWeight: "700",
-		marginBottom: 12,
+		fontWeight: FONT_WEIGHT.BOLD,
+		marginBottom: SPACING.S12,
 	},
 });
 

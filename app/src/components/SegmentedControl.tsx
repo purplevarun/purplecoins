@@ -2,6 +2,7 @@ import CustomText from "@/components/CustomText";
 import { Pressable, StyleSheet, View, type DimensionValue } from "react-native";
 
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import type SegmentedControlProps from "@/types/SegmentedControlProps";
 
 const SegmentedControl = ({
@@ -44,36 +45,39 @@ const SegmentedControl = ({
 	);
 };
 
+const { ALIGN, BORDER, FLEX, FONT_SIZE, FONT_WEIGHT, RADIUS, SIZES, SPACING } =
+	styleConstants;
+
 const styles = StyleSheet.create({
 	container: {
-		flexDirection: "row",
-		flexWrap: "wrap",
-		padding: 4,
-		borderRadius: 16,
-		borderWidth: 1,
+		flexDirection: FLEX.ROW,
+		flexWrap: FLEX.WRAP,
+		padding: SPACING.S4,
+		borderRadius: RADIUS.S16,
+		borderWidth: BORDER.THIN,
 		borderColor: COLORS.border,
-		backgroundColor: "rgba(255,255,255,0.035)",
-		gap: 4,
+		backgroundColor: COLORS.surfaceSoft,
+		gap: SPACING.S4,
 	},
 	option: {
-		flexGrow: 1,
-		minWidth: 0,
-		minHeight: 42,
-		borderRadius: 12,
-		alignItems: "center",
-		justifyContent: "center",
-		paddingHorizontal: 8,
+		flexGrow: FLEX.FILL,
+		minWidth: SIZES.S0,
+		minHeight: SIZES.S42,
+		borderRadius: RADIUS.S12,
+		alignItems: ALIGN.CENTER,
+		justifyContent: ALIGN.CENTER,
+		paddingHorizontal: SPACING.S8,
 	},
 	selectedOption: {
 		backgroundColor: COLORS.primaryMuted,
-		borderWidth: 1,
+		borderWidth: BORDER.THIN,
 		borderColor: COLORS.borderStrong,
 	},
 	label: {
 		color: COLORS.textMuted,
-		fontSize: 13,
-		fontWeight: "700",
-		textAlign: "center",
+		fontSize: FONT_SIZE.S13,
+		fontWeight: FONT_WEIGHT.BOLD,
+		textAlign: ALIGN.CENTER,
 	},
 	selectedLabel: {
 		color: COLORS.primaryBright,

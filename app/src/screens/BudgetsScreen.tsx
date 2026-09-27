@@ -13,6 +13,7 @@ import Notice from "@/components/Notice";
 import ScreenList from "@/components/ScreenList";
 import appConstants from "@/constants/appConstants";
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import useAppDialog from "@/hooks/useAppDialog";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import analysisService from "@/services/analysisService";
@@ -236,60 +237,71 @@ const BudgetsScreen = ({
 	);
 };
 
+const {
+	ALIGN,
+	FLEX,
+	FONT_SIZE,
+	FONT_WEIGHT,
+	OVERFLOW,
+	RADIUS,
+	SIZES,
+	SPACING,
+} = styleConstants;
+
 const styles = StyleSheet.create({
 	screen: {
-		flex: 1,
+		flex: FLEX.FILL,
 		backgroundColor: COLORS.background,
 	},
 	headingRow: {
-		flexDirection: "row",
-		justifyContent: "space-between",
-		alignItems: "flex-start",
-		gap: 10,
+		flexDirection: FLEX.ROW,
+		justifyContent: ALIGN.SPACE_BETWEEN,
+		alignItems: ALIGN.START,
+		gap: SPACING.S10,
 	},
 	details: {
-		flex: 1,
-		gap: 3,
+		flex: FLEX.FILL,
+		gap: SPACING.S3,
 	},
 	title: {
 		color: COLORS.text,
-		fontSize: 16,
-		fontWeight: "900",
+		fontSize: FONT_SIZE.S16,
+		fontWeight: FONT_WEIGHT.BLACK,
 	},
 	period: {
 		color: COLORS.textMuted,
-		fontSize: 11,
+		fontSize: FONT_SIZE.S11,
 	},
 	percentage: {
 		color: COLORS.primaryBright,
-		fontSize: 18,
-		fontWeight: "900",
+		fontSize: FONT_SIZE.S18,
+		fontWeight: FONT_WEIGHT.BLACK,
 	},
 	overBudget: {
 		color: COLORS.danger,
 	},
 	progressTrack: {
-		height: 9,
-		borderRadius: 5,
-		backgroundColor: "rgba(255,255,255,0.07)",
-		overflow: "hidden",
-		marginTop: 14,
+		height: SIZES.S9,
+		borderRadius: RADIUS.S5,
+		backgroundColor: COLORS.surfaceBright,
+		overflow: OVERFLOW.HIDDEN,
+		marginTop: SPACING.S14,
 	},
 	progressFill: {
-		height: "100%",
-		borderRadius: 5,
+		height: SIZES.FULL,
+		borderRadius: RADIUS.S5,
 	},
 	amounts: {
 		color: COLORS.textMuted,
-		fontSize: 12,
-		fontWeight: "700",
-		marginTop: 8,
+		fontSize: FONT_SIZE.S12,
+		fontWeight: FONT_WEIGHT.BOLD,
+		marginTop: SPACING.S8,
 	},
 	actions: {
-		flexDirection: "row",
-		justifyContent: "flex-end",
-		gap: 8,
-		marginTop: 12,
+		flexDirection: FLEX.ROW,
+		justifyContent: ALIGN.END,
+		gap: SPACING.S8,
+		marginTop: SPACING.S12,
 	},
 });
 

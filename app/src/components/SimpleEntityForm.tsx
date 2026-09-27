@@ -1,10 +1,13 @@
 import AppButton from "@/components/AppButton";
 import Notice from "@/components/Notice";
 import TextField from "@/components/TextField";
+import styleConstants from "@/constants/styleConstants";
 import type SimpleEntityFormProps from "@/types/SimpleEntityFormProps";
 import getErrorMessage from "@/utils/error";
 import React, { useState } from "react";
 import { View } from "react-native";
+
+const { SPACING } = styleConstants;
 
 const SimpleEntityForm = ({
 	onSave,
@@ -14,7 +17,7 @@ const SimpleEntityForm = ({
 	const [error, setError] = useState("");
 
 	return (
-		<View style={{ gap: 16 }}>
+		<View style={{ gap: SPACING.S16 }}>
 			<TextField
 				label="Name"
 				value={name}

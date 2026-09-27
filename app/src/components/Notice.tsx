@@ -3,6 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet, View } from "react-native";
 
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import type NoticeProps from "@/types/NoticeProps";
 
 const getToneColor = (tone: NoticeProps["tone"]): string => {
@@ -29,21 +30,24 @@ const Notice = ({ message, tone = "info" }: NoticeProps): React.JSX.Element => {
 	);
 };
 
+const { ALIGN, BORDER, FLEX, FONT_SIZE, LINE_HEIGHT, RADIUS, SPACING } =
+	styleConstants;
+
 const styles = StyleSheet.create({
 	container: {
-		borderWidth: 1,
-		borderRadius: 14,
-		padding: 12,
-		backgroundColor: "rgba(255,255,255,0.035)",
-		flexDirection: "row",
-		gap: 9,
-		alignItems: "flex-start",
+		borderWidth: BORDER.THIN,
+		borderRadius: RADIUS.S14,
+		padding: SPACING.S12,
+		backgroundColor: COLORS.surfaceSoft,
+		flexDirection: FLEX.ROW,
+		gap: SPACING.S9,
+		alignItems: ALIGN.START,
 	},
 	message: {
 		color: COLORS.textMuted,
-		fontSize: 13,
-		lineHeight: 19,
-		flex: 1,
+		fontSize: FONT_SIZE.S13,
+		lineHeight: LINE_HEIGHT.S19,
+		flex: FLEX.FILL,
 	},
 });
 

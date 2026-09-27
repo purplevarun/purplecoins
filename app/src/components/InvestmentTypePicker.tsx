@@ -4,6 +4,7 @@ import { StyleSheet, View } from "react-native";
 import AppButton from "@/components/AppButton";
 import SelectField from "@/components/SelectField";
 import TextField from "@/components/TextField";
+import styleConstants from "@/constants/styleConstants";
 import type InvestmentTypePickerProps from "@/types/InvestmentTypePickerProps";
 import type SelectOption from "@/types/SelectOption";
 
@@ -72,17 +73,19 @@ const InvestmentTypePicker = ({
 	);
 };
 
+const { ALIGN, FLEX, SPACING } = styleConstants;
+
 const styles = StyleSheet.create({
 	container: {
-		gap: 9,
+		gap: SPACING.S9,
 	},
 	creator: {
-		gap: 9,
+		gap: SPACING.S9,
 	},
 	actions: {
-		flexDirection: "row",
-		justifyContent: "flex-end",
-		gap: 8,
+		flexDirection: FLEX.ROW,
+		justifyContent: ALIGN.END,
+		gap: SPACING.S8,
 	},
 });
 

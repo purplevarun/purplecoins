@@ -15,6 +15,7 @@ import Notice from "@/components/Notice";
 import ScreenList from "@/components/ScreenList";
 import COLORS from "@/constants/colors";
 import folderConstants from "@/constants/folderConstants";
+import styleConstants from "@/constants/styleConstants";
 import useAppDialog from "@/hooks/useAppDialog";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import useFolders from "@/hooks/useFolders";
@@ -291,58 +292,70 @@ const TodosScreen = ({ navigation }: TodosScreenProps): React.JSX.Element => {
 	);
 };
 
+const {
+	ALIGN,
+	BORDER,
+	FLEX,
+	FONT_SIZE,
+	FONT_WEIGHT,
+	LINE_HEIGHT,
+	RADIUS,
+	SPACING,
+	TEXT_DECORATION,
+} = styleConstants;
+
 const styles = StyleSheet.create({
 	screen: {
-		flex: 1,
+		flex: FLEX.FILL,
 		backgroundColor: COLORS.background,
 	},
 	row: {
-		flexDirection: "row",
-		alignItems: "flex-start",
-		gap: 10,
+		flexDirection: FLEX.ROW,
+		alignItems: ALIGN.START,
+		gap: SPACING.S10,
 	},
 	checkbox: {
-		padding: 2,
+		padding: SPACING.S2,
 	},
 	details: {
-		flex: 1,
-		gap: 4,
+		flex: FLEX.FILL,
+		gap: SPACING.S4,
 	},
 	headingRow: {
-		flexDirection: "row",
-		alignItems: "center",
-		gap: 5,
+		flexDirection: FLEX.ROW,
+		alignItems: ALIGN.CENTER,
+		gap: SPACING.S5,
 	},
 	title: {
 		color: COLORS.text,
-		fontSize: 15,
-		fontWeight: "900",
+		fontSize: FONT_SIZE.S15,
+		fontWeight: FONT_WEIGHT.BLACK,
 	},
 	completedTitle: {
 		color: COLORS.textMuted,
-		textDecorationLine: "line-through",
+		textDecorationLine: TEXT_DECORATION.LINE_THROUGH,
 	},
 	description: {
 		color: COLORS.textMuted,
-		fontSize: 12,
-		lineHeight: 17,
+		fontSize: FONT_SIZE.S12,
+		lineHeight: LINE_HEIGHT.S17,
 	},
 	meta: {
 		color: COLORS.textDim,
-		fontSize: 10,
+		fontSize: FONT_SIZE.S10,
 	},
 	quickChipsRow: {
-		marginTop: 6,
-		marginHorizontal: -2,
+		marginTop: SPACING.S6,
+		marginHorizontal: SPACING.N2,
 	},
 	quickChip: {
-		marginHorizontal: 2,
-		paddingHorizontal: 14,
-		paddingVertical: 7,
-		borderRadius: 999,
-		borderWidth: 1,
+		marginHorizontal: SPACING.S2,
+		paddingHorizontal: SPACING.S14,
+		paddingVertical: SPACING.S7,
+		borderRadius: RADIUS.PILL,
+		borderWidth: BORDER.THIN,
 		borderColor: COLORS.border,
-		backgroundColor: "rgba(255,255,255,0.03)",
+		backgroundColor: COLORS.surfaceFaint,
 	},
 	quickChipSelected: {
 		borderColor: COLORS.borderStrong,
@@ -350,8 +363,8 @@ const styles = StyleSheet.create({
 	},
 	quickChipLabel: {
 		color: COLORS.textDim,
-		fontSize: 11,
-		fontWeight: "700",
+		fontSize: FONT_SIZE.S11,
+		fontWeight: FONT_WEIGHT.BOLD,
 	},
 	quickChipLabelSelected: {
 		color: COLORS.primaryBright,

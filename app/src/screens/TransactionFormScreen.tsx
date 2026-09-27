@@ -15,6 +15,7 @@ import SelectField from "@/components/SelectField";
 import TextField from "@/components/TextField";
 import COLORS from "@/constants/colors";
 import financeConstants from "@/constants/financeConstants";
+import styleConstants from "@/constants/styleConstants";
 import useAppDialog from "@/hooks/useAppDialog";
 import useAttachment from "@/hooks/useAttachment";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
@@ -636,37 +637,44 @@ const TransactionFormScreen = ({
 	);
 };
 
+const { ALIGN, FLEX, FONT_SIZE, FONT_WEIGHT, LETTER_SPACING, SIZES, SPACING } =
+	styleConstants;
+
 const styles = StyleSheet.create({
-	items: { gap: 16 },
-	item: { gap: 12 },
+	items: { gap: SPACING.S16 },
+	item: { gap: SPACING.S12 },
 	itemHeading: {
-		flexDirection: "row",
-		alignItems: "center",
-		justifyContent: "space-between",
-		minHeight: 44,
+		flexDirection: FLEX.ROW,
+		alignItems: ALIGN.CENTER,
+		justifyContent: ALIGN.SPACE_BETWEEN,
+		minHeight: SIZES.S44,
 	},
-	itemTitle: { color: COLORS.text, fontSize: 15, fontWeight: "700" },
+	itemTitle: {
+		color: COLORS.text,
+		fontSize: FONT_SIZE.S15,
+		fontWeight: FONT_WEIGHT.BOLD,
+	},
 	totalRow: {
-		flexDirection: "row",
-		flexWrap: "wrap",
-		alignItems: "center",
-		justifyContent: "space-between",
-		gap: 12,
+		flexDirection: FLEX.ROW,
+		flexWrap: FLEX.WRAP,
+		alignItems: ALIGN.CENTER,
+		justifyContent: ALIGN.SPACE_BETWEEN,
+		gap: SPACING.S12,
 	},
 	totalAmount: {
 		color: COLORS.text,
-		fontSize: 18,
-		fontWeight: "700",
-		flexShrink: 1,
+		fontSize: FONT_SIZE.S18,
+		fontWeight: FONT_WEIGHT.BOLD,
+		flexShrink: FLEX.SHRINK,
 	},
 	form: {
-		gap: 16,
+		gap: SPACING.S16,
 	},
 	heading: {
 		color: COLORS.text,
-		fontSize: 24,
-		fontWeight: "900",
-		letterSpacing: 0,
+		fontSize: FONT_SIZE.S24,
+		fontWeight: FONT_WEIGHT.BLACK,
+		letterSpacing: LETTER_SPACING.NONE,
 	},
 });
 

@@ -13,6 +13,7 @@ import ScreenList from "@/components/ScreenList";
 import TextField from "@/components/TextField";
 import appConstants from "@/constants/appConstants";
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import budgetService from "@/services/budgetService";
 import cardService from "@/services/cardService";
@@ -350,35 +351,38 @@ const GlobalSearchScreen = ({
 	);
 };
 
+const { ALIGN, FLEX, FONT_SIZE, FONT_WEIGHT, RADIUS, SIZES, SPACING } =
+	styleConstants;
+
 const styles = StyleSheet.create({
 	screen: {
-		flex: 1,
+		flex: FLEX.FILL,
 		backgroundColor: COLORS.background,
 	},
 	row: {
-		flexDirection: "row",
-		alignItems: "center",
-		gap: 12,
+		flexDirection: FLEX.ROW,
+		alignItems: ALIGN.CENTER,
+		gap: SPACING.S12,
 	},
 	iconBox: {
-		width: 44,
-		height: 44,
-		borderRadius: 15,
-		alignItems: "center",
-		justifyContent: "center",
+		width: SIZES.S44,
+		height: SIZES.S44,
+		borderRadius: RADIUS.S15,
+		alignItems: ALIGN.CENTER,
+		justifyContent: ALIGN.CENTER,
 	},
 	details: {
-		flex: 1,
-		gap: 3,
+		flex: FLEX.FILL,
+		gap: SPACING.S3,
 	},
 	title: {
 		color: COLORS.text,
-		fontSize: 15,
-		fontWeight: "900",
+		fontSize: FONT_SIZE.S15,
+		fontWeight: FONT_WEIGHT.BLACK,
 	},
 	subtitle: {
 		color: COLORS.textMuted,
-		fontSize: 12,
+		fontSize: FONT_SIZE.S12,
 	},
 });
 

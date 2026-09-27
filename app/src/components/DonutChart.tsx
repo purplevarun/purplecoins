@@ -3,12 +3,13 @@ import { StyleSheet, View } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import type DonutChartProps from "@/types/DonutChartProps";
 
 const CHART_SIZE = 190;
 const STROKE_WIDTH = 24;
-const RADIUS = (CHART_SIZE - STROKE_WIDTH) / 2;
-const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+const CHART_RADIUS = (CHART_SIZE - STROKE_WIDTH) / 2;
+const CIRCUMFERENCE = 2 * Math.PI * CHART_RADIUS;
 
 const DonutChart = ({
 	data,
@@ -25,8 +26,8 @@ const DonutChart = ({
 						cx={CHART_SIZE / 2}
 						cy={CHART_SIZE / 2}
 						fill="transparent"
-						r={RADIUS}
-						stroke="rgba(255,255,255,0.06)"
+						r={CHART_RADIUS}
+						stroke={COLORS.surfaceHigh}
 						strokeWidth={STROKE_WIDTH}
 					/>
 					{total > 0
@@ -42,7 +43,7 @@ const DonutChart = ({
 										cx={CHART_SIZE / 2}
 										cy={CHART_SIZE / 2}
 										fill="transparent"
-										r={RADIUS}
+										r={CHART_RADIUS}
 										rotation="-90"
 										origin={`${CHART_SIZE / 2}, ${CHART_SIZE / 2}`}
 										stroke={datum.color}
@@ -86,52 +87,63 @@ const DonutChart = ({
 	);
 };
 
+const {
+	ALIGN,
+	FLEX,
+	FONT_SIZE,
+	FONT_WEIGHT,
+	POSITION,
+	RADIUS,
+	SIZES,
+	SPACING,
+} = styleConstants;
+
 const styles = StyleSheet.create({
 	container: {
-		alignItems: "center",
-		gap: 16,
+		alignItems: ALIGN.CENTER,
+		gap: SPACING.S16,
 	},
 	chart: {
 		width: CHART_SIZE,
 		height: CHART_SIZE,
-		alignItems: "center",
-		justifyContent: "center",
+		alignItems: ALIGN.CENTER,
+		justifyContent: ALIGN.CENTER,
 	},
 	center: {
-		position: "absolute",
-		alignItems: "center",
-		maxWidth: 120,
+		position: POSITION.ABSOLUTE,
+		alignItems: ALIGN.CENTER,
+		maxWidth: SIZES.S120,
 	},
 	centerLabel: {
 		color: COLORS.text,
-		fontSize: 16,
-		fontWeight: "900",
-		textAlign: "center",
+		fontSize: FONT_SIZE.S16,
+		fontWeight: FONT_WEIGHT.BLACK,
+		textAlign: ALIGN.CENTER,
 	},
 	centerSubLabel: {
 		color: COLORS.textMuted,
-		fontSize: 10,
-		textAlign: "center",
-		marginTop: 2,
+		fontSize: FONT_SIZE.S10,
+		textAlign: ALIGN.CENTER,
+		marginTop: SPACING.S2,
 	},
 	legend: {
-		width: "100%",
-		gap: 7,
+		width: SIZES.FULL,
+		gap: SPACING.S7,
 	},
 	legendRow: {
-		flexDirection: "row",
-		alignItems: "center",
-		gap: 8,
+		flexDirection: FLEX.ROW,
+		alignItems: ALIGN.CENTER,
+		gap: SPACING.S8,
 	},
 	legendDot: {
-		width: 9,
-		height: 9,
-		borderRadius: 5,
+		width: SIZES.S9,
+		height: SIZES.S9,
+		borderRadius: RADIUS.S5,
 	},
 	legendLabel: {
 		color: COLORS.textMuted,
-		fontSize: 12,
-		flex: 1,
+		fontSize: FONT_SIZE.S12,
+		flex: FLEX.FILL,
 	},
 });
 

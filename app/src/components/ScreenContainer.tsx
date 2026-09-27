@@ -10,7 +10,10 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import type ScreenContainerProps from "@/types/ScreenContainerProps";
+
+const { FLEX, SPACING } = styleConstants;
 
 const ScreenContainer = ({
 	children,
@@ -47,22 +50,22 @@ const ScreenContainer = ({
 
 const styles = StyleSheet.create({
 	gradient: {
-		flex: 1,
+		flex: FLEX.FILL,
 	},
 	safeArea: {
-		flex: 1,
+		flex: FLEX.FILL,
 	},
 	keyboardView: {
-		flex: 1,
+		flex: FLEX.FILL,
 	},
 	scrollContent: {
-		padding: 16,
-		paddingBottom: 120,
-		gap: 14,
+		padding: SPACING.S16,
+		paddingBottom: SPACING.S120,
+		gap: SPACING.S14,
 	},
 	staticContent: {
-		flex: 1,
-		padding: 16,
+		flex: FLEX.FILL,
+		padding: SPACING.S16,
 	},
 });
 

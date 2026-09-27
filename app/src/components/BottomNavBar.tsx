@@ -4,8 +4,22 @@ import { Pressable, StyleSheet, View } from "react-native";
 
 import CustomText from "@/components/CustomText";
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import type BottomNavBarProps from "@/types/BottomNavBarProps";
 import type IconName from "@/types/IconName";
+
+const {
+	ALIGN,
+	BORDER,
+	FLEX,
+	FONT_SIZE,
+	FONT_WEIGHT,
+	OVERFLOW,
+	RADIUS,
+	SCALE,
+	SHADOW,
+	SPACING,
+} = styleConstants;
 
 const getActiveIconName = (icon: IconName): IconName =>
 	icon.replace(/-outline$/, "") as IconName;
@@ -70,42 +84,42 @@ const BottomNavBar = ({
 
 const styles = StyleSheet.create({
 	dock: {
-		overflow: "hidden",
-		borderRadius: 30,
-		borderWidth: 1,
+		overflow: OVERFLOW.HIDDEN,
+		borderRadius: RADIUS.S30,
+		borderWidth: BORDER.THIN,
 		borderColor: COLORS.borderStrong,
 		backgroundColor: COLORS.glass,
 		shadowColor: COLORS.black,
-		shadowOpacity: 0.35,
-		shadowRadius: 24,
-		shadowOffset: { width: 0, height: 12 },
-		elevation: 6,
+		shadowOpacity: SHADOW.OPACITY,
+		shadowRadius: SHADOW.RADIUS_XL,
+		shadowOffset: { width: SHADOW.OFFSET_X, height: SHADOW.OFFSET_Y_LG },
+		elevation: SHADOW.ELEVATION_MID,
 	},
 	blur: {
 		backgroundColor: COLORS.glass,
 	},
 	bar: {
-		flexDirection: "row",
-		alignItems: "center",
-		justifyContent: "space-between",
-		padding: 6,
-		gap: 4,
+		flexDirection: FLEX.ROW,
+		alignItems: ALIGN.CENTER,
+		justifyContent: ALIGN.SPACE_BETWEEN,
+		padding: SPACING.S6,
+		gap: SPACING.S4,
 	},
 	item: {
-		flex: 1,
-		alignItems: "center",
+		flex: FLEX.FILL,
+		alignItems: ALIGN.CENTER,
 	},
 	itemPressed: {
-		transform: [{ scale: 0.96 }],
+		transform: [{ scale: SCALE.LIGHT }],
 	},
 	itemContent: {
-		alignItems: "center",
-		justifyContent: "center",
-		gap: 3,
-		paddingHorizontal: 18,
-		paddingVertical: 8,
-		borderRadius: 22,
-		borderWidth: 1,
+		alignItems: ALIGN.CENTER,
+		justifyContent: ALIGN.CENTER,
+		gap: SPACING.S3,
+		paddingHorizontal: SPACING.S18,
+		paddingVertical: SPACING.S8,
+		borderRadius: RADIUS.S22,
+		borderWidth: BORDER.THIN,
 		borderColor: COLORS.transparent,
 	},
 	itemContentActive: {
@@ -114,8 +128,8 @@ const styles = StyleSheet.create({
 	},
 	label: {
 		color: COLORS.textMuted,
-		fontSize: 11,
-		fontWeight: "800",
+		fontSize: FONT_SIZE.S11,
+		fontWeight: FONT_WEIGHT.HEAVY,
 	},
 	labelActive: {
 		color: COLORS.primaryBright,

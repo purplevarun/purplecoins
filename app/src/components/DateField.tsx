@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Platform, Pressable, StyleSheet, View } from "react-native";
 
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import type DateFieldProps from "@/types/DateFieldProps";
 import dateUtils from "@/utils/date";
 const { formatDate } = dateUtils;
@@ -51,31 +52,44 @@ const DateField = ({
 	);
 };
 
+const {
+	ALIGN,
+	BORDER,
+	FLEX,
+	FONT_SIZE,
+	FONT_WEIGHT,
+	LETTER_SPACING,
+	RADIUS,
+	SIZES,
+	SPACING,
+	TEXT_TRANSFORM,
+} = styleConstants;
+
 const styles = StyleSheet.create({
 	container: {
-		gap: 7,
+		gap: SPACING.S7,
 	},
 	label: {
 		color: COLORS.textMuted,
-		fontSize: 12,
-		fontWeight: "700",
-		textTransform: "uppercase",
-		letterSpacing: 0.8,
+		fontSize: FONT_SIZE.S12,
+		fontWeight: FONT_WEIGHT.BOLD,
+		textTransform: TEXT_TRANSFORM.UPPERCASE,
+		letterSpacing: LETTER_SPACING.WIDEST,
 	},
 	trigger: {
-		minHeight: 50,
-		borderWidth: 1,
+		minHeight: SIZES.S50,
+		borderWidth: BORDER.THIN,
 		borderColor: COLORS.border,
-		borderRadius: 15,
-		backgroundColor: "rgba(255,255,255,0.045)",
-		paddingHorizontal: 14,
-		flexDirection: "row",
-		alignItems: "center",
-		justifyContent: "space-between",
+		borderRadius: RADIUS.S15,
+		backgroundColor: COLORS.surfaceLight,
+		paddingHorizontal: SPACING.S14,
+		flexDirection: FLEX.ROW,
+		alignItems: ALIGN.CENTER,
+		justifyContent: ALIGN.SPACE_BETWEEN,
 	},
 	value: {
 		color: COLORS.text,
-		fontSize: 15,
+		fontSize: FONT_SIZE.S15,
 	},
 });
 

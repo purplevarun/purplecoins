@@ -3,7 +3,10 @@ import type { ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
 
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import type GlassCardProps from "@/types/GlassCardProps";
+
+const { BORDER, OVERFLOW, RADIUS, SHADOW, SPACING } = styleConstants;
 
 const getAccentColor = (accent: GlassCardProps["accent"]): string => {
 	if (accent === "success") {
@@ -31,21 +34,21 @@ const GlassCard = ({
 
 const styles = StyleSheet.create({
 	wrapper: {
-		overflow: "hidden",
-		borderWidth: 2,
-		borderRadius: 20,
+		overflow: OVERFLOW.HIDDEN,
+		borderWidth: BORDER.THICK,
+		borderRadius: RADIUS.S20,
 		backgroundColor: COLORS.glass,
 		shadowColor: COLORS.black,
-		shadowOpacity: 0.24,
-		shadowRadius: 20,
-		shadowOffset: { width: 0, height: 8 },
-		elevation: 4,
+		shadowOpacity: SHADOW.OPACITY_SOFT,
+		shadowRadius: SHADOW.RADIUS_LG,
+		shadowOffset: { width: SHADOW.OFFSET_X, height: SHADOW.OFFSET_Y_SM },
+		elevation: SHADOW.ELEVATION_LOW,
 	},
 	blur: {
 		backgroundColor: COLORS.glass,
 	},
 	content: {
-		padding: 16,
+		padding: SPACING.S16,
 	},
 });
 

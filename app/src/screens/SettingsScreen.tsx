@@ -12,6 +12,7 @@ import ScreenContainer from "@/components/ScreenContainer";
 import SelectField from "@/components/SelectField";
 import COLORS from "@/constants/colors";
 import dateConstants from "@/constants/dateConstants";
+import styleConstants from "@/constants/styleConstants";
 import useAppDialog from "@/hooks/useAppDialog";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import backupService from "@/services/backupService";
@@ -366,60 +367,63 @@ const SettingsScreen = ({
 	);
 };
 
+const { ALIGN, FLEX, FONT_SIZE, FONT_WEIGHT, LINE_HEIGHT, SPACING } =
+	styleConstants;
+
 const styles = StyleSheet.create({
 	brand: {
-		gap: 5,
+		gap: SPACING.S5,
 	},
 	appName: {
 		color: COLORS.text,
-		fontSize: 25,
-		fontWeight: "900",
+		fontSize: FONT_SIZE.S25,
+		fontWeight: FONT_WEIGHT.BLACK,
 	},
 	version: {
 		color: COLORS.primaryBright,
-		fontSize: 12,
-		fontWeight: "800",
+		fontSize: FONT_SIZE.S12,
+		fontWeight: FONT_WEIGHT.HEAVY,
 	},
 	description: {
 		color: COLORS.textMuted,
-		fontSize: 13,
-		lineHeight: 19,
+		fontSize: FONT_SIZE.S13,
+		lineHeight: LINE_HEIGHT.S19,
 	},
 	section: {
-		gap: 14,
+		gap: SPACING.S14,
 	},
 	heading: {
 		color: COLORS.text,
-		fontSize: 17,
-		fontWeight: "900",
+		fontSize: FONT_SIZE.S17,
+		fontWeight: FONT_WEIGHT.BLACK,
 	},
 	switchRow: {
-		flexDirection: "row",
-		alignItems: "center",
-		gap: 12,
+		flexDirection: FLEX.ROW,
+		alignItems: ALIGN.CENTER,
+		gap: SPACING.S12,
 	},
 	switchDetails: {
-		flex: 1,
-		gap: 3,
+		flex: FLEX.FILL,
+		gap: SPACING.S3,
 	},
 	switchTitle: {
 		color: COLORS.text,
-		fontSize: 14,
-		fontWeight: "800",
+		fontSize: FONT_SIZE.S14,
+		fontWeight: FONT_WEIGHT.HEAVY,
 	},
 	switchDescription: {
 		color: COLORS.textMuted,
-		fontSize: 11,
-		lineHeight: 16,
+		fontSize: FONT_SIZE.S11,
+		lineHeight: LINE_HEIGHT.S16,
 	},
 	fyEndHint: {
 		color: COLORS.textMuted,
-		fontSize: 12,
-		marginTop: -6,
+		fontSize: FONT_SIZE.S12,
+		marginTop: SPACING.N6,
 	},
 	fyEndValue: {
 		color: COLORS.primaryBright,
-		fontWeight: "800",
+		fontWeight: FONT_WEIGHT.HEAVY,
 	},
 });
 

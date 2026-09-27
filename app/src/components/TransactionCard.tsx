@@ -5,6 +5,7 @@ import { Pressable, StyleSheet, View } from "react-native";
 
 import GlassCard from "@/components/GlassCard";
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import transactionService from "@/services/transactionService";
 import type Transaction from "@/types/Transaction";
 import type TransactionCardProps from "@/types/TransactionCardProps";
@@ -142,61 +143,64 @@ const TransactionCard = ({
 	);
 };
 
+const { ALIGN, FLEX, FONT_SIZE, FONT_WEIGHT, RADIUS, SIZES, SPACING } =
+	styleConstants;
+
 const styles = StyleSheet.create({
 	row: {
-		flexDirection: "row",
-		alignItems: "flex-start",
-		gap: 11,
+		flexDirection: FLEX.ROW,
+		alignItems: ALIGN.START,
+		gap: SPACING.S11,
 	},
 	typeIcon: {
-		width: 43,
-		height: 43,
-		borderRadius: 15,
-		alignItems: "center",
-		justifyContent: "center",
+		width: SIZES.S43,
+		height: SIZES.S43,
+		borderRadius: RADIUS.S15,
+		alignItems: ALIGN.CENTER,
+		justifyContent: ALIGN.CENTER,
 	},
 	details: {
-		flex: 1,
-		gap: 3,
+		flex: FLEX.FILL,
+		gap: SPACING.S3,
 	},
 	headingRow: {
-		flexDirection: "row",
-		alignItems: "center",
-		gap: 5,
+		flexDirection: FLEX.ROW,
+		alignItems: ALIGN.CENTER,
+		gap: SPACING.S5,
 	},
 	reason: {
 		color: COLORS.text,
-		fontSize: 15,
-		fontWeight: "900",
-		flexShrink: 1,
+		fontSize: FONT_SIZE.S15,
+		fontWeight: FONT_WEIGHT.BLACK,
+		flexShrink: FLEX.SHRINK,
 	},
 	meta: {
 		color: COLORS.textMuted,
-		fontSize: 12,
+		fontSize: FONT_SIZE.S12,
 	},
 	trip: {
 		color: COLORS.primaryBright,
-		fontSize: 11,
-		fontWeight: "700",
+		fontSize: FONT_SIZE.S11,
+		fontWeight: FONT_WEIGHT.BOLD,
 	},
 	date: {
 		color: COLORS.textDim,
-		fontSize: 11,
+		fontSize: FONT_SIZE.S11,
 	},
 	amountColumn: {
-		alignItems: "flex-end",
-		gap: 3,
-		flexShrink: 0,
+		alignItems: ALIGN.END,
+		gap: SPACING.S3,
+		flexShrink: FLEX.NONE,
 	},
 	amount: {
-		fontSize: 14,
-		fontWeight: "900",
-		textAlign: "right",
+		fontSize: FONT_SIZE.S14,
+		fontWeight: FONT_WEIGHT.BLACK,
+		textAlign: ALIGN.RIGHT,
 	},
 	toAmount: {
 		color: COLORS.textMuted,
-		fontSize: 11,
-		fontWeight: "700",
+		fontSize: FONT_SIZE.S11,
+		fontWeight: FONT_WEIGHT.BOLD,
 	},
 });
 

@@ -9,6 +9,7 @@ import Notice from "@/components/Notice";
 import ScreenContainer from "@/components/ScreenContainer";
 import TextField from "@/components/TextField";
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import useAppDialog from "@/hooks/useAppDialog";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import categoryService from "@/services/categoryService";
@@ -131,39 +132,51 @@ const CategoryFormScreen = ({
 	);
 };
 
+const {
+	ALIGN,
+	BORDER,
+	FLEX,
+	FONT_SIZE,
+	FONT_WEIGHT,
+	LETTER_SPACING,
+	LINE_HEIGHT,
+	RADIUS,
+	SPACING,
+} = styleConstants;
+
 const styles = StyleSheet.create({
 	form: {
-		gap: 16,
+		gap: SPACING.S16,
 	},
 	heading: {
 		color: COLORS.text,
-		fontSize: 24,
-		fontWeight: "900",
-		letterSpacing: -0.5,
+		fontSize: FONT_SIZE.S24,
+		fontWeight: FONT_WEIGHT.BLACK,
+		letterSpacing: LETTER_SPACING.TIGHT,
 	},
 	switchRow: {
-		flexDirection: "row",
-		alignItems: "center",
-		gap: 12,
-		padding: 14,
-		borderRadius: 15,
-		borderWidth: 1,
+		flexDirection: FLEX.ROW,
+		alignItems: ALIGN.CENTER,
+		gap: SPACING.S12,
+		padding: SPACING.S14,
+		borderRadius: RADIUS.S15,
+		borderWidth: BORDER.THIN,
 		borderColor: COLORS.border,
-		backgroundColor: "rgba(255,255,255,0.035)",
+		backgroundColor: COLORS.surfaceSoft,
 	},
 	switchText: {
-		flex: 1,
-		gap: 4,
+		flex: FLEX.FILL,
+		gap: SPACING.S4,
 	},
 	switchTitle: {
 		color: COLORS.text,
-		fontSize: 15,
-		fontWeight: "800",
+		fontSize: FONT_SIZE.S15,
+		fontWeight: FONT_WEIGHT.HEAVY,
 	},
 	switchDescription: {
 		color: COLORS.textMuted,
-		fontSize: 12,
-		lineHeight: 17,
+		fontSize: FONT_SIZE.S12,
+		lineHeight: LINE_HEIGHT.S17,
 	},
 });
 

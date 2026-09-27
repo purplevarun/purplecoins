@@ -24,6 +24,7 @@ import SearchBar from "@/components/SearchBar";
 import SegmentedControl from "@/components/SegmentedControl";
 import COLORS from "@/constants/colors";
 import financeConstants from "@/constants/financeConstants";
+import styleConstants from "@/constants/styleConstants";
 import useAppDialog from "@/hooks/useAppDialog";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import exchangeRateService from "@/services/exchangeRateService";
@@ -375,70 +376,82 @@ const SourcesScreen = ({
 	);
 };
 
+const {
+	ALIGN,
+	BORDER,
+	FLEX,
+	FONT_SIZE,
+	FONT_WEIGHT,
+	RADIUS,
+	SCALE,
+	SIZES,
+	SPACING,
+} = styleConstants;
+
 const styles = StyleSheet.create({
 	screen: {
-		flex: 1,
+		flex: FLEX.FILL,
 		backgroundColor: COLORS.background,
 	},
 	row: {
-		flexDirection: "row",
-		alignItems: "flex-start",
-		gap: 12,
+		flexDirection: FLEX.ROW,
+		alignItems: ALIGN.START,
+		gap: SPACING.S12,
 	},
 	iconBox: {
-		width: 44,
-		height: 44,
-		borderRadius: 15,
-		backgroundColor: "rgba(255,255,255,0.055)",
-		alignItems: "center",
-		justifyContent: "center",
+		width: SIZES.S44,
+		height: SIZES.S44,
+		borderRadius: RADIUS.S15,
+		backgroundColor: COLORS.surfaceRaised,
+		alignItems: ALIGN.CENTER,
+		justifyContent: ALIGN.CENTER,
 	},
 	details: {
-		flex: 1,
-		gap: 3,
+		flex: FLEX.FILL,
+		gap: SPACING.S3,
 	},
 	title: {
 		color: COLORS.text,
-		fontSize: 16,
-		fontWeight: "900",
+		fontSize: FONT_SIZE.S16,
+		fontWeight: FONT_WEIGHT.BLACK,
 	},
 	meta: {
 		color: COLORS.textMuted,
-		fontSize: 12,
+		fontSize: FONT_SIZE.S12,
 	},
 	amount: {
 		color: COLORS.text,
-		fontSize: 15,
-		fontWeight: "900",
-		marginTop: 3,
+		fontSize: FONT_SIZE.S15,
+		fontWeight: FONT_WEIGHT.BLACK,
+		marginTop: SPACING.S3,
 	},
 	convertedAmount: {
-		fontSize: 13,
-		fontWeight: "900",
-		marginTop: 1,
+		fontSize: FONT_SIZE.S13,
+		fontWeight: FONT_WEIGHT.BLACK,
+		marginTop: SPACING.S1,
 	},
 	actions: {
-		marginTop: 12,
-		flexDirection: "row",
-		justifyContent: "flex-end",
-		gap: 8,
+		marginTop: SPACING.S12,
+		flexDirection: FLEX.ROW,
+		justifyContent: ALIGN.END,
+		gap: SPACING.S8,
 	},
 	actionIcon: {
-		width: 34,
-		height: 34,
-		borderRadius: 12,
-		alignItems: "center",
-		justifyContent: "center",
-		borderWidth: 1,
+		width: SIZES.S34,
+		height: SIZES.S34,
+		borderRadius: RADIUS.S12,
+		alignItems: ALIGN.CENTER,
+		justifyContent: ALIGN.CENTER,
+		borderWidth: BORDER.THIN,
 		borderColor: COLORS.border,
-		backgroundColor: "rgba(255,255,255,0.055)",
+		backgroundColor: COLORS.surfaceRaised,
 	},
 	actionIconSuccess: {
-		borderColor: "rgba(82, 214, 163, 0.36)",
+		borderColor: COLORS.successBorder,
 		backgroundColor: COLORS.successMuted,
 	},
 	actionIconPressed: {
-		transform: [{ scale: 0.92 }],
+		transform: [{ scale: SCALE.STRONG }],
 	},
 });
 

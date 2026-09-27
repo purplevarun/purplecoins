@@ -6,6 +6,7 @@ import { View } from "react-native";
 
 import HeaderIconButton from "@/components/HeaderIconButton";
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import AnalysisDetailsScreen from "@/screens/AnalysisDetailsScreen";
 import AnalysisScreen from "@/screens/AnalysisScreen";
 import ArchivedRelationsScreen from "@/screens/ArchivedRelationsScreen";
@@ -38,6 +39,7 @@ import VaultFormScreen from "@/screens/VaultFormScreen";
 import VaultScreen from "@/screens/VaultScreen";
 import type RootStackParamList from "@/types/RootStackParamList";
 const { FONT_FAMILY } = typographyConstants;
+const { FONT_WEIGHT, SPACING } = styleConstants;
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -64,13 +66,13 @@ const AppNavigator = (): React.JSX.Element => (
 				headerShadowVisible: false,
 				headerTitleStyle: {
 					fontFamily: FONT_FAMILY,
-					fontWeight: "800",
+					fontWeight: FONT_WEIGHT.HEAVY,
 				},
 				animation: "slide_from_right",
 				headerBackVisible: false,
 				headerLeft: () =>
 					navigation.canGoBack() ? (
-						<View style={{ marginRight: 15 }}>
+						<View style={{ marginRight: SPACING.S15 }}>
 							<HeaderIconButton
 								icon="chevron-back"
 								onPress={() => navigation.goBack()}

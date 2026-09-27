@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import type TextFieldProps from "@/types/TextFieldProps";
 
 const TextField = ({
@@ -60,47 +61,61 @@ const TextField = ({
 	);
 };
 
+const {
+	ALIGN,
+	BORDER,
+	FONT_SIZE,
+	FONT_WEIGHT,
+	LETTER_SPACING,
+	OPACITY,
+	POSITION,
+	RADIUS,
+	SIZES,
+	SPACING,
+	TEXT_TRANSFORM,
+} = styleConstants;
+
 const styles = StyleSheet.create({
 	container: {
-		gap: 7,
+		gap: SPACING.S7,
 	},
 	label: {
 		color: COLORS.textMuted,
-		fontSize: 12,
-		fontWeight: "700",
-		textTransform: "uppercase",
-		letterSpacing: 0.8,
+		fontSize: FONT_SIZE.S12,
+		fontWeight: FONT_WEIGHT.BOLD,
+		textTransform: TEXT_TRANSFORM.UPPERCASE,
+		letterSpacing: LETTER_SPACING.WIDEST,
 	},
 	inputRow: {
-		position: "relative",
+		position: POSITION.RELATIVE,
 	},
 	input: {
-		minHeight: 50,
-		borderWidth: 1,
+		minHeight: SIZES.S50,
+		borderWidth: BORDER.THIN,
 		borderColor: COLORS.border,
-		borderRadius: 15,
-		backgroundColor: "rgba(255,255,255,0.045)",
+		borderRadius: RADIUS.S15,
+		backgroundColor: COLORS.surfaceLight,
 		color: COLORS.text,
-		fontSize: 16,
-		paddingHorizontal: 14,
-		paddingVertical: 12,
+		fontSize: FONT_SIZE.S16,
+		paddingHorizontal: SPACING.S14,
+		paddingVertical: SPACING.S12,
 	},
 	inputWithEye: {
-		paddingRight: 48,
+		paddingRight: SPACING.S48,
 	},
 	multiline: {
-		minHeight: 120,
-		textAlignVertical: "top",
+		minHeight: SIZES.S120,
+		textAlignVertical: ALIGN.TOP,
 	},
 	disabled: {
-		opacity: 0.55,
+		opacity: OPACITY.MUTED,
 	},
 	eyeButton: {
-		position: "absolute",
-		right: 14,
-		top: 0,
-		bottom: 0,
-		justifyContent: "center",
+		position: POSITION.ABSOLUTE,
+		right: SPACING.S14,
+		top: SPACING.S0,
+		bottom: SPACING.S0,
+		justifyContent: ALIGN.CENTER,
 	},
 });
 

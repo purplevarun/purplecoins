@@ -25,6 +25,7 @@ import appConstants from "@/constants/appConstants";
 import COLORS from "@/constants/colors";
 import dateConstants from "@/constants/dateConstants";
 import financeConstants from "@/constants/financeConstants";
+import styleConstants from "@/constants/styleConstants";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import financeRepository from "@/repositories/financeRepository";
 import analysisService from "@/services/analysisService";
@@ -557,70 +558,84 @@ const AnalysisScreen = ({
 	);
 };
 
+const {
+	ALIGN,
+	BORDER,
+	FLEX,
+	FONT_SIZE,
+	FONT_WEIGHT,
+	LETTER_SPACING,
+	OPACITY,
+	RADIUS,
+	SIZES,
+	SPACING,
+	TEXT_TRANSFORM,
+} = styleConstants;
+
 const styles = StyleSheet.create({
 	periodRow: {
-		flexDirection: "row",
-		alignItems: "center",
-		justifyContent: "space-between",
+		flexDirection: FLEX.ROW,
+		alignItems: ALIGN.CENTER,
+		justifyContent: ALIGN.SPACE_BETWEEN,
 	},
 	periodButton: {
-		width: 44,
-		height: 44,
-		borderRadius: 14,
-		backgroundColor: "rgba(255,255,255,0.05)",
-		borderWidth: 1,
+		width: SIZES.S44,
+		height: SIZES.S44,
+		borderRadius: RADIUS.S14,
+		backgroundColor: COLORS.surfaceMid,
+		borderWidth: BORDER.THIN,
 		borderColor: COLORS.border,
-		alignItems: "center",
-		justifyContent: "center",
+		alignItems: ALIGN.CENTER,
+		justifyContent: ALIGN.CENTER,
 	},
 	periodButtonDisabled: {
-		opacity: 0.3,
+		opacity: OPACITY.FAINT,
 	},
 	periodText: {
-		alignItems: "center",
-		gap: 2,
+		alignItems: ALIGN.CENTER,
+		gap: SPACING.S2,
 	},
 	periodTitle: {
 		color: COLORS.text,
-		fontSize: 17,
-		fontWeight: "900",
+		fontSize: FONT_SIZE.S17,
+		fontWeight: FONT_WEIGHT.BLACK,
 	},
 	periodRange: {
 		color: COLORS.textMuted,
-		fontSize: 11,
+		fontSize: FONT_SIZE.S11,
 	},
 	customDates: {
-		gap: 12,
+		gap: SPACING.S12,
 	},
 	summaryGrid: {
-		flexDirection: "row",
-		flexWrap: "wrap",
-		justifyContent: "space-between",
-		rowGap: 10,
+		flexDirection: FLEX.ROW,
+		flexWrap: FLEX.WRAP,
+		justifyContent: ALIGN.SPACE_BETWEEN,
+		rowGap: SPACING.S10,
 	},
 	actionGrid: {
-		flexDirection: "row",
-		flexWrap: "wrap",
-		gap: 8,
-		marginBottom: 12,
+		flexDirection: FLEX.ROW,
+		flexWrap: FLEX.WRAP,
+		gap: SPACING.S8,
+		marginBottom: SPACING.S12,
 	},
 	summaryTile: {
-		width: "48.5%",
+		width: SIZES.TILE,
 	},
 	summaryTileFull: {
-		width: "100%",
+		width: SIZES.FULL,
 	},
 	summaryLabel: {
 		color: COLORS.textMuted,
-		fontSize: 11,
-		fontWeight: "800",
-		textTransform: "uppercase",
-		letterSpacing: 0.7,
+		fontSize: FONT_SIZE.S11,
+		fontWeight: FONT_WEIGHT.HEAVY,
+		textTransform: TEXT_TRANSFORM.UPPERCASE,
+		letterSpacing: LETTER_SPACING.WIDER,
 	},
 	summaryValue: {
-		fontSize: 14,
-		fontWeight: "900",
-		marginTop: 5,
+		fontSize: FONT_SIZE.S14,
+		fontWeight: FONT_WEIGHT.BLACK,
+		marginTop: SPACING.S5,
 	},
 });
 

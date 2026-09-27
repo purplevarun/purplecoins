@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { ActivityIndicator, Pressable, StyleSheet } from "react-native";
 
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import type AppButtonProps from "@/types/AppButtonProps";
 
 const getButtonColors = (variant: AppButtonProps["variant"]): ButtonColors => {
@@ -11,19 +12,19 @@ const getButtonColors = (variant: AppButtonProps["variant"]): ButtonColors => {
 		return {
 			backgroundColor: COLORS.dangerMuted,
 			color: COLORS.danger,
-			borderColor: "rgba(255, 107, 134, 0.36)",
+			borderColor: COLORS.dangerBorder,
 		};
 	}
 	if (variant === "success") {
 		return {
 			backgroundColor: COLORS.successMuted,
 			color: COLORS.success,
-			borderColor: "rgba(82, 214, 163, 0.36)",
+			borderColor: COLORS.successBorder,
 		};
 	}
 	if (variant === "secondary") {
 		return {
-			backgroundColor: "rgba(255,255,255,0.05)",
+			backgroundColor: COLORS.surfaceMid,
 			color: COLORS.text,
 			borderColor: COLORS.border,
 		};
@@ -53,7 +54,7 @@ const AppButton = ({
 		{
 			backgroundColor: colors.backgroundColor,
 			borderColor: colors.borderColor,
-			opacity: isUnavailable ? 0.45 : 1,
+			opacity: isUnavailable ? OPACITY.MEDIUM : OPACITY.FULL,
 		},
 		style,
 	];
@@ -84,29 +85,43 @@ const AppButton = ({
 	);
 };
 
+const {
+	ALIGN,
+	BORDER,
+	FLEX,
+	FONT_SIZE,
+	FONT_WEIGHT,
+	LETTER_SPACING,
+	OPACITY,
+	RADIUS,
+	SCALE,
+	SIZES,
+	SPACING,
+} = styleConstants;
+
 const styles = StyleSheet.create({
 	button: {
-		minHeight: 50,
-		paddingHorizontal: 18,
-		borderRadius: 15,
-		borderWidth: 1,
-		alignItems: "center",
-		justifyContent: "center",
-		flexDirection: "row",
-		gap: 8,
+		minHeight: SIZES.S50,
+		paddingHorizontal: SPACING.S18,
+		borderRadius: RADIUS.S15,
+		borderWidth: BORDER.THIN,
+		alignItems: ALIGN.CENTER,
+		justifyContent: ALIGN.CENTER,
+		flexDirection: FLEX.ROW,
+		gap: SPACING.S8,
 	},
 	compact: {
-		minHeight: 38,
-		paddingHorizontal: 12,
-		borderRadius: 12,
+		minHeight: SIZES.S38,
+		paddingHorizontal: SPACING.S12,
+		borderRadius: RADIUS.S12,
 	},
 	pressed: {
-		transform: [{ scale: 0.98 }],
+		transform: [{ scale: SCALE.GENTLE }],
 	},
 	label: {
-		fontSize: 14,
-		fontWeight: "800",
-		letterSpacing: 0.2,
+		fontSize: FONT_SIZE.S14,
+		fontWeight: FONT_WEIGHT.HEAVY,
+		letterSpacing: LETTER_SPACING.RELAXED,
 	},
 });
 

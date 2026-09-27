@@ -11,6 +11,7 @@ import ScreenContainer from "@/components/ScreenContainer";
 import SelectField from "@/components/SelectField";
 import TextField from "@/components/TextField";
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import useAppDialog from "@/hooks/useAppDialog";
 import useAttachment from "@/hooks/useAttachment";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
@@ -322,15 +323,17 @@ const VaultFormScreen = ({
 	);
 };
 
+const { FONT_SIZE, FONT_WEIGHT, SPACING, TEXT_TRANSFORM } = styleConstants;
+
 const styles = StyleSheet.create({
 	form: {
-		gap: 16,
+		gap: SPACING.S16,
 	},
 	heading: {
 		color: COLORS.text,
-		fontSize: 24,
-		fontWeight: "900",
-		textTransform: "capitalize",
+		fontSize: FONT_SIZE.S24,
+		fontWeight: FONT_WEIGHT.BLACK,
+		textTransform: TEXT_TRANSFORM.CAPITALIZE,
 	},
 });
 

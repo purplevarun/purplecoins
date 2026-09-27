@@ -1,5 +1,6 @@
 import CustomText from "@/components/CustomText";
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import type ChartBounds from "@/types/ChartBounds";
 import type TrendLineChartProps from "@/types/TrendLineChartProps";
 import type TrendPoint from "@/types/TrendPoint";
@@ -182,54 +183,65 @@ const TrendLineChart = ({ series }: TrendLineChartProps): React.JSX.Element => {
 	);
 };
 
+const {
+	ALIGN,
+	FLEX,
+	FONT_SIZE,
+	FONT_WEIGHT,
+	POSITION,
+	RADIUS,
+	SIZES,
+	SPACING,
+} = styleConstants;
+
 const styles = StyleSheet.create({
 	container: {
-		gap: 10,
+		gap: SPACING.S10,
 	},
 	legendRow: {
-		flexDirection: "row",
-		gap: 14,
-		flexWrap: "wrap",
+		flexDirection: FLEX.ROW,
+		gap: SPACING.S14,
+		flexWrap: FLEX.WRAP,
 	},
 	legendItem: {
-		flexDirection: "row",
-		alignItems: "center",
-		gap: 6,
+		flexDirection: FLEX.ROW,
+		alignItems: ALIGN.CENTER,
+		gap: SPACING.S6,
 	},
 	legendDot: {
-		width: 8,
-		height: 8,
-		borderRadius: 4,
+		width: SIZES.S8,
+		height: SIZES.S8,
+		borderRadius: RADIUS.S4,
 	},
 	legendLabel: {
 		color: COLORS.textMuted,
-		fontSize: 11,
-		fontWeight: "700",
+		fontSize: FONT_SIZE.S11,
+		fontWeight: FONT_WEIGHT.BOLD,
 	},
 	chartArea: {
-		position: "relative",
+		position: POSITION.RELATIVE,
 	},
 	axisLabels: {
-		position: "absolute",
-		top: 0,
-		left: 0,
+		position: POSITION.ABSOLUTE,
+		top: SPACING.S0,
+		left: SPACING.S0,
 		width: PLOT_LEFT,
 		height: CHART_HEIGHT,
 	},
 	axisLabel: {
-		position: "absolute",
-		left: 0,
+		position: POSITION.ABSOLUTE,
+		left: SPACING.S0,
 		color: COLORS.textDim,
-		fontSize: 9,
+		fontSize: FONT_SIZE.S9,
 	},
 	xAxisRow: {
-		height: 16,
-		position: "relative",
+		height: SIZES.S16,
+		position: POSITION.RELATIVE,
 	},
 	xAxisLabel: {
-		position: "absolute",
+		position: POSITION.ABSOLUTE,
 		color: COLORS.textDim,
-		fontSize: 10,
+		fontSize: FONT_SIZE.S10,
 	},
 });
 

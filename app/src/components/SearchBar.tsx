@@ -3,6 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet, View } from "react-native";
 
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import type SearchBarProps from "@/types/SearchBarProps";
 
 const SearchBar = ({
@@ -28,24 +29,26 @@ const SearchBar = ({
 	</View>
 );
 
+const { ALIGN, BORDER, FLEX, FONT_SIZE, RADIUS, SPACING } = styleConstants;
+
 const styles = StyleSheet.create({
 	container: {
-		flexDirection: "row",
-		alignItems: "center",
-		backgroundColor: "rgba(255,255,255,0.06)",
-		borderWidth: 1,
+		flexDirection: FLEX.ROW,
+		alignItems: ALIGN.CENTER,
+		backgroundColor: COLORS.surfaceHigh,
+		borderWidth: BORDER.THIN,
 		borderColor: COLORS.border,
-		borderRadius: 12,
-		paddingHorizontal: 10,
-		marginBottom: 8,
+		borderRadius: RADIUS.S12,
+		paddingHorizontal: SPACING.S10,
+		marginBottom: SPACING.S8,
 	},
 	icon: {
-		marginRight: 6,
+		marginRight: SPACING.S6,
 	},
 	input: {
-		flex: 1,
-		paddingVertical: 10,
-		fontSize: 14,
+		flex: FLEX.FILL,
+		paddingVertical: SPACING.S10,
+		fontSize: FONT_SIZE.S14,
 		color: COLORS.text,
 	},
 });

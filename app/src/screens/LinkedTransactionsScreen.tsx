@@ -15,6 +15,7 @@ import Notice from "@/components/Notice";
 import ScreenList from "@/components/ScreenList";
 import TransactionCard from "@/components/TransactionCard";
 import COLORS from "@/constants/colors";
+import styleConstants from "@/constants/styleConstants";
 import useAppDialog from "@/hooks/useAppDialog";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import investmentService from "@/services/investmentService";
@@ -281,46 +282,49 @@ const LinkedTransactionsScreen = ({
 	);
 };
 
+const { ALIGN, FLEX, FONT_SIZE, FONT_WEIGHT, RADIUS, SIZES, SPACING } =
+	styleConstants;
+
 const styles = StyleSheet.create({
 	screen: {
-		flex: 1,
+		flex: FLEX.FILL,
 		backgroundColor: COLORS.background,
 	},
 	summaryRow: {
-		flexDirection: "row",
-		alignItems: "center",
-		gap: 12,
+		flexDirection: FLEX.ROW,
+		alignItems: ALIGN.CENTER,
+		gap: SPACING.S12,
 	},
 	iconBox: {
-		width: 48,
-		height: 48,
-		borderRadius: 16,
-		alignItems: "center",
-		justifyContent: "center",
+		width: SIZES.S48,
+		height: SIZES.S48,
+		borderRadius: RADIUS.S16,
+		alignItems: ALIGN.CENTER,
+		justifyContent: ALIGN.CENTER,
 	},
 	summaryDetails: {
-		flex: 1,
-		gap: 3,
+		flex: FLEX.FILL,
+		gap: SPACING.S3,
 	},
 	title: {
 		color: COLORS.text,
-		fontSize: 18,
-		fontWeight: "900",
+		fontSize: FONT_SIZE.S18,
+		fontWeight: FONT_WEIGHT.BLACK,
 	},
 	dateRange: {
 		color: COLORS.primaryBright,
-		fontSize: 11,
-		fontWeight: "700",
+		fontSize: FONT_SIZE.S11,
+		fontWeight: FONT_WEIGHT.BOLD,
 	},
 	subtitle: {
 		color: COLORS.textMuted,
-		fontSize: 12,
+		fontSize: FONT_SIZE.S12,
 	},
 	actions: {
-		flexDirection: "row",
-		justifyContent: "flex-end",
-		gap: 8,
-		marginTop: 14,
+		flexDirection: FLEX.ROW,
+		justifyContent: ALIGN.END,
+		gap: SPACING.S8,
+		marginTop: SPACING.S14,
 	},
 });
 
