@@ -4,6 +4,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
 	downloadFileAsync: vi.fn<TestAsyncFunction>(),
 	getContentUriAsync: vi.fn<TestAsyncFunction>(),
+	readAsStringAsync: vi.fn<TestAsyncFunction>(),
+	getInfoAsync: vi.fn<TestAsyncFunction>(),
+	getUriForDirectoryInRoot: vi.fn(),
+	requestDirectoryPermissionsAsync: vi.fn<TestAsyncFunction>(),
+	createFileAsync: vi.fn<TestAsyncFunction>(),
+	safWriteAsStringAsync: vi.fn<TestAsyncFunction>(),
+	safDeleteAsync: vi.fn<TestAsyncFunction>(),
 	startActivityAsync: vi.fn<TestAsyncFunction>(),
 	files: new Map<string, number>(),
 }));
@@ -31,6 +38,17 @@ vi.mock("expo-file-system", () => ({
 
 vi.mock("expo-file-system/legacy", () => ({
 	getContentUriAsync: mocks.getContentUriAsync,
+	readAsStringAsync: mocks.readAsStringAsync,
+	getInfoAsync: mocks.getInfoAsync,
+	EncodingType: { UTF8: "utf8", Base64: "base64" },
+	StorageAccessFramework: {
+		requestDirectoryPermissionsAsync:
+			mocks.requestDirectoryPermissionsAsync,
+		getUriForDirectoryInRoot: mocks.getUriForDirectoryInRoot,
+		createFileAsync: mocks.createFileAsync,
+		writeAsStringAsync: mocks.safWriteAsStringAsync,
+		deleteAsync: mocks.safDeleteAsync,
+	},
 }));
 
 vi.mock("expo-intent-launcher", () => ({
@@ -80,8 +98,22 @@ describe("updateService", () => {
 	beforeEach(() => {
 		mocks.downloadFileAsync.mockReset();
 		mocks.getContentUriAsync.mockReset();
+		mocks.readAsStringAsync.mockReset();
+		mocks.getInfoAsync.mockReset();
+		mocks.getUriForDirectoryInRoot.mockReset();
+		mocks.requestDirectoryPermissionsAsync.mockReset();
+		mocks.createFileAsync.mockReset();
+		mocks.safWriteAsStringAsync.mockReset();
+		mocks.safDeleteAsync.mockReset();
 		mocks.startActivityAsync.mockReset();
 		mocks.files.clear();
+		mocks.getUriForDirectoryInRoot.mockReturnValue(
+			"content://root/Download",
+		);
+		mocks.requestDirectoryPermissionsAsync.mockResolvedValue({
+			granted: false,
+		});
+		mocks.safDeleteAsync.mockResolvedValue(undefined);
 		vi.unstubAllGlobals();
 	});
 
@@ -200,6 +232,184 @@ describe("updateService", () => {
 			},
 		);
 	});
+
+	it.each([
+		["update.apk", "update"],
+		["update.APK", "update"],
+		["update", "update"],
+	])(
+		"saves %s to a user-picked directory and installs it from there",
+		async (name, fileName) => {
+			mocks.downloadFileAsync.mockResolvedValue({
+				exists: true,
+				size: 123,
+				uri: `file://cache-dir/${name}`,
+			});
+			mocks.requestDirectoryPermissionsAsync.mockResolvedValue({
+				granted: true,
+				directoryUri: "content://picked/Download",
+			});
+			mocks.readAsStringAsync.mockResolvedValue("YXBrLWJ5dGVz");
+			mocks.createFileAsync.mockResolvedValue(
+				`content://picked/Download/${name}`,
+			);
+			mocks.getInfoAsync.mockResolvedValue({ exists: true, size: 123 });
+			mocks.startActivityAsync.mockResolvedValue({ resultCode: 0 });
+			await updateService.downloadAndInstallUpdate({
+				version: "2026.9.22",
+				name,
+				downloadUrl: `https://example.com/${name}`,
+				size: 123,
+			});
+			expect(
+				mocks.getUriForDirectoryInRoot,
+			).toHaveBeenCalledExactlyOnceWith("Download");
+			expect(
+				mocks.requestDirectoryPermissionsAsync,
+			).toHaveBeenCalledExactlyOnceWith("content://root/Download");
+			expect(mocks.readAsStringAsync).toHaveBeenCalledExactlyOnceWith(
+				`file://cache-dir/${name}`,
+				{ encoding: "base64", position: 0, length: 123 },
+			);
+			expect(mocks.createFileAsync).toHaveBeenCalledExactlyOnceWith(
+				"content://picked/Download",
+				fileName,
+				"application/vnd.android.package-archive",
+			);
+			expect(mocks.safWriteAsStringAsync).toHaveBeenCalledExactlyOnceWith(
+				`content://picked/Download/${name}`,
+				"YXBrLWJ5dGVz",
+				{ encoding: "base64", append: false },
+			);
+			expect(mocks.getInfoAsync).toHaveBeenCalledExactlyOnceWith(
+				`content://picked/Download/${name}`,
+			);
+			expect(mocks.getContentUriAsync).not.toHaveBeenCalled();
+			expect(mocks.startActivityAsync).toHaveBeenCalledExactlyOnceWith(
+				"android.intent.action.VIEW",
+				{
+					data: `content://picked/Download/${name}`,
+					type: "application/vnd.android.package-archive",
+					flags: 1,
+				},
+			);
+		},
+	);
+
+	it("installs from the cache when the directory picker is dismissed", async () => {
+		mocks.downloadFileAsync.mockResolvedValue({
+			exists: true,
+			size: 123,
+			uri: "file://cache-dir/update.apk",
+		});
+		mocks.getContentUriAsync.mockResolvedValue(
+			"content://purplecoins/update.apk",
+		);
+		mocks.startActivityAsync.mockResolvedValue({ resultCode: 0 });
+		await updateService.downloadAndInstallUpdate(pendingRelease);
+		expect(mocks.requestDirectoryPermissionsAsync).toHaveBeenCalled();
+		expect(mocks.createFileAsync).not.toHaveBeenCalled();
+		expect(mocks.safWriteAsStringAsync).not.toHaveBeenCalled();
+		expect(mocks.startActivityAsync).toHaveBeenCalledExactlyOnceWith(
+			"android.intent.action.VIEW",
+			{
+				data: "content://purplecoins/update.apk",
+				type: "application/vnd.android.package-archive",
+				flags: 1,
+			},
+		);
+	});
+
+	it("copies large APKs to the picked directory in chunks", async () => {
+		const size = 6 * 1024 * 1024 + 42;
+		mocks.files.set(cachedApkUri, size);
+		mocks.requestDirectoryPermissionsAsync.mockResolvedValue({
+			granted: true,
+			directoryUri: "content://picked/Download",
+		});
+		mocks.createFileAsync.mockResolvedValue(
+			"content://picked/Download/update.apk",
+		);
+		mocks.readAsStringAsync.mockResolvedValue("Y2h1bms=");
+		mocks.getInfoAsync.mockResolvedValue({ exists: true, size });
+		mocks.startActivityAsync.mockResolvedValue({ resultCode: 0 });
+		await updateService.downloadAndInstallUpdate({
+			...pendingRelease,
+			size,
+		});
+		expect(mocks.readAsStringAsync).toHaveBeenCalledTimes(2);
+		expect(mocks.readAsStringAsync).toHaveBeenNthCalledWith(
+			1,
+			cachedApkUri,
+			{ encoding: "base64", position: 0, length: 6 * 1024 * 1024 },
+		);
+		expect(mocks.readAsStringAsync).toHaveBeenNthCalledWith(
+			2,
+			cachedApkUri,
+			{
+				encoding: "base64",
+				position: 6 * 1024 * 1024,
+				length: 42,
+			},
+		);
+		expect(mocks.safWriteAsStringAsync).toHaveBeenNthCalledWith(
+			1,
+			"content://picked/Download/update.apk",
+			"Y2h1bms=",
+			{ encoding: "base64", append: false },
+		);
+		expect(mocks.safWriteAsStringAsync).toHaveBeenNthCalledWith(
+			2,
+			"content://picked/Download/update.apk",
+			"Y2h1bms=",
+			{ encoding: "base64", append: true },
+		);
+	});
+
+	it.each([
+		[new Error("disk full"), "disk full"],
+		[null, "not saved completely"],
+	])(
+		"cleans up the partial file when the copy fails (%s)",
+		async (failure, message) => {
+			mocks.downloadFileAsync.mockResolvedValue({
+				exists: true,
+				size: 123,
+				uri: "file://cache-dir/update.apk",
+			});
+			mocks.requestDirectoryPermissionsAsync.mockResolvedValue({
+				granted: true,
+				directoryUri: "content://picked/Download",
+			});
+			mocks.createFileAsync.mockResolvedValue(
+				"content://picked/Download/update.apk",
+			);
+			if (failure instanceof Error) {
+				mocks.readAsStringAsync.mockRejectedValue(failure);
+				mocks.safDeleteAsync.mockRejectedValue(
+					new Error("cleanup failed"),
+				);
+			} else {
+				mocks.getInfoAsync.mockResolvedValue({
+					exists: true,
+					size: 122,
+				});
+			}
+			await expect(
+				updateService.downloadAndInstallUpdate({
+					version: "2026.9.22",
+					name: "update.apk",
+					downloadUrl: "https://example.com/update.apk",
+					size: 123,
+				}),
+			).rejects.toThrow(message);
+			expect(mocks.safDeleteAsync).toHaveBeenCalledExactlyOnceWith(
+				"content://picked/Download/update.apk",
+				{ idempotent: true },
+			);
+			expect(mocks.startActivityAsync).not.toHaveBeenCalled();
+		},
+	);
 
 	it.each([
 		[{ exists: false, size: 123, uri: "file://update.apk" }, "incomplete"],

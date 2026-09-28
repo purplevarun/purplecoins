@@ -45,6 +45,8 @@ const { checkForUpdate, downloadAndInstallUpdate, isUpdateDownloaded } =
 
 const { DEFAULT_FY_START_MONTH, MONTH_OPTIONS } = dateConstants;
 
+type NoticeScope = "top" | "update" | "config" | "backup";
+
 const getFyEndMonthLabel = (startMonth: number): string => {
 	const endMonth = startMonth === 1 ? 12 : startMonth - 1;
 	return MONTH_OPTIONS[endMonth - 1]?.label ?? "Mar";
@@ -65,6 +67,7 @@ const SettingsScreen = ({
 	const [defaultSourceId, setDefaultSourceId] = useState("");
 	const [sources, setSources] = useState<readonly Source[]>([]);
 	const [isUpdating, setIsUpdating] = useState(false);
+	const [noticeScope, setNoticeScope] = useState<NoticeScope>("top");
 
 	useEffect(() => {
 		const getSettings = async (): Promise<void> => {
@@ -85,6 +88,7 @@ const SettingsScreen = ({
 			setSources(loadedSources);
 		};
 		void getSettings().catch((caughtError: unknown) => {
+			setNoticeScope("top");
 			setError(getErrorMessage(caughtError));
 		});
 	}, [database]);
@@ -109,6 +113,7 @@ const SettingsScreen = ({
 	};
 
 	const handleDefaultSourceChange = async (value: string): Promise<void> => {
+		setNoticeScope("config");
 		setError("");
 		try {
 			await updateDefaultSourceId(database, value || null);
@@ -121,6 +126,7 @@ const SettingsScreen = ({
 
 	const handleExport = async (): Promise<void> => {
 		setIsWorking(true);
+		setNoticeScope("backup");
 		setError("");
 		setMessage("");
 		try {
@@ -143,6 +149,7 @@ const SettingsScreen = ({
 			onConfirm: () => {
 				const processRestore = async (): Promise<void> => {
 					setIsWorking(true);
+					setNoticeScope("backup");
 					setError("");
 					setMessage("");
 					try {
@@ -164,6 +171,7 @@ const SettingsScreen = ({
 
 	const handleCheckForUpdate = async (): Promise<void> => {
 		setIsUpdating(true);
+		setNoticeScope("update");
 		setError("");
 		setMessage("");
 		try {
@@ -185,6 +193,7 @@ const SettingsScreen = ({
 				confirmLabel: isDownloaded ? "Install" : "Update",
 				onConfirm: () => {
 					const processUpdate = async (): Promise<void> => {
+						setNoticeScope("update");
 						setError("");
 						setMessage("");
 						setIsUpdating(true);
@@ -223,8 +232,15 @@ const SettingsScreen = ({
 		})),
 	];
 
+	const renderNotice = (scope: NoticeScope): React.JSX.Element | null => {
+		if (noticeScope !== scope) return null;
+		if (error) return <Notice message={error} tone="danger" />;
+		return message ? <Notice message={message} /> : null;
+	};
+
 	return (
 		<ScreenContainer>
+			{renderNotice("top")}
 			<GlassCard>
 				<View style={styles.brand}>
 					<CustomText style={styles.appName}>{APP_NAME}</CustomText>
@@ -238,11 +254,12 @@ const SettingsScreen = ({
 			</GlassCard>
 			<GlassCard>
 				<View style={styles.section}>
+					{renderNotice("update")}
 					<CustomText style={styles.heading}>App update</CustomText>
 					<CustomText style={styles.description}>
-						Check GitHub for the latest Purplecoins APK. APKs are
-						saved in this app&apos;s private cache, not Downloads.
-						Android may ask you to allow installs from Purplecoins.
+						Check GitHub for the latest Purplecoins APK. You pick
+						where the APK is saved, then Android may ask you to
+						allow installs from Purplecoins.
 					</CustomText>
 					<AppButton
 						icon="cloud-download-outline"
@@ -278,6 +295,7 @@ const SettingsScreen = ({
 			</GlassCard>
 			<GlassCard>
 				<View style={styles.section}>
+					{renderNotice("config")}
 					<CustomText style={styles.heading}>
 						Configuration
 					</CustomText>
@@ -338,6 +356,7 @@ const SettingsScreen = ({
 			</GlassCard>
 			<GlassCard>
 				<View style={styles.section}>
+					{renderNotice("backup")}
 					<CustomText style={styles.heading}>
 						Backup and restore
 					</CustomText>
@@ -361,8 +380,6 @@ const SettingsScreen = ({
 					/>
 				</View>
 			</GlassCard>
-			{message ? <Notice message={message} /> : null}
-			{error ? <Notice message={error} tone="danger" /> : null}
 		</ScreenContainer>
 	);
 };

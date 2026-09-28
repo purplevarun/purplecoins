@@ -1,6 +1,8 @@
 import { isValidElement, type ComponentProps, type ReactElement } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import GlassCard from "@/components/GlassCard";
+import Notice from "@/components/Notice";
 import SelectField from "@/components/SelectField";
 import packageJson from "../../package.json";
 
@@ -508,7 +510,9 @@ describe("SettingsScreen", () => {
 				serviceMocks.downloadAndInstallUpdate,
 			).not.toHaveBeenCalled();
 			expect(setIsUpdating).toHaveBeenLastCalledWith(false);
-			expect(String(JSON.stringify(tree))).toContain("private cache");
+			expect(String(JSON.stringify(tree))).toContain(
+				"where the APK is saved",
+			);
 			hookMocks.confirm.mock.calls[0]?.[0].onConfirm();
 			await flush();
 			expect(
@@ -689,13 +693,66 @@ describe("SettingsScreen", () => {
 		expect(String(JSON.stringify(tree) ?? "")).toContain("Mar");
 	});
 
-	it("renders message and error notices", async () => {
+	it.each([
+		{ scope: "top", heading: null },
+		{ scope: "update", heading: "App update" },
+		{ scope: "config", heading: "Configuration" },
+		{ scope: "backup", heading: "Backup and restore" },
+	])(
+		"renders a $scope error notice at the top of its section",
+		async ({ scope, heading }) => {
+			const navigation = { navigate: vi.fn() };
+			let call = 0;
+			reactMocks.useState.mockImplementation((initial: any) => {
+				call += 1;
+				if (call === 3) return ["boom", vi.fn()];
+				if (call === 11) return [scope, vi.fn()];
+				return [
+					typeof initial === "function" ? initial() : initial,
+					vi.fn(),
+				];
+			});
+
+			const tree = SettingsScreen({ navigation } as any);
+			await flush();
+
+			const notices = findByPredicate(
+				tree,
+				(node) => isValidElement(node) && node.type === Notice,
+			);
+			expect(notices).toHaveLength(1);
+			expect(notices[0]?.props).toMatchObject({
+				message: "boom",
+				tone: "danger",
+			});
+			if (heading === null) {
+				expect(tree.props.children[0]).toBe(notices[0]);
+				return;
+			}
+			const [card] = findByPredicate(
+				tree,
+				(node) =>
+					isValidElement(node) &&
+					node.type === GlassCard &&
+					findByPredicate(node, (c) => c?.props?.children === heading)
+						.length === 1,
+			);
+			expect(
+				findByPredicate(
+					card,
+					(n) => isValidElement(n) && n.type === Notice,
+				),
+			).toHaveLength(1);
+		},
+	);
+
+	it("renders a success message notice inside the scoped section", async () => {
 		const navigation = { navigate: vi.fn() };
 		let call = 0;
 		reactMocks.useState.mockImplementation((initial: any) => {
 			call += 1;
-			if (call === 3) return ["boom", vi.fn()];
 			if (call === 4) return ["saved", vi.fn()];
+			if (call === 11) return ["update", vi.fn()];
 			return [
 				typeof initial === "function" ? initial() : initial,
 				vi.fn(),
@@ -705,16 +762,27 @@ describe("SettingsScreen", () => {
 		const tree = SettingsScreen({ navigation } as any);
 		await flush();
 
-		expect(
-			findByPredicate(tree, (node) => node?.props?.message === "saved"),
-		).not.toHaveLength(0);
+		const notices = findByPredicate(
+			tree,
+			(node) => isValidElement(node) && node.type === Notice,
+		);
+		expect(notices).toHaveLength(1);
+		expect(notices[0]?.props).toMatchObject({ message: "saved" });
+		const [card] = findByPredicate(
+			tree,
+			(node) =>
+				isValidElement(node) &&
+				node.type === GlassCard &&
+				findByPredicate(
+					node,
+					(c) => c?.props?.children === "App update",
+				).length === 1,
+		);
 		expect(
 			findByPredicate(
-				tree,
-				(node) =>
-					node?.props?.message === "boom" &&
-					node?.props?.tone === "danger",
+				card,
+				(n) => isValidElement(n) && n.type === Notice,
 			),
-		).not.toHaveLength(0);
+		).toHaveLength(1);
 	});
 });

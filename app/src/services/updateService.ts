@@ -8,7 +8,10 @@ import type GitHubReleaseAsset from "@/types/GitHubReleaseAsset";
 import { File, Paths } from "expo-file-system";
 
 const {
+	APK_FILE_EXTENSION,
 	APK_MIME_TYPE,
+	COPY_CHUNK_BYTES,
+	DOWNLOADS_DIRECTORY_NAME,
 	GITHUB_RELEASE_API_URL,
 	GITHUB_RELEASE_DOWNLOAD_PREFIX,
 	GRANT_READ_URI_PERMISSION_FLAG,
@@ -127,6 +130,64 @@ const isCompleteUpdate = (file: File, release: AppRelease): boolean =>
 const isUpdateDownloaded = (release: AppRelease): boolean =>
 	isCompleteUpdate(getUpdateFile(release), release);
 
+const copyToSafUri = async (
+	sourceUri: string,
+	destinationUri: string,
+	size: number,
+): Promise<void> => {
+	for (let offset = 0; offset < size; offset += COPY_CHUNK_BYTES) {
+		const length = Math.min(COPY_CHUNK_BYTES, size - offset);
+		const chunk = await FileSystem.readAsStringAsync(sourceUri, {
+			encoding: FileSystem.EncodingType.Base64,
+			position: offset,
+			length,
+		});
+		await FileSystem.StorageAccessFramework.writeAsStringAsync(
+			destinationUri,
+			chunk,
+			{ encoding: FileSystem.EncodingType.Base64, append: offset > 0 },
+		);
+	}
+};
+
+const saveUpdateToUserDirectory = async (
+	downloaded: File,
+	release: AppRelease,
+): Promise<string | null> => {
+	const permission =
+		await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync(
+			FileSystem.StorageAccessFramework.getUriForDirectoryInRoot(
+				DOWNLOADS_DIRECTORY_NAME,
+			),
+		);
+	if (!permission.granted) {
+		return null;
+	}
+	const uri = await FileSystem.StorageAccessFramework.createFileAsync(
+		permission.directoryUri,
+		release.name.toLowerCase().endsWith(APK_FILE_EXTENSION)
+			? release.name.slice(0, -APK_FILE_EXTENSION.length)
+			: release.name,
+		APK_MIME_TYPE,
+	);
+	try {
+		await copyToSafUri(downloaded.uri, uri, release.size);
+		const info = await FileSystem.getInfoAsync(uri);
+		if (!info.exists || info.size !== release.size) {
+			throw new AppError(
+				"UPDATE_COPY_INCOMPLETE",
+				"The APK was not saved completely.",
+			);
+		}
+	} catch (caughtError: unknown) {
+		await FileSystem.StorageAccessFramework.deleteAsync(uri, {
+			idempotent: true,
+		}).catch(() => {});
+		throw caughtError;
+	}
+	return uri;
+};
+
 const downloadAndInstallUpdate = async (release: AppRelease): Promise<void> => {
 	const destination = getUpdateFile(release);
 	const downloaded = isCompleteUpdate(destination, release)
@@ -140,7 +201,9 @@ const downloadAndInstallUpdate = async (release: AppRelease): Promise<void> => {
 			"The APK download was incomplete.",
 		);
 	}
-	const contentUri = await FileSystem.getContentUriAsync(downloaded.uri);
+	const contentUri =
+		(await saveUpdateToUserDirectory(downloaded, release)) ??
+		(await FileSystem.getContentUriAsync(downloaded.uri));
 	await IntentLauncher.startActivityAsync(INSTALL_APK_ACTION, {
 		data: contentUri,
 		type: APK_MIME_TYPE,
