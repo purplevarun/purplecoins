@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
 		flexDirection: FLEX.ROW,
 		alignItems: ALIGN.CENTER,
 		justifyContent: ALIGN.SPACE_BETWEEN,
-		padding: SPACING.S6,
+		padding: SPACING.S4,
 		gap: SPACING.S4,
 	},
 	item: {
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
 		justifyContent: ALIGN.CENTER,
 		gap: SPACING.S3,
 		paddingHorizontal: SPACING.S8,
-		paddingVertical: SPACING.S8,
+		paddingVertical: SPACING.S5,
 		borderRadius: RADIUS.S22,
 		borderWidth: BORDER.THICK,
 		borderColor: COLORS.transparent,

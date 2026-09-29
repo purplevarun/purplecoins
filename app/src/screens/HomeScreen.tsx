@@ -11,7 +11,6 @@ import EmptyState from "@/components/EmptyState";
 import GlassCard from "@/components/GlassCard";
 import HeaderIconButton from "@/components/HeaderIconButton";
 import ScreenContainer from "@/components/ScreenContainer";
-import appConstants from "@/constants/appConstants";
 import COLORS from "@/constants/colors";
 import styleConstants from "@/constants/styleConstants";
 import type HomeMode from "@/types/HomeMode";
@@ -19,7 +18,6 @@ import type HomeModeOption from "@/types/HomeModeOption";
 import type HomeScreenProps from "@/types/HomeScreenProps";
 import type HomeTile from "@/types/HomeTile";
 import type { ViewStyle } from "react-native";
-const { APP_NAME } = appConstants;
 const {
 	ALIGN,
 	FLEX,
@@ -202,7 +200,10 @@ const HomeScreen = ({ navigation }: HomeScreenProps): React.JSX.Element => {
 				<ScreenContainer>
 					<View style={styles.header}>
 						<CustomText numberOfLines={1} style={styles.appName}>
-							{APP_NAME}
+							Purple
+							<CustomText style={styles.appNameAccent}>
+								coins
+							</CustomText>
 						</CustomText>
 						<View style={styles.headerActions}>
 							<HeaderIconButton
@@ -261,6 +262,9 @@ const styles = StyleSheet.create({
 		fontSize: FONT_SIZE.S36,
 		fontWeight: FONT_WEIGHT.BLACK,
 		letterSpacing: LETTER_SPACING.NONE,
+	},
+	appNameAccent: {
+		color: COLORS.primary,
 	},
 	headerActions: {
 		flexDirection: FLEX.ROW,
