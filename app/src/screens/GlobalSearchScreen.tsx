@@ -13,6 +13,7 @@ import ScreenList from "@/components/ScreenList";
 import TextField from "@/components/TextField";
 import appConstants from "@/constants/appConstants";
 import COLORS from "@/constants/colors";
+import financeConstants from "@/constants/financeConstants";
 import styleConstants from "@/constants/styleConstants";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import attachmentService from "@/services/attachmentService";
@@ -35,6 +36,7 @@ import dateUtils from "@/utils/date";
 import getErrorMessage from "@/utils/error";
 import moneyUtils from "@/utils/money";
 const { DEFAULT_CURRENCY_CODE } = appConstants;
+const { CATEGORY_KIND_LABELS } = financeConstants;
 const { getAttachments } = attachmentService;
 const { getBudgets } = budgetService;
 const { getCards } = cardService;
@@ -168,9 +170,7 @@ const GlobalSearchScreen = ({
 					id: category.id,
 					kind: "CATEGORY",
 					title: category.name,
-					subtitle: category.isIncome
-						? "Income category"
-						: "Expense category",
+					subtitle: `${CATEGORY_KIND_LABELS[category.kind]} category`,
 					icon: "pricetag-outline",
 					color: COLORS.warning,
 				})),

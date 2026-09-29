@@ -48,6 +48,7 @@ const { deleteTransaction, getTransaction, saveTransaction } =
 const { getTrips } = tripService;
 
 const {
+	CATEGORY_KIND_LABELS,
 	DEFAULT_TRANSACTION_CLASSIFICATION,
 	DEFAULT_TRANSACTION_TYPE,
 	GENERAL_TRANSACTION_TYPE_OPTIONS,
@@ -228,7 +229,7 @@ const TransactionFormScreen = ({
 		(category) => ({
 			label: category.name,
 			value: category.id,
-			description: category.isIncome ? "Income" : "Expense",
+			description: CATEGORY_KIND_LABELS[category.kind],
 		}),
 	);
 	const tripOptions: readonly SelectOption[] = trips.map((trip) => ({

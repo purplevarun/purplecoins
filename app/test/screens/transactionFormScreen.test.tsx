@@ -201,8 +201,13 @@ const createFormHarness = (
 		[
 			13,
 			[
-				{ id: "food", name: "Food", isIncome: false },
-				{ id: "grocery", name: "Grocery", isIncome: false },
+				{ id: "food", name: "Food", kind: "EXPENSE", isIncome: false },
+				{
+					id: "grocery",
+					name: "Grocery",
+					kind: "EXPENSE",
+					isIncome: false,
+				},
 			],
 		],
 		...overrides,
@@ -293,7 +298,7 @@ describe("TransactionFormScreen", () => {
 			{ id: "s2", name: "Bank", currencyCode: "INR", balance: "0" },
 		]);
 		serviceMocks.getCategories.mockResolvedValue([
-			{ id: "c1", name: "Food", isIncome: false },
+			{ id: "c1", name: "Food", kind: "EXPENSE", isIncome: false },
 		]);
 		serviceMocks.getTrips.mockResolvedValue([{ id: "tr1", name: "Goa" }]);
 		serviceMocks.getInvestments.mockResolvedValue([
@@ -842,7 +847,17 @@ describe("TransactionFormScreen", () => {
 					vi.fn(),
 				];
 			if (stateCall === 13)
-				return [[{ id: "c1", name: "Food", isIncome: false }], vi.fn()];
+				return [
+					[
+						{
+							id: "c1",
+							name: "Food",
+							kind: "EXPENSE",
+							isIncome: false,
+						},
+					],
+					vi.fn(),
+				];
 			if (stateCall === 14)
 				return [[{ id: "tr1", name: "Goa" }], vi.fn()];
 			if (stateCall === 15) return [[{ id: "i1", name: "MF" }], vi.fn()];
@@ -936,7 +951,17 @@ describe("TransactionFormScreen", () => {
 					vi.fn(),
 				];
 			if (stateCall === 13)
-				return [[{ id: "c1", name: "Food", isIncome: false }], vi.fn()];
+				return [
+					[
+						{
+							id: "c1",
+							name: "Food",
+							kind: "EXPENSE",
+							isIncome: false,
+						},
+					],
+					vi.fn(),
+				];
 			if (stateCall === 14)
 				return [[{ id: "tr1", name: "Goa" }], vi.fn()];
 			if (stateCall === 15) return [[{ id: "i1", name: "MF" }], vi.fn()];
@@ -1300,7 +1325,17 @@ describe("TransactionFormScreen", () => {
 					vi.fn(),
 				];
 			if (stateCall === 13)
-				return [[{ id: "c1", name: "Food", isIncome: false }], vi.fn()];
+				return [
+					[
+						{
+							id: "c1",
+							name: "Food",
+							kind: "EXPENSE",
+							isIncome: false,
+						},
+					],
+					vi.fn(),
+				];
 			if (stateCall === 14)
 				return [[{ id: "tr1", name: "Goa" }], vi.fn()];
 			if (stateCall === 15) return [[{ id: "i1", name: "MF" }], vi.fn()];
@@ -1345,7 +1380,7 @@ describe("TransactionFormScreen", () => {
 		);
 	});
 
-	it("maps category options with income and expense descriptions", async () => {
+	it("maps category options with kind descriptions", async () => {
 		const navigation = { goBack: vi.fn() };
 		let stateCall = 0;
 		reactMocks.useState.mockImplementation((initial: any) => {
@@ -1353,8 +1388,24 @@ describe("TransactionFormScreen", () => {
 			if (stateCall === 13) {
 				return [
 					[
-						{ id: "c1", name: "Salary", isIncome: true },
-						{ id: "c2", name: "Food", isIncome: false },
+						{
+							id: "c1",
+							name: "Salary",
+							kind: "INCOME",
+							isIncome: true,
+						},
+						{
+							id: "c2",
+							name: "Food",
+							kind: "EXPENSE",
+							isIncome: false,
+						},
+						{
+							id: "c3",
+							name: "Lent",
+							kind: "REFUND",
+							isIncome: false,
+						},
 					],
 					vi.fn(),
 				];
@@ -1379,6 +1430,7 @@ describe("TransactionFormScreen", () => {
 		expect(categorySelect?.props?.options).toEqual([
 			{ label: "Salary", value: "c1", description: "Income" },
 			{ label: "Food", value: "c2", description: "Expense" },
+			{ label: "Lent", value: "c3", description: "Refund" },
 		]);
 	});
 

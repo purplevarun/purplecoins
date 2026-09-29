@@ -1,7 +1,7 @@
 type CategoryAnalysisRow = Readonly<{
 	categoryId: string;
 	categoryName: string;
-	isIncome: number;
+	kind: string;
 	currencyCode: string;
 	credits: number;
 	debits: number;

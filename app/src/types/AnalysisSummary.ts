@@ -3,6 +3,7 @@ import type InvestmentAnalysis from "@/types/InvestmentAnalysis";
 
 type AnalysisSummary = Readonly<{
 	categories: readonly CategoryAnalysis[];
+	refundNets: readonly CategoryAnalysis[];
 	investments: readonly InvestmentAnalysis[];
 	totalIncome: string;
 	totalExpense: string;

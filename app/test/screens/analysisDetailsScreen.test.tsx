@@ -150,6 +150,7 @@ describe("AnalysisDetailsScreen", () => {
 			getCategoryBreakdownText({
 				categoryId: "1",
 				categoryName: "Food",
+				kind: "EXPENSE",
 				currencyCode: "INR",
 				credits: "10",
 				debits: "20",
@@ -170,6 +171,7 @@ describe("AnalysisDetailsScreen", () => {
 				{
 					categoryId: "cat-1",
 					categoryName: "Food",
+					kind: "EXPENSE",
 					currencyCode: "INR",
 					credits: "10",
 					debits: "20",

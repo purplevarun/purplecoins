@@ -25,9 +25,9 @@ const createFixture = async (): Promise<
 	}
 	result.sqlite.exec(`
 		INSERT INTO sources VALUES ('bank', 'Bank', 'INR', NULL, NULL, 1, 2);
-		INSERT INTO categories VALUES ('food', 'Food', 0, NULL, 1, 2);
-		INSERT INTO categories VALUES ('grocery', 'Grocery', 0, NULL, 1, 2);
-		INSERT INTO categories VALUES ('salary', 'Salary', 1, NULL, 1, 2);
+		INSERT INTO categories (id, name, kind, created_at, updated_at) VALUES ('food', 'Food', 'EXPENSE', 1, 2);
+		INSERT INTO categories (id, name, kind, created_at, updated_at) VALUES ('grocery', 'Grocery', 'EXPENSE', 1, 2);
+		INSERT INTO categories (id, name, kind, created_at, updated_at) VALUES ('salary', 'Salary', 'INCOME', 1, 2);
 	`);
 	return result;
 };

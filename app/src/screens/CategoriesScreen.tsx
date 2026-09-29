@@ -35,7 +35,9 @@ import settingsService from "@/services/settingsService";
 import type AnalysisSummary from "@/types/AnalysisSummary";
 import type CategoriesScreenProps from "@/types/CategoriesScreenProps";
 import type Category from "@/types/Category";
+import type CategoryKind from "@/types/CategoryKind";
 import type ExchangeRate from "@/types/ExchangeRate";
+import type IconName from "@/types/IconName";
 import getErrorMessage from "@/utils/error";
 import moneyUtils from "@/utils/money";
 const { getAnalysisSummary } = analysisService;
@@ -45,7 +47,20 @@ const { getNativeCurrencyDisplay } = settingsService;
 const { compareMoney, formatMoney, ZERO_AMOUNT } = moneyUtils;
 
 const { ALL_TIME_END, ALL_TIME_START } = dateConstants;
-const { CATEGORY_FILTER_OPTIONS } = financeConstants;
+const { CATEGORY_KIND_LABELS, CATEGORY_KIND_OPTIONS, DEFAULT_CATEGORY_KIND } =
+	financeConstants;
+
+const KIND_ICON: Readonly<Record<CategoryKind, IconName>> = {
+	EXPENSE: "pricetag-outline",
+	INCOME: "arrow-down-circle-outline",
+	REFUND: "arrow-undo-outline",
+};
+
+const KIND_COLOR: Readonly<Record<CategoryKind, string>> = {
+	EXPENSE: COLORS.warning,
+	INCOME: COLORS.success,
+	REFUND: COLORS.blue,
+};
 
 const CategoriesScreen = ({
 	navigation,
@@ -53,7 +68,9 @@ const CategoriesScreen = ({
 	const { database, refreshData } = useDatabaseContext();
 	const dialog = useAppDialog();
 	const [categories, setCategories] = useState<readonly Category[]>([]);
-	const [categoryFilter, setCategoryFilter] = useState("ALL");
+	const [categoryFilter, setCategoryFilter] = useState<CategoryKind>(
+		DEFAULT_CATEGORY_KIND,
+	);
 	const [analysis, setAnalysis] = useState<AnalysisSummary | null>(null);
 	const [isNativeCurrency, setIsNativeCurrency] = useState(true);
 	const [exchangeRates, setExchangeRates] = useState<readonly ExchangeRate[]>(
@@ -74,12 +91,7 @@ const CategoriesScreen = ({
 			setIsNativeCurrency(nativeCurrency);
 			setExchangeRates(loadedRates);
 			const [loadedCategories, loadedAnalysis] = await Promise.all([
-				getCategories(
-					database,
-					categoryFilter === "ALL"
-						? undefined
-						: categoryFilter === "INCOME",
-				),
+				getCategories(database, categoryFilter),
 				getAnalysisSummary(database, {
 					dateRange: { start: ALL_TIME_START, end: ALL_TIME_END },
 					isNativeCurrency: nativeCurrency,
@@ -183,14 +195,18 @@ const CategoriesScreen = ({
 	const listData = useMemo(
 		() =>
 			[...categories].sort((a, b) => {
-				const netA = (analysis?.categories ?? [])
+				const rows = [
+					...(analysis?.categories ?? []),
+					...(analysis?.refundNets ?? []),
+				];
+				const netA = rows
 					.filter((row) => row.categoryId === a.id)
 					.reduce(
 						(sum, row) =>
 							sum.plus(toInr(row.net, row.currencyCode)),
 						new Decimal(0),
 					);
-				const netB = (analysis?.categories ?? [])
+				const netB = rows
 					.filter((row) => row.categoryId === b.id)
 					.reduce(
 						(sum, row) =>
@@ -213,9 +229,10 @@ const CategoriesScreen = ({
 	const renderCategoryItem = useCallback(
 		({ item: category }: ListItemProps<Category>): React.JSX.Element => {
 			const totals =
-				analysis?.categories.filter(
-					(row) => row.categoryId === category.id,
-				) ?? [];
+				(category.kind === "REFUND"
+					? analysis?.refundNets
+					: analysis?.categories
+				)?.filter((row) => row.categoryId === category.id) ?? [];
 			return (
 				<Pressable
 					onPress={() =>
@@ -232,16 +249,8 @@ const CategoriesScreen = ({
 						<View style={styles.row}>
 							<View style={styles.iconBox}>
 								<Ionicons
-									color={
-										category.isIncome
-											? COLORS.success
-											: COLORS.warning
-									}
-									name={
-										category.isIncome
-											? "arrow-down-circle-outline"
-											: "pricetag-outline"
-									}
+									color={KIND_COLOR[category.kind]}
+									name={KIND_ICON[category.kind]}
 									size={22}
 								/>
 							</View>
@@ -250,13 +259,17 @@ const CategoriesScreen = ({
 									{category.name}
 								</CustomText>
 								<CustomText style={styles.meta}>
-									{category.isIncome
-										? "Income category"
-										: "Expense category"}
+									{`${
+										CATEGORY_KIND_LABELS[category.kind]
+									} category`}
 								</CustomText>
 								{totals.length === 0 ? (
 									<CustomText style={styles.amount}>
-										{formatMoney(ZERO_AMOUNT, "INR")}
+										{`${
+											category.kind === "REFUND"
+												? "Refund net "
+												: ""
+										}${formatMoney(ZERO_AMOUNT, "INR")}`}
 									</CustomText>
 								) : (
 									totals.map((total) => (
@@ -275,11 +288,16 @@ const CategoriesScreen = ({
 												},
 											]}
 										>
-											{!isNativeCurrency ? "≈ " : ""}
-											{formatMoney(
+											{`${
+												category.kind === "REFUND"
+													? "Refund net "
+													: ""
+											}${
+												!isNativeCurrency ? "≈ " : ""
+											}${formatMoney(
 												total.net,
 												total.currencyCode,
-											)}
+											)}`}
 										</CustomText>
 									))
 								)}
@@ -319,8 +337,10 @@ const CategoriesScreen = ({
 		() => (
 			<ListHeader>
 				<SegmentedControl
-					onChange={setCategoryFilter}
-					options={CATEGORY_FILTER_OPTIONS}
+					onChange={(value) =>
+						setCategoryFilter(value as CategoryKind)
+					}
+					options={CATEGORY_KIND_OPTIONS}
 					value={categoryFilter}
 				/>
 				{searchVisible ? (

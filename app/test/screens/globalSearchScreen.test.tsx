@@ -209,7 +209,7 @@ describe("GlobalSearchScreen", () => {
 			{ id: "s1", name: "Cash", currencyCode: "INR" },
 		]);
 		serviceMocks.getCategories.mockResolvedValue([
-			{ id: "c1", name: "Food", isIncome: false },
+			{ id: "c1", name: "Food", kind: "EXPENSE", isIncome: false },
 		]);
 		serviceMocks.getTrips.mockResolvedValue([{ id: "tr1", name: "Goa" }]);
 		serviceMocks.getInvestments.mockResolvedValue([
@@ -801,7 +801,7 @@ describe("GlobalSearchScreen", () => {
 			},
 		]);
 		serviceMocks.getCategories.mockResolvedValueOnce([
-			{ id: "c2", name: "Salary", isIncome: true },
+			{ id: "c2", name: "Salary", kind: "INCOME", isIncome: true },
 		]);
 		serviceMocks.getBudgets.mockResolvedValueOnce([
 			{

@@ -1,6 +1,7 @@
 import AppError from "@/errors/AppError";
 import financeRepository from "@/repositories/financeRepository";
 import type Category from "@/types/Category";
+import type CategoryKind from "@/types/CategoryKind";
 import createId from "@/utils/id";
 import type { SQLiteDatabase } from "expo-sqlite";
 
@@ -16,15 +17,15 @@ const {
 
 const mapCategory = (category: Category): Category => ({
 	...category,
-	isIncome: Boolean(category.isIncome),
+	isIncome: category.kind === "INCOME",
 	archived: Boolean(category.archived),
 });
 
 const getCategories = async (
 	database: SQLiteDatabase,
-	isIncome?: boolean,
+	kind?: CategoryKind,
 ): Promise<readonly Category[]> => {
-	const categories = await getCategoryRows(database, isIncome);
+	const categories = await getCategoryRows(database, kind);
 	return categories.map(mapCategory);
 };
 
@@ -47,7 +48,7 @@ const saveCategory = async (
 	database: SQLiteDatabase,
 	id: string | undefined,
 	name: string,
-	isIncome: boolean,
+	kind: CategoryKind,
 ): Promise<string> => {
 	const normalizedName = name.trim();
 	if (!normalizedName) {
@@ -68,7 +69,8 @@ const saveCategory = async (
 	await upsertCategoryRow(database, {
 		id: categoryId,
 		name: normalizedName,
-		isIncome,
+		kind,
+		isIncome: kind === "INCOME",
 		createdAt: existingCategory?.createdAt ?? now,
 		updatedAt: now,
 		archived: existingCategory?.archived ?? false,

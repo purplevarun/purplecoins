@@ -1,20 +1,24 @@
 import CustomText from "@/components/CustomText";
 
 import { useEffect, useState } from "react";
-import { StyleSheet, Switch, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 import AppButton from "@/components/AppButton";
 import GlassCard from "@/components/GlassCard";
 import Notice from "@/components/Notice";
 import ScreenContainer from "@/components/ScreenContainer";
+import SegmentedControl from "@/components/SegmentedControl";
 import TextField from "@/components/TextField";
 import COLORS from "@/constants/colors";
+import financeConstants from "@/constants/financeConstants";
 import styleConstants from "@/constants/styleConstants";
 import useAppDialog from "@/hooks/useAppDialog";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import categoryService from "@/services/categoryService";
 import type CategoryFormScreenProps from "@/types/CategoryFormScreenProps";
+import type CategoryKind from "@/types/CategoryKind";
 import getErrorMessage from "@/utils/error";
+const { CATEGORY_KIND_OPTIONS, DEFAULT_CATEGORY_KIND } = financeConstants;
 const { getCategory, saveCategory } = categoryService;
 
 const CategoryFormScreen = ({
@@ -25,8 +29,10 @@ const CategoryFormScreen = ({
 	const dialog = useAppDialog();
 	const entityId = route.params?.entityId;
 	const [name, setName] = useState("");
-	const [isIncome, setIsIncome] = useState(false);
-	const [originalIsIncome, setOriginalIsIncome] = useState(false);
+	const [kind, setKind] = useState<CategoryKind>(DEFAULT_CATEGORY_KIND);
+	const [originalKind, setOriginalKind] = useState<CategoryKind>(
+		DEFAULT_CATEGORY_KIND,
+	);
 	const [isSaving, setIsSaving] = useState(false);
 	const [error, setError] = useState("");
 
@@ -39,8 +45,8 @@ const CategoryFormScreen = ({
 				const category = await getCategory(database, entityId);
 				if (category) {
 					setName(category.name);
-					setIsIncome(category.isIncome);
-					setOriginalIsIncome(category.isIncome);
+					setKind(category.kind);
+					setOriginalKind(category.kind);
 				}
 			} catch (caughtError: unknown) {
 				setError(getErrorMessage(caughtError));
@@ -53,7 +59,7 @@ const CategoryFormScreen = ({
 		setIsSaving(true);
 		setError("");
 		try {
-			await saveCategory(database, entityId, name, isIncome);
+			await saveCategory(database, entityId, name, kind);
 			// Bump dataVersion first so CategoriesScreen reloads when we pop back
 			refreshData();
 			// Small delay to ensure the state update propagates before navigation
@@ -68,7 +74,7 @@ const CategoryFormScreen = ({
 
 	const handleSave = (): void => {
 		const hasClassificationChanged =
-			Boolean(entityId) && isIncome !== originalIsIncome;
+			Boolean(entityId) && kind !== originalKind;
 		if (!hasClassificationChanged) {
 			void processSave();
 			return;
@@ -99,25 +105,18 @@ const CategoryFormScreen = ({
 					<View style={styles.switchRow}>
 						<View style={styles.switchText}>
 							<CustomText style={styles.switchTitle}>
-								Income category
+								Category kind
 							</CustomText>
 							<CustomText style={styles.switchDescription}>
 								Controls which analysis bucket receives this
-								category. Net sign never changes the bucket.
+								category. Refund categories are excluded from
+								analysis.
 							</CustomText>
 						</View>
-						<Switch
-							onValueChange={setIsIncome}
-							thumbColor={
-								isIncome
-									? COLORS.primaryBright
-									: COLORS.textMuted
-							}
-							trackColor={{
-								false: COLORS.border,
-								true: COLORS.primaryMuted,
-							}}
-							value={isIncome}
+						<SegmentedControl
+							onChange={(value) => setKind(value as CategoryKind)}
+							options={CATEGORY_KIND_OPTIONS}
+							value={kind}
 						/>
 					</View>
 					{error ? <Notice message={error} tone="danger" /> : null}
@@ -133,7 +132,6 @@ const CategoryFormScreen = ({
 };
 
 const {
-	ALIGN,
 	BORDER,
 	FLEX,
 	FONT_SIZE,
@@ -155,8 +153,6 @@ const styles = StyleSheet.create({
 		letterSpacing: LETTER_SPACING.TIGHT,
 	},
 	switchRow: {
-		flexDirection: FLEX.ROW,
-		alignItems: ALIGN.CENTER,
 		gap: SPACING.S12,
 		padding: SPACING.S14,
 		borderRadius: RADIUS.S15,

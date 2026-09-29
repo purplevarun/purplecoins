@@ -3,6 +3,7 @@ import EmptyState from "@/components/EmptyState";
 import GlassCard from "@/components/GlassCard";
 import PagedScreenList from "@/components/PagedScreenList";
 import COLORS from "@/constants/colors";
+import financeConstants from "@/constants/financeConstants";
 import styleConstants from "@/constants/styleConstants";
 import useDatabaseContext from "@/hooks/useDatabaseContext";
 import analysisService from "@/services/analysisService";
@@ -18,6 +19,7 @@ import runAfterRender from "@/utils/runAfterRender";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
+const { CATEGORY_KIND_LABELS } = financeConstants;
 const { getAnalysisSummary, getInvestmentNetAmount, getInvestmentNetLabel } =
 	analysisService;
 const { compareMoney, formatMoney, ZERO_AMOUNT } = moneyUtils;
@@ -165,9 +167,9 @@ const AnalysisDetailsScreen = ({
 										{category.categoryName}
 									</CustomText>
 									<CustomText style={styles.meta}>
-										{category.isIncome
-											? "Income category"
-											: "Expense category"}
+										{`${
+											CATEGORY_KIND_LABELS[category.kind]
+										} category`}
 									</CustomText>
 									<CustomText style={styles.meta}>
 										{getCategoryBreakdownText(category)}

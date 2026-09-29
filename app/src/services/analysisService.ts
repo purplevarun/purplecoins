@@ -5,6 +5,7 @@ import type AnalysisSummary from "@/types/AnalysisSummary";
 import type CategoryAnalysis from "@/types/CategoryAnalysis";
 import type CategoryAnalysisRow from "@/types/CategoryAnalysisRow";
 import type CategoryCurrencySummary from "@/types/CategoryCurrencySummary";
+import type CategoryKind from "@/types/CategoryKind";
 import type ExchangeRate from "@/types/ExchangeRate";
 import type InvestmentAnalysis from "@/types/InvestmentAnalysis";
 import type InvestmentAnalysisRow from "@/types/InvestmentAnalysisRow";
@@ -68,7 +69,8 @@ const buildCategoryAnalysis = (
 		const current = totals.get(key) ?? {
 			categoryId: row.categoryId,
 			categoryName: row.categoryName,
-			isIncome: Boolean(row.isIncome),
+			kind: row.kind as CategoryKind,
+			isIncome: row.kind === "INCOME",
 			currencyCode,
 			credits: ZERO_AMOUNT,
 			debits: ZERO_AMOUNT,
@@ -205,24 +207,31 @@ const getAnalysisSummary = async (
 		options.isNativeCurrency,
 		rateMap,
 	);
+	const categories = categoryAnalysis.filter(
+		(category) => category.kind !== "REFUND",
+	);
+	const refundNets = categoryAnalysis.filter(
+		(category) => category.kind === "REFUND",
+	);
 	const investmentAnalysis = buildInvestmentAnalysis(
 		investmentRows,
 		options.isNativeCurrency,
 		rateMap,
 	);
 	const totalIncome = sumMoney(
-		categoryAnalysis
+		categories
 			.filter((category) => category.isIncome)
 			.map((category) => category.net),
 	);
 	const expenseCategoryNet = sumMoney(
-		categoryAnalysis
+		categories
 			.filter((category) => !category.isIncome)
 			.map((category) => category.net),
 	);
 	const totalExpense = subtractMoney(ZERO_AMOUNT, expenseCategoryNet);
 	return {
-		categories: categoryAnalysis,
+		categories,
+		refundNets,
 		investments: investmentAnalysis,
 		totalIncome,
 		totalExpense,

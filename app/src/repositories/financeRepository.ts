@@ -3,6 +3,7 @@ import type { SQLiteDatabase } from "expo-sqlite";
 import type Budget from "@/types/Budget";
 import type Category from "@/types/Category";
 import type CategoryAnalysisRow from "@/types/CategoryAnalysisRow";
+import type CategoryKind from "@/types/CategoryKind";
 import type ExchangeRate from "@/types/ExchangeRate";
 import type Investment from "@/types/Investment";
 import type InvestmentAnalysisRow from "@/types/InvestmentAnalysisRow";
@@ -230,14 +231,14 @@ const deleteSourceRow = async (
 
 const getCategoryRows = async (
 	database: SQLiteDatabase,
-	isIncome?: boolean,
+	kind?: CategoryKind,
 ): Promise<readonly Category[]> =>
 	database.getAllAsync<Category>(
 		`
 		SELECT
 			category.id,
 			category.name,
-			category.is_income AS isIncome,
+			category.kind AS kind,
 			category.created_at AS createdAt,
 			category.updated_at AS updatedAt,
 			COALESCE(category.archived, 0) AS archived
@@ -249,14 +250,14 @@ const getCategoryRows = async (
 			FROM transaction_items item JOIN transactions txn ON txn.id = item.transaction_id
 		) txn ON txn.category_id = category.id
 		WHERE COALESCE(category.archived, 0) = 0
-			${isIncome === undefined ? "" : "AND category.is_income = ?"}
+			${kind === undefined ? "" : "AND category.kind = ?"}
 		GROUP BY category.id
 		ORDER BY
 			COUNT(txn.id) DESC,
 			COALESCE(MAX(txn.created_at), 0) DESC,
 			lower(category.name) ASC;
 		`,
-		...(isIncome === undefined ? [] : [isIncome ? 1 : 0]),
+		...(kind === undefined ? [] : [kind]),
 	);
 
 const getArchivedCategoryRows = async (
@@ -266,7 +267,7 @@ const getArchivedCategoryRows = async (
 		SELECT
 			id,
 			name,
-			is_income AS isIncome,
+			kind AS kind,
 			created_at AS createdAt,
 			updated_at AS updatedAt,
 			COALESCE(archived, 0) AS archived
@@ -284,7 +285,7 @@ const getCategoryRow = async (
 			SELECT
 				id,
 				name,
-				is_income AS isIncome,
+				kind AS kind,
 				created_at AS createdAt,
 				updated_at AS updatedAt,
 				COALESCE(archived, 0) AS archived
@@ -299,9 +300,9 @@ const upsertCategoryRow = async (
 	category: Category,
 ): Promise<void> => {
 	const result = await database.runAsync(
-		`UPDATE categories SET name = ?, is_income = ?, updated_at = ? WHERE id = ?;`,
+		`UPDATE categories SET name = ?, kind = ?, updated_at = ? WHERE id = ?;`,
 		category.name,
-		category.isIncome ? 1 : 0,
+		category.kind,
 		category.updatedAt,
 		category.id,
 	);
@@ -309,12 +310,12 @@ const upsertCategoryRow = async (
 	await database.runAsync(
 		`
 			INSERT INTO categories (
-				id, name, is_income, created_at, updated_at
+				id, name, kind, created_at, updated_at
 			) VALUES (?, ?, ?, ?, ?);
 		`,
 		category.id,
 		category.name,
-		category.isIncome ? 1 : 0,
+		category.kind,
 		category.createdAt,
 		category.updatedAt,
 	);
@@ -714,7 +715,7 @@ const getCategoryAnalysisRows = async (
 		SELECT
 			category.id AS categoryId,
 			category.name AS categoryName,
-			category.is_income AS isIncome,
+			category.kind AS kind,
 			allocation.currencyCode AS currencyCode,
 			SUM(CASE WHEN allocation.type = 'CREDIT' THEN CAST(allocation.amount AS REAL) ELSE 0 END) AS credits,
 			SUM(CASE WHEN allocation.type = 'DEBIT' THEN CAST(allocation.amount AS REAL) ELSE 0 END) AS debits

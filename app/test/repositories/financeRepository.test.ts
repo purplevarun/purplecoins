@@ -227,7 +227,7 @@ describe("financeRepository", () => {
 			{
 				categoryId: "rent",
 				categoryName: "Rent",
-				isIncome: 0,
+				kind: "EXPENSE",
 				currencyCode: "INR",
 				credits: 0,
 				debits: 27000,
@@ -334,16 +334,16 @@ describe("financeRepository", () => {
 		expect(sql).toContain("ORDER BY currencyCode");
 	});
 
-	it.each([true, false])(
-		"filters active categories by isIncome=%s in SQL",
-		async (isIncome) => {
+	it.each(["EXPENSE", "INCOME", "REFUND"] as const)(
+		"filters active categories by kind=%s in SQL",
+		async (kind) => {
 			const getAllAsync = vi.fn().mockResolvedValue([]);
 			const database = { getAllAsync } as unknown as SQLiteDatabase;
 
-			expect(await getCategoryRows(database, isIncome)).toEqual([]);
+			expect(await getCategoryRows(database, kind)).toEqual([]);
 			expect(getAllAsync).toHaveBeenCalledExactlyOnceWith(
-				expect.stringContaining("AND category.is_income = ?"),
-				Number(isIncome),
+				expect.stringContaining("AND category.kind = ?"),
+				kind,
 			);
 		},
 	);
@@ -503,6 +503,7 @@ describe("financeRepository", () => {
 		await upsertCategoryRow(database, {
 			id: "c1",
 			name: "Food",
+			kind: "EXPENSE",
 			isIncome: false,
 			createdAt: 1,
 			updatedAt: 2,
@@ -512,7 +513,7 @@ describe("financeRepository", () => {
 			expect.stringContaining("INSERT INTO categories"),
 			"c1",
 			"Food",
-			0,
+			"EXPENSE",
 			1,
 			2,
 		);
@@ -520,6 +521,7 @@ describe("financeRepository", () => {
 		await upsertCategoryRow(database, {
 			id: "c2",
 			name: "Salary",
+			kind: "INCOME",
 			isIncome: true,
 			createdAt: 3,
 			updatedAt: 4,
@@ -529,7 +531,7 @@ describe("financeRepository", () => {
 			expect.stringContaining("INSERT INTO categories"),
 			"c2",
 			"Salary",
-			1,
+			"INCOME",
 			3,
 			4,
 		);
@@ -826,6 +828,7 @@ describe("financeRepository", () => {
 		await upsertCategoryRow(database, {
 			id: "c1",
 			name: "Food",
+			kind: "EXPENSE",
 			isIncome: false,
 			createdAt: 1,
 			updatedAt: 2,
@@ -834,7 +837,7 @@ describe("financeRepository", () => {
 		expect(database.runAsync).toHaveBeenCalledWith(
 			expect.stringContaining("UPDATE categories"),
 			"Food",
-			0,
+			"EXPENSE",
 			2,
 			"c1",
 		);

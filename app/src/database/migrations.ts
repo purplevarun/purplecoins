@@ -28,6 +28,16 @@ const SCHEMA_MIGRATIONS: readonly string[] = [
 	`
 	ALTER TABLE trips ADD COLUMN trip_type_id TEXT;
 	`,
+	// Add kind column to categories and backfill from is_income
+	`
+	ALTER TABLE categories ADD COLUMN kind TEXT;
+	UPDATE categories SET kind = CASE WHEN COALESCE(is_income, 0) = 1 THEN 'INCOME' ELSE 'EXPENSE' END
+		WHERE kind IS NULL;
+	`,
+	// is_income is deprecated: drop it once kind is populated
+	`
+	ALTER TABLE categories DROP COLUMN is_income;
+	`,
 	// Rebuild every existing table so legacy constraints are removed as well.
 	`
 	PRAGMA foreign_keys = OFF;
@@ -135,4 +145,10 @@ const SCHEMA_MIGRATIONS: readonly string[] = [
 	`,
 ];
 
+const isIdempotentMigrationError = (error: unknown): boolean =>
+	error instanceof Error &&
+	(error.message.includes("duplicate column name") ||
+		error.message.includes("no such column"));
+
+export { isIdempotentMigrationError };
 export default SCHEMA_MIGRATIONS;

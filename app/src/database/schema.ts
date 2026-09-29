@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS sources (
 CREATE TABLE IF NOT EXISTS categories (
 	id TEXT,
 	name TEXT,
-	is_income INTEGER,
+	is_income INTEGER, -- DEPRECATED: replaced by kind; dropped via SCHEMA_MIGRATIONS
 	archived INTEGER,
 	created_at INTEGER,
 	updated_at INTEGER

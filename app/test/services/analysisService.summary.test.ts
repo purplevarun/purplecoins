@@ -39,7 +39,7 @@ describe("analysisService summary", () => {
 			{
 				categoryId: "salary",
 				categoryName: "Salary",
-				isIncome: 1,
+				kind: "INCOME",
 				currencyCode: "USD",
 				credits: 100,
 				debits: 0,
@@ -47,7 +47,7 @@ describe("analysisService summary", () => {
 			{
 				categoryId: "rent",
 				categoryName: "Rent",
-				isIncome: 0,
+				kind: "EXPENSE",
 				currencyCode: "EUR",
 				credits: 0,
 				debits: 40,
@@ -103,7 +103,7 @@ describe("analysisService summary", () => {
 			{
 				categoryId: "c1",
 				categoryName: "Groceries",
-				isIncome: 0,
+				kind: "EXPENSE",
 				currencyCode: "EUR",
 				credits: 0,
 				debits: 10,
@@ -125,7 +125,7 @@ describe("analysisService summary", () => {
 			{
 				categoryId: "salary",
 				categoryName: "Salary",
-				isIncome: 1,
+				kind: "INCOME",
 				currencyCode: "INR",
 				credits: 100,
 				debits: 0,
@@ -133,7 +133,7 @@ describe("analysisService summary", () => {
 			{
 				categoryId: "rent",
 				categoryName: "Rent",
-				isIncome: 0,
+				kind: "EXPENSE",
 				currencyCode: "INR",
 				credits: 0,
 				debits: 40,
@@ -148,6 +148,44 @@ describe("analysisService summary", () => {
 		expect(summary.totalIncome).toBe("100");
 		expect(summary.totalExpense).toBe("40");
 		expect(summary.netProfit).toBe("60");
+	});
+
+	it("excludes refund categories from analysis but reports their nets", async () => {
+		mocks.getCategoryAnalysisRows.mockResolvedValueOnce([
+			{
+				categoryId: "rent",
+				categoryName: "Rent",
+				kind: "EXPENSE",
+				currencyCode: "INR",
+				credits: 0,
+				debits: 40,
+			},
+			{
+				categoryId: "lent",
+				categoryName: "Lent to friend",
+				kind: "REFUND",
+				currencyCode: "INR",
+				credits: 25,
+				debits: 100,
+			},
+		]);
+
+		const summary = await analysisService.getAnalysisSummary(database, {
+			dateRange: { start: 1, end: 2 },
+			isNativeCurrency: true,
+		});
+
+		expect(summary.categories).toHaveLength(1);
+		expect(summary.categories[0]?.categoryId).toBe("rent");
+		expect(summary.totalExpense).toBe("40");
+		expect(summary.netProfit).toBe("-40");
+		expect(summary.refundNets).toEqual([
+			expect.objectContaining({
+				categoryId: "lent",
+				kind: "REFUND",
+				net: "-75",
+			}),
+		]);
 	});
 
 	it("returns investment net labels and absolute net amount", () => {

@@ -1304,6 +1304,7 @@ describe("list screens", () => {
 		const expense: Category = {
 			id: "expense",
 			name: "Food",
+			kind: "EXPENSE",
 			isIncome: false,
 			createdAt: 1,
 			updatedAt: 1,
@@ -1313,7 +1314,14 @@ describe("list screens", () => {
 			...expense,
 			id: "income",
 			name: "Salary",
+			kind: "INCOME",
 			isIncome: true,
+		};
+		const refund: Category = {
+			...expense,
+			id: "refund",
+			name: "Lent",
+			kind: "REFUND",
 		};
 		const empty: Category = { ...expense, id: "empty", name: "Unused" };
 		const unpriced: Category = {
@@ -1420,7 +1428,7 @@ describe("list screens", () => {
 			},
 		);
 
-		it.each(["INCOME", "EXPENSE", "ALL"])(
+		it.each(["INCOME", "EXPENSE", "REFUND"])(
 			"applies the %s classification and debounced search",
 			async (filter) => {
 				const setters = mockStateValues({
@@ -1440,7 +1448,7 @@ describe("list screens", () => {
 				await flush();
 				expect(serviceMocks.getCategories).toHaveBeenCalledWith(
 					{ id: "db" },
-					filter === "ALL" ? undefined : filter === "INCOME",
+					filter,
 				);
 				expect(setters.get(9)).toHaveBeenCalledWith(" food ");
 				const list = findElement<FinanceListProps<Category>>(
@@ -1467,8 +1475,59 @@ describe("list screens", () => {
 				expect(update(false)).toBe(true);
 				expect(setters.get(8)).toHaveBeenCalledWith("");
 				expect(setters.get(9)).toHaveBeenLastCalledWith("");
+				findElement<{
+					onChange: (value: string) => void;
+					options: readonly { value?: string }[];
+				}>(
+					tree,
+					(props) =>
+						Array.isArray(props.options) &&
+						props.options.some(
+							(option) => option?.value === "REFUND",
+						),
+				).props.onChange("INCOME");
+				expect(setters.get(2)).toHaveBeenLastCalledWith("INCOME");
 			},
 		);
+
+		it("renders refund categories with refund nets instead of analysis totals", async () => {
+			mockStateValues({
+				1: [refund],
+				3: {
+					categories: [],
+					refundNets: [
+						{
+							categoryId: refund.id,
+							currencyCode: "INR",
+							net: "-75",
+						},
+					],
+					missingCurrencies: [],
+				},
+				4: true,
+				5: [],
+			});
+			const tree = renderCategories({
+				navigate: vi.fn(),
+				setOptions: vi.fn(),
+			});
+			await flush();
+			const list = findElement<FinanceListProps<Category>>(
+				tree,
+				(props) => Array.isArray(props.data),
+			).props;
+			const serialized = JSON.stringify(
+				list.renderItem({ item: refund }),
+			);
+			expect(serialized).toContain("Refund category");
+			expect(serialized).toContain("Refund net");
+			expect(serialized).toContain("-75");
+
+			const emptyRefund = list.renderItem({
+				item: { ...refund, id: "refund-empty" },
+			});
+			expect(JSON.stringify(emptyRefund)).toContain("Refund net");
+		});
 
 		it("renders zero totals before analysis arrives and reports load and archive failures", async () => {
 			const setters = mockStateValues({ 1: [expense, income] });

@@ -16,7 +16,7 @@ const createCategoryRow = (
 ): CategoryAnalysisRow => ({
 	categoryId: "rent",
 	categoryName: "Domo Living Rent",
-	isIncome: 0,
+	kind: "EXPENSE",
 	currencyCode: "INR",
 	credits: 0,
 	debits: 0,
@@ -86,7 +86,7 @@ describe("category-driven analysis", () => {
 				}),
 				createCategoryRow({
 					categoryId: "salary",
-					isIncome: 1,
+					kind: "INCOME",
 					credits: 100000,
 				}),
 			],
@@ -124,6 +124,7 @@ describe("category-driven analysis", () => {
 			{
 				categoryId: "rent",
 				categoryName: "Domo Living Rent",
+				kind: "EXPENSE",
 				isIncome: false,
 				currencyCode: "INR",
 				credits: "100",
@@ -140,6 +141,7 @@ describe("native currency summaries", () => {
 			{
 				categoryId: "salary",
 				categoryName: "Salary",
+				kind: "INCOME",
 				isIncome: true,
 				currencyCode: "INR",
 				credits: "50000",
@@ -149,6 +151,7 @@ describe("native currency summaries", () => {
 			{
 				categoryId: "rent",
 				categoryName: "Rent",
+				kind: "EXPENSE",
 				isIncome: false,
 				currencyCode: "INR",
 				credits: "13000",
@@ -158,6 +161,7 @@ describe("native currency summaries", () => {
 			{
 				categoryId: "consulting",
 				categoryName: "Consulting",
+				kind: "INCOME",
 				isIncome: true,
 				currencyCode: "USD",
 				credits: "100",
@@ -187,6 +191,7 @@ describe("native currency summaries", () => {
 			{
 				categoryId: "company-trip",
 				categoryName: "Company Trip",
+				kind: "EXPENSE",
 				isIncome: false,
 				currencyCode: "INR",
 				credits: "5000",

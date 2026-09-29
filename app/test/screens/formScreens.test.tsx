@@ -5,7 +5,6 @@ import type SelectFieldProps from "@/types/SelectFieldProps";
 import type SimpleEntityFormProps from "@/types/SimpleEntityFormProps";
 import type TextFieldProps from "@/types/TextFieldProps";
 import { isValidElement, type ReactElement } from "react";
-import type { SwitchProps } from "react-native";
 import {
 	afterEach,
 	beforeEach,
@@ -494,7 +493,7 @@ describe("form screens", () => {
 				save: "saveCategory",
 				savingIndex: 4,
 				errorIndex: 5,
-				values: { 2: true, 3: true },
+				values: { 2: "INCOME", 3: "INCOME" },
 			},
 			{
 				name: "trip",
@@ -518,6 +517,7 @@ describe("form screens", () => {
 		const entity = {
 			name: "Existing",
 			currencyCode: "USD",
+			kind: "INCOME",
 			isIncome: true,
 			label: "Long term",
 			investmentTypeId: "type",
@@ -630,7 +630,7 @@ describe("form screens", () => {
 					source: entityId
 						? [entityId, "Entered"]
 						: ["Entered", "USD"],
-					category: [entityId, "Entered", true],
+					category: [entityId, "Entered", "INCOME"],
 					trip: [entityId, "Entered", "trip-type"],
 					investment: [entityId, "Entered", "type", "platform"],
 				};
@@ -711,13 +711,16 @@ describe("form screens", () => {
 			},
 		);
 
-		it.each([true, false])(
-			"confirms category classification changes to income=%s before saving",
-			async (isIncome) => {
+		it.each([
+			["INCOME", "EXPENSE"],
+			["REFUND", "INCOME"],
+		] as const)(
+			"confirms category classification changes from %s to %s before saving",
+			async (originalKind, nextKind) => {
 				const setters = setStateValues({
 					1: "Category",
-					2: isIncome,
-					3: !isIncome,
+					2: nextKind,
+					3: originalKind,
 				});
 				const navigation = { goBack: vi.fn() };
 				const tree = (
@@ -744,14 +747,21 @@ describe("form screens", () => {
 					{ id: "db" },
 					"category",
 					"Category",
-					isIncome,
+					nextKind,
 				);
 				expect(navigation.goBack).toHaveBeenCalledOnce();
-				findElement<Required<Pick<SwitchProps, "onValueChange">>>(
+				findElement<{
+					onChange: (value: string) => void;
+					options: readonly { value?: string }[];
+				}>(
 					tree,
-					(props) => typeof props.onValueChange === "function",
-				).props.onValueChange?.(!isIncome);
-				expect(setters.get(2)).toHaveBeenLastCalledWith(!isIncome);
+					(props) =>
+						Array.isArray(props.options) &&
+						props.options.some(
+							(option) => option?.value === "REFUND",
+						),
+				).props.onChange("EXPENSE");
+				expect(setters.get(2)).toHaveBeenLastCalledWith("EXPENSE");
 			},
 		);
 

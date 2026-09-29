@@ -1,5 +1,6 @@
 const TRANSACTION_CLASSIFICATIONS = ["GENERAL", "INVESTMENT"] as const;
 const TRANSACTION_TYPES = ["DEBIT", "CREDIT", "TRANSFER"] as const;
+const CATEGORY_KINDS = ["EXPENSE", "INCOME", "REFUND"] as const;
 const BUDGET_PERIODS = ["MONTHLY", "YEARLY"] as const;
 const ANALYSIS_PERIODS = [
 	"MONTH",
@@ -22,6 +23,7 @@ const ATTACHMENT_OWNER_TYPES = [
 const RATE_SOURCES = ["API", "MANUAL"] as const;
 const DEFAULT_ANALYSIS_PERIOD = "MONTH" as const;
 const DEFAULT_BUDGET_PERIOD = "MONTHLY" as const;
+const DEFAULT_CATEGORY_KIND = "EXPENSE" as const;
 const DEFAULT_TRANSACTION_CLASSIFICATION = "GENERAL" as const;
 const DEFAULT_TRANSACTION_TYPE = "DEBIT" as const;
 const ANALYSIS_PERIOD_OPTIONS = [
@@ -54,11 +56,16 @@ const TRANSACTION_FILTER_OPTIONS = [
 	{ label: "General", value: "GENERAL" },
 	{ label: "Investment", value: "INVESTMENT" },
 ] as const;
-const CATEGORY_FILTER_OPTIONS = [
-	{ label: "All", value: "ALL" },
+const CATEGORY_KIND_OPTIONS = [
 	{ label: "Expense", value: "EXPENSE" },
 	{ label: "Income", value: "INCOME" },
+	{ label: "Refund", value: "REFUND" },
 ] as const;
+const CATEGORY_KIND_LABELS = {
+	EXPENSE: "Expense",
+	INCOME: "Income",
+	REFUND: "Refund",
+} as const;
 const SOURCE_FILTER_OPTIONS = [
 	{ label: "All", value: "ALL" },
 	{ label: "Validated", value: "VALIDATED" },
@@ -71,9 +78,12 @@ const financeConstants = {
 	ATTACHMENT_OWNER_TYPES,
 	BUDGET_PERIODS,
 	BUDGET_PERIOD_OPTIONS,
-	CATEGORY_FILTER_OPTIONS,
+	CATEGORY_KIND_LABELS,
+	CATEGORY_KIND_OPTIONS,
+	CATEGORY_KINDS,
 	DEFAULT_ANALYSIS_PERIOD,
 	DEFAULT_BUDGET_PERIOD,
+	DEFAULT_CATEGORY_KIND,
 	DEFAULT_TRANSACTION_CLASSIFICATION,
 	DEFAULT_TRANSACTION_TYPE,
 	GENERAL_TRANSACTION_TYPE_OPTIONS,
