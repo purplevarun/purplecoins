@@ -31,6 +31,10 @@ vi.mock("@/constants/appConstants", () => ({
 
 vi.mock("@/database/migrations", () => ({
 	default: ["FUTURE_MIGRATION_SQL"],
+	isIdempotentMigrationError: (error: unknown): boolean =>
+		error instanceof Error &&
+		(error.message.includes("duplicate column name") ||
+			error.message.includes("no such column")),
 }));
 
 vi.mock("@/database/schema", () => ({

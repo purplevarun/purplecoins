@@ -1,6 +1,8 @@
 import appConstants from "@/constants/appConstants";
 
-import SCHEMA_MIGRATIONS from "@/database/migrations";
+import SCHEMA_MIGRATIONS, {
+	isIdempotentMigrationError,
+} from "@/database/migrations";
 import SCHEMA_SQL from "@/database/schema";
 import { openDatabaseAsync, type SQLiteDatabase } from "expo-sqlite";
 
@@ -15,10 +17,7 @@ const initializeDatabase = async (): Promise<SQLiteDatabase> => {
 			try {
 				await database.execAsync(migration);
 			} catch (error) {
-				if (
-					!(error instanceof Error) ||
-					!error.message.includes("duplicate column name")
-				) {
+				if (!isIdempotentMigrationError(error)) {
 					throw error;
 				}
 			}

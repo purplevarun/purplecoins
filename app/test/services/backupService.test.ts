@@ -8,9 +8,6 @@ const mocks = vi.hoisted(() => ({
 		.mockResolvedValue({ canceled: true }),
 	isAvailableAsync: vi.fn(async () => true),
 	shareAsync: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
-	backupDatabaseAsync: vi
-		.fn<TestAsyncFunction>()
-		.mockResolvedValue(undefined),
 	openDatabaseAsync: vi.fn(),
 	fileBytes: vi.fn(async () => new Uint8Array([1, 2, 3])),
 	fileCreate: vi.fn<TestCallback>().mockReturnValue(undefined),
@@ -30,6 +27,10 @@ vi.mock("@/constants/appConstants", () => ({
 
 vi.mock("@/database/migrations", () => ({
 	default: ["FUTURE_MIGRATION_SQL"],
+	isIdempotentMigrationError: (error: unknown): boolean =>
+		error instanceof Error &&
+		(error.message.includes("duplicate column name") ||
+			error.message.includes("no such column")),
 }));
 
 vi.mock("@/database/schema", () => ({
@@ -46,7 +47,6 @@ vi.mock("expo-sharing", () => ({
 }));
 
 vi.mock("expo-sqlite", () => ({
-	backupDatabaseAsync: mocks.backupDatabaseAsync,
 	openDatabaseAsync: mocks.openDatabaseAsync,
 }));
 
@@ -93,12 +93,23 @@ import backupService from "@/services/backupService";
 
 const database = {
 	getFirstAsync: vi.fn(async () => ({ integrity: "ok" })),
+	getAllAsync: vi.fn<TestAsyncFunction>(),
 	serializeAsync: vi.fn(async () => new Uint8Array([5, 6])),
 	execAsync: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
+	withTransactionAsync: vi.fn(async (callback: () => Promise<void>) =>
+		callback(),
+	),
 } as any;
 
 const validTempDatabase = () => ({
 	closeAsync: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
+	getAllAsync: vi
+		.fn<TestAsyncFunction>()
+		.mockResolvedValue([
+			{ name: "transactions" },
+			{ name: "categories" },
+			{ name: "restore_only" },
+		]),
 	getFirstAsync: vi.fn(async () => ({ count: 5 })),
 	execAsync: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
 });
@@ -129,12 +140,14 @@ describe("backupService", () => {
 			await expect(backupService.restoreBackup(database)).resolves.toBe(
 				true,
 			);
-			expect(mocks.backupDatabaseAsync).toHaveBeenCalled();
+			expect(database.execAsync).toHaveBeenCalledWith(
+				expect.stringContaining("ATTACH DATABASE"),
+			);
 		} else {
 			await expect(backupService.restoreBackup(database)).rejects.toBe(
 				error,
 			);
-			expect(mocks.backupDatabaseAsync).not.toHaveBeenCalled();
+			expect(database.execAsync).not.toHaveBeenCalled();
 		}
 		expect(temp.closeAsync).toHaveBeenCalledOnce();
 	});
@@ -147,7 +160,6 @@ describe("backupService", () => {
 		mocks.getDocumentAsync.mockResolvedValue({ canceled: true });
 		mocks.isAvailableAsync.mockResolvedValue(true);
 		mocks.shareAsync.mockResolvedValue(undefined);
-		mocks.backupDatabaseAsync.mockResolvedValue(undefined);
 		mocks.fileBytes.mockResolvedValue(new Uint8Array([1, 2, 3]));
 		database.getFirstAsync.mockReset();
 		database.getFirstAsync.mockResolvedValue({ integrity: "ok" });
@@ -155,6 +167,21 @@ describe("backupService", () => {
 		database.serializeAsync.mockResolvedValue(new Uint8Array([5, 6]));
 		database.execAsync.mockReset();
 		database.execAsync.mockResolvedValue(undefined);
+		database.getAllAsync.mockReset();
+		database.getAllAsync.mockImplementation(async (sql: string) => {
+			if (sql.includes("sqlite_master")) {
+				return [{ name: "transactions" }, { name: "categories" }];
+			}
+			if (sql.includes("'categories'")) {
+				return sql.includes("'restore_source'")
+					? [{ name: "legacy_id" }]
+					: [{ name: "id" }];
+			}
+			return sql.includes("'restore_source'")
+				? [{ name: "id" }, { name: "amount" }, { name: "label" }]
+				: [{ name: "id" }, { name: "amount" }];
+		});
+		database.withTransactionAsync.mockClear();
 		mocks.tempFileStartsExisting = true;
 		mocks.tempFileExistsAfterCreate = true;
 		vi.useFakeTimers();
@@ -217,7 +244,7 @@ describe("backupService", () => {
 		).rejects.toMatchObject({
 			code: "INVALID_BACKUP_DATABASE",
 		});
-		expect(mocks.backupDatabaseAsync).not.toHaveBeenCalled();
+		expect(database.execAsync).not.toHaveBeenCalled();
 	});
 
 	it("accepts a backup extension with different casing", async () => {
@@ -237,11 +264,21 @@ describe("backupService", () => {
 			2,
 			"FUTURE_MIGRATION_SQL",
 		);
-		expect(mocks.backupDatabaseAsync).toHaveBeenCalledWith(
-			expect.objectContaining({
-				sourceDatabase: tempDatabase,
-				destDatabase: database,
-			}),
+		expect(database.execAsync).toHaveBeenCalledWith(
+			"ATTACH DATABASE 'doc-dir/restore-temp.db' AS restore_source;",
+		);
+		expect(database.withTransactionAsync).toHaveBeenCalledOnce();
+		expect(database.execAsync).toHaveBeenCalledWith(
+			'DELETE FROM main."transactions"; INSERT INTO main."transactions" ("id", "amount") SELECT "id", "amount" FROM restore_source."transactions";',
+		);
+		expect(database.execAsync).not.toHaveBeenCalledWith(
+			expect.stringContaining('"restore_only"'),
+		);
+		expect(database.execAsync).not.toHaveBeenCalledWith(
+			expect.stringContaining('"categories"'),
+		);
+		expect(database.execAsync).toHaveBeenCalledWith(
+			"DETACH DATABASE restore_source;",
 		);
 		expect(database.execAsync).toHaveBeenCalledWith(
 			"PRAGMA wal_checkpoint(TRUNCATE);",
@@ -260,9 +297,23 @@ describe("backupService", () => {
 		await expect(backupService.restoreBackup(database)).rejects.toThrow(
 			"schema failed",
 		);
-		expect(mocks.backupDatabaseAsync).not.toHaveBeenCalled();
 		expect(database.execAsync).not.toHaveBeenCalled();
 		expect(tempDatabase.closeAsync).toHaveBeenCalledOnce();
+	});
+
+	it("detaches the restore source when the table copy fails", async () => {
+		const tempDatabase = validTempDatabase();
+		mocks.openDatabaseAsync.mockResolvedValueOnce(tempDatabase);
+		selectBackup();
+		database.execAsync
+			.mockResolvedValueOnce(undefined)
+			.mockRejectedValueOnce(new Error("copy failed"));
+		await expect(backupService.restoreBackup(database)).rejects.toThrow(
+			"copy failed",
+		);
+		expect(database.execAsync).toHaveBeenCalledWith(
+			"DETACH DATABASE restore_source;",
+		);
 	});
 
 	it("cleans up conditionally when the temporary file was not created", async () => {

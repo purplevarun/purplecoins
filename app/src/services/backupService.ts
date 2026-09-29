@@ -1,18 +1,17 @@
 import * as DocumentPicker from "expo-document-picker";
 
 import appConstants from "@/constants/appConstants";
-import SCHEMA_MIGRATIONS from "@/database/migrations";
+import SCHEMA_MIGRATIONS, {
+	isIdempotentMigrationError,
+} from "@/database/migrations";
 import SCHEMA_SQL from "@/database/schema";
 import AppError from "@/errors/AppError";
 import type DatabaseCountRow from "@/types/DatabaseCountRow";
 import type DatabaseIntegrityResult from "@/types/DatabaseIntegrityResult";
+import type SqliteTableRow from "@/types/SqliteTableRow";
 import { File, Paths } from "expo-file-system";
 import * as Sharing from "expo-sharing";
-import {
-	backupDatabaseAsync,
-	openDatabaseAsync,
-	type SQLiteDatabase,
-} from "expo-sqlite";
+import { openDatabaseAsync, type SQLiteDatabase } from "expo-sqlite";
 
 const { APP_NAME, BACKUP_EXTENSION, BACKUP_MIME_TYPE } = appConstants;
 
@@ -94,18 +93,61 @@ const restoreBackup = async (database: SQLiteDatabase): Promise<boolean> => {
 			try {
 				await tempDatabase.execAsync(migration);
 			} catch (error) {
-				if (
-					!(error instanceof Error) ||
-					!error.message.includes("duplicate column name")
-				) {
+				if (!isIdempotentMigrationError(error)) {
 					throw error;
 				}
 			}
 		}
-		await backupDatabaseAsync({
-			sourceDatabase: tempDatabase,
-			destDatabase: database,
-		});
+		const tempTables = await tempDatabase.getAllAsync<SqliteTableRow>(
+			`SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%';`,
+		);
+		const mainTables = new Set(
+			(
+				await database.getAllAsync<SqliteTableRow>(
+					`SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%';`,
+				)
+			).map((row) => row.name),
+		);
+		const tempPath = tempFile.uri
+			.replace(/^file:\/\//, "")
+			.replace(/'/g, "''");
+		await database.execAsync(
+			`ATTACH DATABASE '${tempPath}' AS restore_source;`,
+		);
+		try {
+			await database.withTransactionAsync(async () => {
+				for (const { name } of tempTables) {
+					if (!mainTables.has(name)) continue;
+					const escaped = name
+						.replace(/"/g, '""')
+						.replace(/'/g, "''");
+					const mainColumns = new Set(
+						(
+							await database.getAllAsync<SqliteTableRow>(
+								`SELECT name FROM pragma_table_info('${escaped}', 'main');`,
+							)
+						).map((column) => column.name),
+					);
+					const sharedColumns = (
+						await database.getAllAsync<SqliteTableRow>(
+							`SELECT name FROM pragma_table_info('${escaped}', 'restore_source');`,
+						)
+					)
+						.map((column) => column.name)
+						.filter((column) => mainColumns.has(column));
+					if (sharedColumns.length === 0) continue;
+					const quotedTable = `"${escaped}"`;
+					const columnList = sharedColumns
+						.map((column) => `"${column.replace(/"/g, '""')}"`)
+						.join(", ");
+					await database.execAsync(
+						`DELETE FROM main.${quotedTable}; INSERT INTO main.${quotedTable} (${columnList}) SELECT ${columnList} FROM restore_source.${quotedTable};`,
+					);
+				}
+			});
+		} finally {
+			await database.execAsync("DETACH DATABASE restore_source;");
+		}
 
 		await database.execAsync("PRAGMA wal_checkpoint(TRUNCATE);");
 
