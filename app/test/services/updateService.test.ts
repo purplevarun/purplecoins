@@ -177,6 +177,34 @@ describe("updateService", () => {
 		);
 	});
 
+	it("skips releases without a valid APK when reading the release list", async () => {
+		setFetchResponse([
+			release({
+				name: "zip-2026.09.28",
+				tag_name: "zip-2026.09.28",
+				assets: [apk("New.Folder.With.Items.zip")],
+			}),
+			release(),
+		]);
+		await expect(
+			updateService.checkForUpdate("2026.9.21"),
+		).resolves.toMatchObject({ version: "2026.9.22" });
+		setFetchResponse([
+			release({
+				name: "zip-2026.09.28",
+				tag_name: "zip-2026.09.28",
+				assets: [apk("New.Folder.With.Items.zip")],
+			}),
+		]);
+		await expect(updateService.checkForUpdate("2026.9.21")).rejects.toThrow(
+			"release name",
+		);
+		setFetchResponse([]);
+		await expect(updateService.checkForUpdate("2026.9.21")).rejects.toThrow(
+			"latest release",
+		);
+	});
+
 	it("reports GitHub failures and invalid app versions", async () => {
 		setFetchResponse({}, 503);
 		await expect(updateService.checkForUpdate("2026.9.21")).rejects.toThrow(

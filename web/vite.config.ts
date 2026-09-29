@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
-import { fetchLatestRelease, parseRelease } from './src/release.js'
+import { fetchLatestRelease, parseLatestRelease } from './src/release.js'
 
 export default defineConfig(async () => {
   const headers: Record<string, string> = {}
@@ -9,7 +9,7 @@ export default defineConfig(async () => {
     headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`
   }
   const release = process.env.GITHUB_RELEASE_JSON
-    ? parseRelease(JSON.parse(process.env.GITHUB_RELEASE_JSON))
+    ? parseLatestRelease(JSON.parse(process.env.GITHUB_RELEASE_JSON))
     : await fetchLatestRelease({
         headers,
         signal: AbortSignal.timeout(15000),

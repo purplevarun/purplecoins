@@ -5,7 +5,7 @@ export type { default as Release } from './types/Release.js'
 
 export const REPOSITORY = 'purplevarun/purplecoins'
 export const REPOSITORY_URL = `https://github.com/${REPOSITORY}`
-export const RELEASE_API = `https://api.github.com/repos/${REPOSITORY}/releases/latest`
+export const RELEASE_API = `https://api.github.com/repos/${REPOSITORY}/releases?per_page=10`
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
@@ -74,6 +74,19 @@ export function parseRelease(value: unknown): Release {
   }
 }
 
+export function parseLatestRelease(value: unknown): Release {
+  const candidates = Array.isArray(value) ? value : [value]
+  let lastError: unknown = new Error('No release could be read.')
+  for (const candidate of candidates) {
+    try {
+      return parseRelease(candidate)
+    } catch (error) {
+      lastError = error
+    }
+  }
+  throw lastError
+}
+
 export async function fetchLatestRelease(options: RequestInit = {}): Promise<Release> {
   const response = await fetch(RELEASE_API, {
     ...options,
@@ -87,5 +100,5 @@ export async function fetchLatestRelease(options: RequestInit = {}): Promise<Rel
     throw new Error(`GitHub release request failed (${response.status}).`)
   }
 
-  return parseRelease(await response.json())
+  return parseLatestRelease(await response.json())
 }

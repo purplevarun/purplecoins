@@ -1,6 +1,11 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { fetchLatestRelease, parseRelease, RELEASE_API } from '../src/release.ts'
+import {
+  fetchLatestRelease,
+  parseLatestRelease,
+  parseRelease,
+  RELEASE_API,
+} from '../src/release.ts'
 
 const asset = (name = 'com.purple.coins_2026.8.29.apk') => ({
   name,
@@ -100,7 +105,7 @@ test('fetches the latest stable release without browser credentials', async (con
     assert.equal(url, RELEASE_API)
     assert.equal(options.headers.Accept, 'application/vnd.github+json')
     assert.equal(options.headers.Authorization, undefined)
-    return Response.json(release())
+    return Response.json([release()])
   })
   assert.equal((await fetchLatestRelease()).version, '2026.8.29')
 })
@@ -108,4 +113,16 @@ test('fetches the latest stable release without browser credentials', async (con
 test('reports API failures instead of returning a broken download URL', async (context) => {
   context.mock.method(globalThis, 'fetch', async () => new Response(null, { status: 403 }))
   await assert.rejects(fetchLatestRelease(), /403/)
+})
+
+test('skips releases without a valid APK when reading the release list', () => {
+  const junk = release({
+    tag_name: 'zip-2026.09.28',
+    published_at: '2026-09-28T08:50:27Z',
+    assets: [{ ...asset(), name: 'New.Folder.With.Items.zip' }],
+  })
+  const result = parseLatestRelease([junk, release()])
+  assert.equal(result.version, '2026.8.29')
+  assert.throws(() => parseLatestRelease([junk]), /APK/)
+  assert.throws(() => parseLatestRelease([]), /could be read/)
 })

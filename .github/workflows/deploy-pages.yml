@@ -51,7 +51,7 @@ jobs:
               env:
                   GH_TOKEN: ${{ github.token }}
               run: |
-                  GITHUB_RELEASE_JSON="$(gh api "repos/$GITHUB_REPOSITORY/releases/latest")" bun run build
+                  GITHUB_RELEASE_JSON="$(gh api "repos/$GITHUB_REPOSITORY/releases?per_page=10")" bun run build
 
             - name: Upload Pages artifact
               uses: actions/upload-pages-artifact@v5

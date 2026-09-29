@@ -117,8 +117,21 @@ const checkForUpdate = async (
 			`Could not check for updates (${response.status}).`,
 		);
 	}
-	const release = parseRelease(await response.json());
-	return release.version === current ? null : release;
+	const payload: unknown = await response.json();
+	const candidates = Array.isArray(payload) ? payload : [payload];
+	let lastError: unknown = new AppError(
+		"UPDATE_RELEASE_INVALID",
+		"The latest release could not be read.",
+	);
+	for (const candidate of candidates) {
+		try {
+			const release = parseRelease(candidate);
+			return release.version === current ? null : release;
+		} catch (error) {
+			lastError = error;
+		}
+	}
+	throw lastError;
 };
 
 const getUpdateFile = (release: AppRelease): File =>
