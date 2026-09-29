@@ -511,7 +511,7 @@ describe("SettingsScreen", () => {
 			).not.toHaveBeenCalled();
 			expect(setIsUpdating).toHaveBeenLastCalledWith(false);
 			expect(String(JSON.stringify(tree))).toContain(
-				"where the APK is saved",
+				"Get the latest APK from GitHub.",
 			);
 			hookMocks.confirm.mock.calls[0]?.[0].onConfirm();
 			await flush();

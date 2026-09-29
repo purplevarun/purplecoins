@@ -20,6 +20,7 @@ import settingsService from "@/services/settingsService";
 import sourceService from "@/services/sourceService";
 import tripService from "@/services/tripService";
 import updateService from "@/services/updateService";
+import type NoticeScope from "@/types/NoticeScope";
 import type SelectOption from "@/types/SelectOption";
 import type SettingsScreenProps from "@/types/SettingsScreenProps";
 import type Source from "@/types/Source";
@@ -44,8 +45,6 @@ const { checkForUpdate, downloadAndInstallUpdate, isUpdateDownloaded } =
 	updateService;
 
 const { DEFAULT_FY_START_MONTH, MONTH_OPTIONS } = dateConstants;
-
-type NoticeScope = "top" | "update" | "config" | "backup";
 
 const getFyEndMonthLabel = (startMonth: number): string => {
 	const endMonth = startMonth === 1 ? 12 : startMonth - 1;
@@ -139,34 +138,22 @@ const SettingsScreen = ({
 		}
 	};
 
-	const handleRestore = (): void => {
-		dialog.confirm({
-			title: "Restore backup?",
-			message:
-				"This replaces every record currently stored on this phone.",
-			confirmLabel: "Choose backup",
-			variant: "danger",
-			onConfirm: () => {
-				const processRestore = async (): Promise<void> => {
-					setIsWorking(true);
-					setNoticeScope("backup");
-					setError("");
-					setMessage("");
-					try {
-						const wasRestored = await restoreBackup(database);
-						if (wasRestored) {
-							refreshData();
-							setMessage("Backup restored successfully.");
-						}
-					} catch (caughtError: unknown) {
-						setError(getErrorMessage(caughtError));
-					} finally {
-						setIsWorking(false);
-					}
-				};
-				void processRestore();
-			},
-		});
+	const handleRestore = async (): Promise<void> => {
+		setIsWorking(true);
+		setNoticeScope("backup");
+		setError("");
+		setMessage("");
+		try {
+			const wasRestored = await restoreBackup(database);
+			if (wasRestored) {
+				refreshData();
+				setMessage("Backup restored successfully.");
+			}
+		} catch (caughtError: unknown) {
+			setError(getErrorMessage(caughtError));
+		} finally {
+			setIsWorking(false);
+		}
 	};
 
 	const handleCheckForUpdate = async (): Promise<void> => {
@@ -257,9 +244,7 @@ const SettingsScreen = ({
 					{renderNotice("update")}
 					<CustomText style={styles.heading}>App update</CustomText>
 					<CustomText style={styles.description}>
-						Check GitHub for the latest Purplecoins APK. You pick
-						where the APK is saved, then Android may ask you to
-						allow installs from Purplecoins.
+						Get the latest APK from GitHub.
 					</CustomText>
 					<AppButton
 						icon="cloud-download-outline"
@@ -375,7 +360,7 @@ const SettingsScreen = ({
 						icon="download-outline"
 						isDisabled={isWorking}
 						label="Restore .purplecoins"
-						onPress={handleRestore}
+						onPress={() => void handleRestore()}
 						variant="secondary"
 					/>
 				</View>
