@@ -182,7 +182,7 @@ const saveUpdateToUserDirectory = async (
 	} catch (caughtError: unknown) {
 		await FileSystem.StorageAccessFramework.deleteAsync(uri, {
 			idempotent: true,
-		}).catch(() => {});
+		}).catch(() => undefined);
 		throw caughtError;
 	}
 	return uri;
