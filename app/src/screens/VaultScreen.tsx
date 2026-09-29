@@ -90,9 +90,12 @@ const getVaultListData = (
 		.map((entry) => ({ kind: "IDENTITY" as const, entry }));
 };
 
+const maskValue = (value: string): string => value.replace(/\S/g, "•");
+
 const CopyRow = ({
 	label,
 	value,
+	isMasked = false,
 	onCopy,
 }: CopyRowProps): React.JSX.Element | null => {
 	if (!value) return null;
@@ -100,18 +103,22 @@ const CopyRow = ({
 		<View style={styles.copyRow}>
 			<View style={styles.copyDetails}>
 				<CustomText style={styles.copyLabel}>{label}</CustomText>
-				<CustomText style={styles.copyValue}>{value}</CustomText>
+				<CustomText style={styles.copyValue}>
+					{isMasked ? maskValue(value) : value}
+				</CustomText>
 			</View>
-			<Pressable
-				onPress={() => onCopy(value, label)}
-				style={styles.copyBtn}
-			>
-				<Ionicons
-					color={COLORS.primaryBright}
-					name="copy-outline"
-					size={16}
-				/>
-			</Pressable>
+			{onCopy ? (
+				<Pressable
+					onPress={() => onCopy(value, label)}
+					style={styles.copyBtn}
+				>
+					<Ionicons
+						color={COLORS.primaryBright}
+						name="copy-outline"
+						size={16}
+					/>
+				</Pressable>
+			) : null}
 		</View>
 	);
 };
@@ -129,6 +136,9 @@ const VaultScreen = ({
 	const [search, setSearch] = useState("");
 	const [error, setError] = useState("");
 	const [message, setMessage] = useState("");
+	const [revealedIds, setRevealedIds] = useState<ReadonlySet<string>>(
+		new Set(),
+	);
 
 	const getScreenData = useCallback(async (): Promise<void> => {
 		try {
@@ -160,6 +170,18 @@ const VaultScreen = ({
 		},
 		[],
 	);
+
+	const toggleRevealed = useCallback((entryId: string): void => {
+		setRevealedIds((current) => {
+			const next = new Set(current);
+			if (next.has(entryId)) {
+				next.delete(entryId);
+			} else {
+				next.add(entryId);
+			}
+			return next;
+		});
+	}, []);
 
 	const handleDelete = useCallback(
 		(id: string, label: string, vaultKind: VaultKind): void => {
@@ -207,6 +229,7 @@ const VaultScreen = ({
 		({ item }: ListItemProps<VaultListItem>): React.JSX.Element => {
 			if (item.kind === "PASSWORD") {
 				const entry = item.entry;
+				const isRevealed = revealedIds.has(entry.id);
 				return (
 					<Pressable
 						onPress={() =>
@@ -238,11 +261,31 @@ const VaultScreen = ({
 									</CustomText>
 								</View>
 							</View>
+							{entry.password ? (
+								<View style={styles.cardFields}>
+									<CopyRow
+										isMasked={!isRevealed}
+										label="Password"
+										value={entry.password}
+									/>
+								</View>
+							) : null}
 							<View style={styles.actions}>
+								<AppButton
+									icon={
+										isRevealed
+											? "eye-off-outline"
+											: "eye-outline"
+									}
+									isCompact
+									label={isRevealed ? "Hide" : "View"}
+									onPress={() => toggleRevealed(entry.id)}
+									variant="secondary"
+								/>
 								<AppButton
 									icon="copy-outline"
 									isCompact
-									label="Copy password"
+									label="Copy"
 									onPress={() =>
 										void handleCopy(
 											entry.password,
@@ -271,6 +314,7 @@ const VaultScreen = ({
 			}
 			if (item.kind === "CARD") {
 				const entry = item.entry;
+				const isRevealed = revealedIds.has(entry.id);
 				return (
 					<Pressable
 						onPress={() =>
@@ -305,35 +349,46 @@ const VaultScreen = ({
 										size={16}
 									/>
 								) : null}
+								<Pressable
+									accessibilityLabel={
+										isRevealed
+											? "Hide card details"
+											: "Show card details"
+									}
+									onPress={() => toggleRevealed(entry.id)}
+									style={styles.revealBtn}
+								>
+									<Ionicons
+										color={COLORS.primaryBright}
+										name={
+											isRevealed
+												? "eye-off-outline"
+												: "eye-outline"
+										}
+										size={20}
+									/>
+								</Pressable>
 							</View>
 							<View style={styles.cardFields}>
 								<CopyRow
+									isMasked={!isRevealed}
 									label="Card number"
 									onCopy={(v, l) => void handleCopy(v, l)}
 									value={entry.cardNumber}
 								/>
-								{entry.expiry ? (
-									<View style={styles.copyRow}>
-										<View style={styles.copyDetails}>
-											<CustomText
-												style={styles.copyLabel}
-											>
-												Expiry
-											</CustomText>
-											<CustomText
-												style={styles.copyValue}
-											>
-												{entry.expiry}
-											</CustomText>
-										</View>
-									</View>
-								) : null}
 								<CopyRow
+									isMasked={!isRevealed}
+									label="Expiry"
+									value={entry.expiry}
+								/>
+								<CopyRow
+									isMasked={!isRevealed}
 									label="CVV"
 									onCopy={(v, l) => void handleCopy(v, l)}
 									value={entry.cvv}
 								/>
 								<CopyRow
+									isMasked={!isRevealed}
 									label="PIN"
 									onCopy={(v, l) => void handleCopy(v, l)}
 									value={entry.pin}
@@ -410,7 +465,7 @@ const VaultScreen = ({
 				</Pressable>
 			);
 		},
-		[handleCopy, handleDelete, navigation],
+		[handleCopy, handleDelete, navigation, revealedIds, toggleRevealed],
 	);
 
 	const listHeader = useMemo(
@@ -532,6 +587,9 @@ const styles = StyleSheet.create({
 	copyBtn: {
 		padding: SPACING.S8,
 	},
+	revealBtn: {
+		padding: SPACING.S8,
+	},
 });
 
 export default VaultScreen;
@@ -544,4 +602,5 @@ export {
 	getPasswordSubtitle,
 	getVaultFormParams,
 	getVaultListData,
+	maskValue,
 };

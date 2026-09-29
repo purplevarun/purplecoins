@@ -126,6 +126,7 @@ import VaultScreen, {
 	getPasswordSubtitle,
 	getVaultFormParams,
 	getVaultListData,
+	maskValue,
 } from "@/screens/VaultScreen";
 
 const flush = async (): Promise<void> => {
@@ -232,7 +233,7 @@ describe("VaultScreen", () => {
 		findByPredicate(
 			renderedItem,
 			(node) =>
-				node?.props?.label === "Copy password" &&
+				node?.props?.label === "Copy" &&
 				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		findByPredicate(
@@ -486,6 +487,25 @@ describe("VaultScreen", () => {
 		)[0];
 		copyButton.props.onPress();
 		expect(onCopy).toHaveBeenCalledWith("1234", "PIN");
+
+		expect(maskValue("12 34")).toBe("•• ••");
+		const maskedRow = CopyRow({
+			label: "PIN",
+			value: "1234",
+			isMasked: true,
+		}) as any;
+		expect(
+			findByPredicate(
+				maskedRow,
+				(node) => node?.props?.children === "••••",
+			),
+		).toHaveLength(1);
+		expect(
+			findByPredicate(
+				maskedRow,
+				(node) => typeof node?.props?.onPress === "function",
+			),
+		).toHaveLength(0);
 	});
 
 	it("covers row navigation callbacks, keyExtractor, and floating add action", async () => {
@@ -797,5 +817,158 @@ describe("VaultScreen", () => {
 		expect(String(JSON.stringify(identityRow) ?? "")).toContain(
 			'"name":"attach"',
 		);
+	});
+
+	it("masks card details until the eye toggle reveals them", async () => {
+		const navigation = { navigate: vi.fn() };
+		const setRevealedIds = vi.fn();
+		const entry = {
+			id: "c1",
+			name: "Visa",
+			cardType: "CREDIT_CARD",
+			cardNumber: "4111 1111",
+			expiry: "12/30",
+			cvv: "111",
+			pin: "0000",
+			network: "VISA",
+			hasAttachment: false,
+		};
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 2) return [[entry], vi.fn()];
+			if (call === 7) return [new Set(), setRevealedIds];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		const tree = VaultScreen({
+			navigation,
+			route: { key: "cm", name: "Vault", params: { kind: "CARD" } },
+		} as any);
+		await flush();
+
+		const list = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
+		const row = list.props.renderItem({ item: { kind: "CARD", entry } });
+		expect(
+			findByPredicate(row, (node) => node?.props?.isMasked === true),
+		).toHaveLength(4);
+		findByPredicate(
+			row,
+			(node) => node?.props?.accessibilityLabel === "Show card details",
+		)[0]?.props?.onPress();
+		const updater = setRevealedIds.mock.calls[0]?.[0] as (
+			current: ReadonlySet<string>,
+		) => ReadonlySet<string>;
+		expect(updater(new Set())).toEqual(new Set(["c1"]));
+		expect(updater(new Set(["c1"]))).toEqual(new Set());
+	});
+
+	it("shows card and password details when revealed", async () => {
+		const navigation = { navigate: vi.fn() };
+		const card = {
+			id: "c1",
+			name: "Visa",
+			cardType: "CREDIT_CARD",
+			cardNumber: "4111 1111",
+			expiry: "12/30",
+			cvv: "111",
+			pin: "0000",
+			network: "VISA",
+			hasAttachment: false,
+		};
+		const password = {
+			id: "p1",
+			title: "Github",
+			username: "u",
+			website: "",
+			password: "secret",
+			updatedAt: 10,
+		};
+		let call = 0;
+		reactMocks.useState.mockImplementation((initial: any) => {
+			call += 1;
+			if (call === 1) return [[password], vi.fn()];
+			if (call === 2) return [[card], vi.fn()];
+			if (call === 7 || call === 14)
+				return [new Set(["c1", "p1"]), vi.fn()];
+			return [
+				typeof initial === "function" ? initial() : initial,
+				vi.fn(),
+			];
+		});
+
+		const cardTree = VaultScreen({
+			navigation,
+			route: { key: "cr", name: "Vault", params: { kind: "CARD" } },
+		} as any);
+		await flush();
+		const cardList = findByPredicate(
+			cardTree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
+		const cardRow = cardList.props.renderItem({
+			item: { kind: "CARD", entry: card },
+		});
+		expect(
+			findByPredicate(cardRow, (node) => node?.props?.isMasked === false),
+		).toHaveLength(4);
+		expect(
+			findByPredicate(
+				cardRow,
+				(node) =>
+					node?.props?.accessibilityLabel === "Hide card details",
+			),
+		).toHaveLength(1);
+
+		const passwordTree = VaultScreen({
+			navigation,
+			route: {
+				key: "pr",
+				name: "Vault",
+				params: { kind: "PASSWORD" },
+			},
+		} as any);
+		await flush();
+		const passwordList = findByPredicate(
+			passwordTree,
+			(node) => typeof node?.props?.renderItem === "function",
+		)[0];
+		const passwordRow = passwordList.props.renderItem({
+			item: { kind: "PASSWORD", entry: password },
+		});
+		expect(
+			findByPredicate(
+				passwordRow,
+				(node) =>
+					node?.props?.label === "Password" &&
+					node?.props?.isMasked === false &&
+					node?.props?.value === "secret",
+			),
+		).toHaveLength(1);
+		const viewButton = findByPredicate(
+			passwordRow,
+			(node) => node?.props?.label === "Hide",
+		)[0];
+		expect(viewButton?.props?.icon).toBe("eye-off-outline");
+		viewButton?.props?.onPress();
+
+		const passwordlessRow = passwordList.props.renderItem({
+			item: {
+				kind: "PASSWORD",
+				entry: { ...password, password: "" },
+			},
+		});
+		expect(
+			findByPredicate(
+				passwordlessRow,
+				(node) => node?.props?.label === "Password",
+			),
+		).toHaveLength(0);
 	});
 });
