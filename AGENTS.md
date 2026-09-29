@@ -24,6 +24,14 @@ Examples:
     ./run build
     ```
 
+# Database Rules
+
+1. No PRAGMA
+2. No Constraints, No Checks
+3. DDL will be very simple - just the tables and indexes
+4. Any new migration will be added to migrations file and also in the default schema for new installs!
+5. 
+
 # Scope Control
 
 - Make the minimum change required to satisfy the request.
