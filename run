@@ -130,9 +130,11 @@ run_test() {
   if command -v bun >/dev/null 2>&1; then
     bun run typecheck
     bun run test --coverage
+    bun run lint
   else
     npm run typecheck
     npm run test -- --coverage
+    npm run lint
   fi
 }
 
