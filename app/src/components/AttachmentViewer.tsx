@@ -59,8 +59,16 @@ const AttachmentViewer = ({
 	);
 };
 
-const { ALIGN, FLEX, FONT_SIZE, FONT_WEIGHT, POSITION, SPACING } =
-	styleConstants;
+const {
+	ALIGN,
+	BORDER,
+	FLEX,
+	FONT_SIZE,
+	FONT_WEIGHT,
+	POSITION,
+	RADIUS,
+	SPACING,
+} = styleConstants;
 
 const styles = StyleSheet.create({
 	overlay: {
@@ -75,6 +83,11 @@ const styles = StyleSheet.create({
 		flexDirection: FLEX.ROW,
 		alignItems: ALIGN.CENTER,
 		gap: SPACING.S10,
+		padding: SPACING.S10,
+		borderRadius: RADIUS.S16,
+		borderWidth: BORDER.THIN,
+		borderColor: COLORS.border,
+		backgroundColor: COLORS.glass,
 	},
 	title: {
 		flex: FLEX.FILL,
@@ -89,6 +102,7 @@ const styles = StyleSheet.create({
 	},
 	preview: {
 		flex: FLEX.FILL,
+		alignSelf: FLEX.STRETCH,
 	},
 	fallback: {
 		padding: SPACING.S24,

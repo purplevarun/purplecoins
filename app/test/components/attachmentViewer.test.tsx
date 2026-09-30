@@ -66,6 +66,7 @@ describe("AttachmentViewer", () => {
 
 		const pdf = findByPredicate(tree, (node) => node?.type === "Pdf")[0];
 		expect(pdf.props.source).toEqual({ uri: "file:///cache/report.pdf" });
+		expect(pdf.props.style).toMatchObject({ alignSelf: "stretch" });
 	});
 
 	it("renders a fallback for unsupported types and closes", () => {
