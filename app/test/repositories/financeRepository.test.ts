@@ -261,7 +261,7 @@ describe("financeRepository", () => {
 		expect(sql).toContain(
 			"INNER JOIN transactions t ON t.id = item.transaction_id",
 		);
-		expect(sql).toContain("WHERE COALESCE(category.archived, 0) = 0");
+		expect(sql).not.toContain("archived");
 		expect(sql.match(/t\.transaction_at BETWEEN \? AND \?/g)).toHaveLength(
 			2,
 		);
@@ -290,7 +290,7 @@ describe("financeRepository", () => {
 		);
 		const sql = getAllAsync.mock.calls[0]?.[0] as string;
 		expect(sql).toContain("t.classification = 'INVESTMENT'");
-		expect(sql).toContain("COALESCE(investment.archived, 0) = 0");
+		expect(sql).not.toContain("archived");
 		expect(sql).toContain("t.transaction_at BETWEEN ? AND ?");
 	});
 

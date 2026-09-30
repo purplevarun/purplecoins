@@ -791,7 +791,6 @@ const getCategoryAnalysisRows = async (
 				AND t.transaction_at BETWEEN ? AND ?
 		) allocation
 		INNER JOIN categories category ON category.id = allocation.categoryId
-		WHERE COALESCE(category.archived, 0) = 0
 		GROUP BY category.id, allocation.currencyCode
 		ORDER BY category.id, allocation.currencyCode;
 	`,
@@ -818,7 +817,6 @@ const getInvestmentAnalysisRows = async (
 		INNER JOIN investments investment ON investment.id = t.investment_id
 		INNER JOIN sources source ON source.id = t.source_id
 		WHERE t.classification = 'INVESTMENT'
-			AND COALESCE(investment.archived, 0) = 0
 			AND t.transaction_at BETWEEN ? AND ?
 		GROUP BY investment.id, source.currency_code
 		ORDER BY investment.id, source.currency_code;
