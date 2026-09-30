@@ -7,6 +7,7 @@ type UseAttachmentResult = Readonly<{
 	isRemoved: boolean;
 	handlePick: () => Promise<void>;
 	handleOpen: () => Promise<string | null>;
+	handleSend: () => Promise<void>;
 	handleRemove: () => void;
 	processAttachment: (ownerId: string) => Promise<void>;
 }>;

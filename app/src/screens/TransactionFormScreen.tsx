@@ -593,19 +593,7 @@ const TransactionFormScreen = ({
 					<AttachmentField
 						existingAttachment={attachment.existingAttachment}
 						isRemoved={attachment.isRemoved}
-						onSend={async () => {
-							const uri = await attachment.handleOpen();
-							if (uri) {
-								const Sharing = await import("expo-sharing");
-								if (await Sharing.isAvailableAsync()) {
-									await Sharing.shareAsync(uri, {
-										dialogTitle:
-											attachment.existingAttachment
-												?.fileName,
-									});
-								}
-							}
-						}}
+						onSend={() => void attachment.handleSend()}
 						onView={attachment.handleOpen}
 						onPick={() => void attachment.handlePick()}
 						onRemove={attachment.handleRemove}

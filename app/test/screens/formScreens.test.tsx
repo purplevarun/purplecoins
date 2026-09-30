@@ -61,15 +61,11 @@ const hookMocks = vi.hoisted(() => ({
 	confirm: vi.fn(),
 	processAttachment: vi.fn(),
 	handleOpen: vi.fn(),
+	handleSend: vi.fn(),
 	handlePick: vi.fn(),
 	handleRemove: vi.fn(),
 	handleCreateFolder: vi.fn(),
 }));
-const sharingMocks = vi.hoisted(() => ({
-	isAvailableAsync: vi.fn(),
-	shareAsync: vi.fn(),
-}));
-vi.mock("expo-sharing", () => sharingMocks);
 
 vi.mock("react", async (importOriginal) => {
 	const actual = await importOriginal<typeof import("react")>();
@@ -148,6 +144,7 @@ vi.mock("@/hooks/useAttachment", () => ({
 		pendingAttachment: null,
 		processAttachment: hookMocks.processAttachment,
 		handleOpen: hookMocks.handleOpen,
+		handleSend: hookMocks.handleSend,
 		handlePick: hookMocks.handlePick,
 		handleRemove: hookMocks.handleRemove,
 	}),
@@ -258,21 +255,6 @@ const flush = async (): Promise<void> => {
 	await Promise.resolve();
 };
 
-const findByType = (node: any, type: string, acc: any[] = []): any[] => {
-	if (!node) return acc;
-	if (Array.isArray(node)) {
-		node.forEach((child) => findByType(child, type, acc));
-		return acc;
-	}
-	if (node.type === type) acc.push(node);
-	if (node.props) {
-		Object.values(node.props).forEach((value) =>
-			findByType(value, type, acc),
-		);
-	}
-	return acc;
-};
-
 const findByPredicate = (
 	node: any,
 	predicate: (candidate: any) => boolean,
@@ -293,32 +275,24 @@ const findByPredicate = (
 };
 
 describe("form screens", () => {
-	it.each([true, false])(
-		"opens attachment URIs when sharing is available=%s",
-		async (available) => {
-			hookMocks.handleOpen.mockResolvedValue("file://preview");
-			sharingMocks.isAvailableAsync.mockResolvedValue(available);
-			sharingMocks.shareAsync.mockClear();
-			for (const Screen of [
-				NoteFormScreen,
-				TodoFormScreen,
-				VaultFormScreen,
-			]) {
-				const tree = (Screen as (props: unknown) => ReactElement)({
-					navigation: { goBack: vi.fn() },
-					route: { params: { kind: "CARD" } },
-				});
-				const field = findByPredicate(
-					tree,
-					(node) => typeof node?.props?.onSend === "function",
-				)[0];
-				await field.props.onSend();
-			}
-			expect(sharingMocks.shareAsync).toHaveBeenCalledTimes(
-				available ? 3 : 0,
-			);
-		},
-	);
+	it("delegates attachment send to the attachment hook", async () => {
+		for (const Screen of [
+			NoteFormScreen,
+			TodoFormScreen,
+			VaultFormScreen,
+		]) {
+			const tree = (Screen as (props: unknown) => ReactElement)({
+				navigation: { goBack: vi.fn() },
+				route: { params: { kind: "CARD" } },
+			});
+			const field = findByPredicate(
+				tree,
+				(node) => typeof node?.props?.onSend === "function",
+			)[0];
+			await field.props.onSend();
+		}
+		expect(hookMocks.handleSend).toHaveBeenCalledTimes(3);
+	});
 	beforeEach(() => {
 		reactMocks.useEffect.mockReset();
 		reactMocks.useState.mockReset();

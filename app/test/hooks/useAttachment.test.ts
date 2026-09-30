@@ -26,6 +26,11 @@ const useDatabaseContextMock = vi.hoisted(() =>
 	})),
 );
 
+const sharingMocks = vi.hoisted(() => ({
+	isAvailableAsync: vi.fn<TestAsyncFunction>().mockResolvedValue(true),
+	shareAsync: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
+}));
+
 vi.mock("react", () => ({
 	useEffect: reactMocks.useEffect,
 	useState: reactMocks.useState,
@@ -38,6 +43,8 @@ vi.mock("@/services/attachmentService", () => ({
 vi.mock("@/hooks/useDatabaseContext", () => ({
 	default: useDatabaseContextMock,
 }));
+
+vi.mock("expo-sharing", () => sharingMocks);
 
 import useAttachment from "@/hooks/useAttachment";
 
@@ -66,6 +73,8 @@ describe("useAttachment", () => {
 		Object.values(attachmentServiceMocks).forEach((mockFn) =>
 			mockFn.mockClear(),
 		);
+		Object.values(sharingMocks).forEach((mockFn) => mockFn.mockClear());
+		sharingMocks.isAvailableAsync.mockResolvedValue(true);
 		useDatabaseContextMock.mockClear();
 	});
 
@@ -121,6 +130,38 @@ describe("useAttachment", () => {
 		result.handleRemove();
 		expect(setters.setPendingAttachment).toHaveBeenCalledWith(null);
 		expect(setters.setIsRemoved).toHaveBeenCalledWith(true);
+	});
+
+	it("shares the opened attachment when sharing is available", async () => {
+		setHookState({ id: "a1", fileName: "rent.pdf" }, null, false);
+		attachmentServiceMocks.openAttachment.mockResolvedValueOnce(
+			"file:///cache/rent.pdf",
+		);
+
+		const result = useAttachment("NOTE", "n1");
+		await result.handleSend();
+
+		expect(sharingMocks.shareAsync).toHaveBeenCalledWith(
+			"file:///cache/rent.pdf",
+			{ dialogTitle: "rent.pdf" },
+		);
+	});
+
+	it("skips sharing when unavailable or nothing to open", async () => {
+		setHookState({ id: "a1" }, null, false);
+		sharingMocks.isAvailableAsync.mockResolvedValueOnce(false);
+		attachmentServiceMocks.openAttachment.mockResolvedValueOnce(
+			"file:///cache/rent.pdf",
+		);
+
+		let result = useAttachment("NOTE", "n1");
+		await result.handleSend();
+		expect(sharingMocks.shareAsync).not.toHaveBeenCalled();
+
+		setHookState(null, null, false);
+		result = useAttachment("NOTE", "n1");
+		await result.handleSend();
+		expect(sharingMocks.shareAsync).not.toHaveBeenCalled();
 	});
 
 	it("does not update state when picker returns null", async () => {

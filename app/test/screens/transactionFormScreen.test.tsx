@@ -34,6 +34,7 @@ const hookMocks = vi.hoisted(() => ({
 	confirm: vi.fn(),
 	processAttachment: vi.fn(),
 	handleOpen: vi.fn(),
+	handleSend: vi.fn(),
 	handlePick: vi.fn(),
 	handleRemove: vi.fn(),
 }));
@@ -42,11 +43,6 @@ const attachmentState = vi.hoisted((): AttachmentTestState => ({
 	pendingAttachment: null,
 	isRemoved: false,
 }));
-const sharingMocks = vi.hoisted(() => ({
-	isAvailableAsync: vi.fn(),
-	shareAsync: vi.fn(),
-}));
-vi.mock("expo-sharing", () => sharingMocks);
 
 vi.mock("react", async (importOriginal) => {
 	const actual = await importOriginal<typeof import("react")>();
@@ -112,6 +108,7 @@ vi.mock("@/hooks/useAttachment", () => ({
 		pendingAttachment: attachmentState.pendingAttachment,
 		processAttachment: hookMocks.processAttachment,
 		handleOpen: hookMocks.handleOpen,
+		handleSend: hookMocks.handleSend,
 		handlePick: hookMocks.handlePick,
 		handleRemove: hookMocks.handleRemove,
 	}),
@@ -256,26 +253,18 @@ const createFormHarness = (
 };
 
 describe("TransactionFormScreen", () => {
-	it.each([true, false])(
-		"shares a returned attachment URI when available=%s",
-		async (available) => {
-			hookMocks.handleOpen.mockResolvedValue("file://preview");
-			sharingMocks.isAvailableAsync.mockResolvedValue(available);
-			sharingMocks.shareAsync.mockClear();
-			const tree = TransactionFormScreen({
-				navigation: { goBack: vi.fn() },
-				route: { params: undefined },
-			} as any);
-			const field = findByPredicate(
-				tree,
-				(node) => typeof node?.props?.onSend === "function",
-			)[0];
-			await field.props.onSend();
-			expect(sharingMocks.shareAsync).toHaveBeenCalledTimes(
-				available ? 1 : 0,
-			);
-		},
-	);
+	it("delegates attachment send to the attachment hook", async () => {
+		const tree = TransactionFormScreen({
+			navigation: { goBack: vi.fn() },
+			route: { params: undefined },
+		} as any);
+		const field = findByPredicate(
+			tree,
+			(node) => typeof node?.props?.onSend === "function",
+		)[0];
+		await field.props.onSend();
+		expect(hookMocks.handleSend).toHaveBeenCalledTimes(1);
+	});
 	beforeEach(() => {
 		attachmentState.pendingAttachment = null;
 		attachmentState.isRemoved = false;

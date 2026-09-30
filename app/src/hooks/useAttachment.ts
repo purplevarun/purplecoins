@@ -1,5 +1,6 @@
 import attachmentService from "@/services/attachmentService";
 
+import * as Sharing from "expo-sharing";
 import { useEffect, useState } from "react";
 
 import useDatabaseContext from "@/hooks/useDatabaseContext";
@@ -55,6 +56,16 @@ const useAttachment = (
 		return null;
 	};
 
+	const handleSend = async (): Promise<void> => {
+		const uri = await handleOpen();
+		if (!uri || !(await Sharing.isAvailableAsync())) {
+			return;
+		}
+		await Sharing.shareAsync(uri, {
+			dialogTitle: existingAttachment?.fileName,
+		});
+	};
+
 	const handleRemove = (): void => {
 		setPendingAttachment(null);
 		setIsRemoved(true);
@@ -81,6 +92,7 @@ const useAttachment = (
 		isRemoved,
 		handlePick,
 		handleOpen,
+		handleSend,
 		handleRemove,
 		processAttachment,
 	};
