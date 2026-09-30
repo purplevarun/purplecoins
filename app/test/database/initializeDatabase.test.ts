@@ -75,7 +75,9 @@ describe("initializeDatabase", () => {
 	it("opens the configured database and runs schema plus migrations", async () => {
 		const database = await initializeDatabase();
 
-		expect(openDatabaseAsync).toHaveBeenCalledWith("test.db");
+		expect(openDatabaseAsync).toHaveBeenCalledWith("test.db", {
+			useNewConnection: true,
+		});
 		expect(execAsync).toHaveBeenNthCalledWith(1, "SCHEMA_SQL");
 		expect(execAsync).toHaveBeenNthCalledWith(2, "FUTURE_MIGRATION_SQL");
 		expect(closeAsync).not.toHaveBeenCalled();
