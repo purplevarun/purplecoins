@@ -64,7 +64,7 @@ const apk = (name = "com.purple.coins_2026.9.22.apk") => ({
 	name,
 	state: "uploaded",
 	size: 123,
-	browser_download_url: `https://github.com/purplevarun/purplecoins/releases/download/v2026.9.22/${name}`,
+	browser_download_url: `https://github.com/purplevarun/coins/releases/download/v2026.9.22/${name}`,
 });
 const release = (overrides: Record<string, unknown> = {}) => ({
 	name: "v2026.9.22",
@@ -238,11 +238,11 @@ describe("updateService", () => {
 			version: "2026.9.22",
 			name: "com.purple.coins_2026.9.22.apk",
 			downloadUrl:
-				"https://github.com/purplevarun/purplecoins/releases/download/v2026.9.22/com.purple.coins_2026.9.22.apk",
+				"https://github.com/purplevarun/coins/releases/download/v2026.9.22/com.purple.coins_2026.9.22.apk",
 			size: 123,
 		});
 		expect(mocks.downloadFileAsync).toHaveBeenCalledWith(
-			"https://github.com/purplevarun/purplecoins/releases/download/v2026.9.22/com.purple.coins_2026.9.22.apk",
+			"https://github.com/purplevarun/coins/releases/download/v2026.9.22/com.purple.coins_2026.9.22.apk",
 			expect.objectContaining({
 				uri: "cache-dir/com.purple.coins_2026.9.22.apk",
 			}),

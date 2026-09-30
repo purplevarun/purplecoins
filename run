@@ -263,10 +263,10 @@ run_avd() {
 
   if [ "$CLEAN" = true ]; then
     echo "Starting clean AVD: $AVD"
-    emulator -avd "$AVD" -wipe-data >/tmp/purplecoins-avd.log 2>&1 &
+    emulator -avd "$AVD" -wipe-data >/tmp/coins-avd.log 2>&1 &
   else
     echo "Starting AVD: $AVD"
-    emulator -avd "$AVD" >/tmp/purplecoins-avd.log 2>&1 &
+    emulator -avd "$AVD" >/tmp/coins-avd.log 2>&1 &
   fi
 
   adb wait-for-device

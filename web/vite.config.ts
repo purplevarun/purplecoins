@@ -17,7 +17,7 @@ export default defineConfig(async () => {
 
   return {
     plugins: [react()],
-    base: '/purplecoins/',
+    base: '/coins/',
     define: { __BUILD_RELEASE__: JSON.stringify(release) },
     build: {
       rolldownOptions: {

@@ -1,6 +1,6 @@
 # Purplecoins Download Website
 
-A standalone download website for <https://purplevarun.github.io/purplecoins/>.
+A standalone download website for <https://purplevarun.github.io/coins/>.
 All website code, assets, dependencies, and configuration live in this folder.
 The mobile app is not a dependency. Only the
 [Pages workflow](../.github/workflows/deploy-pages.yml) lives outside it,
@@ -16,14 +16,14 @@ npm ci
 npm run dev
 ```
 
-Open the URL printed by Vite, including `/purplecoins/`.
+Open the URL printed by Vite, including `/coins/`.
 
 The Vite config fetches the latest stable GitHub release at startup/build time.
 If your network blocks Node's GitHub requests, use an authenticated GitHub CLI
 to supply the same response, without disabling TLS verification:
 
 ```sh
-GITHUB_RELEASE_JSON="$(gh api repos/purplevarun/purplecoins/releases/latest)" npm run dev
+GITHUB_RELEASE_JSON="$(gh api repos/purplevarun/coins/releases/latest)" npm run dev
 ```
 
 The same prefix works with `npm run build` and `npm run preview`. On normal
@@ -69,7 +69,7 @@ Vite also builds [404.html](404.html) into the root of `dist/`. GitHub Pages ser
 it for missing URLs with a 404 status. It shares the website's styles and uses
 base-prefixed asset and home links, so nested missing URLs work too. The return
 link works without JavaScript. Vite's local preview uses an SPA fallback for unknown
-URLs; open `/purplecoins/404.html` to preview the custom page locally.
+URLs; open `/coins/404.html` to preview the custom page locally.
 
 ## Privacy Policy
 
@@ -78,8 +78,8 @@ The homepage footer links to it, and Vite emits it as a standalone page that wor
 without JavaScript, including when opened directly or refreshed.
 
 After the website changes are deployed, the public policy URL is
-<https://purplevarun.github.io/purplecoins/privacy.html>. Use this URL for app-store
-privacy-policy fields. Locally, open `/purplecoins/privacy.html` on the Vite server.
+<https://purplevarun.github.io/coins/privacy.html>. Use this URL for app-store
+privacy-policy fields. Locally, open `/coins/privacy.html` on the Vite server.
 The existing Pages workflow publishes the page with the rest of `dist/` when the
 changes are pushed to `main`.
 

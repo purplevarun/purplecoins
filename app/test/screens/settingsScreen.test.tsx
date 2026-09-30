@@ -463,7 +463,7 @@ describe("SettingsScreen", () => {
 				version: "2026.9.22",
 				name: "com.purple.coins_2026.9.22.apk",
 				downloadUrl:
-					"https://github.com/purplevarun/purplecoins/releases/download/v2026.9.22/com.purple.coins_2026.9.22.apk",
+					"https://github.com/purplevarun/coins/releases/download/v2026.9.22/com.purple.coins_2026.9.22.apk",
 				size: 123,
 			};
 			serviceMocks.checkForUpdate.mockResolvedValueOnce(release);
@@ -532,7 +532,7 @@ describe("SettingsScreen", () => {
 				version: "2026.9.22",
 				name: "update.apk",
 				downloadUrl:
-					"https://github.com/purplevarun/purplecoins/releases/download/v2026.9.22/update.apk",
+					"https://github.com/purplevarun/coins/releases/download/v2026.9.22/update.apk",
 				size: 123,
 			};
 			if (operation === "check") {

@@ -11,7 +11,7 @@ const asset = (name = 'com.purple.coins_2026.8.29.apk') => ({
   name,
   state: 'uploaded',
   size: 105355561,
-  browser_download_url: `https://github.com/purplevarun/purplecoins/releases/download/v2026.8.29/${name}`,
+  browser_download_url: `https://github.com/purplevarun/coins/releases/download/v2026.8.29/${name}`,
 })
 
 const release = (overrides = {}) => ({
@@ -29,7 +29,7 @@ test('resolves the latest release page and APK metadata', () => {
   assert.equal(result.downloadUrl, asset().browser_download_url)
   assert.equal(result.name, asset().name)
   assert.equal(result.size, asset().size)
-  assert.equal(result.notesUrl, 'https://github.com/purplevarun/purplecoins/releases/latest')
+  assert.equal(result.notesUrl, 'https://github.com/purplevarun/coins/releases/latest')
 })
 
 test('selects the APK alongside non-APK release assets', () => {
@@ -85,7 +85,7 @@ test('rejects asset links outside this repository or with mismatched filenames',
   for (const url of [
     'https://example.com/app.apk',
     'https://github.com/another/project/releases/download/v1/app.apk',
-    'https://github.com/purplevarun/purplecoins/releases/download/v1/other.apk',
+    'https://github.com/purplevarun/coins/releases/download/v1/other.apk',
     'javascript:alert(1)',
   ]) {
     assert.throws(

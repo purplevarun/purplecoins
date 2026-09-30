@@ -3,7 +3,7 @@ import type ApkAsset from './types/ApkAsset.js'
 
 export type { default as Release } from './types/Release.js'
 
-export const REPOSITORY = 'purplevarun/purplecoins'
+export const REPOSITORY = 'purplevarun/coins'
 export const REPOSITORY_URL = `https://github.com/${REPOSITORY}`
 export const RELEASE_API = `https://api.github.com/repos/${REPOSITORY}/releases?per_page=10`
 

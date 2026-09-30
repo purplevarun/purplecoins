@@ -1,7 +1,7 @@
 const GITHUB_RELEASE_API_URL =
-	"https://api.github.com/repos/purplevarun/purplecoins/releases?per_page=10";
+	"https://api.github.com/repos/purplevarun/coins/releases?per_page=10";
 const GITHUB_RELEASE_DOWNLOAD_PREFIX =
-	"https://github.com/purplevarun/purplecoins/releases/download/";
+	"https://github.com/purplevarun/coins/releases/download/";
 const APK_MIME_TYPE = "application/vnd.android.package-archive";
 const APK_FILE_EXTENSION = ".apk";
 const DOWNLOADS_DIRECTORY_NAME = "Download";
