@@ -27,6 +27,19 @@ const parseVersion = (value: unknown): string | null => {
 	return /^\d+(?:\.\d+)*$/.test(normalized) ? normalized : null;
 };
 
+const compareVersions = (left: string, right: string): number => {
+	const leftParts = left.split(".").map(Number);
+	const rightParts = right.split(".").map(Number);
+	const segments = Math.max(leftParts.length, rightParts.length);
+	for (let index = 0; index < segments; index += 1) {
+		const difference = (leftParts[index] ?? 0) - (rightParts[index] ?? 0);
+		if (difference !== 0) {
+			return Math.sign(difference);
+		}
+	}
+	return 0;
+};
+
 const isApkAsset = (
 	value: unknown,
 	tagName: string,
@@ -126,7 +139,9 @@ const checkForUpdate = async (
 	for (const candidate of candidates) {
 		try {
 			const release = parseRelease(candidate);
-			return release.version === current ? null : release;
+			return compareVersions(release.version, current) > 0
+				? release
+				: null;
 		} catch (error) {
 			lastError = error;
 		}

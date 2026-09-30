@@ -127,6 +127,31 @@ describe("updateService", () => {
 		});
 	});
 
+	it("does not offer older releases as updates", async () => {
+		setFetchResponse(release());
+		expect(await updateService.checkForUpdate("2026.9.30")).toBeNull();
+		expect(await updateService.checkForUpdate("2026.9.22.1")).toBeNull();
+	});
+
+	it("compares versions segment-by-segment across different lengths", async () => {
+		setFetchResponse(
+			release({
+				name: "v2026.9.22.1",
+				tag_name: "v2026.9.22.1",
+				assets: [
+					{
+						...apk(),
+						browser_download_url:
+							"https://github.com/purplevarun/coins/releases/download/v2026.9.22.1/com.purple.coins_2026.9.22.apk",
+					},
+				],
+			}),
+		);
+		await expect(
+			updateService.checkForUpdate("2026.9.22"),
+		).resolves.toMatchObject({ version: "2026.9.22.1" });
+	});
+
 	it("returns an available release and prefers a universal APK", async () => {
 		setFetchResponse(
 			release({
