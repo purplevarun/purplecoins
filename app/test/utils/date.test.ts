@@ -61,7 +61,7 @@ describe("date utils", () => {
 		vi.useFakeTimers();
 		vi.setSystemTime(new Date("2026-08-25T10:20:30.000Z"));
 		expect(getAnalysisDateRange("YTD", anchor)).toEqual({
-			start: new Date(2025, 7, 25, 0, 0, 0, 0).getTime(),
+			start: new Date(2026, 0, 1, 0, 0, 0, 0).getTime(),
 			end: new Date(2026, 7, 25, 23, 59, 59, 999).getTime(),
 		});
 		vi.useRealTimers();
@@ -72,7 +72,7 @@ describe("date utils", () => {
 		vi.setSystemTime(new Date("2026-08-25T10:20:30.000Z"));
 
 		const range = getYtdDateRange();
-		expect(range.start).toBe(new Date(2025, 7, 25, 0, 0, 0, 0).getTime());
+		expect(range.start).toBe(new Date(2026, 0, 1, 0, 0, 0, 0).getTime());
 		expect(range.end).toBe(
 			new Date(2026, 7, 25, 23, 59, 59, 999).getTime(),
 		);
@@ -87,6 +87,13 @@ describe("date utils", () => {
 			2025,
 		);
 		expect(shiftAnalysisAnchor("FY", anchor, 1).getFullYear()).toBe(2027);
+	});
+
+	it("does not overflow month boundaries when shifting", () => {
+		const jan31 = new Date(2026, 0, 31);
+		expect(shiftAnalysisAnchor("MONTH", jan31, 1).getMonth()).toBe(1);
+		const mar31 = new Date(2026, 2, 31);
+		expect(shiftAnalysisAnchor("MONTH", mar31, -1).getMonth()).toBe(1);
 	});
 
 	it("does not shift for ALL and CUSTOM", () => {
@@ -130,17 +137,17 @@ describe("date utils", () => {
 
 		expect(
 			shiftAnalysisAnchor("YEAR", anchor, -1, minDate, undefined),
-		).toEqual(new Date(2025, 7, 25));
+		).toEqual(new Date(2025, 7, 1));
 		expect(
 			shiftAnalysisAnchor("FY", anchor, -1, minDate, undefined),
-		).toEqual(new Date(2025, 7, 25));
+		).toEqual(new Date(2025, 7, 1));
 
 		expect(
 			shiftAnalysisAnchor("YEAR", anchor, 1, undefined, maxDate),
-		).toEqual(new Date(2027, 7, 25));
+		).toEqual(new Date(2027, 7, 1));
 		expect(
 			shiftAnalysisAnchor("FY", anchor, 1, undefined, maxDate),
-		).toEqual(new Date(2027, 7, 25));
+		).toEqual(new Date(2027, 7, 1));
 	});
 
 	it("normalizes custom ranges and formats output", () => {

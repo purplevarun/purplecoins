@@ -23,16 +23,7 @@ const getFyDateRange = (anchorDate: Date, fyStartMonth: number): DateRange => {
 
 const getYtdDateRange = (): DateRange => {
 	const now = new Date();
-	// Year to date: same date last year → today
-	const start = new Date(
-		now.getFullYear() - 1,
-		now.getMonth(),
-		now.getDate(),
-		0,
-		0,
-		0,
-		0,
-	).getTime();
+	const start = new Date(now.getFullYear(), 0, 1).getTime();
 	const end = new Date(
 		now.getFullYear(),
 		now.getMonth(),
@@ -80,14 +71,16 @@ const shiftAnalysisAnchor = (
 	maxDate?: number,
 ): Date => {
 	const shiftedDate = new Date(anchorDate);
+	if (period !== "MONTH" && period !== "YEAR" && period !== "FY") {
+		return shiftedDate;
+	}
+	// Clamp to day 1 so setMonth/setFullYear cannot overflow into the next
+	// month (e.g. Jan 31 + 1 month would become Mar 3).
+	shiftedDate.setDate(1);
 	if (period === "MONTH") {
 		shiftedDate.setMonth(shiftedDate.getMonth() + direction);
-	} else if (period === "YEAR") {
-		shiftedDate.setFullYear(shiftedDate.getFullYear() + direction);
-	} else if (period === "FY") {
-		shiftedDate.setFullYear(shiftedDate.getFullYear() + direction);
 	} else {
-		return shiftedDate;
+		shiftedDate.setFullYear(shiftedDate.getFullYear() + direction);
 	}
 
 	// Clamp: don't go before min or after max
