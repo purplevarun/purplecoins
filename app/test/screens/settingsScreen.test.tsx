@@ -361,7 +361,7 @@ describe("SettingsScreen", () => {
 		findByPredicate(
 			tree,
 			(node) =>
-				node?.props?.label === "Export .purplecoins" &&
+				node?.props?.label === "Export .pc" &&
 				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
@@ -369,7 +369,7 @@ describe("SettingsScreen", () => {
 		findByPredicate(
 			tree,
 			(node) =>
-				node?.props?.label === "Restore .purplecoins" &&
+				node?.props?.label === "Restore .pc" &&
 				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
@@ -411,7 +411,7 @@ describe("SettingsScreen", () => {
 		findByPredicate(
 			tree,
 			(node) =>
-				node?.props?.label === "Restore .purplecoins" &&
+				node?.props?.label === "Restore .pc" &&
 				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
@@ -596,7 +596,7 @@ describe("SettingsScreen", () => {
 		findByPredicate(
 			tree,
 			(node) =>
-				node?.props?.label === "Export .purplecoins" &&
+				node?.props?.label === "Export .pc" &&
 				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();
@@ -604,7 +604,7 @@ describe("SettingsScreen", () => {
 		findByPredicate(
 			tree,
 			(node) =>
-				node?.props?.label === "Restore .purplecoins" &&
+				node?.props?.label === "Restore .pc" &&
 				typeof node?.props?.onPress === "function",
 		)[0]?.props?.onPress();
 		await flush();

@@ -28,7 +28,6 @@ const mocks = vi.hoisted(() => ({
 vi.mock("@/constants/appConstants", () => ({
 	default: {
 		ATTACHMENT_MAX_BYTES: 2 * 1024 * 1024,
-		BACKUP_MIME_TYPE: "application/octet-stream",
 	},
 }));
 

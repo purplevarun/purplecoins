@@ -54,6 +54,10 @@ coverage/
 *.purplecoins-journal
 *.purplecoins-shm
 *.purplecoins-wal
+*.pc
+*.pc-journal
+*.pc-shm
+*.pc-wal
 __pycache__/
 
 store/

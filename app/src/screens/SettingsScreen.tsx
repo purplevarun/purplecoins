@@ -346,20 +346,19 @@ const SettingsScreen = ({
 						Backup and restore
 					</CustomText>
 					<CustomText style={styles.description}>
-						A .purplecoins file is a plain, complete SQLite
-						snapshot, including attachments. Keep it somewhere
-						private.
+						A .pc file is a compressed SQLite snapshot, including
+						attachments. Keep it somewhere private.
 					</CustomText>
 					<AppButton
 						icon="share-outline"
 						isLoading={isWorking}
-						label="Export .purplecoins"
+						label="Export .pc"
 						onPress={() => void handleExport()}
 					/>
 					<AppButton
 						icon="download-outline"
 						isDisabled={isWorking}
-						label="Restore .purplecoins"
+						label="Restore .pc"
 						onPress={() => void handleRestore()}
 						variant="secondary"
 					/>

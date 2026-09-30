@@ -16,7 +16,7 @@ and private vault records. SQLite is the source of truth.
 - Source validation based on the latest linked transaction timestamp
 - Notes, todos, folders, passwords, cards, and identity records
 - One SQLite-backed attachment per supported record, limited to 2 MB
-- Plain `.purplecoins` SQLite backup export and restore
+- Compressed `.pc` SQLite backup export; restore accepts `.pc` and `.purplecoins`
 
 ## Finance Rules
 
@@ -103,9 +103,9 @@ Expo dependency compatibility.
 ## Backups
 
 Settings can export the live database as
-`purplecoins-YYYY-MM-DD.purplecoins`. The file is a complete SQLite snapshot,
-including attachment BLOBs. Restore checks the picked file before replacing
-local data.
+`YYYYMMDD.pc`, a gzip-compressed complete SQLite snapshot
+including attachment BLOBs. Restore accepts `.pc` and older `.purplecoins`
+files, and checks the picked file before replacing local data.
 
 ### Database Setup
 

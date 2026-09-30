@@ -1,5 +1,6 @@
 import type TestAsyncFunction from "@test/types/TestAsyncFunction";
 import type TestCallback from "@test/types/TestCallback";
+import { gzipSync } from "fflate";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -19,9 +20,9 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock("@/constants/appConstants", () => ({
 	default: {
-		APP_NAME: "PurpleCoins",
-		BACKUP_EXTENSION: ".purplecoins",
-		BACKUP_MIME_TYPE: "application/octet-stream",
+		BACKUP_EXTENSION: ".pc",
+		BACKUP_MIME_TYPE: "application/gzip",
+		LEGACY_BACKUP_EXTENSION: ".purplecoins",
 	},
 }));
 
@@ -114,7 +115,7 @@ const validTempDatabase = () => ({
 	execAsync: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
 });
 
-const selectBackup = (name = "ok.purplecoins"): void => {
+const selectBackup = (name = "ok.pc"): void => {
 	mocks.getDocumentAsync.mockResolvedValueOnce({
 		canceled: false,
 		assets: [{ uri: `file://${name}`, name }],
@@ -188,14 +189,17 @@ describe("backupService", () => {
 		vi.setSystemTime(new Date("2026-08-25T10:00:00.000Z"));
 	});
 
-	it("exports a verified backup", async () => {
+	it("exports a compressed backup", async () => {
 		await backupService.exportBackup(database);
 		expect(database.serializeAsync).toHaveBeenCalledOnce();
-		expect(mocks.fileWrite).toHaveBeenCalledWith(new Uint8Array([5, 6]));
+		expect(mocks.fileWrite).toHaveBeenCalledWith(
+			gzipSync(new Uint8Array([5, 6])),
+		);
 		expect(mocks.shareAsync).toHaveBeenCalledWith(
-			"cache-dir/purplecoins-2026-08-25.purplecoins",
+			"cache-dir/20260825.pc",
 			expect.objectContaining({
 				dialogTitle: "Export Purplecoins backup",
+				mimeType: "application/gzip",
 			}),
 		);
 	});
@@ -252,6 +256,16 @@ describe("backupService", () => {
 		mocks.openDatabaseAsync.mockResolvedValueOnce(tempDatabase);
 		selectBackup("OK.PURPLECOINS");
 		expect(await backupService.restoreBackup(database)).toBe(true);
+	});
+
+	it("decompresses a gzipped backup before restoring", async () => {
+		const rawBytes = new Uint8Array([1, 2, 3]);
+		mocks.fileBytes.mockResolvedValueOnce(gzipSync(rawBytes));
+		const tempDatabase = validTempDatabase();
+		mocks.openDatabaseAsync.mockResolvedValueOnce(tempDatabase);
+		selectBackup();
+		expect(await backupService.restoreBackup(database)).toBe(true);
+		expect(mocks.fileWrite).toHaveBeenCalledWith(rawBytes);
 	});
 
 	it("runs schema and future migrations before restoring a valid backup", async () => {

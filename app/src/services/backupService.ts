@@ -12,13 +12,18 @@ import type SqliteTableRow from "@/types/SqliteTableRow";
 import { File, Paths } from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import { openDatabaseAsync, type SQLiteDatabase } from "expo-sqlite";
+import { gunzipSync, gzipSync } from "fflate";
 
-const { APP_NAME, BACKUP_EXTENSION, BACKUP_MIME_TYPE } = appConstants;
+const { BACKUP_EXTENSION, BACKUP_MIME_TYPE, LEGACY_BACKUP_EXTENSION } =
+	appConstants;
 
 const createBackupFileName = (): string => {
-	const date = new Date().toISOString().slice(0, 10);
-	return `${APP_NAME.toLowerCase()}-${date}${BACKUP_EXTENSION}`;
+	const date = new Date().toISOString().slice(0, 10).replaceAll("-", "");
+	return `${date}${BACKUP_EXTENSION}`;
 };
+
+const isGzipBytes = (bytes: Uint8Array): boolean =>
+	bytes.length > 1 && bytes[0] === 0x1f && bytes[1] === 0x8b;
 
 const exportBackup = async (database: SQLiteDatabase): Promise<void> => {
 	const integrity = await database.getFirstAsync<DatabaseIntegrityResult>(
@@ -32,7 +37,7 @@ const exportBackup = async (database: SQLiteDatabase): Promise<void> => {
 	}
 	const output = new File(Paths.cache, createBackupFileName());
 	output.create({ overwrite: true, intermediates: true });
-	output.write(await database.serializeAsync());
+	output.write(gzipSync(await database.serializeAsync()));
 	if (!(await Sharing.isAvailableAsync())) {
 		throw new AppError(
 			"SHARING_UNAVAILABLE",
@@ -60,10 +65,14 @@ const restoreBackup = async (database: SQLiteDatabase): Promise<boolean> => {
 	if (!asset) {
 		throw new AppError("BACKUP_NOT_SELECTED", "No backup was selected.");
 	}
-	if (!asset.name.toLowerCase().endsWith(BACKUP_EXTENSION.toLowerCase())) {
+	const assetName = asset.name.toLowerCase();
+	if (
+		!assetName.endsWith(BACKUP_EXTENSION) &&
+		!assetName.endsWith(LEGACY_BACKUP_EXTENSION)
+	) {
 		throw new AppError(
 			"INVALID_BACKUP_EXTENSION",
-			`Select a ${BACKUP_EXTENSION} file.`,
+			`Select a ${BACKUP_EXTENSION} or ${LEGACY_BACKUP_EXTENSION} file.`,
 		);
 	}
 
@@ -76,7 +85,10 @@ const restoreBackup = async (database: SQLiteDatabase): Promise<boolean> => {
 	let tempDatabase: SQLiteDatabase | undefined;
 	try {
 		tempFile.create({ overwrite: true });
-		tempFile.write(await pickedFile.bytes());
+		const pickedBytes = await pickedFile.bytes();
+		tempFile.write(
+			isGzipBytes(pickedBytes) ? gunzipSync(pickedBytes) : pickedBytes,
+		);
 		tempDatabase = await openDatabaseAsync(TEMP_RESTORE_DB_NAME);
 		const tables = await tempDatabase.getFirstAsync<DatabaseCountRow>(
 			`SELECT COUNT(*) AS count FROM sqlite_master WHERE type = 'table'

@@ -10,6 +10,8 @@ import { describe, expect, it } from "vitest";
 describe("constants", () => {
 	it("exposes app constants", () => {
 		expect(appConstants.APP_NAME).toBe("Purplecoins");
+		expect(appConstants.BACKUP_EXTENSION).toBe(".pc");
+		expect(appConstants.LEGACY_BACKUP_EXTENSION).toBe(".purplecoins");
 		expect(appConstants.DATABASE_NAME).toBe("purplecoins.db");
 		expect(appConstants.DEFAULT_CURRENCY_CODE).toBe("INR");
 		expect(appConstants.MILLISECONDS_PER_DAY).toBe(86_400_000);

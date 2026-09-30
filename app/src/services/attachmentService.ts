@@ -10,7 +10,8 @@ import createId from "@/utils/id";
 import { File, Paths } from "expo-file-system";
 import type { SQLiteDatabase } from "expo-sqlite";
 
-const { ATTACHMENT_MAX_BYTES, BACKUP_MIME_TYPE } = appConstants;
+const { ATTACHMENT_MAX_BYTES } = appConstants;
+const FALLBACK_MIME_TYPE = "application/octet-stream";
 const {
 	deleteAttachmentRow,
 	getAttachmentContentRow,
@@ -44,7 +45,7 @@ const pickAttachment = async (): Promise<AttachmentInput | null> => {
 	}
 	return {
 		fileName: asset.name,
-		mimeType: asset.mimeType ?? BACKUP_MIME_TYPE,
+		mimeType: asset.mimeType ?? FALLBACK_MIME_TYPE,
 		sizeBytes,
 		content: await file.bytes(),
 	};
