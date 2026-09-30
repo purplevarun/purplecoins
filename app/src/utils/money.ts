@@ -2,7 +2,7 @@ import Decimal from "decimal.js";
 
 import AppError from "@/errors/AppError";
 
-const MONEY_PATTERN = /^\d+(?:\.\d+)?$/;
+const MONEY_PATTERN = /^(?:\d+\.?\d*|\.\d+)$/;
 const ZERO_AMOUNT = "0";
 
 const normalizeMoney = (value: string): string => {

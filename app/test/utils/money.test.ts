@@ -10,6 +10,8 @@ describe("money utilities", () => {
 
 	it("normalizes user-entered decimals", () => {
 		expect(normalizeMoney("00123.4500")).toBe("123.45");
+		expect(normalizeMoney(".5")).toBe("0.5");
+		expect(normalizeMoney("10.")).toBe("10");
 	});
 
 	it("supports exact exchange-rate multiplication", () => {

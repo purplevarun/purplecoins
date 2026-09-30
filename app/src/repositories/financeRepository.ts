@@ -629,29 +629,29 @@ const investmentTypeNameExistsRow = async (
 
 const upsertSimpleEntityRow = async (
 	database: SQLiteDatabase,
-	tableName: "trips" | "investments",
+	tableName: "trips",
 	entity: TripScopedEntity,
 ): Promise<void> => {
 	const updateResult = await database.runAsync(
 		`
 			UPDATE ${tableName}
 			SET name = ?,
-				${tableName === "trips" ? "trip_type_id = ?," : ""}
+				trip_type_id = ?,
 				updated_at = ?
 			WHERE id = ?;
 		`,
 		entity.name,
-		...(tableName === "trips" ? [entity.tripTypeId ?? null] : []),
+		entity.tripTypeId ?? null,
 		entity.updatedAt,
 		entity.id,
 	);
 	if ((updateResult as SQLiteRunResult | undefined)?.changes) return;
 	await database.runAsync(
-		`INSERT INTO ${tableName} (${tableName === "trips" ? "id, name, trip_type_id, created_at, updated_at" : "id, name, created_at, updated_at"})
-		 VALUES (${tableName === "trips" ? "?, ?, ?, ?, ?" : "?, ?, ?, ?"});`,
+		`INSERT INTO ${tableName} (id, name, trip_type_id, created_at, updated_at)
+		 VALUES (?, ?, ?, ?, ?);`,
 		entity.id,
 		entity.name,
-		...(tableName === "trips" ? [entity.tripTypeId ?? null] : []),
+		entity.tripTypeId ?? null,
 		entity.createdAt,
 		entity.updatedAt,
 	);

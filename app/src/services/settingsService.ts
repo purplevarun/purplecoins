@@ -45,7 +45,7 @@ const getDefaultTripId = async (
 	database: SQLiteDatabase,
 ): Promise<string | null> => {
 	const value = await getSettingRow(database, DEFAULT_TRIP_ID_KEY);
-	return value ?? null;
+	return value === "" ? null : value;
 };
 
 const updateDefaultTripId = async (

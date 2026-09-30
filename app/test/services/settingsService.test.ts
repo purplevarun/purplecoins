@@ -113,6 +113,9 @@ describe("settingsService", () => {
 		mocks.getSettingRow.mockResolvedValueOnce("trip1");
 		expect(await settingsService.getDefaultTripId(database)).toBe("trip1");
 
+		mocks.getSettingRow.mockResolvedValueOnce("");
+		expect(await settingsService.getDefaultTripId(database)).toBeNull();
+
 		await settingsService.updateDefaultTripId(database, "trip2");
 		expect(mocks.upsertSettingRow).toHaveBeenCalledWith(
 			database,

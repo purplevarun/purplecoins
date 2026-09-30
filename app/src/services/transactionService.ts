@@ -27,7 +27,7 @@ const {
 	getTransactionRows,
 	updateTransactionRow,
 } = financeRepository;
-const { compareMoney, normalizeMoney, sumMoney } = moneyUtils;
+const { normalizeMoney, sumMoney } = moneyUtils;
 const { saveAttachment, deleteAttachment } = attachmentService;
 const { TRANSACTION_PAGE_SIZE } = appConstants;
 
@@ -255,15 +255,6 @@ const prepareTransactionInput = async (
 		source.currencyCode === destination.currencyCode
 			? amount
 			: normalizeMoney(input.toAmount ?? "");
-	if (
-		source.currencyCode === destination.currencyCode &&
-		compareMoney(amount, toAmount) !== 0
-	) {
-		throw new AppError(
-			"TRANSFER_AMOUNT_MISMATCH",
-			"Same-currency transfer amounts must match.",
-		);
-	}
 	return {
 		...input,
 		classification: "GENERAL",

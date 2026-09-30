@@ -37,7 +37,10 @@ const pickAttachment = async (): Promise<AttachmentInput | null> => {
 	}
 	const file = new File(asset.uri);
 	const sizeBytes = asset.size ?? file.size;
-	if (!sizeBytes || sizeBytes > ATTACHMENT_MAX_BYTES) {
+	if (!sizeBytes) {
+		throw new AppError("ATTACHMENT_EMPTY", "The selected file is empty.");
+	}
+	if (sizeBytes > ATTACHMENT_MAX_BYTES) {
 		throw new AppError(
 			"ATTACHMENT_TOO_LARGE",
 			"Attachments must be 2 MB or smaller.",
@@ -112,7 +115,8 @@ const openAttachment = async (
 			"Attachment content is unavailable.",
 		);
 	}
-	const output = new File(Paths.cache, `${metadata.id}-${metadata.fileName}`);
+	const safeName = metadata.fileName.replace(/[^a-zA-Z0-9._-]/g, "_");
+	const output = new File(Paths.cache, `${metadata.id}-${safeName}`);
 	output.create({ overwrite: true, intermediates: true });
 	output.write(content);
 

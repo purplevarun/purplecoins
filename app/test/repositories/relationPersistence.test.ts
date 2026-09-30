@@ -18,16 +18,16 @@ it("replaces receipts and handles optional relation updates", async () => {
 	for (const migration of SCHEMA_MIGRATIONS)
 		await database.execAsync(migration);
 	const entity = { id: "id", name: "Name", createdAt: 1, updatedAt: 2 };
-	await financeRepository.upsertSimpleEntityRow(
-		database,
-		"investments",
-		entity,
-	);
-	await financeRepository.upsertSimpleEntityRow(
-		database,
-		"investments",
-		entity,
-	);
+	await financeRepository.upsertInvestmentRow(database, {
+		...entity,
+		investmentTypeId: null,
+		platformId: null,
+	});
+	await financeRepository.upsertInvestmentRow(database, {
+		...entity,
+		investmentTypeId: null,
+		platformId: null,
+	});
 	await financeRepository.upsertInvestmentRow(database, {
 		...entity,
 		investmentTypeId: null,

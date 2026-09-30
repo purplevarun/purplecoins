@@ -57,7 +57,7 @@ vi.mock("expo-sharing", () => ({
 vi.mock("expo-file-system", () => {
 	class MockFile {
 		uri: string;
-		size: number;
+		size?: number;
 
 		constructor(baseOrUri: string, name?: string) {
 			if (name) {
@@ -65,9 +65,11 @@ vi.mock("expo-file-system", () => {
 				this.size = 123;
 			} else {
 				this.uri = baseOrUri;
-				this.size = baseOrUri.includes("large")
-					? 3 * 1024 * 1024
-					: 1024;
+				this.size = baseOrUri.includes("nosize")
+					? undefined
+					: baseOrUri.includes("large")
+						? 3 * 1024 * 1024
+						: 1024;
 			}
 		}
 
@@ -151,7 +153,24 @@ describe("attachmentService", () => {
 			],
 		});
 		await expect(attachmentService.pickAttachment()).rejects.toMatchObject({
-			code: "ATTACHMENT_TOO_LARGE",
+			code: "ATTACHMENT_EMPTY",
+		});
+	});
+
+	it("throws when the attachment size cannot be determined", async () => {
+		mocks.getDocumentAsync.mockResolvedValueOnce({
+			canceled: false,
+			assets: [
+				{
+					uri: "file://nosize.bin",
+					name: "nosize.bin",
+					size: undefined,
+					mimeType: "application/octet-stream",
+				},
+			],
+		});
+		await expect(attachmentService.pickAttachment()).rejects.toMatchObject({
+			code: "ATTACHMENT_EMPTY",
 		});
 	});
 
@@ -290,6 +309,22 @@ describe("attachmentService", () => {
 		await expect(
 			attachmentService.openAttachment(database, metadata as any),
 		).resolves.toBe("cache-dir/a1-doc.pdf");
+	});
+
+	it("openAttachment sanitizes unsafe characters in the file name", async () => {
+		const metadata = {
+			id: "a1",
+			ownerType: "NOTE",
+			ownerId: "n1",
+			fileName: "my folder/doc?.pdf",
+			mimeType: "application/pdf",
+		};
+		mocks.getAttachmentContentRow.mockResolvedValueOnce(
+			new Uint8Array([1]),
+		);
+		await expect(
+			attachmentService.openAttachment(database, metadata as any),
+		).resolves.toBe("cache-dir/a1-my_folder_doc_.pdf");
 	});
 
 	it("openAttachment writes the preview file and returns its URI", async () => {
