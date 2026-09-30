@@ -9,6 +9,7 @@ const {
 	getArchivedInvestmentRows,
 	getInvestmentRow,
 	getInvestmentRows,
+	investmentInUseRow,
 	setSimpleEntityArchivedRow,
 	simpleEntityNameExistsRow,
 	upsertInvestmentRow,
@@ -94,7 +95,15 @@ const setInvestmentArchived = async (
 const deleteInvestment = async (
 	database: SQLiteDatabase,
 	id: string,
-): Promise<void> => deleteSimpleEntityRow(database, "investments", id);
+): Promise<void> => {
+	if (await investmentInUseRow(database, id)) {
+		throw new AppError(
+			"INVESTMENT_IN_USE",
+			"Investment is referenced by transactions and cannot be deleted.",
+		);
+	}
+	await deleteSimpleEntityRow(database, "investments", id);
+};
 
 const investmentService = {
 	deleteInvestment,

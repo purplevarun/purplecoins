@@ -2,6 +2,7 @@ import type TestAsyncFunction from "@test/types/TestAsyncFunction";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
+	budgetExistsRow: vi.fn(async () => false),
 	deleteBudgetRow: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
 	getBudgetRow: vi.fn<TestAsyncFunction>().mockResolvedValue(null),
 	getBudgetRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
@@ -11,6 +12,7 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock("@/repositories/financeRepository", () => ({
 	default: {
+		budgetExistsRow: mocks.budgetExistsRow,
 		deleteBudgetRow: mocks.deleteBudgetRow,
 		getBudgetRow: mocks.getBudgetRow,
 		getBudgetRows: mocks.getBudgetRows,
@@ -49,6 +51,42 @@ describe("budgetService", () => {
 		await expect(
 			budgetService.saveBudget(database, undefined, "", "100", "MONTHLY"),
 		).rejects.toMatchObject({ code: "BUDGET_CATEGORY_REQUIRED" });
+	});
+
+	it("rejects a duplicate category and period budget", async () => {
+		mocks.budgetExistsRow.mockResolvedValueOnce(true);
+		await expect(
+			budgetService.saveBudget(
+				database,
+				undefined,
+				"cat1",
+				"100",
+				"MONTHLY",
+			),
+		).rejects.toMatchObject({ code: "BUDGET_DUPLICATE" });
+		expect(mocks.upsertBudgetRow).not.toHaveBeenCalled();
+	});
+
+	it("allows updating the existing budget for a category and period", async () => {
+		mocks.getBudgetRow.mockResolvedValueOnce({
+			id: "b1",
+			categoryName: "Food",
+			createdAt: 5,
+		});
+		await budgetService.saveBudget(
+			database,
+			"b1",
+			"cat1",
+			"100",
+			"MONTHLY",
+		);
+		expect(mocks.budgetExistsRow).toHaveBeenCalledWith(
+			database,
+			"cat1",
+			"MONTHLY",
+			"b1",
+		);
+		expect(mocks.upsertBudgetRow).toHaveBeenCalled();
 	});
 
 	it("creates new budget and normalizes amount", async () => {

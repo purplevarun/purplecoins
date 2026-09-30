@@ -8,6 +8,7 @@ const mocks = vi.hoisted(() => ({
 	getArchivedInvestmentRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
 	getInvestmentRow: vi.fn<TestAsyncFunction>().mockResolvedValue(null),
 	getInvestmentRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
+	investmentInUseRow: vi.fn(async () => false),
 	setSimpleEntityArchivedRow: vi
 		.fn<TestAsyncFunction>()
 		.mockResolvedValue(undefined),
@@ -24,6 +25,7 @@ vi.mock("@/repositories/financeRepository", () => ({
 		getArchivedInvestmentRows: mocks.getArchivedInvestmentRows,
 		getInvestmentRow: mocks.getInvestmentRow,
 		getInvestmentRows: mocks.getInvestmentRows,
+		investmentInUseRow: mocks.investmentInUseRow,
 		setSimpleEntityArchivedRow: mocks.setSimpleEntityArchivedRow,
 		simpleEntityNameExistsRow: mocks.simpleEntityNameExistsRow,
 		upsertInvestmentRow: mocks.upsertInvestmentRow,
@@ -148,5 +150,13 @@ describe("investmentService", () => {
 			"investments",
 			"i1",
 		);
+	});
+
+	it("rejects deleting an investment with linked transactions", async () => {
+		mocks.investmentInUseRow.mockResolvedValueOnce(true);
+		await expect(
+			investmentService.deleteInvestment(database, "i1"),
+		).rejects.toMatchObject({ code: "INVESTMENT_IN_USE" });
+		expect(mocks.deleteSimpleEntityRow).not.toHaveBeenCalled();
 	});
 });

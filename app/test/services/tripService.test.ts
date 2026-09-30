@@ -12,6 +12,7 @@ const mocks = vi.hoisted(() => ({
 		.fn<TestAsyncFunction>()
 		.mockResolvedValue(undefined),
 	simpleEntityNameExistsRow: vi.fn(async () => false),
+	tripInUseRow: vi.fn(async () => false),
 	upsertSimpleEntityRow: vi
 		.fn<TestAsyncFunction>()
 		.mockResolvedValue(undefined),
@@ -26,6 +27,7 @@ vi.mock("@/repositories/financeRepository", () => ({
 		getTripRows: mocks.getTripRows,
 		setSimpleEntityArchivedRow: mocks.setSimpleEntityArchivedRow,
 		simpleEntityNameExistsRow: mocks.simpleEntityNameExistsRow,
+		tripInUseRow: mocks.tripInUseRow,
 		upsertSimpleEntityRow: mocks.upsertSimpleEntityRow,
 	},
 }));
@@ -139,5 +141,13 @@ describe("tripService", () => {
 			"trips",
 			"t1",
 		);
+	});
+
+	it("rejects deleting a trip with linked transactions", async () => {
+		mocks.tripInUseRow.mockResolvedValueOnce(true);
+		await expect(
+			tripService.deleteTrip(database, "t1"),
+		).rejects.toMatchObject({ code: "TRIP_IN_USE" });
+		expect(mocks.deleteSimpleEntityRow).not.toHaveBeenCalled();
 	});
 });

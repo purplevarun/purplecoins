@@ -14,6 +14,7 @@ const {
 	getSourceRows,
 	getTransactionRows,
 	setSourceArchivedRow,
+	sourceInUseRow,
 	sourceNameExistsRow,
 	updateSourceNameRow,
 	validateSourceRow,
@@ -161,7 +162,15 @@ const setSourceArchived = async (
 const deleteSource = async (
 	database: SQLiteDatabase,
 	id: string,
-): Promise<void> => deleteSourceRow(database, id);
+): Promise<void> => {
+	if (await sourceInUseRow(database, id)) {
+		throw new AppError(
+			"SOURCE_IN_USE",
+			"Source is referenced by transactions and cannot be deleted.",
+		);
+	}
+	await deleteSourceRow(database, id);
+};
 
 const sourceService = {
 	createSource,

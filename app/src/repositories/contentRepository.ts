@@ -3,6 +3,7 @@ import type { SQLiteDatabase } from "expo-sqlite";
 import type CardEntry from "@/types/CardEntry";
 import type Folder from "@/types/Folder";
 import type IdentityEntry from "@/types/IdentityEntry";
+import type IdRow from "@/types/IdRow";
 import type Note from "@/types/Note";
 import type PasswordEntry from "@/types/PasswordEntry";
 import type Todo from "@/types/Todo";
@@ -50,6 +51,23 @@ const deleteFolderRow = async (
 	id: string,
 ): Promise<void> => {
 	await database.runAsync("DELETE FROM folders WHERE id = ?;", id);
+};
+
+const folderInUseRow = async (
+	database: SQLiteDatabase,
+	id: string,
+): Promise<boolean> => {
+	const row = await database.getFirstAsync<IdRow>(
+		`
+			SELECT id FROM notes WHERE folder_id = ?
+			UNION
+			SELECT id FROM todos WHERE folder_id = ?
+			LIMIT 1;
+		`,
+		id,
+		id,
+	);
+	return row !== null;
 };
 
 const getNoteRows = async (
@@ -479,6 +497,7 @@ const deleteContentRow = async (
 const contentRepository = {
 	deleteContentRow,
 	deleteFolderRow,
+	folderInUseRow,
 	getCardRow,
 	getCardRows,
 	getFolderRows,

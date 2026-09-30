@@ -6,8 +6,13 @@ import createId from "@/utils/id";
 import moneyUtils from "@/utils/money";
 import type { SQLiteDatabase } from "expo-sqlite";
 
-const { deleteBudgetRow, getBudgetRow, getBudgetRows, upsertBudgetRow } =
-	financeRepository;
+const {
+	budgetExistsRow,
+	deleteBudgetRow,
+	getBudgetRow,
+	getBudgetRows,
+	upsertBudgetRow,
+} = financeRepository;
 const { normalizeMoney } = moneyUtils;
 
 const getBudgets = async (
@@ -28,6 +33,12 @@ const saveBudget = async (
 ): Promise<string> => {
 	if (!categoryId) {
 		throw new AppError("BUDGET_CATEGORY_REQUIRED", "Select a category.");
+	}
+	if (await budgetExistsRow(database, categoryId, period, id)) {
+		throw new AppError(
+			"BUDGET_DUPLICATE",
+			"A budget already exists for this category and period.",
+		);
 	}
 	const now = Date.now();
 	const existingBudget = id ? await getBudgetRow(database, id) : null;

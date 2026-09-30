@@ -16,6 +16,7 @@ const mocks = vi.hoisted(() => {
 		setSourceArchivedRow: vi
 			.fn<TestAsyncFunction>()
 			.mockResolvedValue(undefined),
+		sourceInUseRow: vi.fn(async () => false),
 		sourceNameExistsRow: vi.fn(async () => false),
 		updateSourceNameRow: vi
 			.fn<TestAsyncFunction>()
@@ -36,6 +37,7 @@ vi.mock("@/repositories/financeRepository", () => ({
 		getSourceRows: mocks.getSourceRows,
 		getTransactionRows: mocks.getTransactionRows,
 		setSourceArchivedRow: mocks.setSourceArchivedRow,
+		sourceInUseRow: mocks.sourceInUseRow,
 		sourceNameExistsRow: mocks.sourceNameExistsRow,
 		updateSourceNameRow: mocks.updateSourceNameRow,
 		validateSourceRow: mocks.validateSourceRow,
@@ -218,5 +220,13 @@ describe("sourceService", () => {
 	it("deletes source", async () => {
 		await sourceService.deleteSource(database, "s1");
 		expect(mocks.deleteSourceRow).toHaveBeenCalledWith(database, "s1");
+	});
+
+	it("rejects deleting a source with linked transactions", async () => {
+		mocks.sourceInUseRow.mockResolvedValueOnce(true);
+		await expect(
+			sourceService.deleteSource(database, "s1"),
+		).rejects.toMatchObject({ code: "SOURCE_IN_USE" });
+		expect(mocks.deleteSourceRow).not.toHaveBeenCalled();
 	});
 });

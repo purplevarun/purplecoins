@@ -11,6 +11,7 @@ const {
 	getTripRows,
 	setSimpleEntityArchivedRow,
 	simpleEntityNameExistsRow,
+	tripInUseRow,
 	upsertSimpleEntityRow,
 } = financeRepository;
 
@@ -76,7 +77,15 @@ const setTripArchived = async (
 const deleteTrip = async (
 	database: SQLiteDatabase,
 	id: string,
-): Promise<void> => deleteSimpleEntityRow(database, "trips", id);
+): Promise<void> => {
+	if (await tripInUseRow(database, id)) {
+		throw new AppError(
+			"TRIP_IN_USE",
+			"Trip is referenced by transactions and cannot be deleted.",
+		);
+	}
+	await deleteSimpleEntityRow(database, "trips", id);
+};
 
 const tripService = {
 	deleteTrip,

@@ -6,6 +6,7 @@ import createId from "@/utils/id";
 import type { SQLiteDatabase } from "expo-sqlite";
 
 const {
+	categoryInUseRow,
 	categoryNameExistsRow,
 	deleteCategoryRow,
 	getArchivedCategoryRows,
@@ -87,7 +88,15 @@ const setCategoryArchived = async (
 const deleteCategory = async (
 	database: SQLiteDatabase,
 	id: string,
-): Promise<void> => deleteCategoryRow(database, id);
+): Promise<void> => {
+	if (await categoryInUseRow(database, id)) {
+		throw new AppError(
+			"CATEGORY_IN_USE",
+			"Category is referenced by transactions or budgets and cannot be deleted.",
+		);
+	}
+	await deleteCategoryRow(database, id);
+};
 
 const categoryService = {
 	deleteCategory,

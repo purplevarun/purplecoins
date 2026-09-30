@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
 	deleteFolderRow: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
+	folderInUseRow: vi.fn(async () => false),
 	getFolderRows: vi.fn<TestAsyncFunction>().mockResolvedValue([]),
 	upsertFolderRow: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
 	createId: vi.fn(() => "folder-id"),
@@ -11,6 +12,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock("@/repositories/contentRepository", () => ({
 	default: {
 		deleteFolderRow: mocks.deleteFolderRow,
+		folderInUseRow: mocks.folderInUseRow,
 		getFolderRows: mocks.getFolderRows,
 		upsertFolderRow: mocks.upsertFolderRow,
 	},
@@ -69,6 +71,14 @@ describe("folderService", () => {
 	it("deletes folder", async () => {
 		await folderService.deleteFolder(database, "f1");
 		expect(mocks.deleteFolderRow).toHaveBeenCalledWith(database, "f1");
+	});
+
+	it("rejects deleting a folder that is in use", async () => {
+		mocks.folderInUseRow.mockResolvedValueOnce(true);
+		await expect(
+			folderService.deleteFolder(database, "f1"),
+		).rejects.toMatchObject({ code: "FOLDER_IN_USE" });
+		expect(mocks.deleteFolderRow).not.toHaveBeenCalled();
 	});
 
 	it("renames folder with lookup across NOTE and TODO", async () => {

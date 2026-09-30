@@ -6,6 +6,7 @@ import { describe, expect, it, vi } from "vitest";
 const {
 	deleteContentRow,
 	deleteFolderRow,
+	folderInUseRow,
 	getCardRow,
 	getCardRows,
 	getFolderRows,
@@ -396,5 +397,16 @@ describe("contentRepository", () => {
 			"DELETE FROM passwords WHERE id = ?;",
 			"p1",
 		);
+	});
+
+	it("reports folders referenced by notes or todos as in use", async () => {
+		const getFirstAsync = vi
+			.fn<TestAsyncFunction>()
+			.mockResolvedValueOnce({ id: "x" })
+			.mockResolvedValueOnce(null);
+		const database = { getFirstAsync } as any;
+
+		expect(await folderInUseRow(database, "f1")).toBe(true);
+		expect(await folderInUseRow(database, "f2")).toBe(false);
 	});
 });

@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => {
 	return {
+		categoryInUseRow: vi.fn(async () => false),
 		categoryNameExistsRow: vi.fn(async () => false),
 		deleteCategoryRow: vi
 			.fn<TestAsyncFunction>()
@@ -24,6 +25,7 @@ const mocks = vi.hoisted(() => {
 
 vi.mock("@/repositories/financeRepository", () => ({
 	default: {
+		categoryInUseRow: mocks.categoryInUseRow,
 		categoryNameExistsRow: mocks.categoryNameExistsRow,
 		deleteCategoryRow: mocks.deleteCategoryRow,
 		getArchivedCategoryRows: mocks.getArchivedCategoryRows,
@@ -206,5 +208,13 @@ describe("categoryService", () => {
 
 		await categoryService.deleteCategory(database, "c1");
 		expect(mocks.deleteCategoryRow).toHaveBeenCalledWith(database, "c1");
+	});
+
+	it("rejects deleting a category that is in use", async () => {
+		mocks.categoryInUseRow.mockResolvedValueOnce(true);
+		await expect(
+			categoryService.deleteCategory(database, "c1"),
+		).rejects.toMatchObject({ code: "CATEGORY_IN_USE" });
+		expect(mocks.deleteCategoryRow).not.toHaveBeenCalled();
 	});
 });

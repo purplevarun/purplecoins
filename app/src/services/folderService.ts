@@ -4,7 +4,8 @@ import type Folder from "@/types/Folder";
 import createId from "@/utils/id";
 import type { SQLiteDatabase } from "expo-sqlite";
 
-const { deleteFolderRow, getFolderRows, upsertFolderRow } = contentRepository;
+const { deleteFolderRow, folderInUseRow, getFolderRows, upsertFolderRow } =
+	contentRepository;
 
 const getFolders = async (
 	database: SQLiteDatabase,
@@ -35,7 +36,15 @@ const createFolder = async (
 const deleteFolder = async (
 	database: SQLiteDatabase,
 	id: string,
-): Promise<void> => deleteFolderRow(database, id);
+): Promise<void> => {
+	if (await folderInUseRow(database, id)) {
+		throw new AppError(
+			"FOLDER_IN_USE",
+			"Folder is referenced by notes or todos and cannot be deleted.",
+		);
+	}
+	await deleteFolderRow(database, id);
+};
 
 const renameFolder = async (
 	database: SQLiteDatabase,

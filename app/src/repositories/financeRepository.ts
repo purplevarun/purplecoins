@@ -230,6 +230,18 @@ const deleteSourceRow = async (
 	await database.runAsync("DELETE FROM sources WHERE id = ?;", id);
 };
 
+const sourceInUseRow = async (
+	database: SQLiteDatabase,
+	id: string,
+): Promise<boolean> => {
+	const row = await database.getFirstAsync<Pick<SimpleEntity, "id">>(
+		`SELECT id FROM transactions WHERE source_id = ? OR destination_source_id = ? LIMIT 1;`,
+		id,
+		id,
+	);
+	return row !== null;
+};
+
 const getCategoryRows = async (
 	database: SQLiteDatabase,
 	kind?: CategoryKind,
@@ -327,6 +339,26 @@ const deleteCategoryRow = async (
 	id: string,
 ): Promise<void> => {
 	await database.runAsync("DELETE FROM categories WHERE id = ?;", id);
+};
+
+const categoryInUseRow = async (
+	database: SQLiteDatabase,
+	id: string,
+): Promise<boolean> => {
+	const row = await database.getFirstAsync<Pick<SimpleEntity, "id">>(
+		`
+			SELECT id FROM transactions WHERE category_id = ?
+			UNION
+			SELECT id FROM transaction_items WHERE category_id = ?
+			UNION
+			SELECT id FROM budgets WHERE category_id = ?
+			LIMIT 1;
+		`,
+		id,
+		id,
+		id,
+	);
+	return row !== null;
 };
 
 const setCategoryArchivedRow = async (
@@ -528,6 +560,28 @@ const upsertInvestmentRow = async (
 		investment.createdAt,
 		investment.updatedAt,
 	);
+};
+
+const tripInUseRow = async (
+	database: SQLiteDatabase,
+	id: string,
+): Promise<boolean> => {
+	const row = await database.getFirstAsync<Pick<SimpleEntity, "id">>(
+		`SELECT id FROM transactions WHERE trip_id = ? LIMIT 1;`,
+		id,
+	);
+	return row !== null;
+};
+
+const investmentInUseRow = async (
+	database: SQLiteDatabase,
+	id: string,
+): Promise<boolean> => {
+	const row = await database.getFirstAsync<Pick<SimpleEntity, "id">>(
+		`SELECT id FROM transactions WHERE investment_id = ? LIMIT 1;`,
+		id,
+	);
+	return row !== null;
 };
 
 const getInvestmentTypeRows = async (
@@ -1022,6 +1076,27 @@ const getBudgetRow = async (
 		id,
 	);
 
+const budgetExistsRow = async (
+	database: SQLiteDatabase,
+	categoryId: string,
+	period: string,
+	excludeId?: string,
+): Promise<boolean> => {
+	const row = excludeId
+		? await database.getFirstAsync<Pick<SimpleEntity, "id">>(
+				`SELECT id FROM budgets WHERE category_id = ? AND period = ? AND id != ? LIMIT 1;`,
+				categoryId,
+				period,
+				excludeId,
+			)
+		: await database.getFirstAsync<Pick<SimpleEntity, "id">>(
+				`SELECT id FROM budgets WHERE category_id = ? AND period = ? LIMIT 1;`,
+				categoryId,
+				period,
+			);
+	return row !== null;
+};
+
 const upsertBudgetRow = async (
 	database: SQLiteDatabase,
 	budget: Budget,
@@ -1099,6 +1174,7 @@ const upsertExchangeRateRow = async (
 };
 
 const financeRepository = {
+	budgetExistsRow,
 	categoryNameExistsRow,
 	createSourceRow,
 	createTransactionRow,
@@ -1118,6 +1194,7 @@ const financeRepository = {
 	getCategoryAnalysisRows,
 	getCategoryRow,
 	getCategoryRows,
+	categoryInUseRow,
 	getExchangeRateRows,
 	getInvestmentAnalysisRows,
 	getInvestmentRow,
@@ -1134,11 +1211,14 @@ const financeRepository = {
 	getTripRow,
 	getTripRows,
 	getTripTotalRows,
+	tripInUseRow,
+	investmentInUseRow,
 	investmentTypeNameExistsRow,
 	setCategoryArchivedRow,
 	setSimpleEntityArchivedRow,
 	setSourceArchivedRow,
 	simpleEntityNameExistsRow,
+	sourceInUseRow,
 	sourceNameExistsRow,
 	updateSourceNameRow,
 	updateTransactionRow,

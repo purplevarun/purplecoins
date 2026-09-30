@@ -37,11 +37,15 @@ const {
 	getTripRow,
 	getTripRows,
 	getTripTotalRows,
+	budgetExistsRow,
+	categoryInUseRow,
+	investmentInUseRow,
 	investmentTypeNameExistsRow,
 	setCategoryArchivedRow,
 	setSimpleEntityArchivedRow,
 	setSourceArchivedRow,
 	simpleEntityNameExistsRow,
+	sourceInUseRow,
 	sourceNameExistsRow,
 	updateSourceNameRow,
 	updateTransactionRow,
@@ -50,6 +54,7 @@ const {
 	upsertExchangeRateRow,
 	upsertInvestmentRow,
 	upsertInvestmentTypeRow,
+	tripInUseRow,
 	upsertSimpleEntityRow,
 	validateSourceRow,
 } = financeRepository;
@@ -877,5 +882,34 @@ describe("financeRepository", () => {
 		);
 
 		expect(database.runAsync).toHaveBeenCalledTimes(3);
+	});
+
+	it("reports in-use and duplicate checks", async () => {
+		const getFirstAsync = vi
+			.fn<TestAsyncFunction>()
+			.mockResolvedValueOnce({ id: "x" })
+			.mockResolvedValueOnce(null)
+			.mockResolvedValueOnce({ id: "x" })
+			.mockResolvedValueOnce(null)
+			.mockResolvedValueOnce({ id: "x" })
+			.mockResolvedValueOnce(null)
+			.mockResolvedValueOnce({ id: "x" })
+			.mockResolvedValueOnce(null)
+			.mockResolvedValueOnce({ id: "x" })
+			.mockResolvedValueOnce(null);
+		const database = { getFirstAsync } as any;
+
+		expect(await sourceInUseRow(database, "s1")).toBe(true);
+		expect(await sourceInUseRow(database, "s2")).toBe(false);
+		expect(await categoryInUseRow(database, "c1")).toBe(true);
+		expect(await categoryInUseRow(database, "c2")).toBe(false);
+		expect(await tripInUseRow(database, "t1")).toBe(true);
+		expect(await tripInUseRow(database, "t2")).toBe(false);
+		expect(await investmentInUseRow(database, "i1")).toBe(true);
+		expect(await investmentInUseRow(database, "i2")).toBe(false);
+		expect(await budgetExistsRow(database, "c1", "MONTHLY")).toBe(true);
+		expect(await budgetExistsRow(database, "c1", "MONTHLY", "b1")).toBe(
+			false,
+		);
 	});
 });
