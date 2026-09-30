@@ -7,7 +7,7 @@ const stateSetters = vi.hoisted(() => ({
 }));
 
 const reactMocks = vi.hoisted(() => ({
-	useEffect: vi.fn((callback: () => void | (() => void)) => {
+	useEffect: vi.fn((callback: () => undefined | (() => void)) => {
 		const cleanup = callback();
 		if (typeof cleanup === "function") cleanup();
 	}),
@@ -126,13 +126,13 @@ describe("DatabaseProvider", () => {
 			.spyOn(globalThis, "clearTimeout")
 			.mockImplementation(() => undefined);
 
-		DatabaseProvider({ children: null, database: {} as any });
+		void DatabaseProvider({ children: null, database: {} as any });
 
 		expect(timeoutSpy).toHaveBeenCalledWith(expect.any(Function), 120);
 		expect(stateSetters.setShowLoader).toHaveBeenCalledWith(true);
 		expect(clearSpy).toHaveBeenCalledWith(777);
 		setupStates(0, 0, true);
-		DatabaseProvider({ children: null, database: {} as any });
+		void DatabaseProvider({ children: null, database: {} as any });
 		expect(timeoutSpy).toHaveBeenCalledWith(expect.any(Function), 0);
 		expect(stateSetters.setShowLoader).toHaveBeenCalledWith(false);
 

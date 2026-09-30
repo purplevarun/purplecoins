@@ -447,35 +447,29 @@ describe("AnalysisScreen", () => {
 
 		expect(
 			findByPredicate(tree, (node) =>
-				String(JSON.stringify(node) ?? "").includes(
+				String(JSON.stringify(node)).includes(
 					"Showing every transaction and category stored locally.",
 				),
 			),
 		).toHaveLength(0);
 		expect(
 			findByPredicate(tree, (node) =>
-				String(JSON.stringify(node) ?? "").includes(
-					"See all categories",
-				),
+				String(JSON.stringify(node)).includes("See all categories"),
 			),
 		).not.toHaveLength(0);
 		expect(
 			findByPredicate(tree, (node) =>
-				String(JSON.stringify(node) ?? "").includes(
-					"See all investments",
-				),
+				String(JSON.stringify(node)).includes("See all investments"),
 			),
 		).not.toHaveLength(0);
 		expect(
 			findByPredicate(tree, (node) =>
-				String(JSON.stringify(node) ?? "").includes(
-					"Nothing to analyse",
-				),
+				String(JSON.stringify(node)).includes("Nothing to analyse"),
 			),
 		).not.toHaveLength(0);
 		expect(
 			findByPredicate(tree, (node) =>
-				String(JSON.stringify(node) ?? "").includes("No trend data"),
+				String(JSON.stringify(node)).includes("No trend data"),
 			),
 		).not.toHaveLength(0);
 	});
@@ -497,7 +491,7 @@ describe("AnalysisScreen", () => {
 
 		expect(
 			findByPredicate(tree, (node) =>
-				String(JSON.stringify(node) ?? "").includes("Year to Date"),
+				String(JSON.stringify(node)).includes("Year to Date"),
 			),
 		).not.toHaveLength(0);
 	});

@@ -128,7 +128,7 @@ describe("AppNavigator", () => {
 		const screens = findAllByType(tree, "Screen");
 		expect(screens).toHaveLength(31);
 
-		const byName = (name: string) =>
+		const byName = (name: string): any =>
 			screens.find((screen) => screen?.props?.name === name);
 		expect(
 			byName("RelationDetails")?.props?.options({

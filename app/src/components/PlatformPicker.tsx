@@ -1,6 +1,6 @@
 import SelectField from "@/components/SelectField";
 import type PlatformPickerProps from "@/types/PlatformPickerProps";
-import React from "react";
+import type React from "react";
 import { View } from "react-native";
 
 const PlatformPicker = ({

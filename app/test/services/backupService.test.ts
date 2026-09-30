@@ -102,7 +102,7 @@ const database = {
 	),
 } as any;
 
-const validTempDatabase = () => ({
+const validTempDatabase = (): any => ({
 	closeAsync: vi.fn<TestAsyncFunction>().mockResolvedValue(undefined),
 	getAllAsync: vi
 		.fn<TestAsyncFunction>()

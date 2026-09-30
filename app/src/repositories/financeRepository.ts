@@ -1,4 +1,4 @@
-import type { SQLiteDatabase } from "expo-sqlite";
+import type { SQLiteDatabase, SQLiteRunResult } from "expo-sqlite";
 
 import type Budget from "@/types/Budget";
 import type Category from "@/types/Category";
@@ -17,6 +17,7 @@ import type TransactionDateBounds from "@/types/TransactionDateBounds";
 import type TransactionInput from "@/types/TransactionInput";
 import type TransactionItem from "@/types/TransactionItem";
 import type Trip from "@/types/Trip";
+import type TripScopedEntity from "@/types/TripScopedEntity";
 import type TripTotalRow from "@/types/TripTotalRow";
 
 const TRANSACTION_SELECT = `
@@ -575,7 +576,7 @@ const investmentTypeNameExistsRow = async (
 const upsertSimpleEntityRow = async (
 	database: SQLiteDatabase,
 	tableName: "trips" | "investments",
-	entity: SimpleEntity & { tripTypeId?: string | null },
+	entity: TripScopedEntity,
 ): Promise<void> => {
 	const updateResult = await database.runAsync(
 		`
@@ -590,7 +591,7 @@ const upsertSimpleEntityRow = async (
 		entity.updatedAt,
 		entity.id,
 	);
-	if ((updateResult as { changes?: number } | undefined)?.changes) return;
+	if ((updateResult as SQLiteRunResult | undefined)?.changes) return;
 	await database.runAsync(
 		`INSERT INTO ${tableName} (${tableName === "trips" ? "id, name, trip_type_id, created_at, updated_at" : "id, name, created_at, updated_at"})
 		 VALUES (${tableName === "trips" ? "?, ?, ?, ?, ?" : "?, ?, ?, ?"});`,

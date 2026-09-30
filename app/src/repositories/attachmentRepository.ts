@@ -1,4 +1,4 @@
-import type { SQLiteDatabase } from "expo-sqlite";
+import type { SQLiteDatabase, SQLiteRunResult } from "expo-sqlite";
 
 import type AttachmentInput from "@/types/AttachmentInput";
 import type AttachmentMetadata from "@/types/AttachmentMetadata";
@@ -85,7 +85,7 @@ const upsertAttachmentRow = async (
 		ownerType,
 		ownerId,
 	);
-	if ((updateResult as { changes?: number } | undefined)?.changes) return;
+	if ((updateResult as SQLiteRunResult | undefined)?.changes) return;
 	await database.runAsync(
 		`
 			INSERT INTO attachments (

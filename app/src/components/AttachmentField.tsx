@@ -67,7 +67,7 @@ const AttachmentField = ({
 									icon="eye-outline"
 									isCompact
 									label="View"
-									onPress={handleView}
+									onPress={() => void handleView()}
 									variant="secondary"
 								/>
 								<AppButton

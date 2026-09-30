@@ -106,7 +106,7 @@ describe("HomeScreen", () => {
 			(node) =>
 				typeof node?.props?.onPress === "function" &&
 				typeof node?.props?.accessibilityLabel === "string" &&
-				(node.props.accessibilityLabel.includes("Search") ||
+				(Boolean(node.props.accessibilityLabel.includes("Search")) ||
 					node.props.accessibilityLabel === "Settings"),
 		);
 		headerButtons.forEach((button) => button.props.onPress());

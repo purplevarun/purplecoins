@@ -310,7 +310,7 @@ describe("presentational components", () => {
 			flashListDefault.props.ItemSeparatorComponent();
 		expect(defaultSeparator).toBeTruthy();
 
-		const customSeparator = () => null;
+		const customSeparator = (): null => null;
 		const customList = ScreenList({
 			data: [],
 			renderItem: vi.fn(),

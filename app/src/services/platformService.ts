@@ -1,5 +1,6 @@
 import AppError from "@/errors/AppError";
 import platformRepository from "@/repositories/platformRepository";
+import type Platform from "@/types/Platform";
 import createId from "@/utils/id";
 import type { SQLiteDatabase } from "expo-sqlite";
 
@@ -12,8 +13,9 @@ const {
 	setPlatformArchivedRow,
 } = platformRepository;
 
-const getPlatforms = async (database: SQLiteDatabase) =>
-	getPlatformRows(database);
+const getPlatforms = async (
+	database: SQLiteDatabase,
+): Promise<readonly Platform[]> => getPlatformRows(database);
 
 const savePlatform = async (
 	database: SQLiteDatabase,

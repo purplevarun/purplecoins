@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const reactMocks = vi.hoisted(() => ({
 	useCallback: vi.fn((fn: any) => fn),
-	useEffect: vi.fn((effect: () => void | (() => void)) => {
+	useEffect: vi.fn((effect: () => undefined | (() => void)) => {
 		const cleanup = effect();
 		if (typeof cleanup === "function") cleanup();
 	}),

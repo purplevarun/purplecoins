@@ -661,7 +661,7 @@ describe("SettingsScreen", () => {
 		const tree = SettingsScreen({ navigation } as any);
 		await flush();
 
-		expect(String(JSON.stringify(tree) ?? "")).toContain("Dec");
+		expect(String(JSON.stringify(tree))).toContain("Dec");
 		const defaultTripSelect = findByPredicate(
 			tree,
 			(node) => node?.props?.label === "Default trip",
@@ -690,7 +690,7 @@ describe("SettingsScreen", () => {
 		const tree = SettingsScreen({ navigation } as any);
 		await flush();
 
-		expect(String(JSON.stringify(tree) ?? "")).toContain("Mar");
+		expect(String(JSON.stringify(tree))).toContain("Mar");
 	});
 
 	it.each([

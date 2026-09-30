@@ -43,7 +43,7 @@ const getConversionRate = (
 	if (isNativeCurrency || currencyCode === DEFAULT_CURRENCY_CODE) {
 		return "1";
 	}
-	return rateMap.get(currencyCode) || null;
+	return rateMap.get(currencyCode) ?? null;
 };
 
 const buildCategoryAnalysis = (

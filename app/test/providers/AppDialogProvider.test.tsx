@@ -64,27 +64,6 @@ const setupState = (activeDialog: any): void => {
 	]);
 };
 
-const collectNodesByType = (
-	node: any,
-	type: string,
-	acc: any[] = [],
-): any[] => {
-	if (!node) return acc;
-	if (Array.isArray(node)) {
-		node.forEach((child) => collectNodesByType(child, type, acc));
-		return acc;
-	}
-	if (node.type === type) {
-		acc.push(node);
-	}
-	if (node.props) {
-		Object.values(node.props).forEach((value) =>
-			collectNodesByType(value, type, acc),
-		);
-	}
-	return acc;
-};
-
 const collectNodesByPredicate = (
 	node: any,
 	predicate: (candidate: any) => boolean,

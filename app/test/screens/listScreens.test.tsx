@@ -2201,9 +2201,7 @@ describe("list screens", () => {
 			(row: any) => row.type === "header",
 		);
 		const rendered = screenList.props.renderItem({ item: headerRow });
-		expect(String(JSON.stringify(rendered) ?? "")).toContain(
-			"SOURCE TITLE",
-		);
+		expect(String(JSON.stringify(rendered))).toContain("SOURCE TITLE");
 	});
 
 	it("covers ArchivedRelationsScreen load-error catch path", async () => {
@@ -2624,9 +2622,7 @@ describe("list screens", () => {
 			},
 		});
 
-		expect(String(JSON.stringify(renderedItem) ?? "")).toContain(
-			"Calendar year",
-		);
+		expect(String(JSON.stringify(renderedItem))).toContain("Calendar year");
 		expect(
 			findByPredicate(
 				renderedItem,
@@ -2859,9 +2855,7 @@ describe("list screens", () => {
 		const renderedItem = screenList.props.renderItem({
 			item: screenList.props.data[0],
 		});
-		expect(String(JSON.stringify(renderedItem) ?? "")).toContain(
-			"Empty note",
-		);
+		expect(String(JSON.stringify(renderedItem))).toContain("Empty note");
 		findByPredicate(
 			renderedItem,
 			(node) => typeof node?.props?.onPress === "function",

@@ -1,3 +1,4 @@
+import type IdRow from "@/types/IdRow";
 import type TripType from "@/types/TripType";
 import type { SQLiteDatabase } from "expo-sqlite";
 
@@ -19,7 +20,7 @@ const tripTypeInUseRow = async (
 	database: SQLiteDatabase,
 	id: string,
 ): Promise<boolean> => {
-	const row = await database.getFirstAsync<{ id: string }>(
+	const row = await database.getFirstAsync<IdRow>(
 		`SELECT id FROM trips WHERE trip_type_id = ? LIMIT 1;`,
 		id,
 	);

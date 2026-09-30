@@ -82,11 +82,6 @@ import AnalysisDetailsScreen, {
 	resolveDetailsView,
 } from "@/screens/AnalysisDetailsScreen";
 
-const flush = async (): Promise<void> => {
-	await Promise.resolve();
-	await Promise.resolve();
-};
-
 const findByPredicate = (
 	node: any,
 	predicate: (candidate: any) => boolean,

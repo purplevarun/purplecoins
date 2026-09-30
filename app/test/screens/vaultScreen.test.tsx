@@ -790,7 +790,7 @@ describe("VaultScreen", () => {
 				},
 			},
 		});
-		expect(String(JSON.stringify(cardRow) ?? "")).not.toContain(
+		expect(String(JSON.stringify(cardRow))).not.toContain(
 			'"name":"attach"',
 		);
 
@@ -814,7 +814,7 @@ describe("VaultScreen", () => {
 				},
 			},
 		});
-		expect(String(JSON.stringify(identityRow) ?? "")).toContain(
+		expect(String(JSON.stringify(identityRow))).toContain(
 			'"name":"attach"',
 		);
 	});

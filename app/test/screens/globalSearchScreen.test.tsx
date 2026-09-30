@@ -181,7 +181,7 @@ describe("GlobalSearchScreen", () => {
 
 		Object.values(serviceMocks).forEach((mockFn) => mockFn.mockReset());
 		serviceMocks.getTransactionDisplayReason.mockImplementation(
-			(transaction: any) => transaction.reason || "Reason",
+			(transaction: any) => transaction.reason ?? "Reason",
 		);
 
 		serviceMocks.getNotes.mockResolvedValue([
@@ -687,7 +687,7 @@ describe("GlobalSearchScreen", () => {
 			kind: "PASSWORD",
 			entryId: "custom-1",
 		});
-		expect(String(JSON.stringify(row) ?? "")).toContain("No details");
+		expect(String(JSON.stringify(row))).toContain("No details");
 	});
 
 	it("covers filtering when searchExtra is undefined", async () => {

@@ -117,7 +117,7 @@ describe("form components", () => {
 				.mockReturnValueOnce([saving, vi.fn()])
 				.mockReturnValueOnce(["", vi.fn()]);
 			const onSave = vi.fn().mockResolvedValue(undefined);
-			await findElement<AppButtonProps>(
+			findElement<AppButtonProps>(
 				SimpleEntityForm({ onSave }),
 				(props) => props.label === "Save",
 			).props.onPress();
@@ -162,10 +162,12 @@ describe("form components", () => {
 				(props) => props.message === "Save failed",
 			).props.tone,
 		).toBe("danger");
-		await findElement<AppButtonProps>(
+		findElement<AppButtonProps>(
 			tree,
 			(props) => props.label === "Save",
 		).props.onPress();
+		await Promise.resolve();
+		await Promise.resolve();
 		expect(onSave).toHaveBeenCalledWith("Broker");
 		expect(setError).toHaveBeenLastCalledWith("Save failed");
 		expect(setSaving).toHaveBeenLastCalledWith(false);

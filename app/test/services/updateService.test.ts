@@ -60,13 +60,13 @@ import updateService from "@/services/updateService";
 import appConfig from "../../app.json";
 
 const { GITHUB_RELEASE_API_URL } = updateConstants;
-const apk = (name = "com.purple.coins_2026.9.22.apk") => ({
+const apk = (name = "com.purple.coins_2026.9.22.apk"): any => ({
 	name,
 	state: "uploaded",
 	size: 123,
 	browser_download_url: `https://github.com/purplevarun/coins/releases/download/v2026.9.22/${name}`,
 });
-const release = (overrides: Record<string, unknown> = {}) => ({
+const release = (overrides: Record<string, unknown> = {}): any => ({
 	name: "v2026.9.22",
 	tag_name: "v2026.9.22",
 	draft: false,

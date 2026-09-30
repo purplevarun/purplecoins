@@ -1,5 +1,6 @@
 import AppError from "@/errors/AppError";
 import financeRepository from "@/repositories/financeRepository";
+import type IdRow from "@/types/IdRow";
 import type InvestmentType from "@/types/InvestmentType";
 import createId from "@/utils/id";
 import type { SQLiteDatabase } from "expo-sqlite";
@@ -46,7 +47,7 @@ const deleteInvestmentType = async (
 	database: SQLiteDatabase,
 	id: string,
 ): Promise<void> => {
-	const row = await database.getFirstAsync<{ id: string }>(
+	const row = await database.getFirstAsync<IdRow>(
 		`SELECT id FROM investments WHERE investment_type_id = ? LIMIT 1;`,
 		id,
 	);

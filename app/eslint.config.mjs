@@ -64,16 +64,23 @@ const eslintConfig = tseslint.config(
 		},
 	},
 	{
-		files: ["**/*.test.ts"],
+		files: ["**/*.test.{ts,tsx,mts}"],
 		rules: {
+			"@typescript-eslint/consistent-type-imports": "off",
+			"@typescript-eslint/no-empty-function": "off",
+			"@typescript-eslint/no-explicit-any": "off",
+			"@typescript-eslint/no-unsafe-argument": "off",
 			"@typescript-eslint/no-unsafe-assignment": "off",
 			"@typescript-eslint/no-unsafe-call": "off",
 			"@typescript-eslint/no-unsafe-member-access": "off",
+			"@typescript-eslint/no-unsafe-return": "off",
+			"@typescript-eslint/no-useless-constructor": "off",
+			"@typescript-eslint/require-await": "off",
 		},
 	},
 	{
 		files: ["**/*.{ts,tsx,mts}"],
-		ignores: ["**/types/**", "**/*.d.ts"],
+		ignores: ["**/types/**", "**/*.d.ts", "**/*.test.{ts,tsx,mts}"],
 		rules: {
 			"no-restricted-syntax": [
 				"error",
